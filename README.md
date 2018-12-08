@@ -56,7 +56,7 @@ All queries to DB executes with QueryExecutor function. This package has predefi
 const QueryExecutor = ({ type, collection, doc, selector, options })=>Promise
 ```
 
-## Roadmap (before end of 2018)
+## Roadmap (until the end of 2018)
 * Add cascade insert (Allows to insert records in multiple collections within one mutation)
 * Improve Geo Queries Support
 * Rename directives to match Prisma
