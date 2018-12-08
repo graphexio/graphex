@@ -1,0 +1,46 @@
+{
+  "name": "apollo-model-mongodb",
+  "version": "0.1.2",
+  "description": "",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "babel src -d lib",
+    "babel": "npx onchange 'src/*' -- babel src -d lib",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vitramir/apollo-model-mongodb.git"
+  },
+  "keywords": [
+    "apollo",
+    "mongodb",
+    "sdl",
+    "model",
+    "autogenerate"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vitramir/apollo-model-mongodb/issues"
+  },
+  "homepage": "https://github.com/vitramir/apollo-model-mongodb",
+  "peerDependencies": {
+    "graphql": "^14.0.2",
+    "graphql-tools": "^4.0.3"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.2.0",
+    "graphql-resolvers": "^0.2.2",
+    "graphql-tag": "^2.10.0",
+    "graphql-tools": "^4.0.3",
+    "lodash": "^4.17.11",
+    "pluralize": "^7.0.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.1.2",
+    "@babel/core": "^7.1.2",
+    "@babel/plugin-transform-runtime": "^7.2.0",
+    "@babel/preset-env": "^7.1.0"
+  }
+}

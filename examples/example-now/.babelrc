@@ -1,0 +1,12 @@
+//prettier-ignore
+{
+  "presets": ["@babel/preset-env"],
+  "plugins": [
+    ["import-graphql"],[
+      "@babel/transform-runtime",
+      {
+        "regenerator": true
+      }
+    ]
+  ]
+}

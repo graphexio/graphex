@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "name": "apollo-model-mongodb-example",
+  "alias": "apollo-model-mongodb-example.now.sh",
+  "regions": ["sfo1"],
+  "builds": [
+    {
+      "src": "index.js",
+      "use": "@now/node-server"
+    }
+  ]
+}

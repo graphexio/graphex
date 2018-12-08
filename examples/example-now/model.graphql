@@ -1,0 +1,21 @@
+type Description {
+  full: String
+  short: String
+}
+
+type Category @model {
+  id: ObjectID! @unique @renameDB(name: "_id")
+  title: String!
+  items: [Item] @relation(externalField: "categoryId")
+}
+
+type Item @model {
+  id: ObjectID! @unique @renameDB(name: "_id")
+  title: String!
+  color: String
+  description: Description
+  category: Category! @relation
+}
+
+type Query
+type Mutation
