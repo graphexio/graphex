@@ -55,11 +55,14 @@ export {
   combineResolvers,
 } from './utils';
 
-import Relation, { RelationScheme } from './relation';
-import RenameDB, { RenameDBScheme, RenameDBResolver } from './renameDB';
-import Model, { ModelScheme } from './model';
-import ReadOnly, { ReadOnlyScheme } from './readOnly';
-import Unique, { UniqueScheme } from './unique';
+import Relation, { RelationScheme } from './directives/relation';
+import DirectiveDB, {
+  DirectiveDBScheme,
+  DirectiveDBResolver,
+} from './directives/db';
+import Model, { ModelScheme } from './directives/model';
+import ReadOnly, { ReadOnlyScheme } from './directives/readOnly';
+import Unique, { UniqueScheme } from './directives/unique';
 import GeoJSON, { typeDef as GeoJSONScheme } from './geoJSON';
 import Scalars, { typeDefs as ScalarsSchemes } from './scalars';
 
@@ -101,7 +104,7 @@ export default (params, { queryExecutor }) => {
   typeDefs = [
     ReadOnlyScheme,
     ModelScheme,
-    RenameDBScheme,
+    DirectiveDBScheme,
     RelationScheme,
     UniqueScheme,
     GeoJSONScheme,
@@ -112,7 +115,7 @@ export default (params, { queryExecutor }) => {
   schemaDirectives = {
     ...schemaDirectives,
     relation: Relation(queryExecutor),
-    renameDB: RenameDB,
+    db: DirectiveDB,
     model: Model,
     readOnly: ReadOnly,
     unique: Unique,
@@ -120,7 +123,7 @@ export default (params, { queryExecutor }) => {
 
   directiveResolvers = {
     ...directiveResolvers,
-    renameDB: RenameDBResolver,
+    db: DirectiveDBResolver,
   };
 
   resolvers = {

@@ -4,13 +4,13 @@ type Description {
 }
 
 type Category @model {
-  id: ObjectID! @unique @renameDB(name: "_id")
+  id: ObjectID! @unique @db(name: "_id")
   title: String!
   items: [Item] @relation(externalField: "categoryId")
 }
 
 type Item @model {
-  id: ObjectID! @unique @renameDB(name: "_id")
+  id: ObjectID! @unique @db(name: "_id")
   title: String!
   color: String
   description: Description

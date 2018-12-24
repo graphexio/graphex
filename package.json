@@ -6,7 +6,7 @@
   "scripts": {
     "build": "babel src -d lib",
     "babel": "npx onchange 'src/*' -- babel src -d lib",
-    "watch-dev-server": "nodemon --exec 'babel src -d examples/dev-server/node_modules/apollo-model-mongodb/lib && cd examples/dev-server && MONGO_URL='mongodb+srv://public:public@cluster0-c6p6b.mongodb.net/admin' MONGO_DB='db1' npx babel-node index.js'",
+    "watch-dev-server": "nodemon --exec 'babel src -d examples/dev-server/node_modules/apollo-model-mongodb/lib && cd examples/dev-server && rm -rf node_modules/.cache/\\@babel/ && MONGO_URL='mongodb+srv://public:public@cluster0-c6p6b.mongodb.net/admin' MONGO_DB='db1' npx babel-node index.js'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
