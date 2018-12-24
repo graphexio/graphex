@@ -18,7 +18,7 @@ import {
   allQueryArgs,
   GraphQLTypeFromString,
   combineResolvers,
-} from './utils';
+} from '../utils';
 
 export const RelationScheme = `directive @relation(field:String="_id", externalField:String, fieldType:String="ObjectID" ) on FIELD_DEFINITION`;
 
