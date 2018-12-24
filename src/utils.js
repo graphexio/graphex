@@ -182,6 +182,16 @@ export function combineResolvers(...args) {
   return CombineResolvers(...args);
 }
 
+export function getInputTypeName(TypeName, inputType) {
+  switch (inputType) {
+    case 'where':
+      return `${TypeName}WhereInput`;
+    case 'orderBy':
+      return `${TypeName}OrderByInput`;
+  }
+  return `${TypeName}Input`;
+}
+
 // export function isGraphQLScalarType(type) {
 //   return [
 //     GraphQLID,

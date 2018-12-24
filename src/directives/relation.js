@@ -18,6 +18,7 @@ import {
   allQueryArgs,
   GraphQLTypeFromString,
   combineResolvers,
+  getInputTypeName,
 } from '../utils';
 
 export const RelationScheme = `directive @relation(field:String="_id", externalField:String, fieldType:String="ObjectID" ) on FIELD_DEFINITION`;
@@ -39,7 +40,10 @@ export default queryExecutor =>
 
       ///////map filter to selector
       const { resolveMapFilterToSelector } = field;
-      let filterType = getInputType(`${lastType}Filter`, SchemaTypes);
+      let filterType = getInputType(
+        getInputTypeName(lastType, 'where'),
+        SchemaTypes
+      );
       field.resolveMapFilterToSelector = async params => {
         if (resolveMapFilterToSelector) {
           params = await resolveMapFilterToSelector.apply(this, params);
@@ -91,8 +95,14 @@ export default queryExecutor =>
       }
 
       if (isMany) {
-        let filterType = getInputType(`${collection}Filter`, SchemaTypes);
-        let orderByType = getInputType(`${collection}OrderBy`, SchemaTypes);
+        let filterType = getInputType(
+          getInputTypeName(collection, 'where'),
+          SchemaTypes
+        );
+        let orderByType = getInputType(
+          getInputTypeName(collection, 'orderBy'),
+          SchemaTypes
+        );
         field.args = allQueryArgs({
           filterType,
           orderByType,

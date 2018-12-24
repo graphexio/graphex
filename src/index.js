@@ -32,6 +32,7 @@ import {
   hasQLNonNullType,
   cloneSchema,
   combineResolvers,
+  getInputTypeName,
 } from './utils';
 
 export {
@@ -148,7 +149,7 @@ export default (params, { queryExecutor }) => {
   _.keys(SchemaTypes).forEach(key => {
     let modelType = SchemaTypes[key];
     if (getDirective(modelType, 'model')) {
-      let filterType = createFilterType(modelType, SchemaTypes);
+      let filterType = createWhereInputType(modelType, SchemaTypes);
       let orderByType = createOrderByType(modelType, SchemaTypes);
       createAllQuery(modelType, Query, {
         filterType,
@@ -166,9 +167,9 @@ export default (params, { queryExecutor }) => {
     }
   });
 
-  function createFilterType(modelType, SchemaTypes) {
+  function createWhereInputType(modelType, SchemaTypes) {
     let delayedCreateTypes = [];
-    const name = `${modelType.name}Filter`;
+    const name = getInputTypeName(modelType.name, 'where');
     if (SchemaTypes[name] && _.keys(SchemaTypes[name]._fields).length > 0) {
       return SchemaTypes[name];
     }
@@ -196,7 +197,7 @@ export default (params, { queryExecutor }) => {
           type: filterType,
         };
       } else if (type instanceof GraphQLObjectType) {
-        let filterType = getInputType(`${type.name}Filter`, SchemaTypes);
+        let filterType = getInputType(name, SchemaTypes);
         delayedCreateTypes.push(type);
         field = {
           ...field,
@@ -279,7 +280,7 @@ export default (params, { queryExecutor }) => {
     filterType._fields = fields;
     SchemaTypes[name] = filterType;
     delayedCreateTypes.forEach(type => {
-      createFilterType(type, SchemaTypes);
+      createWhereInputType(type, SchemaTypes);
     });
     return filterType;
   }
@@ -301,7 +302,7 @@ export default (params, { queryExecutor }) => {
   }
 
   function createOrderByType(modelType, SchemaTypes) {
-    const name = `${modelType.name}OrderBy`;
+    const name = getInputTypeName(modelType.name, 'orderBy');
     let values = {};
     let i = 0;
     _.keys(modelType._fields).forEach(key => {
