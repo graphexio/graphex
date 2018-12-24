@@ -365,7 +365,7 @@ export default (params, { queryExecutor }) => {
   }
 
   function createAllQuery(modelType, Query, { filterType, orderByType }) {
-    const name = `all${pluralize(modelType.name)}`;
+    const name = pluralize(modelType.name).toLowerCase();
     Query._fields[name] = {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(modelType))),
       description: undefined,
@@ -390,7 +390,7 @@ export default (params, { queryExecutor }) => {
     Query,
     { filterType, orderByType, _QueryMeta }
   ) {
-    const name = `_all${pluralize(modelType.name)}Meta`;
+    const name = `_${pluralize(modelType.name).toLowerCase()}Meta`;
     Query._fields[name] = {
       type: _QueryMeta,
       description: undefined,
@@ -430,11 +430,12 @@ export default (params, { queryExecutor }) => {
         //   defaultValue: undefined
         //
         // };
+
         argsObj[field.name] = newArg;
         return newArg;
       });
 
-      const name = modelType.name;
+      const name = modelType.name.toLowerCase();
       Query._fields[name] = {
         type: modelType,
         description: undefined,
