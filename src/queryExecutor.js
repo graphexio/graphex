@@ -5,6 +5,9 @@ export default db => async params => {
   // console.dir({ type, collection, selector, options }, { depth: null });
   let { skip, limit, sort } = options;
 
+  console.log({ type, collection });
+  console.dir(selector, { depth: null });
+
   let collectionName = pluralize(collection.toLowerCase());
   let Collection = db.collection(collectionName);
 

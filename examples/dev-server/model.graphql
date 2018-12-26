@@ -6,7 +6,8 @@ type Description {
 type Category @model {
   id: ObjectID! @unique @db(name: "_id")
   title: String!
-  items: [Item] @relation(externalField: "categoryId")
+  tags: [String!]!
+  items: [Item] @extRelation
 }
 
 type Item @model {
@@ -15,6 +16,16 @@ type Item @model {
   color: String
   description: Description
   category: Category! @relation
+  labels: [Label!]! @relation
+}
+
+type Label @model {
+  id: ObjectID! @unique @db(name: "_id")
+  title: String!
+}
+
+type qwerty @model {
+  id: ObjectID!
 }
 
 type Query

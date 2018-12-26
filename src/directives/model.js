@@ -17,16 +17,16 @@ export default class Model extends SchemaDirectiveVisitor {
     const { primaryKey } = this.args;
     object._fields[primaryKey].primaryKey = true;
 
-    ['createdAt', 'updatedAt'].forEach(field => {
-      object._fields[field] = {
-        name: field,
-        type: GraphQLInt,
-        args: [],
-        isDeprecated: false,
-        resolve: defaultFieldResolver,
-        skipCreate: true,
-      };
-    });
+    // ['createdAt', 'updatedAt'].forEach(field => {
+    //   object._fields[field] = {
+    //     name: field,
+    //     type: GraphQLInt,
+    //     args: [],
+    //     isDeprecated: false,
+    //     resolve: defaultFieldResolver,
+    //     skipCreate: true,
+    //   };
+    // });
   }
   exitObject(object) {
     // console.log('exit', object);

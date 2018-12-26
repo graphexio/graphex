@@ -182,15 +182,19 @@ export function combineResolvers(...args) {
   return CombineResolvers(...args);
 }
 
-export function getInputTypeName(TypeName, inputType) {
-  switch (inputType) {
-    case 'where':
-      return `${TypeName}WhereInput`;
-    case 'orderBy':
-      return `${TypeName}OrderByInput`;
-  }
-  return `${TypeName}Input`;
-}
+// export function getInputTypeName(TypeName, inputType) {
+//   return `${TypeName}${inputType.charAt(0).toUpperCase() +
+//     inputType.slice(1)}Input`;
+//   // switch (inputType) {
+//   //   case 'where':
+//   //
+//   //   case 'create':
+//   //     return `${TypeName}CreateInput`;
+//   //   case 'orderBy':
+//   //     return `${TypeName}OrderByInput`;
+//   // }
+//   // return `${TypeName}Input`;
+// }
 
 // export function isGraphQLScalarType(type) {
 //   return [
@@ -201,3 +205,85 @@ export function getInputTypeName(TypeName, inputType) {
 //     GraphQLBoolean,
 //   ].includes(type);
 // }
+
+export function addResolveMapFilterToSelector(field, defaultName, modifier) {
+  const { resolveMapFilterToSelector } = field;
+  field.resolveMapFilterToSelector = async function(params) {
+    if (resolveMapFilterToSelector) {
+      params = await resolveMapFilterToSelector(params);
+    }
+    return params.map(({ fieldName = defaultName, value }) => {
+      return {
+        fieldName,
+        value: mapModifier(modifier, value),
+      };
+    });
+  };
+  return field;
+}
+
+function mapModifier(modifier, value) {
+  switch (modifier) {
+    case '':
+      return value;
+    case 'not':
+      return { $not: { $eq: value } };
+    case 'lt':
+    case 'lte':
+    case 'gt':
+    case 'gte':
+      return { [`$${modifier}`]: value };
+    case 'in':
+    case 'some':
+      return { $in: value };
+    case 'every':
+      return { $all: value };
+    case 'none':
+    case 'not_in':
+      return { $nin: value };
+    case 'contains':
+      return { $regex: `.*${value}.*` };
+    case 'contains':
+      return { $regex: `.*${value}.*` };
+      break;
+    case 'not_contains':
+      return { $not: { $regex: `.*${value}.*` } };
+    case 'starts_with':
+      return { $regex: `.*${value}` };
+    case 'not_starts_with':
+      return { $not: { $regex: `.*${value}` } };
+    case 'ends_with':
+      return { $regex: `${value}.*` };
+    case 'not_ends_with':
+      return { $not: { $regex: `${value}.*` } };
+    case 'exists':
+      return { $exists: value };
+    case 'near':
+      return {
+        $near: {
+          $geometry: value.geometry,
+          $minDistance: value.minDistance,
+          $maxDistance: value.maxDistance,
+        },
+      };
+    default:
+      return {};
+  }
+}
+
+export async function applyInputTransform(params, type) {
+  let fields = type._fields;
+  let result = {};
+  await asyncForEach(_.keys(params), async key => {
+    let field = fields[key];
+    if (field && field.mmTransform) {
+      result = {
+        ...result,
+        ...(await field.mmTransform({
+          [key]: params[key],
+        })),
+      };
+    }
+  });
+  return result;
+}

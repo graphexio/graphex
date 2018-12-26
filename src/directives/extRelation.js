@@ -24,10 +24,10 @@ import {
 
 import InputTypes from '../inputTypes';
 
-export const RelationScheme = `directive @relation(field:String="_id", fieldType:String="ObjectID" ) on FIELD_DEFINITION`;
+export const ExtRelationScheme = `directive @extRelation(field:String="_id", fieldType:String="ObjectID" ) on FIELD_DEFINITION`;
 
 export default queryExecutor =>
-  class RelationDirective extends SchemaDirectiveVisitor {
+  class ExtRelationDirective extends SchemaDirectiveVisitor {
     visitFieldDefinition(field, { objectType }) {
       const { _typeMap: SchemaTypes } = this.schema;
       const { field: relationField } = this.args;
@@ -37,61 +37,21 @@ export default queryExecutor =>
       this.mmLastType = getLastType(field.type);
       this.mmIsMany = hasQLListType(field.type);
       this.mmStoreField = getRelationFieldName(
-        this.mmLastType.name,
+        this.mmObjectType.name,
         relationField,
-        this.mmIsMany
+        false
       );
 
       if (!field.mmTransformToInput) field.mmTransformToInput = {};
       field.mmTransformToInput.orderBy = field => [];
       field.mmTransformToInput.create = field => {};
-      field.mmTransformToInput.where = this._transformToInputWhere;
+      field.mmTransformToInput.where = field => {};
       field.mmOnSchemaInit = this._onSchemaInit;
 
       field.resolve = this.mmIsMany
         ? this._resolveMany(field)
         : this._resolveSingle(field);
     }
-
-    _mmTransformToInputWhere = async field => {
-      const { field: relationField } = this.args;
-      let {
-        mmLastType: lastType,
-        mmIsMany: isMany,
-        mmStoreField: storeField,
-      } = this;
-
-      let collection = lastType.name;
-      let inputType = this.mmInputTypes.get(lastType, 'where');
-      let modifiers = isMany ? ['some', 'none'] : [''];
-      let fields = {};
-      modifiers.forEach(modifier => {
-        let fieldName = field.name;
-        if (modifier != '') {
-          fieldName = `${field.name}_${modifier}`;
-        }
-        fields[fieldName] = {
-          name: fieldName,
-          type: inputType,
-          mmTransform: async params => {
-            params = params[field.name];
-            let value = await queryExecutor({
-              type: DISTINCT,
-              collection,
-              selector: await applyInputTransform(params, inputType),
-              options: {
-                key: relationField,
-              },
-            });
-            // if (!isMany) {
-            value = { $in: value };
-            // }
-            return { [storeField]: value };
-          },
-        };
-      });
-      return fields;
-    };
 
     _onSchemaInit = field => {
       let { mmLastType: lastType, mmIsMany: isMany } = this;
@@ -141,14 +101,20 @@ export default queryExecutor =>
 
       let whereType = this.mmInputTypes.get(lastType, 'where');
 
-      let value = parent[storeField];
+      let value = parent[relationField];
       if (_.isArray(value)) {
         value = { $in: value };
       }
       let selector = {
         ...(await applyInputTransform(args.where, whereType)),
-        [relationField]: value,
+        [storeField]: value,
       };
+      console.log({
+        selector,
+        args: args.where,
+        whereType,
+        transform: await applyInputTransform(args.where, whereType),
+      });
       return queryExecutor({
         type: FIND,
         collection: lastType.name,
@@ -182,13 +148,13 @@ export default queryExecutor =>
         }),
         type: SchemaTypes._QueryMeta,
         resolve: async (parent, args, context, info) => {
-          let value = parent[storeField];
+          let value = parent[relationField];
           if (_.isArray(value)) {
             value = { $in: value };
           }
           let selector = {
             ...(await applyInputTransform(args.where, whereType)),
-            [relationField]: value,
+            [storeField]: value,
           };
           return {
             count: queryExecutor({

@@ -15,7 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "@babel/runtime": "^7.2.0",
-    "apollo-model-mongodb": "^0.1.2",
+    "apollo-model-mongodb": "^0.2.0",
     "apollo-server": "^2.2.6",
     "graphql": "^14.0.2",
     "mongodb": "^3.1.10"
