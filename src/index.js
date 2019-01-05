@@ -11,17 +11,20 @@ import {
 } from 'graphql';
 import _ from 'lodash';
 import pluralize from 'pluralize';
-export { default as QueryExecutor } from './queryExecutor.js';
 
+export { default as QueryExecutor } from './queryExecutor';
 import {
   FIND,
   FIND_ONE,
   DISTINCT,
   COUNT,
-  INSERT,
-  REMOVE,
-  UPDATE,
-  getInputType,
+  INSERT_ONE,
+  DELETE_ONE,
+  UPDATE_ONE,
+  UPDATE_MANY,
+} from './queryExecutor';
+
+import {
   getLastType,
   getDirective,
   getDirectiveArg,
@@ -32,20 +35,10 @@ import {
   hasQLNonNullType,
   cloneSchema,
   combineResolvers,
-  getInputTypeName,
   addResolveMapFilterToSelector,
-  applyInputTransform,
 } from './utils';
 
 export {
-  FIND,
-  FIND_ONE,
-  DISTINCT,
-  COUNT,
-  INSERT,
-  REMOVE,
-  UPDATE,
-  getInputType,
   getLastType,
   getDirective,
   getDirectiveArg,
@@ -67,10 +60,18 @@ import DirectiveDB, {
 import Model, { ModelScheme } from './directives/model';
 import ReadOnly, { ReadOnlyScheme } from './directives/readOnly';
 import Unique, { UniqueScheme } from './directives/unique';
+import ID, { IDScheme } from './directives/id';
 import GeoJSON, { typeDef as GeoJSONScheme } from './geoJSON';
 import Scalars, { typeDefs as ScalarsSchemes } from './scalars';
 
-import InputTypes from './inputTypes';
+import InputTypes, {
+  INPUT_CREATE,
+  INPUT_WHERE,
+  INPUT_WHERE_UNIQUE,
+  INPUT_ORDER_BY,
+  INPUT_UPDATE,
+  applyInputTransform,
+} from './inputTypes';
 
 const relationFieldDefault = '_id';
 
@@ -83,12 +84,15 @@ export default class ModelMongo {
     return this.InputTypes.get(type, target);
   };
 
-  _createAllQuery = (modelType, Query, { filterType, orderByType }) => {
+  _createAllQuery = modelType => {
+    let whereType = this._inputType(modelType, INPUT_WHERE);
+    let orderByType = this._inputType(modelType, INPUT_ORDER_BY);
+
     const name = pluralize(modelType.name).toLowerCase();
-    Query._fields[name] = {
+    this.Query._fields[name] = {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(modelType))),
       description: undefined,
-      args: allQueryArgs({ filterType, orderByType }),
+      args: allQueryArgs({ whereType, orderByType }),
       deprecationReason: undefined,
       isDeprecated: false,
       name,
@@ -96,7 +100,7 @@ export default class ModelMongo {
         return this.QueryExecutor({
           type: FIND,
           collection: modelType.name,
-          selector: await applyInputTransform(args.where, filterType),
+          selector: await applyInputTransform(args.where, whereType),
           options: { skip: args.skip, limit: args.first, sort: args.orderBy },
           context,
         });
@@ -104,16 +108,15 @@ export default class ModelMongo {
     };
   };
 
-  _createMetaQuery = (
-    modelType,
-    Query,
-    { filterType, orderByType, _QueryMeta }
-  ) => {
+  _createMetaQuery = modelType => {
+    let whereType = this._inputType(modelType, INPUT_WHERE);
+    let orderByType = this._inputType(modelType, INPUT_ORDER_BY);
+
     const name = `_${pluralize(modelType.name).toLowerCase()}Meta`;
-    Query._fields[name] = {
-      type: _QueryMeta,
+    this.Query._fields[name] = {
+      type: this.SchemaTypes._QueryMeta,
       description: undefined,
-      args: allQueryArgs({ filterType, orderByType }),
+      args: allQueryArgs({ whereType, orderByType }),
       deprecationReason: undefined,
       isDeprecated: false,
       name,
@@ -122,10 +125,7 @@ export default class ModelMongo {
           count: this.QueryExecutor({
             type: COUNT,
             collection: modelType.name,
-            selector: await mapFiltersToSelector(
-              args.where,
-              filterType._fields
-            ),
+            selector: applyInputTransform(args.where, whereType),
             options: { skip: args.skip, limit: args.first },
             context,
           }),
@@ -135,110 +135,59 @@ export default class ModelMongo {
   };
 
   _createSingleQuery = (modelType, Query) => {
-    let uniqueFields = _.values(modelType._fields).filter(field =>
-      getDirective(field, 'unique')
-    );
-    if (uniqueFields.length > 0) {
-      let argsObj = {};
-      let argsArr = uniqueFields.map(field => {
-        let newArg = _.omit(field, 'resolve');
-        // {
-        //   name: field.name,
-        //   description: null,
-        //   type: field.type,
-        //   defaultValue: undefined
-        //
-        // };
-
-        argsObj[field.name] = newArg;
-        return newArg;
-      });
-
-      const name = modelType.name.toLowerCase();
-      Query._fields[name] = {
-        type: modelType,
-        description: undefined,
-        args: argsArr,
-        deprecationReason: undefined,
-        isDeprecated: false,
-        name,
-        resolve: async (parent, args, context, info) => {
-          return this.QueryExecutor({
-            type: FIND_ONE,
-            collection: modelType.name,
-            selector: await mapFiltersToSelector(args, argsObj),
-            options: {},
-            context,
-          });
-        },
-      };
-    }
-  };
-
-  // _createInputType = (type, SchemaTypes) => {
-  //   let delayedCreateTypes = [];
-  //
-  //   let name = `${type.name}Input`;
-  //   if (SchemaTypes[name] && !_.isEmpty(_.keys(SchemaTypes[name]._fields)))
-  //     return SchemaTypes[name];
-  //
-  //   let inputType = getInputType(`${type.name}Input`, SchemaTypes);
-  //   _.values(type._fields).forEach(field => {
-  //     if (field.skipCreate) return;
-  //     let newField = _.omit(field, 'resolve');
-  //     let newFieldType = newField.type;
-  //     let lastType = getLastType(newFieldType);
-  //     if (lastType instanceof GraphQLObjectType) {
-  //       delayedCreateTypes.push(lastType);
-  //       lastType = getInputType(`${lastType.name}Input`, SchemaTypes);
-  //       newField.type = cloneSchema(newFieldType, lastType);
-  //     }
-  //     inputType._fields[field.name] = newField;
-  //   });
-  //
-  //   SchemaTypes[name] = inputType;
-  //
-  //   delayedCreateTypes.forEach(type => {
-  //     createInputType(type, SchemaTypes);
-  //   });
-  //   return inputType;
-  // };
-
-  _createCreateMutation = (modelType, { Mutation, SchemaTypes }) => {
-    let argFields = _.values(modelType._fields).filter(
-      field => !field.skipCreate && !field.primaryKey
-    );
+    let orderByType = this._inputType(modelType, INPUT_ORDER_BY);
+    let whereUniqueType = this._inputType(modelType, INPUT_WHERE_UNIQUE);
 
     let args = [
       {
-        type: new GraphQLNonNull(this._inputType(modelType, 'create')),
+        name: 'where',
+        type: whereUniqueType,
+      },
+    ];
+
+    const name = modelType.name.toLowerCase();
+    this.Query._fields[name] = {
+      type: modelType,
+      description: undefined,
+      args,
+      deprecationReason: undefined,
+      isDeprecated: false,
+      name,
+      resolve: async (parent, args, context, info) => {
+        return this.QueryExecutor({
+          type: FIND_ONE,
+          collection: modelType.name,
+          selector: await applyInputTransform(args.where, whereUniqueType),
+          options: {},
+          context,
+        });
+      },
+    };
+  };
+
+  _createCreateMutation = modelType => {
+    let whereType = this._inputType(modelType, INPUT_WHERE);
+    let orderByType = this._inputType(modelType, INPUT_ORDER_BY);
+    let inputType = this._inputType(modelType, INPUT_CREATE);
+
+    let args = [
+      {
+        type: new GraphQLNonNull(inputType),
         name: 'data',
       },
     ];
-    // let argsArr = argFields.map(field => {
-    //   let newArg = _.omit(field, 'resolve');
-    //   let type = newArg.type;
-    //   let lastType = getLastType(type);
-    //   if (lastType instanceof GraphQLObjectType) {
-    //     type = cloneSchema(type, this._createInputType(lastType, SchemaTypes));
-    //   }
-    //   newArg.type = type;
-    //
-    //   argsObj[field.name] = newArg;
-    //   return newArg;
-    // });
 
     const name = `create${modelType.name}`;
-    Mutation._fields[name] = {
+    this.Mutation._fields[name] = {
       type: modelType,
       args: args,
       isDeprecated: false,
       name,
-      resolve: (parent, args, context, info) => {
+      resolve: async (parent, args, context, info) => {
         return this.QueryExecutor({
-          type: INSERT,
+          type: INSERT_ONE,
           collection: modelType.name,
-          doc: args,
+          doc: await applyInputTransform(args.data, inputType),
           options: {},
           context,
         });
@@ -246,36 +195,26 @@ export default class ModelMongo {
     };
   };
 
-  _createDeleteMutator = (modelType, { Mutation, SchemaTypes }) => {
-    let argFields = _.values(modelType._fields).filter(
-      field => field.primaryKey
-    );
-
-    let argsObj = {};
-    let argsArr = argFields.map(field => {
-      let newArg = _.omit(field, 'resolve');
-      let type = newArg.type;
-      let lastType = getLastType(type);
-      if (lastType instanceof GraphQLObjectType) {
-        type = cloneSchema(type, createInputType(lastType, SchemaTypes));
-      }
-      newArg.type = type;
-
-      argsObj[field.name] = newArg;
-      return newArg;
-    });
+  _createDeleteMutation = modelType => {
+    let inputType = this._inputType(modelType, INPUT_WHERE_UNIQUE);
+    let args = [
+      {
+        type: new GraphQLNonNull(inputType),
+        name: 'where',
+      },
+    ];
 
     const name = `delete${modelType.name}`;
-    Mutation._fields[name] = {
+    this.Mutation._fields[name] = {
       type: modelType,
-      args: argsArr,
+      args,
       isDeprecated: false,
       name,
       resolve: async (parent, args, context, info) => {
         return this.QueryExecutor({
-          type: REMOVE,
+          type: DELETE_ONE,
           collection: modelType.name,
-          selector: await mapFiltersToSelector(args, argsObj),
+          selector: await applyInputTransform(args.where, inputType),
           options: {},
           context,
         });
@@ -283,41 +222,32 @@ export default class ModelMongo {
     };
   };
 
-  _createUpdateMutator = (modelType, { Mutation, SchemaTypes }) => {
-    let argFields = _.values(modelType._fields).filter(
-      field => !field.skipCreate || field.primaryKey
-    );
-    let primaryKey;
-    let argsObj = {};
-    let argsArr = argFields.map(field => {
-      if (field.primaryKey) primaryKey = field.name;
-      let newArg = _.omit(field, 'resolve');
-      let type = newArg.type;
-      let lastType = getLastType(type);
-      if (lastType instanceof GraphQLObjectType) {
-        type = cloneSchema(type, createInputType(lastType, SchemaTypes));
-      }
-      newArg.type = type;
-
-      argsObj[field.name] = newArg;
-      return newArg;
-    });
+  _createUpdateMutation = modelType => {
+    let whereType = this._inputType(modelType, INPUT_WHERE_UNIQUE);
+    let updateType = this._inputType(modelType, INPUT_UPDATE);
+    let args = [
+      {
+        type: new GraphQLNonNull(updateType),
+        name: 'data',
+      },
+      {
+        type: new GraphQLNonNull(whereType),
+        name: 'where',
+      },
+    ];
 
     const name = `update${modelType.name}`;
-    Mutation._fields[name] = {
+    this.Mutation._fields[name] = {
       type: modelType,
-      args: argsArr,
+      args,
       isDeprecated: false,
       name,
       resolve: async (parent, args, context, info) => {
         return this.QueryExecutor({
-          type: UPDATE,
+          type: UPDATE_ONE,
           collection: modelType.name,
-          selector: await mapFiltersToSelector(
-            _.pick(args, primaryKey),
-            argsObj
-          ),
-          doc: _.omit(args, primaryKey),
+          selector: await applyInputTransform(args.where, whereType),
+          doc: await applyInputTransform(args.data, updateType),
           options: {},
           context,
         });
@@ -347,6 +277,7 @@ export default class ModelMongo {
       ModelScheme,
       DirectiveDBScheme,
       RelationScheme,
+      IDScheme,
       UniqueScheme,
       GeoJSONScheme,
       ExtRelationScheme,
@@ -362,6 +293,7 @@ export default class ModelMongo {
       model: Model,
       readOnly: ReadOnly,
       unique: Unique,
+      id: ID,
     };
 
     directiveResolvers = {
@@ -386,36 +318,26 @@ export default class ModelMongo {
     let schema = makeExecutableSchema(modelParams);
 
     let { _typeMap: SchemaTypes } = schema;
-    let { Query, Mutation, _QueryMeta } = SchemaTypes;
+    let { Query, Mutation } = SchemaTypes;
 
     this.InputTypes = new InputTypes({ SchemaTypes });
 
     this.SchemaTypes = SchemaTypes;
     this.Query = Query;
     this.Mutation = Mutation;
-    this._QueryMeta = _QueryMeta;
 
     _.keys(SchemaTypes).forEach(key => {
       let modelType = SchemaTypes[key];
       this._onSchemaInit(modelType);
 
       if (getDirective(modelType, 'model')) {
-        let filterType = this._inputType(modelType, 'where');
-        let orderByType = this._inputType(modelType, 'orderBy');
-        // let orderByType = createOrderByType(modelType, SchemaTypes);
-        this._createAllQuery(modelType, Query, {
-          filterType,
-          orderByType,
-        });
-        // createMetaQuery(modelType, Query, {
-        //   filterType,
-        //   orderByType,
-        //   _QueryMeta,
-        // });
-        // createSingleQuery(modelType, Query);
-        this._createCreateMutation(modelType, { Mutation, SchemaTypes });
-        // createDeleteMutator(modelType, { Mutation, SchemaTypes });
-        // createUpdateMutator(modelType, { Mutation, SchemaTypes });
+        this._createAllQuery(modelType);
+        this._createSingleQuery(modelType);
+        this._createMetaQuery(modelType);
+
+        this._createCreateMutation(modelType);
+        this._createDeleteMutation(modelType);
+        this._createUpdateMutation(modelType);
       }
     });
 
@@ -443,17 +365,17 @@ export default class ModelMongo {
     //     const { resolveMapFilterToSelector } = field;
     //
     //     if (type.name == 'GeoJSONPoint') {
-    //       let filterType = getInputType(`GeoJSONPointNearInput`, SchemaTypes);
+    //       let whereType = getInputType(`GeoJSONPointNearInput`, SchemaTypes);
     //       field = {
     //         ...field,
-    //         type: filterType,
+    //         type: whereType,
     //       };
     //     } else if (type instanceof GraphQLObjectType) {
-    //       let filterType = getInputType(name, SchemaTypes);
+    //       let whereType = getInputType(name, SchemaTypes);
     //       delayedCreateTypes.push(type);
     //       field = {
     //         ...field,
-    //         type: filterType,
+    //         type: whereType,
     //       };
     //       if (!getDirective(field, 'relation')) {
     //         field.resolveMapFilterToSelector = async params => {
@@ -465,7 +387,7 @@ export default class ModelMongo {
     //               params.map(async ({ fieldName = key, value }) => {
     //                 let mapSelector = await mapFiltersToSelector(
     //                   value,
-    //                   filterType._fields
+    //                   whereType._fields
     //                 );
     //                 return _.keys(mapSelector).map(selectorKey => ({
     //                   fieldName: [`${fieldName}.${selectorKey}`],
@@ -508,11 +430,11 @@ export default class ModelMongo {
     //     });
     //   });
     //
-    //   let filterType = getInputType(name, SchemaTypes);
+    //   let whereType = getInputType(name, SchemaTypes);
     //   if (name != 'GeoJSONPointNearFilter') {
     //     ['AND', 'OR'].forEach(modifier => {
     //       fields[modifier] = {
-    //         type: new GraphQLList(new GraphQLNonNull(filterType)),
+    //         type: new GraphQLList(new GraphQLNonNull(whereType)),
     //         args: [],
     //         name: modifier,
     //         resolveMapFilterToSelector: async params => {
@@ -521,7 +443,7 @@ export default class ModelMongo {
     //             value: Promise.all(
     //               param.value.map(
     //                 async val =>
-    //                   await mapFiltersToSelector(val, filterType._fields)
+    //                   await mapFiltersToSelector(val, whereType._fields)
     //               )
     //             ),
     //           }));
@@ -529,12 +451,12 @@ export default class ModelMongo {
     //       };
     //     });
     //   }
-    //   filterType._fields = fields;
-    //   SchemaTypes[name] = filterType;
+    //   whereType._fields = fields;
+    //   SchemaTypes[name] = whereType;
     //   delayedCreateTypes.forEach(type => {
     //     createWhereInputType(type, SchemaTypes);
     //   });
-    //   return filterType;
+    //   return whereType;
     // }
 
     // function createOrderByType(modelType, SchemaTypes) {

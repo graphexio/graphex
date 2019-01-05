@@ -18,26 +18,6 @@ import { combineResolvers as CombineResolvers } from 'graphql-resolvers';
 import _ from 'lodash';
 import pluralize from 'pluralize';
 
-export const FIND = 'find';
-export const FIND_ONE = 'findOne';
-export const COUNT = 'count';
-export const DISTINCT = 'distinct';
-export const INSERT = 'insert';
-export const REMOVE = 'remove';
-export const UPDATE = 'update';
-
-export function getInputType(name, Types) {
-  if (!Types[name]) {
-    let filterType = new GraphQLInputObjectType({
-      name,
-      fields: {},
-    });
-    filterType.getFields();
-    Types[name] = filterType;
-  }
-  return Types[name];
-}
-
 export function getLastType(fieldType) {
   if (fieldType.ofType) {
     return getLastType(fieldType.ofType);
@@ -112,35 +92,28 @@ export function cloneSchema(schema, type) {
   return type;
 }
 
-async function asyncForEach(array, callback) {
+export function cloneSchemaOptional(schema, type) {
+  if (schema instanceof GraphQLNonNull) {
+    return cloneSchema(schema.ofType, type);
+  }
+  if (schema instanceof GraphQLList) {
+    return new GraphQLList(cloneSchema(schema.ofType, type));
+  }
+  return type;
+}
+
+export async function asyncForEach(array, callback) {
   for (let index = 0; index < array.length; index++) {
     await callback(array[index], index, array);
   }
 }
 
-export async function mapFiltersToSelector(filter, type) {
-  let selector = {};
-  await asyncForEach(_.keys(filter), async key => {
-    if (type[key] && type[key].resolveMapFilterToSelector) {
-      (await type[key].resolveMapFilterToSelector([
-        {
-          value: filter[key],
-        },
-      ])).forEach(({ fieldName, value }) => {
-        // console.log({ fieldName, value });
-        selector[fieldName] = value;
-      });
-    }
-  });
-  return selector;
-}
-
-export function allQueryArgs({ filterType, orderByType }) {
+export function allQueryArgs({ whereType, orderByType }) {
   return [
     {
       name: 'where',
       description: null,
-      type: filterType,
+      type: whereType,
       defaultValue: undefined,
     },
     {
@@ -205,85 +178,68 @@ export function combineResolvers(...args) {
 //     GraphQLBoolean,
 //   ].includes(type);
 // }
-
-export function addResolveMapFilterToSelector(field, defaultName, modifier) {
-  const { resolveMapFilterToSelector } = field;
-  field.resolveMapFilterToSelector = async function(params) {
-    if (resolveMapFilterToSelector) {
-      params = await resolveMapFilterToSelector(params);
-    }
-    return params.map(({ fieldName = defaultName, value }) => {
-      return {
-        fieldName,
-        value: mapModifier(modifier, value),
-      };
-    });
-  };
-  return field;
-}
-
-function mapModifier(modifier, value) {
-  switch (modifier) {
-    case '':
-      return value;
-    case 'not':
-      return { $not: { $eq: value } };
-    case 'lt':
-    case 'lte':
-    case 'gt':
-    case 'gte':
-      return { [`$${modifier}`]: value };
-    case 'in':
-    case 'some':
-      return { $in: value };
-    case 'every':
-      return { $all: value };
-    case 'none':
-    case 'not_in':
-      return { $nin: value };
-    case 'contains':
-      return { $regex: `.*${value}.*` };
-    case 'contains':
-      return { $regex: `.*${value}.*` };
-      break;
-    case 'not_contains':
-      return { $not: { $regex: `.*${value}.*` } };
-    case 'starts_with':
-      return { $regex: `.*${value}` };
-    case 'not_starts_with':
-      return { $not: { $regex: `.*${value}` } };
-    case 'ends_with':
-      return { $regex: `${value}.*` };
-    case 'not_ends_with':
-      return { $not: { $regex: `${value}.*` } };
-    case 'exists':
-      return { $exists: value };
-    case 'near':
-      return {
-        $near: {
-          $geometry: value.geometry,
-          $minDistance: value.minDistance,
-          $maxDistance: value.maxDistance,
-        },
-      };
-    default:
-      return {};
-  }
-}
-
-export async function applyInputTransform(params, type) {
-  let fields = type._fields;
-  let result = {};
-  await asyncForEach(_.keys(params), async key => {
-    let field = fields[key];
-    if (field && field.mmTransform) {
-      result = {
-        ...result,
-        ...(await field.mmTransform({
-          [key]: params[key],
-        })),
-      };
-    }
-  });
-  return result;
-}
+//
+// export function addResolveMapFilterToSelector(field, defaultName, modifier) {
+//   const { resolveMapFilterToSelector } = field;
+//   field.resolveMapFilterToSelector = async function(params) {
+//     if (resolveMapFilterToSelector) {
+//       params = await resolveMapFilterToSelector(params);
+//     }
+//     return params.map(({ fieldName = defaultName, value }) => {
+//       return {
+//         fieldName,
+//         value: mapModifier(modifier, value),
+//       };
+//     });
+//   };
+//   return field;
+// }
+//
+// function mapModifier(modifier, value) {
+//   switch (modifier) {
+//     case '':
+//       return value;
+//     case 'not':
+//       return { $not: { $eq: value } };
+//     case 'lt':
+//     case 'lte':
+//     case 'gt':
+//     case 'gte':
+//       return { [`$${modifier}`]: value };
+//     case 'in':
+//     case 'some':
+//       return { $in: value };
+//     case 'every':
+//       return { $all: value };
+//     case 'none':
+//     case 'not_in':
+//       return { $nin: value };
+//     case 'contains':
+//       return { $regex: `.*${value}.*` };
+//     case 'contains':
+//       return { $regex: `.*${value}.*` };
+//       break;
+//     case 'not_contains':
+//       return { $not: { $regex: `.*${value}.*` } };
+//     case 'starts_with':
+//       return { $regex: `.*${value}` };
+//     case 'not_starts_with':
+//       return { $not: { $regex: `.*${value}` } };
+//     case 'ends_with':
+//       return { $regex: `${value}.*` };
+//     case 'not_ends_with':
+//       return { $not: { $regex: `${value}.*` } };
+//     case 'exists':
+//       return { $exists: value };
+//     case 'near':
+//       return {
+//         $near: {
+//           $geometry: value.geometry,
+//           $minDistance: value.minDistance,
+//           $maxDistance: value.maxDistance,
+//         },
+//       };
+//     default:
+//       return {};
+//   }
+// }

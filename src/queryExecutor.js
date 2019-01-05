@@ -1,46 +1,64 @@
 import pluralize from 'pluralize';
+import _ from 'lodash';
+
+export const FIND = 'find';
+export const FIND_ONE = 'findOne';
+export const COUNT = 'count';
+export const DISTINCT = 'distinct';
+export const INSERT_ONE = 'insertOne';
+export const INSERT_MANY = 'insertMany';
+export const DELETE_ONE = 'deleteOne';
+export const UPDATE_ONE = 'updateOne';
+export const UPDATE_MANY = 'updateMany';
 
 export default db => async params => {
-  var { type, collection, doc, selector, options } = params;
+  var { type, collection, doc, docs, selector, options = {} } = params;
   // console.dir({ type, collection, selector, options }, { depth: null });
   let { skip, limit, sort } = options;
 
   console.log({ type, collection });
+  console.log('selector');
   console.dir(selector, { depth: null });
+  console.log('doc');
+  console.dir(doc, { depth: null });
 
   let collectionName = pluralize(collection.toLowerCase());
   let Collection = db.collection(collectionName);
 
   switch (type) {
-    case 'find': {
+    case FIND: {
       let cursor = Collection.find(selector);
       if (limit) cursor = cursor.limit(limit);
       if (sort) cursor = cursor.sort(sort);
       return cursor.toArray();
     }
-    case 'findOne': {
+    case FIND_ONE: {
       return Collection.findOne(selector);
     }
-    case 'count': {
+    case COUNT: {
       return Collection.find(selector).count();
     }
-    case 'distinct': {
+    case DISTINCT: {
       let cursor = Collection.find(selector);
       if (limit) cursor = cursor.limit(limit);
       if (sort) cursor = cursor.sort(sort);
       return cursor.toArray().then(data => data.map(item => item[options.key]));
     }
-    case 'insert': {
-      return Collection.insertOne(doc).then(res => res.ops[0]);
+    case INSERT_ONE: {
+      return Collection.insertOne(doc).then(res => _.head(res.ops));
     }
-    case 'remove': {
-      let d = await Collection.findOne(selector);
-      await Collection.removeOne(selector);
-      return d;
+    case INSERT_MANY: {
+      return Collection.insertMany(docs).then(res => res.ops);
     }
-    case 'update': {
-      await Collection.update(selector, { $set: doc });
-      return Collection.findOne(selector);
+    case DELETE_ONE: {
+      return Collection.findOneAndDelete(selector).then(res => res.value);
+    }
+    case UPDATE_ONE: {
+      return Collection.findOneAndUpdate(
+        selector,
+        { $set: doc },
+        { returnOriginal: false }
+      ).then(res => res.value);
     }
   }
   return null;

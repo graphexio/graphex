@@ -6,11 +6,6 @@ import _ from 'lodash';
 import { GraphQLID, GraphQLList } from 'graphql';
 
 import {
-  FIND,
-  FIND_ONE,
-  DISTINCT,
-  COUNT,
-  getInputType,
   getLastType,
   hasQLListType,
   mapFiltersToSelector,
@@ -18,11 +13,21 @@ import {
   allQueryArgs,
   GraphQLTypeFromString,
   combineResolvers,
-  getInputTypeName,
-  applyInputTransform,
 } from '../utils';
 
-import InputTypes from '../inputTypes';
+import { FIND, FIND_ONE, DISTINCT, COUNT } from '../queryExecutor';
+
+import InputTypes, {
+  TRANSFORM_TO_INPUT,
+  INPUT_WHERE,
+  INPUT_WHERE_UNIQUE,
+  INPUT_CREATE,
+  INPUT_UPDATE,
+  INPUT_ORDER_BY,
+  INPUT_CREATE_CONNECT_ONE,
+  appendTransform,
+  applyInputTransform,
+} from '../inputTypes';
 
 export const ExtRelationScheme = `directive @extRelation(field:String="_id", fieldType:String="ObjectID" ) on FIELD_DEFINITION`;
 
@@ -42,10 +47,13 @@ export default queryExecutor =>
         false
       );
 
-      if (!field.mmTransformToInput) field.mmTransformToInput = {};
-      field.mmTransformToInput.orderBy = field => [];
-      field.mmTransformToInput.create = field => {};
-      field.mmTransformToInput.where = field => {};
+      appendTransform(field, TRANSFORM_TO_INPUT, {
+        [INPUT_ORDER_BY]: field => [],
+        [INPUT_CREATE]: field => [],
+        [INPUT_UPDATE]: field => [],
+        [INPUT_WHERE]: field => [],
+      });
+
       field.mmOnSchemaInit = this._onSchemaInit;
 
       field.resolve = this.mmIsMany
@@ -61,7 +69,7 @@ export default queryExecutor =>
         let orderByType = this.mmInputTypes.get(lastType, 'orderBy');
 
         field.args = allQueryArgs({
-          filterType: whereType,
+          whereType,
           orderByType,
         });
 
@@ -109,12 +117,6 @@ export default queryExecutor =>
         ...(await applyInputTransform(args.where, whereType)),
         [storeField]: value,
       };
-      console.log({
-        selector,
-        args: args.where,
-        whereType,
-        transform: await applyInputTransform(args.where, whereType),
-      });
       return queryExecutor({
         type: FIND,
         collection: lastType.name,
@@ -143,7 +145,7 @@ export default queryExecutor =>
         skipCreate: true,
         isDeprecated: false,
         args: allQueryArgs({
-          filterType: whereType,
+          whereType,
           orderByType,
         }),
         type: SchemaTypes._QueryMeta,
@@ -165,6 +167,11 @@ export default queryExecutor =>
               context,
             }),
           };
+        },
+        [TRANSFORM_TO_INPUT]: {
+          [INPUT_CREATE]: () => [],
+          [INPUT_WHERE]: () => [],
+          [INPUT_ORDER_BY]: () => [],
         },
       };
     };

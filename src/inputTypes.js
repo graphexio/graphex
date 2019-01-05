@@ -12,7 +12,9 @@ import {
   getLastType,
   hasQLListType,
   cloneSchema,
+  cloneSchemaOptional,
   addResolveMapFilterToSelector,
+  asyncForEach,
 } from './utils';
 
 const Modifiers = {
@@ -40,15 +42,34 @@ const Modifiers = {
   GeoJSONPoint: ['near'],
 };
 
+export const INPUT_CREATE = 'create';
+export const INPUT_WHERE = 'where';
+export const INPUT_WHERE_UNIQUE = 'whereUnique';
+export const INPUT_ORDER_BY = 'orderBy';
+export const INPUT_UPDATE = 'update';
+
+export const TRANSFORM_TO_INPUT = 'mmTransformToInput';
+export const TRANSFORM_INPUT = 'mmTransformInput';
+
 export default class InputTypes {
+  Kinds = [];
+
   constructor({ SchemaTypes }) {
     this.SchemaTypes = SchemaTypes;
 
     this._defaultTransformToInput = {
-      orderBy: this._defaultTransformToInputOrderBy,
-      where: this._defaultTransformToInputWhere,
-      create: this._defaultTransformToInputCreate,
+      [INPUT_ORDER_BY]: this._defaultTransformToInputOrderBy,
+      [INPUT_WHERE]: this._defaultTransformToInputWhere,
+      [INPUT_WHERE_UNIQUE]: () => [],
+      [INPUT_CREATE]: this._defaultTransformToInputCreate,
+      [INPUT_UPDATE]: this._defaultTransformToInputUpdate,
     };
+
+    this.registerKind(INPUT_CREATE, this._createInputObject);
+    this.registerKind(INPUT_WHERE, this._createInputObject);
+    this.registerKind(INPUT_WHERE_UNIQUE, this._createInputObject);
+    this.registerKind(INPUT_ORDER_BY, this._createInputEnum);
+    this.registerKind(INPUT_UPDATE, this._createInputObject);
   }
 
   _defaultTransformToInputOrderBy = field => [
@@ -64,19 +85,52 @@ export default class InputTypes {
     },
   ];
 
+  _defaultTransformToInputUpdate = field => {
+    let lastType = getLastType(field.type);
+    let newFieldType = lastType;
+    if (lastType instanceof GraphQLObjectType) {
+      newFieldType = this._inputType(field.type, INPUT_UPDATE);
+    }
+
+    const { mmTransformInput = {} } = field;
+    let transformFunc = mmTransformInput[INPUT_UPDATE];
+    return [
+      {
+        ...field,
+        type: cloneSchemaOptional(field.type, newFieldType),
+        name: field.name,
+        mmTransform: async params => {
+          if (transformFunc) {
+            params = await transformFunc(params);
+          }
+          return params;
+        },
+      },
+    ];
+  };
+
   _defaultTransformToInputCreate = field => {
     let lastType = getLastType(field.type);
     let newFieldType = lastType;
     if (lastType instanceof GraphQLObjectType) {
-      newFieldType = this._inputType(field.type, 'create');
+      newFieldType = this._inputType(field.type, INPUT_CREATE);
     }
-    return {
-      [field.name]: {
+
+    const { mmTransformInput = {} } = field;
+    let transformFunc = mmTransformInput[INPUT_CREATE];
+    return [
+      {
         ...field,
         type: cloneSchema(field.type, newFieldType),
         name: field.name,
+        mmTransform: async params => {
+          if (transformFunc) {
+            params = await transformFunc(params);
+          }
+          return params;
+        },
       },
-    };
+    ];
   };
 
   _defaultTransformToInputWhere = field => {
@@ -84,17 +138,18 @@ export default class InputTypes {
     let isMany = hasQLListType(field.type);
     let newFieldType = lastType;
 
-    let fields = {};
+    let fields = [];
     if (lastType instanceof GraphQLObjectType) {
       ////Modifiers for embedded objects
       let fieldName = field.name;
-      fields[fieldName] = this._wrapTransformInput(
-        {
-          type: this._inputType(lastType, 'where'),
-          name: fieldName,
-        },
-        'where',
-        { modifier: '' }
+      fields.push(
+        this._wrapTransformInputWhere(
+          {
+            type: this._inputType(lastType, 'where'),
+            name: fieldName,
+          },
+          { modifier: '', [TRANSFORM_INPUT]: field[TRANSFORM_INPUT] }
+        )
       );
     } else if (isMany) {
       ////Modifiers for arrays
@@ -110,13 +165,14 @@ export default class InputTypes {
         if (modifier != '') {
           fieldName = `${field.name}_${modifier}`;
         }
-        fields[fieldName] = this._wrapTransformInput(
-          {
-            type: item.type,
-            name: fieldName,
-          },
-          'where',
-          { modifier }
+        fields.push(
+          this._wrapTransformInputWhere(
+            {
+              type: item.type,
+              name: fieldName,
+            },
+            { modifier, [TRANSFORM_INPUT]: field[TRANSFORM_INPUT] }
+          )
         );
       });
     } else if (Modifiers[lastType]) {
@@ -127,32 +183,29 @@ export default class InputTypes {
         if (modifier != '') {
           fieldName = `${field.name}_${modifier}`;
         }
-        fields[fieldName] = this._wrapTransformInput(
-          {
-            type: newFieldType,
-            name: fieldName,
-          },
-          'where',
-          { modifier }
+        fields.push(
+          this._wrapTransformInputWhere(
+            {
+              type: newFieldType,
+              name: fieldName,
+            },
+            { modifier, [TRANSFORM_INPUT]: field[TRANSFORM_INPUT] }
+          )
         );
       });
     }
     return fields;
   };
 
-  _wrapTransformInput = (field, target, options) => {
-    const { mmTransformInput = {} } = field;
-    let transformFunc = mmTransformInput[target];
+  _wrapTransformInputWhere = (field, options = {}) => {
+    let transformFunc = options[TRANSFORM_INPUT]
+      ? options[TRANSFORM_INPUT][INPUT_WHERE]
+      : undefined;
     field.mmTransform = async params => {
       if (transformFunc) {
         params = await transformFunc(params);
       }
-      switch (target) {
-        case 'where':
-          return this._transformInputWhere(params, options.modifier);
-        default:
-          return params;
-      }
+      return this._transformInputWhere(params, options.modifier);
     };
     return field;
   };
@@ -219,57 +272,138 @@ export default class InputTypes {
       target.slice(1)}Input`;
   };
 
-  _fillInputType = async (type, initialType, target) => {
-    let deafultTransformFunc = this._defaultTransformToInput[target];
-    switch (target) {
-      case 'orderBy': {
-        let values = [];
-        _.values(initialType._fields).forEach(field => {
-          let { mmTransformToInput = {} } = field;
-          let transformFunc =
-            mmTransformToInput[target] || deafultTransformFunc;
-          values = [...values, ...transformFunc(field)];
-        });
-        type._values = values;
-        break;
-      }
-      case 'create':
-      case 'where': {
-        let fields = {};
-        _.values(initialType._fields).forEach(field => {
-          let { mmTransformToInput = {} } = field;
-          let transformFunc =
-            mmTransformToInput[target] || deafultTransformFunc;
-          fields = { ...fields, ...transformFunc(field) };
-        });
-        type._fields = fields;
-        break;
-      }
-    }
-  };
-
-  _createInputType = (name, initialType, target) => {
-    let newType = null;
-    switch (target) {
-      case 'create':
-      case 'where':
-        newType = new GraphQLInputObjectType({
-          name,
-          fields: {},
-        });
-        newType.getFields();
-        break;
-      case 'orderBy':
-        newType = new GraphQLEnumType({
-          name,
-          values: {},
-        });
-        break;
-    }
-    this.SchemaTypes[name] = newType;
-    newType.mmFill = this._fillInputType(newType, initialType, target);
+  _createInputEnum = (name, initialType, target) => {
+    let newType = new GraphQLEnumType({
+      name,
+      values: {},
+    });
+    newType.mmFill = this._fillInputEnum(newType, initialType, target);
     return newType;
   };
+
+  _fillInputEnum = async (type, initialType, target) => {
+    let deafultTransformFunc = this._defaultTransformToInput[target];
+    let values = [];
+    _.values(initialType._fields).forEach(field => {
+      let { mmTransformToInput = {} } = field;
+      let transformFunc = mmTransformToInput[target] || deafultTransformFunc;
+      values = [...values, ...transformFunc(field)];
+    });
+    type._values = values;
+  };
+
+  _createInputObject = (name, initialType, target) => {
+    let newType = new GraphQLInputObjectType({
+      name,
+      fields: {},
+    });
+    newType.getFields();
+    newType.mmFill = this._fillInputObject(newType, initialType, target);
+    return newType;
+  };
+  _fillInputObject = async (type, initialType, target) => {
+    let deafultTransformFunc = this._defaultTransformToInput[target];
+    let fields = {};
+    _.values(initialType._fields).forEach(field => {
+      let { mmTransformToInput = {} } = field;
+      let transformFunc = mmTransformToInput[target] || deafultTransformFunc;
+      fields = {
+        ...fields,
+        ...this._fieldsArrayToObject(transformFunc(field)),
+      };
+    });
+    type._fields = fields;
+  };
+
+  // _fillInputType = async (type, initialType, target) => {
+  //   let deafultTransformFunc = this._defaultTransformToInput[target];
+  //   switch (target) {
+  //     case INPUT_ORDER_BY: {
+  //       let values = [];
+  //       _.values(initialType._fields).forEach(field => {
+  //         let { mmTransformToInput = {} } = field;
+  //         let transformFunc =
+  //           mmTransformToInput[target] || deafultTransformFunc;
+  //         values = [...values, ...transformFunc(field)];
+  //       });
+  //       type._values = values;
+  //       break;
+  //     }
+  //     case INPUT_CREATE:
+  //     case INPUT_WHERE:
+  //     case INPUT_WHERE_UNIQUE: {
+  //       let fields = {};
+  //       _.values(initialType._fields).forEach(field => {
+  //         let { mmTransformToInput = {} } = field;
+  //         let transformFunc =
+  //           mmTransformToInput[target] || deafultTransformFunc;
+  //         fields = {
+  //           ...fields,
+  //           ...this._fieldsArrayToObject(transformFunc(field)),
+  //         };
+  //       });
+  //       type._fields = fields;
+  //       break;
+  //     }
+  //   }
+  // };
+
+  _fieldsArrayToObject = arr => {
+    let res = {};
+    arr.forEach(field => {
+      res[field.name] = field;
+    });
+    return res;
+  };
+
+  _createInputType = (name, initialType, kind) => {
+    let initFunc = this.Kinds[kind];
+    if (!initFunc) throw `Unknown kind ${kind}`;
+    let newType = initFunc(name, initialType, kind);
+    this.SchemaTypes[name] = newType;
+    return newType;
+  };
+
+  // _createInputType = (name, initialType, king) => {
+  //   let newType = null;
+  //   switch (target) {
+  //     case INPUT_CREATE:
+  //     case INPUT_WHERE:
+  //     case INPUT_WHERE_UNIQUE:
+  //       newType = new GraphQLInputObjectType({
+  //         name,
+  //         fields: {},
+  //       });
+  //       newType.getFields();
+  //       newType.mmFill = this._fillInputObject(newType, initialType, target);
+  //       break;
+  //     case INPUT_ORDER_BY:
+  //       newType = new GraphQLEnumType({
+  //         name,
+  //         values: {},
+  //       });
+  //       newType.mmFill = this._fillInputEnum(newType, initialType, target);
+  //       break;
+  //     case INPUT_CREATE_CONNECT_ONE:
+  //       // newType = new GraphQLInputObjectType({
+  //       //   name,
+  //       //   fields: {
+  //       //     create: {
+  //       //       name: 'create',
+  //       //       type: this._inputType(initialType, INPUT_CREATE),
+  //       //     },
+  //       //     connect: {
+  //       //       name: 'connect',
+  //       //       type: this._inputType(initialType, INPUT_WHERE_UNIQUE),
+  //       //     },
+  //       //   },
+  //       // });
+  //       // newType.getFields();
+  //       break;
+  //   }
+  //   this.SchemaTypes[name] = newType;
+  //   return newType;
+  // };
 
   _inputType = (type, target) => {
     if (typeof type == String) {
@@ -284,4 +418,47 @@ export default class InputTypes {
   };
 
   get = this._inputType;
+  wrapTransformInputWhere = this._wrapTransformInputWhere;
+
+  registerKind = (kind, init) => {
+    if (this.Kinds[kind]) throw `Kind ${kind} already registered`;
+    this.Kinds[kind] = init;
+  };
+}
+
+export function appendTransform(field, type, functions) {
+  if (!field[type]) field[type] = {};
+  field[type] = { ...field[type], ...functions };
+}
+
+export async function applyInputTransform(params, type) {
+  if (hasQLListType(type)) {
+    let lastType = getLastType(type);
+    return await Promise.all(
+      params.map(val => applyInputTransform(val, lastType))
+    );
+  }
+
+  let fields = type._fields;
+  let result = {};
+  await asyncForEach(_.keys(params), async key => {
+    let field = fields[key];
+    let value = params[key];
+    if (field && field.mmTransform) {
+      result = {
+        ...result,
+        ...(await field.mmTransform({
+          [key]: value,
+        })),
+      };
+    } else if (getLastType(field.type)._fields) {
+      result = {
+        ...result,
+        ...{
+          [key]: await applyInputTransform(value, field.type),
+        },
+      };
+    }
+  });
+  return result;
 }
