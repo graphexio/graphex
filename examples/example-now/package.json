@@ -6,7 +6,7 @@
   "scripts": {
     "build": "babel ./ --out-dir ../example-lib --ignore node_modules/ --ignore .git/ --copy-files",
     "start": "MONGO_URL='mongodb+srv://public:public@cluster0-c6p6b.mongodb.net/admin' MONGO_DB='db1' micro",
-    "now": "now -e MONGO_URL='mongodb+srv://public:public@cluster0-c6p6b.mongodb.net/admin' -e MONGO_DB='db1'",
+    "now": "now --regions sfo1 -e MONGO_URL='mongodb+srv://public:public@cluster0-c6p6b.mongodb.net/admin' -e MONGO_DB='db1'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
