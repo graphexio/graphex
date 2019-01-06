@@ -628,6 +628,13 @@
     core-js "^2.5.7"
     regenerator-runtime "^0.12.0"
 
+"@babel/runtime@^7.2.0":
+  version "7.2.0"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.2.0.tgz#b03e42eeddf5898e00646e4c840fa07ba8dcad7f"
+  integrity sha512-oouEibCbHMVdZSDlJBO6bZmID/zA/G/Qx3H1d3rSNPTD+L8UNKvCat7aKWSJ74zYbm5zWGh0GQN0hKj8zYFTCg==
+  dependencies:
+    regenerator-runtime "^0.12.0"
+
 "@babel/template@^7.1.0", "@babel/template@^7.1.2":
   version "7.1.2"
   resolved "https://registry.yarnpkg.com/@babel/template/-/template-7.1.2.tgz#090484a574fef5a2d2d7726a674eceda5c5b5644"
@@ -890,11 +897,12 @@ apollo-link@^1.2.3:
     apollo-utilities "^1.0.0"
     zen-observable-ts "^0.8.11"
 
-apollo-model-mongodb@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/apollo-model-mongodb/-/apollo-model-mongodb-0.1.0.tgz#5ef51ad4961731a3e0097a6917b71cb2e9cb8aa8"
-  integrity sha512-qhDadIBPqCp3DN6lEMrFIvpB9PL9en1mM3ai9c0EOc9ZQs74tHWgrbV0Sjfk5X3+dzwmXUgWYklBtMAzEUDfVQ==
+apollo-model-mongodb@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/apollo-model-mongodb/-/apollo-model-mongodb-0.2.1.tgz#3c1823407785d539b3ffb7aa8e979ca420c593e9"
+  integrity sha512-PfVCDfBfy3ZzBMtCfD71ZI62/OgqhgmQW2jOgmP52pfHv2EdMCQYNp35vx8aL/OiwahhbvqAkACsGSActlIouw==
   dependencies:
+    "@babel/runtime" "^7.2.0"
     graphql-resolvers "^0.2.2"
     graphql-tag "^2.10.0"
     graphql-tools "^4.0.3"

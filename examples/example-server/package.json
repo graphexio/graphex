@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "apollo-model-mongodb": "^0.2.0",
+    "apollo-model-mongodb": "^0.2.1",
     "apollo-server": "^2.2.6",
     "graphql": "^14.0.2",
     "mongodb": "^3.1.10"

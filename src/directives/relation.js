@@ -126,7 +126,7 @@ export default queryExecutor =>
       return newType;
     };
 
-    _mmTransformToInputWhere = async field => {
+    _transformToInputWhere = field => {
       const { field: relationField } = this.args;
       let {
         mmLastType: lastType,

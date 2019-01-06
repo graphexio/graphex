@@ -1,21 +1,33 @@
-type Description {
-  full: String
-  short: String
-}
-
 type Category @model {
-  id: ObjectID! @unique @db(name: "_id")
+  id: ObjectID! @id @unique @db(name: "_id")
   title: String!
-  items: [Item] @relation(externalField: "categoryId")
+  tags: [String!]!
+  items: [Item] @extRelation
 }
 
 type Item @model {
-  id: ObjectID! @unique @db(name: "_id")
+  id: ObjectID! @id @unique @db(name: "_id")
   title: String!
   color: String
   description: Description
   category: Category! @relation
+  labels: [Label!]! @relation
+  location: GeoJSONPoint
 }
 
-type Query
-type Mutation
+type Label @model {
+  id: ObjectID! @id @unique @db(name: "_id")
+  title: String!
+}
+
+type Description {
+  full: String
+  short: String
+  location: GeoJSONPoint
+  size: Size
+}
+
+type Size {
+  width: Float
+  height: Float
+}

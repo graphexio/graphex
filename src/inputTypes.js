@@ -247,9 +247,7 @@ export default class InputTypes {
       .mapValues(value => this._mapModifier(modifier, value))
       .mapKeys((value, key) => {
         if (modifier != '') {
-          let arr = key.split('_');
-          arr.splice(-1, 1);
-          return arr.join('_');
+          return key.substring(key.length - modifier.length - 1, 0);
         } else {
           return key;
         }
@@ -336,9 +334,34 @@ export default class InputTypes {
     newType.mmFill = this._fillInputObject(newType, initialType, target);
     return newType;
   };
+
+  _addAndOr = (fields, type) => {
+    let manyType = new GraphQLList(type);
+    fields.AND = {
+      name: 'AND',
+      type: manyType,
+      mmTransform: async params => {
+        params = await applyInputTransform(params.AND, manyType);
+        return { $and: params };
+      },
+    };
+    fields.OR = {
+      name: 'OR',
+      type: manyType,
+      mmTransform: async params => {
+        params = await applyInputTransform(params.OR, manyType);
+        return { $or: params };
+      },
+    };
+  };
+
   _fillInputObject = async (type, initialType, target) => {
     let deafultTransformFunc = this._defaultTransformToInput[target];
     let fields = {};
+    if (target == INPUT_WHERE) {
+      this._addAndOr(fields, type);
+    }
+
     _.values(initialType._fields).forEach(field => {
       let { mmTransformToInput = {} } = field;
       let transformFunc = mmTransformToInput[target] || deafultTransformFunc;
