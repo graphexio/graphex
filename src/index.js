@@ -51,6 +51,7 @@ export {
   combineResolvers,
 } from './utils';
 
+import InitialScheme from './initialScheme';
 import Relation, { RelationScheme } from './directives/relation';
 import ExtRelation, { ExtRelationScheme } from './directives/extRelation';
 import DirectiveDB, {
@@ -61,8 +62,8 @@ import Model, { ModelScheme } from './directives/model';
 import ReadOnly, { ReadOnlyScheme } from './directives/readOnly';
 import Unique, { UniqueScheme } from './directives/unique';
 import ID, { IDScheme } from './directives/id';
-import GeoJSON, { typeDef as GeoJSONScheme } from './geoJSON';
 import Scalars, { typeDefs as ScalarsSchemes } from './scalars';
+import * as GeoJSONModule from './geoJSON';
 
 import InputTypes, {
   INPUT_CREATE,
@@ -78,6 +79,9 @@ const relationFieldDefault = '_id';
 export default class ModelMongo {
   constructor({ queryExecutor }) {
     this.QueryExecutor = queryExecutor;
+    this.Modules = [GeoJSONModule];
+    this.TypesInit = {};
+    this.FieldsInit = {};
   }
 
   _inputType = (type, target) => {
@@ -263,6 +267,23 @@ export default class ModelMongo {
     });
   };
 
+  _onTypeInit = type => {
+    let init = this.TypesInit[type.name];
+    if (init) {
+      init(type);
+    }
+  };
+
+  _onFieldsInit = type => {
+    _.values(type._fields).forEach(field => {
+      let lastType = getLastType(field.type);
+      let init = this.FieldsInit[lastType.name];
+      if (init) {
+        init(field, { types: this.SchemaTypes });
+      }
+    });
+  };
+
   makeExecutablSchema = async params => {
     let {
       schemaDirectives = {},
@@ -273,13 +294,14 @@ export default class ModelMongo {
     if (!_.isArray(typeDefs)) typeDefs = [typeDefs];
 
     typeDefs = [
+      InitialScheme,
       ReadOnlyScheme,
       ModelScheme,
       DirectiveDBScheme,
       RelationScheme,
       IDScheme,
       UniqueScheme,
-      GeoJSONScheme,
+      // GeoJSONScheme,
       ExtRelationScheme,
       ...ScalarsSchemes,
       ...typeDefs,
@@ -303,7 +325,7 @@ export default class ModelMongo {
 
     resolvers = {
       ...resolvers,
-      ...GeoJSON,
+      // ...GeoJSON,
       ...Scalars,
     };
 
@@ -315,7 +337,27 @@ export default class ModelMongo {
       resolvers,
     };
 
+    this.Modules.forEach(module => {
+      if (module.typeDef) typeDefs.push(module.typeDef);
+      if (module.resolvers) resolvers = _.merge(resolvers, module.resolvers);
+      if (module.typesInit)
+        this.TypesInit = _.merge(this.TypesInit, module.typesInit);
+      if (module.fieldsInit)
+        this.FieldsInit = _.merge(this.FieldsInit, module.fieldsInit);
+    });
+
     let schema = makeExecutableSchema(modelParams);
+    // console.warn('before');
+    // console.log(schema);
+    // schema = mergeSchemas({
+    //   schemas: [schema],
+    // });
+    schema = _.merge(
+      schema,
+      _.pick(GeoJSONModule, ['_directives', '_typeMap'])
+    );
+    // console.warn('after');
+    // console.log(schema);
 
     let { _typeMap: SchemaTypes } = schema;
     let { Query, Mutation } = SchemaTypes;
@@ -326,153 +368,27 @@ export default class ModelMongo {
     this.Query = Query;
     this.Mutation = Mutation;
 
-    _.keys(SchemaTypes).forEach(key => {
-      let modelType = SchemaTypes[key];
-      this._onSchemaInit(modelType);
-
-      if (getDirective(modelType, 'model')) {
-        this._createAllQuery(modelType);
-        this._createSingleQuery(modelType);
-        this._createMetaQuery(modelType);
-
-        this._createCreateMutation(modelType);
-        this._createDeleteMutation(modelType);
-        this._createUpdateMutation(modelType);
-      }
+    _.values(SchemaTypes).forEach(type => {
+      this._onTypeInit(type);
     });
 
-    // function createWhereInputType(modelType, SchemaTypes) {
-    //   let delayedCreateTypes = [];
-    //   const name = getInputTypeName(modelType.name, 'where');
-    //   if (SchemaTypes[name] && _.keys(SchemaTypes[name]._fields).length > 0) {
-    //     return SchemaTypes[name];
-    //   }
-    //
-    //   let fields = {};
-    //   _.keys(modelType._fields).forEach(key => {
-    //     let field = modelType._fields[key];
-    //     if (field.skipFilter) {
-    //       return;
-    //     }
-    //
-    //     let type = getLastType(field.type);
-    //     let isMany = hasQLListType(field.type);
-    //
-    //     let modifiers = Modifiers[type.name] || [];
-    //     field = _.omit(field, 'resolve');
-    //     field.type = type;
-    //
-    //     const { resolveMapFilterToSelector } = field;
-    //
-    //     if (type.name == 'GeoJSONPoint') {
-    //       let whereType = getInputType(`GeoJSONPointNearInput`, SchemaTypes);
-    //       field = {
-    //         ...field,
-    //         type: whereType,
-    //       };
-    //     } else if (type instanceof GraphQLObjectType) {
-    //       let whereType = getInputType(name, SchemaTypes);
-    //       delayedCreateTypes.push(type);
-    //       field = {
-    //         ...field,
-    //         type: whereType,
-    //       };
-    //       if (!getDirective(field, 'relation')) {
-    //         field.resolveMapFilterToSelector = async params => {
-    //           if (resolveMapFilterToSelector) {
-    //             params = await resolveMapFilterToSelector(params);
-    //           }
-    //           return _.flatten(
-    //             Promise.all(
-    //               params.map(async ({ fieldName = key, value }) => {
-    //                 let mapSelector = await mapFiltersToSelector(
-    //                   value,
-    //                   whereType._fields
-    //                 );
-    //                 return _.keys(mapSelector).map(selectorKey => ({
-    //                   fieldName: [`${fieldName}.${selectorKey}`],
-    //                   value: mapSelector[selectorKey],
-    //                 }));
-    //               })
-    //             )
-    //           );
-    //         };
-    //       }
-    //       if (isMany) {
-    //         modifiers = ['some', 'every', 'none'];
-    //       } else {
-    //         modifiers = [''];
-    //       }
-    //     }
-    //
-    //     //////
-    //
-    //     modifiers.forEach(modifier => {
-    //       let fieldName = key;
-    //       if (modifier != '') {
-    //         fieldName = `${key}_${modifier}`;
-    //       }
-    //       let fieldType = field.type;
-    //       if (modifier == 'in' || modifier == 'not_in') {
-    //         fieldType = new GraphQLList(new GraphQLNonNull(field.type));
-    //       } else if (modifier == 'exists') {
-    //         fieldType = GraphQLBoolean;
-    //       }
-    //       fields[fieldName] = addResolveMapFilterToSelector(
-    //         {
-    //           ...field,
-    //           type: fieldType,
-    //           name: fieldName,
-    //         },
-    //         key,
-    //         modifier
-    //       );
-    //     });
-    //   });
-    //
-    //   let whereType = getInputType(name, SchemaTypes);
-    //   if (name != 'GeoJSONPointNearFilter') {
-    //     ['AND', 'OR'].forEach(modifier => {
-    //       fields[modifier] = {
-    //         type: new GraphQLList(new GraphQLNonNull(whereType)),
-    //         args: [],
-    //         name: modifier,
-    //         resolveMapFilterToSelector: async params => {
-    //           return params.map(param => ({
-    //             fieldName: `$${modifier.toLowerCase()}`,
-    //             value: Promise.all(
-    //               param.value.map(
-    //                 async val =>
-    //                   await mapFiltersToSelector(val, whereType._fields)
-    //               )
-    //             ),
-    //           }));
-    //         },
-    //       };
-    //     });
-    //   }
-    //   whereType._fields = fields;
-    //   SchemaTypes[name] = whereType;
-    //   delayedCreateTypes.forEach(type => {
-    //     createWhereInputType(type, SchemaTypes);
-    //   });
-    //   return whereType;
-    // }
+    _.values(SchemaTypes).forEach(type => {
+      this._onFieldsInit(type);
+    });
 
-    // function createOrderByType(modelType, SchemaTypes) {
-    //   const name = getInputTypeName(modelType.name, 'orderBy');
-    //   let values = {};
-    //   let i = 0;
-    //   _.keys(modelType._fields).forEach(key => {
-    //     values[`${key}_ASC`] = { value: { [key]: 1 } };
-    //     values[`${key}_DESC`] = { value: { [key]: -1 } };
-    //     i += 2;
-    //   });
-    //   return (SchemaTypes[name] = new GraphQLEnumType({
-    //     name,
-    //     values,
-    //   }));
-    // }
+    _.values(SchemaTypes).forEach(type => {
+      this._onSchemaInit(type);
+
+      if (getDirective(type, 'model')) {
+        this._createAllQuery(type);
+        this._createSingleQuery(type);
+        this._createMetaQuery(type);
+
+        this._createCreateMutation(type);
+        this._createDeleteMutation(type);
+        this._createUpdateMutation(type);
+      }
+    });
 
     await Promise.all(
       _.values(SchemaTypes)

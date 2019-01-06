@@ -29,7 +29,6 @@ export default class DirectiveDB extends SchemaDirectiveVisitor {
   }
 
   _renameTransform = (fieldName, dbName) => params => {
-    console.log(params);
     return {
       ..._.omit(params, fieldName),
       [dbName]: params[fieldName],

@@ -22,6 +22,7 @@ const Modifiers = {
   ID: ['', 'in', 'not_in', 'exists'],
   ObjectID: ['', 'in', 'not_in', 'exists'],
   Int: ['', 'in', 'not_in', 'lt', 'lte', 'gt', 'gte', 'exists'],
+  Float: ['', 'in', 'not_in', 'lt', 'lte', 'gt', 'gte', 'exists'],
   String: [
     '',
     'not',
@@ -39,7 +40,6 @@ const Modifiers = {
     'not_ends_with',
     'exists',
   ],
-  GeoJSONPoint: ['near'],
 };
 
 export const INPUT_CREATE = 'create';
@@ -143,7 +143,7 @@ export default class InputTypes {
       ////Modifiers for embedded objects
       let fieldName = field.name;
       fields.push(
-        this._wrapTransformInputWhere(
+        this._wrapTransformInputObjectWhere(
           {
             type: this._inputType(lastType, 'where'),
             name: fieldName,
@@ -197,6 +197,37 @@ export default class InputTypes {
     return fields;
   };
 
+  _wrapTransformInputObjectWhere = (field, options = {}) => {
+    let transformFunc = options[TRANSFORM_INPUT]
+      ? options[TRANSFORM_INPUT][INPUT_WHERE]
+      : undefined;
+
+    field.mmTransform = async params => {
+      if (transformFunc) {
+        params = await transformFunc(params);
+      }
+
+      let newParams = {};
+      let newValue = {};
+      let value = params[field.name];
+      await asyncForEach(_.values(field.type._fields), async subfield => {
+        if (value[subfield.name]) {
+          let val = _.pick(value, subfield.name);
+          let transformFunc = subfield.mmTransform;
+          if (transformFunc) {
+            val = await transformFunc(val);
+          }
+          newValue = { ...newValue, ...val };
+        }
+      });
+      _.keys(newValue).forEach(key => {
+        newParams[`${field.name}.${key}`] = newValue[key];
+      });
+      return newParams;
+    };
+    return field;
+  };
+
   _wrapTransformInputWhere = (field, options = {}) => {
     let transformFunc = options[TRANSFORM_INPUT]
       ? options[TRANSFORM_INPUT][INPUT_WHERE]
@@ -205,13 +236,25 @@ export default class InputTypes {
       if (transformFunc) {
         params = await transformFunc(params);
       }
-      return this._transformInputWhere(params, options.modifier);
+      params = this._transformInputWhere(params, options.modifier);
+      return params;
     };
     return field;
   };
 
   _transformInputWhere = (params, modifier) =>
-    _.mapValues(params, value => this._mapModifier(modifier, value));
+    _(params)
+      .mapValues(value => this._mapModifier(modifier, value))
+      .mapKeys((value, key) => {
+        if (modifier != '') {
+          let arr = key.split('_');
+          arr.splice(-1, 1);
+          return arr.join('_');
+        } else {
+          return key;
+        }
+      })
+      .value();
 
   _mapModifier = (modifier, value) => {
     switch (modifier) {
@@ -249,14 +292,6 @@ export default class InputTypes {
         return { $not: { $regex: `${value}.*` } };
       case 'exists':
         return { $exists: value };
-      case 'near':
-        return {
-          $near: {
-            $geometry: value.geometry,
-            $minDistance: value.minDistance,
-            $maxDistance: value.maxDistance,
-          },
-        };
       default:
         return {};
     }
@@ -314,39 +349,6 @@ export default class InputTypes {
     });
     type._fields = fields;
   };
-
-  // _fillInputType = async (type, initialType, target) => {
-  //   let deafultTransformFunc = this._defaultTransformToInput[target];
-  //   switch (target) {
-  //     case INPUT_ORDER_BY: {
-  //       let values = [];
-  //       _.values(initialType._fields).forEach(field => {
-  //         let { mmTransformToInput = {} } = field;
-  //         let transformFunc =
-  //           mmTransformToInput[target] || deafultTransformFunc;
-  //         values = [...values, ...transformFunc(field)];
-  //       });
-  //       type._values = values;
-  //       break;
-  //     }
-  //     case INPUT_CREATE:
-  //     case INPUT_WHERE:
-  //     case INPUT_WHERE_UNIQUE: {
-  //       let fields = {};
-  //       _.values(initialType._fields).forEach(field => {
-  //         let { mmTransformToInput = {} } = field;
-  //         let transformFunc =
-  //           mmTransformToInput[target] || deafultTransformFunc;
-  //         fields = {
-  //           ...fields,
-  //           ...this._fieldsArrayToObject(transformFunc(field)),
-  //         };
-  //       });
-  //       type._fields = fields;
-  //       break;
-  //     }
-  //   }
-  // };
 
   _fieldsArrayToObject = arr => {
     let res = {};

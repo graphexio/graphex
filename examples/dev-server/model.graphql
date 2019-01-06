@@ -1,6 +1,13 @@
 type Description {
   full: String
   short: String
+  location: GeoJSONPoint
+  size: Size
+}
+
+type Size {
+  width: Float
+  height: Float
 }
 
 type Category @model {
@@ -17,6 +24,7 @@ type Item @model {
   description: Description
   category: Category! @relation
   labels: [Label!]! @relation
+  location: GeoJSONPoint
 }
 
 type Label @model {
@@ -28,6 +36,3 @@ type qwerty @model {
   id: ObjectID! @id @unique
   title: String!
 }
-
-type Query
-type Mutation
