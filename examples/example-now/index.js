@@ -25,7 +25,7 @@ let HANDLER = MongoClient.connect(
       playground: true,
     });
 
-    let handler = server.createHandler();
+    let handler = server.createHandler({ path: '/' });
     console.timeEnd('build server');
     return handler;
   });
