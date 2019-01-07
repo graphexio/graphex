@@ -13,6 +13,7 @@ type Item @model {
   category: Category! @relation
   labels: [Label!]! @relation
   location: GeoJSONPoint
+  embCategories: [EmbCategory]
 }
 
 type Label @model {
@@ -30,4 +31,9 @@ type Description {
 type Size {
   width: Float
   height: Float
+}
+
+type EmbCategory {
+  title: String
+  subcategories: [EmbCategory]
 }
