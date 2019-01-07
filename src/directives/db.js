@@ -20,7 +20,6 @@ export const DirectiveDBScheme = `directive @db(name:String!) on FIELD_DEFINITIO
 export default class DirectiveDB extends SchemaDirectiveVisitor {
   visitFieldDefinition(field) {
     const { name } = this.args;
-    const { resolveMapFilterToSelector } = field;
     appendTransform(field, TRANSFORM_INPUT, {
       [INPUT_ORDER_BY]: this._renameTransform(field.name, name),
       [INPUT_CREATE]: this._renameTransform(field.name, name),

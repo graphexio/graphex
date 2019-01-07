@@ -19,6 +19,7 @@ export default db => async params => {
   // console.log({ type, collection });
   // console.log('selector');
   // console.dir(selector, { depth: null });
+  // console.dir({ skip, limit });
   // console.log('doc');
   // console.dir(doc, { depth: null });
 
@@ -28,6 +29,7 @@ export default db => async params => {
   switch (type) {
     case FIND: {
       let cursor = Collection.find(selector);
+      if (skip) cursor = cursor.skip(skip);
       if (limit) cursor = cursor.limit(limit);
       if (sort) cursor = cursor.sort(sort);
       return cursor.toArray();
@@ -36,10 +38,15 @@ export default db => async params => {
       return Collection.findOne(selector);
     }
     case COUNT: {
-      return Collection.find(selector).count();
+      let cursor = Collection.find(selector);
+      if (skip) cursor = cursor.skip(skip);
+      if (limit) cursor = cursor.limit(limit);
+      if (sort) cursor = cursor.sort(sort);
+      return cursor.count(true);
     }
     case DISTINCT: {
       let cursor = Collection.find(selector);
+      if (skip) cursor = cursor.skip(skip);
       if (limit) cursor = cursor.limit(limit);
       if (sort) cursor = cursor.sort(sort);
       return cursor.toArray().then(data => data.map(item => item[options.key]));

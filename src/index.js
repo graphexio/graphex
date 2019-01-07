@@ -112,27 +112,64 @@ export default class ModelMongo {
     };
   };
 
-  _createMetaQuery = modelType => {
+  _createAggregateAndConnectionTypes = modelType => {
     let whereType = this._inputType(modelType, INPUT_WHERE);
     let orderByType = this._inputType(modelType, INPUT_ORDER_BY);
 
-    const name = `_${pluralize(modelType.name).toLowerCase()}Meta`;
+    const aggregateTypeName = `Aggregate${modelType.name}`;
+    this.SchemaTypes[aggregateTypeName] = new GraphQLObjectType({
+      name: aggregateTypeName,
+      fields: {
+        count: {
+          name: 'count',
+          type: new GraphQLNonNull(GraphQLInt),
+          resolve: async (parent, args, context, info) => {
+            return this.QueryExecutor({
+              type: COUNT,
+              collection: modelType.name,
+              selector: parent._selector,
+              options: {
+                skip: parent._skip,
+                limit: parent._limit,
+              },
+              context,
+            });
+          },
+        },
+      },
+    });
+
+    const connectionTypeName = `${modelType.name}Connection`;
+    this.SchemaTypes[connectionTypeName] = new GraphQLObjectType({
+      name: connectionTypeName,
+      fields: {
+        aggregate: {
+          name: 'aggregate',
+          type: new GraphQLNonNull(this.SchemaTypes[aggregateTypeName]),
+          resolve: async (parent, args, context, info) => {
+            return parent;
+          },
+        },
+      },
+    });
+  };
+
+  _createConnectionQuery = modelType => {
+    let whereType = this._inputType(modelType, INPUT_WHERE);
+    let orderByType = this._inputType(modelType, INPUT_ORDER_BY);
+
+    const connectionTypeName = `${modelType.name}Connection`;
+    const name = `${pluralize(modelType.name).toLowerCase()}Connection`;
     this.Query._fields[name] = {
-      type: this.SchemaTypes._QueryMeta,
-      description: undefined,
+      type: this.SchemaTypes[connectionTypeName],
       args: allQueryArgs({ whereType, orderByType }),
-      deprecationReason: undefined,
       isDeprecated: false,
       name,
       resolve: async (parent, args, context, info) => {
         return {
-          count: this.QueryExecutor({
-            type: COUNT,
-            collection: modelType.name,
-            selector: applyInputTransform(args.where, whereType),
-            options: { skip: args.skip, limit: args.first },
-            context,
-          }),
+          _selector: await applyInputTransform(args.where, whereType),
+          _skip: args.skip,
+          _limit: args.first,
         };
       },
     };
@@ -377,12 +414,18 @@ export default class ModelMongo {
     });
 
     _.values(SchemaTypes).forEach(type => {
+      if (getDirective(type, 'model')) {
+        this._createAggregateAndConnectionTypes(type);
+      }
+    });
+
+    _.values(SchemaTypes).forEach(type => {
       this._onSchemaInit(type);
 
       if (getDirective(type, 'model')) {
         this._createAllQuery(type);
         this._createSingleQuery(type);
-        this._createMetaQuery(type);
+        this._createConnectionQuery(type);
 
         this._createCreateMutation(type);
         this._createDeleteMutation(type);

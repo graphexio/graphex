@@ -259,7 +259,7 @@ export default queryExecutor =>
           orderByType,
         });
 
-        this._addMetaField(field);
+        this._addConnectionField(field);
       }
     };
 
@@ -312,7 +312,7 @@ export default queryExecutor =>
       });
     };
 
-    _addMetaField = field => {
+    _addConnectionField = field => {
       const { field: relationField } = this.args;
       let {
         mmLastType: lastType,
@@ -324,39 +324,36 @@ export default queryExecutor =>
       let whereType = this.mmInputTypes.get(lastType, 'where');
       let orderByType = this.mmInputTypes.get(lastType, 'orderBy');
 
-      let metaName = `_${field.name}Meta`;
-      this.mmObjectType._fields[metaName] = {
-        name: metaName,
-        skipFilter: true,
-        skipCreate: true,
+      let connectionName = `${field.name}Connection`;
+      this.mmObjectType._fields[connectionName] = {
+        name: connectionName,
         isDeprecated: false,
         args: allQueryArgs({
           whereType,
           orderByType,
         }),
-        type: SchemaTypes._QueryMeta,
+        type: SchemaTypes[`${lastType.name}Connection`],
         resolve: async (parent, args, context, info) => {
           let value = parent[storeField];
           if (_.isArray(value)) {
             value = { $in: value };
           }
           let selector = {
-            ...(await applyInputTransform(args.where, whereType)),
-            [relationField]: value,
+            $and: [
+              await applyInputTransform(args.where, whereType),
+              { [relationField]: value },
+            ],
           };
           return {
-            count: queryExecutor({
-              type: COUNT,
-              collection: lastType.name,
-              selector,
-              options: { skip: args.skip, limit: args.first },
-              context,
-            }),
+            _selector: selector,
+            _skip: args.skip,
+            _limit: args.first,
           };
         },
         [TRANSFORM_TO_INPUT]: {
           [INPUT_CREATE]: () => [],
           [INPUT_WHERE]: () => [],
+          [INPUT_UPDATE]: () => [],
           [INPUT_ORDER_BY]: () => [],
         },
       };

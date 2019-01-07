@@ -70,6 +70,7 @@ export default class InputTypes {
     this.registerKind(INPUT_WHERE_UNIQUE, this._createInputObject);
     this.registerKind(INPUT_ORDER_BY, this._createInputEnum);
     this.registerKind(INPUT_UPDATE, this._createInputObject);
+    this.registerKind;
   }
 
   _defaultTransformToInputOrderBy = field => [
@@ -89,7 +90,7 @@ export default class InputTypes {
     let lastType = getLastType(field.type);
     let newFieldType = lastType;
     if (lastType instanceof GraphQLObjectType) {
-      newFieldType = this._inputType(field.type, INPUT_UPDATE);
+      newFieldType = this._inputType(lastType, INPUT_UPDATE);
     }
 
     const { mmTransformInput = {} } = field;
@@ -113,7 +114,7 @@ export default class InputTypes {
     let lastType = getLastType(field.type);
     let newFieldType = lastType;
     if (lastType instanceof GraphQLObjectType) {
-      newFieldType = this._inputType(field.type, INPUT_CREATE);
+      newFieldType = this._inputType(lastType, INPUT_CREATE);
     }
 
     const { mmTransformInput = {} } = field;
@@ -355,23 +356,28 @@ export default class InputTypes {
     };
   };
 
-  _fillInputObject = async (type, initialType, target) => {
-    let deafultTransformFunc = this._defaultTransformToInput[target];
-    let fields = {};
-    if (target == INPUT_WHERE) {
-      this._addAndOr(fields, type);
-    }
+  _fillInputObject = (type, initialType, target) =>
+    new Promise((resolve, reject) => {
+      process.nextTick(() => {
+        let deafultTransformFunc = this._defaultTransformToInput[target];
+        let fields = {};
+        if (target == INPUT_WHERE) {
+          this._addAndOr(fields, type);
+        }
 
-    _.values(initialType._fields).forEach(field => {
-      let { mmTransformToInput = {} } = field;
-      let transformFunc = mmTransformToInput[target] || deafultTransformFunc;
-      fields = {
-        ...fields,
-        ...this._fieldsArrayToObject(transformFunc(field)),
-      };
+        _.values(initialType._fields).forEach(field => {
+          let { mmTransformToInput = {} } = field;
+          let transformFunc =
+            mmTransformToInput[target] || deafultTransformFunc;
+          fields = {
+            ...fields,
+            ...this._fieldsArrayToObject(transformFunc(field)),
+          };
+        });
+        type._fields = fields;
+        resolve();
+      });
     });
-    type._fields = fields;
-  };
 
   _fieldsArrayToObject = arr => {
     let res = {};
