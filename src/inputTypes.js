@@ -76,12 +76,10 @@ export default class InputTypes {
   _defaultTransformToInputOrderBy = field => [
     {
       name: `${field.name}_ASC`,
-      isDeprecated: false,
       value: { [field.name]: 1 },
     },
     {
       name: `${field.name}_DESC`,
-      isDeprecated: false,
       value: { [field.name]: -1 },
     },
   ];
@@ -307,15 +305,6 @@ export default class InputTypes {
   };
 
   _createInputEnum = (name, initialType, target) => {
-    let newType = new GraphQLEnumType({
-      name,
-      values: {},
-    });
-    newType.mmFill = this._fillInputEnum(newType, initialType, target);
-    return newType;
-  };
-
-  _fillInputEnum = async (type, initialType, target) => {
     let deafultTransformFunc = this._defaultTransformToInput[target];
     let values = [];
     _.values(initialType._fields).forEach(field => {
@@ -323,7 +312,12 @@ export default class InputTypes {
       let transformFunc = mmTransformToInput[target] || deafultTransformFunc;
       values = [...values, ...transformFunc(field)];
     });
-    type._values = values;
+
+    let newType = new GraphQLEnumType({
+      name,
+      values: this._fieldsArrayToObject(values),
+    });
+    return newType;
   };
 
   _createInputObject = (name, initialType, target) => {
