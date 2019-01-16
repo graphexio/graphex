@@ -2,7 +2,7 @@ type Category @model {
   id: ObjectID! @id @unique @db(name: "_id")
   title: String!
   tags: [String!]!
-  items: [Item] @extRelation
+  items: [Item] @extRelation(storeField: "categoryId")
 }
 
 type Item @model {
@@ -13,7 +13,13 @@ type Item @model {
   category: Category! @relation
   labels: [Label!]! @relation
   location: GeoJSONPoint
-  embCategories: [EmbCategory]
+  embCategory: EmbCategory
+  embCategoryArr: [EmbCategory]
+  embCategoryReq: EmbCategory!
+  moderatedBy: AdminUser @relation
+  owner: User
+  ownerRel: User @relation
+  ownerRelArr: [User]! @relation
 }
 
 type Label @model {
@@ -34,6 +40,22 @@ type Size {
 }
 
 type EmbCategory {
-  title: String
+  id: Int!
+  title: String!
+  subcat: EmbCategory
   subcategories: [EmbCategory]
+}
+
+interface User @inherit @model @discriminator(value: "_type") {
+  id: ObjectID! @id @unique @db(name: "_id")
+  username: String! @unique
+}
+
+type AdminUser implements User @discriminator(value: "AdminUser") {
+  role: String
+}
+
+type CustomerUser implements User @discriminator(value: "CustomerUser") {
+  firstName: String
+  lastName: String
 }

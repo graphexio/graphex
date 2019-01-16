@@ -6,94 +6,106 @@ import _ from 'lodash';
 import { GraphQLID, GraphQLList } from 'graphql';
 
 import {
-  getLastType,
-  hasQLListType,
-  mapFiltersToSelector,
   getRelationFieldName,
   allQueryArgs,
   GraphQLTypeFromString,
-  combineResolvers,
-} from '../utils';
+} from '~/utils';
 
-import { FIND, FIND_ONE, DISTINCT, COUNT } from '../queryExecutor';
+import { applyInputTransform } from '~/inputTypes/utils';
 
-import InputTypes, {
-  TRANSFORM_TO_INPUT,
-  INPUT_WHERE,
-  INPUT_WHERE_UNIQUE,
-  INPUT_CREATE,
-  INPUT_UPDATE,
-  INPUT_ORDER_BY,
-  INPUT_CREATE_CONNECT_ONE,
-  appendTransform,
-  applyInputTransform,
-} from '../inputTypes';
+import { FIND, FIND_ONE, DISTINCT, COUNT } from '~/queryExecutor';
 
-export const ExtRelationScheme = `directive @extRelation(field:String="_id", fieldType:String="ObjectID" ) on FIELD_DEFINITION`;
+import InputTypes from '~/inputTypes';
+import TypeWrap from '~/typeWrap';
+import { appendTransform, reduceTransforms } from '~/inputTypes/utils';
+import * as HANDLER from '~/inputTypes/handlers';
+import * as KIND from '~/inputTypes/kinds';
+import * as Transforms from '~/inputTypes/transforms';
+
+export const ExtRelationScheme = `directive @extRelation(field:String="_id", fieldType:String="ObjectID", storeField:String=null, many:Boolean=false ) on FIELD_DEFINITION`;
 
 export default queryExecutor =>
   class ExtRelationDirective extends SchemaDirectiveVisitor {
     visitFieldDefinition(field, { objectType }) {
       const { _typeMap: SchemaTypes } = this.schema;
-      const { field: relationField } = this.args;
+      const { field: relationField, storeField, many } = this.args;
+      let fieldTypeWrap = new TypeWrap(field.type);
 
       this.mmObjectType = objectType;
-      this.mmInputTypes = new InputTypes({ SchemaTypes });
-      this.mmLastType = getLastType(field.type);
-      this.mmIsMany = hasQLListType(field.type);
-      this.mmStoreField = getRelationFieldName(
-        this.mmObjectType.name,
-        relationField,
-        false
-      );
+      this.mmFieldTypeWrap = fieldTypeWrap;
+      this.mmStoreField =
+        storeField ||
+        getRelationFieldName(this.mmObjectType.name, relationField, many);
 
-      appendTransform(field, TRANSFORM_TO_INPUT, {
-        [INPUT_ORDER_BY]: field => [],
-        [INPUT_CREATE]: field => [],
-        [INPUT_UPDATE]: field => [],
-        [INPUT_WHERE]: field => [],
+      appendTransform(field, HANDLER.TRANSFORM_TO_INPUT, {
+        [KIND.ORDER_BY]: field => [],
+        [KIND.CREATE]: field => [],
+        [KIND.UPDATE]: field => [],
+        [KIND.WHERE]: field => [],
       });
 
       field.mmOnSchemaInit = this._onSchemaInit;
+      field.mmOnSchemaBuild = this._onSchemaBuild;
 
-      field.resolve = this.mmIsMany
+      field.resolve = fieldTypeWrap.isMany()
         ? this._resolveMany(field)
         : this._resolveSingle(field);
     }
 
-    _onSchemaInit = field => {
-      let { mmLastType: lastType, mmIsMany: isMany } = this;
+    _onSchemaInit = ({ field }) => {
+      let { mmFieldTypeWrap: fieldTypeWrap } = this;
 
-      if (isMany) {
-        let whereType = this.mmInputTypes.get(lastType, 'where');
-        let orderByType = this.mmInputTypes.get(lastType, 'orderBy');
+      if (fieldTypeWrap.isMany()) {
+        let whereType = InputTypes.get(
+          fieldTypeWrap.realType(),
+          fieldTypeWrap.isInterface() ? KIND.WHERE_INTERFACE : KIND.WHERE
+        );
+        let orderByType = InputTypes.get(
+          fieldTypeWrap.realType(),
+          KIND.ORDER_BY
+        );
 
         field.args = allQueryArgs({
           whereType,
           orderByType,
         });
 
-        this._addMetaField(field);
+        this._addConnectionField(field);
+      }
+    };
+
+    _onSchemaBuild = ({ field }) => {
+      let fieldTypeWrap = new TypeWrap(field.type);
+
+      //Collection name and interface modifier
+      if (fieldTypeWrap.isInherited()) {
+        let { mmDiscriminator } = fieldTypeWrap.realType();
+        let { mmDiscriminatorField } = fieldTypeWrap.interfaceType();
+
+        this.mmCollectionName = fieldTypeWrap.realType().mmCollectionName;
+        this.mmInterfaceModifier = {
+          [mmDiscriminatorField]: mmDiscriminator,
+        };
+      } else {
+        this.mmInterfaceModifier = {};
+        this.mmCollectionName = fieldTypeWrap.realType().mmCollectionName;
       }
     };
 
     _resolveSingle = field => async (parent, args, context, info) => {
       const { field: relationField } = this.args;
-      let {
-        mmLastType: lastType,
-        mmIsMany: isMany,
-        mmStoreField: storeField,
-      } = this;
+      let { mmStoreField: storeField, mmInterfaceModifier } = this;
 
-      let value = parent[storeField];
+      let value = parent[relationField];
       let selector = {
-        [relationField]: value,
+        [storeField]: value,
+        ...mmInterfaceModifier,
       };
 
       return queryExecutor({
         type: FIND_ONE,
-        collection: lastType.name,
-        selector: { [relationField]: value },
+        collection: this.mmCollectionName,
+        selector,
         options: { skip: args.skip, limit: args.first },
         context,
       });
@@ -102,76 +114,81 @@ export default queryExecutor =>
     _resolveMany = field => async (parent, args, context, info) => {
       const { field: relationField } = this.args;
       let {
-        mmLastType: lastType,
-        mmIsMany: isMany,
+        mmFieldTypeWrap: fieldTypeWrap,
         mmStoreField: storeField,
+        mmInterfaceModifier,
       } = this;
 
-      let whereType = this.mmInputTypes.get(lastType, 'where');
+      let whereType = InputTypes.get(
+        fieldTypeWrap.realType(),
+        fieldTypeWrap.isInterface() ? KIND.WHERE_INTERFACE : KIND.WHERE
+      );
 
       let value = parent[relationField];
       if (_.isArray(value)) {
         value = { $in: value };
       }
-      let selector = {
-        ...(await applyInputTransform(args.where, whereType)),
+
+      let selector = await applyInputTransform(args.where, whereType);
+      if (fieldTypeWrap.isInterface()) {
+        selector = Transforms.validateAndTransformInterfaceInput(whereType)({
+          selector,
+        }).selector;
+      }
+
+      selector = {
+        ...selector,
         [storeField]: value,
+        ...mmInterfaceModifier,
       };
       return queryExecutor({
         type: FIND,
-        collection: lastType.name,
+        collection: this.mmCollectionName,
         selector,
         options: { skip: args.skip, limit: args.first },
         context,
       });
     };
 
-    _addMetaField = field => {
+    _addConnectionField = field => {
       const { field: relationField } = this.args;
-      let {
-        mmLastType: lastType,
-        mmIsMany: isMany,
-        mmStoreField: storeField,
-      } = this;
+      let { mmFieldTypeWrap: fieldTypeWrap, mmStoreField: storeField } = this;
       const { _typeMap: SchemaTypes } = this.schema;
 
-      let whereType = this.mmInputTypes.get(lastType, 'where');
-      let orderByType = this.mmInputTypes.get(lastType, 'orderBy');
+      let whereType = InputTypes.get(fieldTypeWrap.realType(), KIND.WHERE);
+      let orderByType = InputTypes.get(fieldTypeWrap.realType(), KIND.ORDER_BY);
 
-      let metaName = `_${field.name}Meta`;
-      this.mmObjectType._fields[metaName] = {
-        name: metaName,
-        skipFilter: true,
-        skipCreate: true,
+      let connectionName = `${field.name}Connection`;
+      this.mmObjectType._fields[connectionName] = {
+        name: connectionName,
         isDeprecated: false,
         args: allQueryArgs({
           whereType,
           orderByType,
         }),
-        type: SchemaTypes._QueryMeta,
+        type: SchemaTypes[`${fieldTypeWrap.realType().name}Connection`],
         resolve: async (parent, args, context, info) => {
           let value = parent[relationField];
           if (_.isArray(value)) {
             value = { $in: value };
           }
           let selector = {
-            ...(await applyInputTransform(args.where, whereType)),
-            [storeField]: value,
+            $and: [
+              await applyInputTransform(args.where, whereType),
+              { [storeField]: value },
+            ],
           };
           return {
-            count: queryExecutor({
-              type: COUNT,
-              collection: lastType.name,
-              selector,
-              options: { skip: args.skip, limit: args.first },
-              context,
-            }),
+            _selector: selector,
+            _skip: args.skip,
+            _limit: args.first,
           };
         },
-        [TRANSFORM_TO_INPUT]: {
-          [INPUT_CREATE]: () => [],
-          [INPUT_WHERE]: () => [],
-          [INPUT_ORDER_BY]: () => [],
+        [HANDLER.TRANSFORM_TO_INPUT]: {
+          [KIND.CREATE]: () => [],
+          [KIND.WHERE]: () => [],
+          [KIND.UPDATE]: () => [],
+          [KIND.ORDER_BY]: () => [],
         },
       };
     };

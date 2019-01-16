@@ -14,16 +14,18 @@ export const UPDATE_MANY = 'updateMany';
 export default db => async params => {
   var { type, collection, doc, docs, selector, options = {} } = params;
   // console.dir({ type, collection, selector, options }, { depth: null });
-  let { skip, limit, sort } = options;
-
+  let { skip, limit, sort, arrayFilters = [] } = options;
+  //
+  // console.log('\n\n');
   // console.log({ type, collection });
   // console.log('selector');
   // console.dir(selector, { depth: null });
-  // console.dir({ skip, limit });
+  // console.dir({ options });
   // console.log('doc');
   // console.dir(doc, { depth: null });
+  // console.log('\n\n');
 
-  let collectionName = pluralize(collection.toLowerCase());
+  let collectionName = collection;
   let Collection = db.collection(collectionName);
 
   switch (type) {
@@ -53,6 +55,7 @@ export default db => async params => {
     }
     case INSERT_ONE: {
       return Collection.insertOne(doc).then(res => _.head(res.ops));
+      return doc;
     }
     case INSERT_MANY: {
       return Collection.insertMany(docs).then(res => res.ops);
@@ -61,11 +64,11 @@ export default db => async params => {
       return Collection.findOneAndDelete(selector).then(res => res.value);
     }
     case UPDATE_ONE: {
-      return Collection.findOneAndUpdate(
-        selector,
-        { $set: doc },
-        { returnOriginal: false }
-      ).then(res => res.value);
+      // return doc;
+      return Collection.findOneAndUpdate(selector, doc, {
+        returnOriginal: false,
+        arrayFilters,
+      }).then(res => res.value);
     }
   }
   return null;

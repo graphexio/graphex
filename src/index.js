@@ -3,6 +3,7 @@ import gql from 'graphql-tag';
 import {
   GraphQLInt,
   GraphQLObjectType,
+  GraphQLInterfaceType,
   GraphQLInputObjectType,
   GraphQLList,
   GraphQLNonNull,
@@ -30,12 +31,12 @@ import {
   getDirectiveArg,
   getRelationFieldName,
   hasQLListType,
-  mapFiltersToSelector,
   allQueryArgs,
   hasQLNonNullType,
   cloneSchema,
   combineResolvers,
-  addResolveMapFilterToSelector,
+  lowercaseFirstLetter,
+  prepareUpdateDoc,
 } from './utils';
 
 export {
@@ -51,7 +52,11 @@ export {
   combineResolvers,
 } from './utils';
 
+import TypeWrap from './typeWrap';
+
 import InitialScheme from './initialScheme';
+
+import Inherit, { InheritScheme } from './directives/inherit';
 import Relation, { RelationScheme } from './directives/relation';
 import ExtRelation, { ExtRelationScheme } from './directives/extRelation';
 import DirectiveDB, {
@@ -59,52 +64,55 @@ import DirectiveDB, {
   DirectiveDBResolver,
 } from './directives/db';
 import Model, { ModelScheme } from './directives/model';
-import ReadOnly, { ReadOnlyScheme } from './directives/readOnly';
 import Unique, { UniqueScheme } from './directives/unique';
 import ID, { IDScheme } from './directives/id';
 import Scalars, { typeDefs as ScalarsSchemes } from './scalars';
-import * as GeoJSONModule from './geoJSON';
+import Modules from './modules';
 
-import InputTypes, {
-  INPUT_CREATE,
-  INPUT_WHERE,
-  INPUT_WHERE_UNIQUE,
-  INPUT_ORDER_BY,
-  INPUT_UPDATE,
-  applyInputTransform,
-} from './inputTypes';
+import InputTypes from './inputTypes';
+import { applyInputTransform } from './inputTypes/utils';
+import * as KIND from './inputTypes/kinds';
 
 const relationFieldDefault = '_id';
 
 export default class ModelMongo {
   constructor({ queryExecutor }) {
     this.QueryExecutor = queryExecutor;
-    this.Modules = [GeoJSONModule];
+    this.Modules = Modules;
     this.TypesInit = {};
     this.FieldsInit = {};
   }
 
   _inputType = (type, target) => {
-    return this.InputTypes.get(type, target);
+    return InputTypes.get(type, target);
   };
 
   _createAllQuery = modelType => {
-    let whereType = this._inputType(modelType, INPUT_WHERE);
-    let orderByType = this._inputType(modelType, INPUT_ORDER_BY);
+    let typeWrap = new TypeWrap(modelType);
+    try {
+      var whereType = this._inputType(modelType, KIND.WHERE);
+      var orderByType = this._inputType(modelType, KIND.ORDER_BY);
+    } catch (e) {
+      return;
+    }
 
-    const name = pluralize(modelType.name).toLowerCase();
+    const name = lowercaseFirstLetter(pluralize(modelType.name));
     this.Query._fields[name] = {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(modelType))),
-      description: undefined,
       args: allQueryArgs({ whereType, orderByType }),
-      deprecationReason: undefined,
       isDeprecated: false,
       name,
       resolve: async (parent, args, context, info) => {
+        let selector = await applyInputTransform(args.where, whereType);
+        if (typeWrap.isInherited()) {
+          selector[
+            typeWrap.interfaceType().mmDiscriminatorField
+          ] = typeWrap.realType().mmDiscriminator;
+        }
         return this.QueryExecutor({
           type: FIND,
-          collection: modelType.name,
-          selector: await applyInputTransform(args.where, whereType),
+          collection: modelType.mmCollectionName,
+          selector,
           options: { skip: args.skip, limit: args.first, sort: args.orderBy },
           context,
         });
@@ -113,8 +121,13 @@ export default class ModelMongo {
   };
 
   _createAggregateAndConnectionTypes = modelType => {
-    let whereType = this._inputType(modelType, INPUT_WHERE);
-    let orderByType = this._inputType(modelType, INPUT_ORDER_BY);
+    let typeWrap = new TypeWrap(modelType);
+    try {
+      var whereType = this._inputType(modelType, KIND.WHERE);
+      var orderByType = this._inputType(modelType, KIND.ORDER_BY);
+    } catch (e) {
+      return;
+    }
 
     const aggregateTypeName = `Aggregate${modelType.name}`;
     this.SchemaTypes[aggregateTypeName] = new GraphQLObjectType({
@@ -124,10 +137,17 @@ export default class ModelMongo {
           name: 'count',
           type: new GraphQLNonNull(GraphQLInt),
           resolve: async (parent, args, context, info) => {
+            let selector = parent._selector;
+            if (typeWrap.isInherited()) {
+              selector[
+                typeWrap.interfaceType().mmDiscriminatorField
+              ] = typeWrap.realType().mmDiscriminator;
+            }
+
             return this.QueryExecutor({
               type: COUNT,
-              collection: modelType.name,
-              selector: parent._selector,
+              collection: modelType.mmCollectionName,
+              selector,
               options: {
                 skip: parent._skip,
                 limit: parent._limit,
@@ -155,11 +175,16 @@ export default class ModelMongo {
   };
 
   _createConnectionQuery = modelType => {
-    let whereType = this._inputType(modelType, INPUT_WHERE);
-    let orderByType = this._inputType(modelType, INPUT_ORDER_BY);
+    let typeWrap = new TypeWrap(modelType);
+    try {
+      var whereType = this._inputType(modelType, KIND.WHERE);
+      var orderByType = this._inputType(modelType, KIND.ORDER_BY);
+    } catch (e) {
+      return;
+    }
 
     const connectionTypeName = `${modelType.name}Connection`;
-    const name = `${pluralize(modelType.name).toLowerCase()}Connection`;
+    const name = `${lowercaseFirstLetter(pluralize(modelType.name))}Connection`;
     this.Query._fields[name] = {
       type: this.SchemaTypes[connectionTypeName],
       args: allQueryArgs({ whereType, orderByType }),
@@ -175,9 +200,14 @@ export default class ModelMongo {
     };
   };
 
-  _createSingleQuery = (modelType, Query) => {
-    let orderByType = this._inputType(modelType, INPUT_ORDER_BY);
-    let whereUniqueType = this._inputType(modelType, INPUT_WHERE_UNIQUE);
+  _createSingleQuery = modelType => {
+    let typeWrap = new TypeWrap(modelType);
+    try {
+      var orderByType = this._inputType(modelType, KIND.ORDER_BY);
+      var whereUniqueType = this._inputType(modelType, KIND.WHERE_UNIQUE);
+    } catch (e) {
+      return;
+    }
 
     let args = [
       {
@@ -186,7 +216,7 @@ export default class ModelMongo {
       },
     ];
 
-    const name = modelType.name.toLowerCase();
+    const name = lowercaseFirstLetter(modelType.name);
     this.Query._fields[name] = {
       type: modelType,
       description: undefined,
@@ -195,10 +225,16 @@ export default class ModelMongo {
       isDeprecated: false,
       name,
       resolve: async (parent, args, context, info) => {
+        let selector = await applyInputTransform(args.where, whereUniqueType);
+        if (typeWrap.isInherited()) {
+          selector[
+            typeWrap.interfaceType().mmDiscriminatorField
+          ] = typeWrap.realType().mmDiscriminator;
+        }
         return this.QueryExecutor({
           type: FIND_ONE,
-          collection: modelType.name,
-          selector: await applyInputTransform(args.where, whereUniqueType),
+          collection: modelType.mmCollectionName,
+          selector,
           options: {},
           context,
         });
@@ -207,16 +243,17 @@ export default class ModelMongo {
   };
 
   _createCreateMutation = modelType => {
-    let whereType = this._inputType(modelType, INPUT_WHERE);
-    let orderByType = this._inputType(modelType, INPUT_ORDER_BY);
-    let inputType = this._inputType(modelType, INPUT_CREATE);
-
-    let args = [
-      {
-        type: new GraphQLNonNull(inputType),
-        name: 'data',
-      },
-    ];
+    let typeWrap = new TypeWrap(modelType);
+    let args = [];
+    try {
+      var inputType = this._inputType(modelType, KIND.CREATE);
+      args = [
+        {
+          type: new GraphQLNonNull(inputType),
+          name: 'data',
+        },
+      ];
+    } catch (e) {}
 
     const name = `create${modelType.name}`;
     this.Mutation._fields[name] = {
@@ -225,10 +262,17 @@ export default class ModelMongo {
       isDeprecated: false,
       name,
       resolve: async (parent, args, context, info) => {
+        let doc = await applyInputTransform(args.data, inputType);
+        if (typeWrap.isInherited()) {
+          doc[
+            typeWrap.interfaceType().mmDiscriminatorField
+          ] = typeWrap.realType().mmDiscriminator;
+        }
+
         return this.QueryExecutor({
           type: INSERT_ONE,
-          collection: modelType.name,
-          doc: await applyInputTransform(args.data, inputType),
+          collection: modelType.mmCollectionName,
+          doc,
           options: {},
           context,
         });
@@ -237,10 +281,16 @@ export default class ModelMongo {
   };
 
   _createDeleteMutation = modelType => {
-    let inputType = this._inputType(modelType, INPUT_WHERE_UNIQUE);
+    let typeWrap = new TypeWrap(modelType);
+    try {
+      var whereUniqueType = this._inputType(modelType, KIND.WHERE_UNIQUE);
+    } catch (e) {
+      return;
+    }
+
     let args = [
       {
-        type: new GraphQLNonNull(inputType),
+        type: new GraphQLNonNull(whereUniqueType),
         name: 'where',
       },
     ];
@@ -252,10 +302,17 @@ export default class ModelMongo {
       isDeprecated: false,
       name,
       resolve: async (parent, args, context, info) => {
+        let selector = await applyInputTransform(args.where, whereUniqueType);
+        if (typeWrap.isInherited()) {
+          selector[
+            typeWrap.interfaceType().mmDiscriminatorField
+          ] = typeWrap.realType().mmDiscriminator;
+        }
+
         return this.QueryExecutor({
           type: DELETE_ONE,
-          collection: modelType.name,
-          selector: await applyInputTransform(args.where, inputType),
+          collection: modelType.mmCollectionName,
+          selector,
           options: {},
           context,
         });
@@ -264,9 +321,15 @@ export default class ModelMongo {
   };
 
   _createUpdateMutation = modelType => {
-    let whereType = this._inputType(modelType, INPUT_WHERE_UNIQUE);
-    let updateType = this._inputType(modelType, INPUT_UPDATE);
-    let args = [
+    let typeWrap = new TypeWrap(modelType);
+    let args = [];
+    try {
+      var whereType = this._inputType(modelType, KIND.WHERE_UNIQUE);
+      var updateType = this._inputType(modelType, KIND.UPDATE);
+    } catch (e) {
+      return;
+    }
+    args = [
       {
         type: new GraphQLNonNull(updateType),
         name: 'data',
@@ -276,6 +339,7 @@ export default class ModelMongo {
         name: 'where',
       },
     ];
+    // }
 
     const name = `update${modelType.name}`;
     this.Mutation._fields[name] = {
@@ -284,12 +348,25 @@ export default class ModelMongo {
       isDeprecated: false,
       name,
       resolve: async (parent, args, context, info) => {
+        let { doc, validations, arrayFilters } = prepareUpdateDoc(
+          await applyInputTransform(args.data, updateType)
+        );
+
+        let selector = {
+          $and: [await applyInputTransform(args.where, whereType), validations],
+        };
+        if (typeWrap.isInherited()) {
+          selector[
+            typeWrap.interfaceType().mmDiscriminatorField
+          ] = typeWrap.realType().mmDiscriminator;
+        }
+
         return this.QueryExecutor({
           type: UPDATE_ONE,
-          collection: modelType.name,
-          selector: await applyInputTransform(args.where, whereType),
-          doc: await applyInputTransform(args.data, updateType),
-          options: {},
+          collection: modelType.mmCollectionName,
+          selector,
+          doc,
+          options: { arrayFilters },
           context,
         });
       },
@@ -297,9 +374,23 @@ export default class ModelMongo {
   };
 
   _onSchemaInit = type => {
+    if (type.mmOnSchemaInit) {
+      type.mmOnSchemaInit({ type, inputTypes: InputTypes });
+    }
     _.values(type._fields).forEach(field => {
       if (field.mmOnSchemaInit) {
-        field.mmOnSchemaInit(field);
+        field.mmOnSchemaInit({ field, inputTypes: InputTypes });
+      }
+    });
+  };
+
+  _onSchemaBuild = type => {
+    if (type.mmOnSchemaBuild) {
+      type.mmOnSchemaBuild({ type, inputTypes: InputTypes });
+    }
+    _.values(type._fields).forEach(field => {
+      if (field.mmOnSchemaBuild) {
+        field.mmOnSchemaBuild({ field, inputTypes: InputTypes });
       }
     });
   };
@@ -307,7 +398,7 @@ export default class ModelMongo {
   _onTypeInit = type => {
     let init = this.TypesInit[type.name];
     if (init) {
-      init(type);
+      init({ type, inputTypes: InputTypes });
     }
   };
 
@@ -316,7 +407,7 @@ export default class ModelMongo {
       let lastType = getLastType(field.type);
       let init = this.FieldsInit[lastType.name];
       if (init) {
-        init(field, { types: this.SchemaTypes });
+        init({ field, inputTypes: InputTypes });
       }
     });
   };
@@ -332,13 +423,12 @@ export default class ModelMongo {
 
     typeDefs = [
       InitialScheme,
-      ReadOnlyScheme,
+      InheritScheme,
       ModelScheme,
       DirectiveDBScheme,
       RelationScheme,
       IDScheme,
       UniqueScheme,
-      // GeoJSONScheme,
       ExtRelationScheme,
       ...ScalarsSchemes,
       ...typeDefs,
@@ -349,8 +439,8 @@ export default class ModelMongo {
       relation: Relation(this.QueryExecutor),
       extRelation: ExtRelation(this.QueryExecutor),
       db: DirectiveDB,
+      inherit: Inherit,
       model: Model,
-      readOnly: ReadOnly,
       unique: Unique,
       id: ID,
     };
@@ -362,9 +452,19 @@ export default class ModelMongo {
 
     resolvers = {
       ...resolvers,
-      // ...GeoJSON,
       ...Scalars,
     };
+
+    this.Modules.forEach(module => {
+      if (module.typeDef) typeDefs.push(module.typeDef);
+      if (module.resolvers) resolvers = _.merge(resolvers, module.resolvers);
+      if (module.schemaDirectives)
+        schemaDirectives = _.merge(schemaDirectives, module.schemaDirectives);
+      if (module.typesInit)
+        this.TypesInit = _.merge(this.TypesInit, module.typesInit);
+      if (module.fieldsInit)
+        this.FieldsInit = _.merge(this.FieldsInit, module.fieldsInit);
+    });
 
     let modelParams = {
       ...params,
@@ -374,36 +474,18 @@ export default class ModelMongo {
       resolvers,
     };
 
-    this.Modules.forEach(module => {
-      if (module.typeDef) typeDefs.push(module.typeDef);
-      if (module.resolvers) resolvers = _.merge(resolvers, module.resolvers);
-      if (module.typesInit)
-        this.TypesInit = _.merge(this.TypesInit, module.typesInit);
-      if (module.fieldsInit)
-        this.FieldsInit = _.merge(this.FieldsInit, module.fieldsInit);
-    });
-
     let schema = makeExecutableSchema(modelParams);
-    // console.warn('before');
-    // console.log(schema);
-    // schema = mergeSchemas({
-    //   schemas: [schema],
-    // });
-    schema = _.merge(
-      schema,
-      _.pick(GeoJSONModule, ['_directives', '_typeMap'])
-    );
-    // console.warn('after');
-    // console.log(schema);
 
     let { _typeMap: SchemaTypes } = schema;
     let { Query, Mutation } = SchemaTypes;
 
-    this.InputTypes = new InputTypes({ SchemaTypes });
-
     this.SchemaTypes = SchemaTypes;
     this.Query = Query;
     this.Mutation = Mutation;
+
+    _.values(SchemaTypes).forEach(type => {
+      this._onSchemaBuild(type);
+    });
 
     _.values(SchemaTypes).forEach(type => {
       this._onTypeInit(type);
@@ -414,7 +496,12 @@ export default class ModelMongo {
     });
 
     _.values(SchemaTypes).forEach(type => {
-      if (getDirective(type, 'model')) {
+      let typeWrap = new TypeWrap(type);
+      if (
+        getDirective(type, 'model') ||
+        (typeWrap.isInherited() &&
+          getDirective(typeWrap.interfaceType(), 'model'))
+      ) {
         this._createAggregateAndConnectionTypes(type);
       }
     });
@@ -422,22 +509,24 @@ export default class ModelMongo {
     _.values(SchemaTypes).forEach(type => {
       this._onSchemaInit(type);
 
-      if (getDirective(type, 'model')) {
+      let typeWrap = new TypeWrap(type);
+      if (
+        getDirective(type, 'model') ||
+        (typeWrap.isInherited() &&
+          getDirective(typeWrap.interfaceType(), 'model'))
+      ) {
         this._createAllQuery(type);
         this._createSingleQuery(type);
         this._createConnectionQuery(type);
 
-        this._createCreateMutation(type);
+        if (!typeWrap.isInterface()) {
+          this._createCreateMutation(type);
+        }
         this._createDeleteMutation(type);
         this._createUpdateMutation(type);
+        // }
       }
     });
-
-    await Promise.all(
-      _.values(SchemaTypes)
-        .filter(item => item.mmFill)
-        .map(item => item.mmFill)
-    );
 
     return schema;
   };

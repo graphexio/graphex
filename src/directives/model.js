@@ -10,25 +10,34 @@ import {
   GraphQLEnumType,
 } from 'graphql';
 
-export const ModelScheme = `directive @model(primaryKey:String="id") on OBJECT`;
+import _ from 'lodash';
+import pluralize from 'pluralize';
+
+import { getDirective, lowercaseFirstLetter } from '~/utils';
+
+export const ModelScheme = `directive @model(collection:String=null) on OBJECT | INTERFACE`;
 
 export default class Model extends SchemaDirectiveVisitor {
   visitObject(object) {
-    const { primaryKey } = this.args;
-    object._fields[primaryKey].primaryKey = true;
-
-    // ['createdAt', 'updatedAt'].forEach(field => {
-    //   object._fields[field] = {
-    //     name: field,
-    //     type: GraphQLInt,
-    //     args: [],
-    //     isDeprecated: false,
-    //     resolve: defaultFieldResolver,
-    //     skipCreate: true,
-    //   };
-    // });
+    const { collection } = this.args;
+    object.mmCollectionName =
+      collection || lowercaseFirstLetter(pluralize(object.name));
   }
-  exitObject(object) {
-    // console.log('exit', object);
+
+  visitInterface(iface) {
+    const { collection } = this.args;
+    iface.mmCollectionName =
+      collection || lowercaseFirstLetter(pluralize(iface.name));
+
+    const { _typeMap: SchemaTypes } = this.schema;
+
+    _.values(SchemaTypes)
+      .filter(type => type._interfaces && type._interfaces.includes(iface))
+      .forEach(type => {
+        if (getDirective(type, 'model')) {
+          throw `Do not use Model directive both on interface and implementation`;
+        }
+        type.mmCollectionName = iface.mmCollectionName;
+      });
   }
 }

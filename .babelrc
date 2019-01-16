@@ -3,6 +3,12 @@
   "plugins": [
     "@babel/plugin-proposal-class-properties",
     [
+      "babel-plugin-root-import",
+      {
+        "rootPathSuffix": "src/"
+      }
+    ],
+    [
       "@babel/transform-runtime",
       {
         "regenerator": true
