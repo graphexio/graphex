@@ -54,6 +54,10 @@ function camelize(str) {
     .replace(/\s+/g, '');
 }
 
+export function lowercaseFirstLetter(string) {
+  return string.charAt(0).toLowerCase() + string.slice(1);
+}
+
 export function getRelationFieldName(collection, field, many = false) {
   field = field.replace('_', '');
   if (many) {
@@ -108,6 +112,15 @@ export async function asyncForEach(array, callback) {
   }
 }
 
+export async function asyncMapValues(object, callback) {
+  let newObject = {};
+  await asyncForEach(_.keys(object), async key => {
+    let value = object[key];
+    newObject[key] = await callback(value, key, object);
+  });
+  return newObject;
+}
+
 export function allQueryArgs({ whereType, orderByType }) {
   return [
     {
@@ -153,4 +166,78 @@ export function GraphQLTypeFromString(type) {
 export function combineResolvers(...args) {
   args = args.filter(arg => arg);
   return CombineResolvers(...args);
+}
+
+export function prepareUpdateDoc(doc) {
+  doc = _.cloneDeep(doc);
+  console.log({ doc });
+
+  let set = {};
+  let unset = {};
+  let push = {};
+  let pull = {};
+  let pullAll = {};
+  let arrayFilters = [];
+  let validations = {};
+
+  _.keys(doc).forEach(path => {
+    let value = doc[path];
+    _.keys(value).forEach(key => {
+      let val = value[key];
+      switch (key) {
+        case '$mmPushAll':
+          push[path] = { $each: val };
+          delete value[key];
+          break;
+        case '$mmArrayFilter':
+          arrayFilters.push(val);
+          delete value[key];
+          break;
+        case '$mmPull':
+          pull[path] = val;
+          delete value[key];
+          break;
+        case '$mmPullAll':
+          pullAll[path] = val;
+          delete value[key];
+          break;
+        case '$mmUnset':
+          unset[path] = true;
+          delete value[key];
+          break;
+        case '$mmExists':
+          validations[path] = { $exists: val };
+          delete value[key];
+          break;
+        case '$mmEquals':
+          validations[path] = { $equals: val };
+          delete value[key];
+          break;
+      }
+    });
+    if (!_.isObject(value) || _.keys(value).length > 0) {
+      set[path] = value;
+    }
+  });
+  let newDoc = {};
+  if (!_.isEmpty(set)) {
+    newDoc.$set = set;
+  }
+  if (!_.isEmpty(unset)) {
+    newDoc.$unset = unset;
+  }
+  if (!_.isEmpty(push)) {
+    newDoc.$push = push;
+  }
+  if (!_.isEmpty(pull)) {
+    newDoc.$pull = pull;
+  }
+  if (!_.isEmpty(pullAll)) {
+    newDoc.$pullAll = pullAll;
+  }
+
+  // console.log(newDoc);
+  // console.log({ validations });
+  // console.log({ arrayFilters });
+  return { doc: newDoc, validations, arrayFilters };
 }

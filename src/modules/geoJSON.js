@@ -1,16 +1,8 @@
 import gql from 'graphql-tag';
 
-import InputTypes, {
-  TRANSFORM_TO_INPUT,
-  TRANSFORM_INPUT,
-  INPUT_WHERE,
-  INPUT_WHERE_UNIQUE,
-  INPUT_CREATE,
-  INPUT_UPDATE,
-  INPUT_ORDER_BY,
-  appendTransform,
-  applyInputTransform,
-} from './inputTypes';
+import { appendTransform } from '~/inputTypes/utils';
+import * as HANDLER from '~/inputTypes/handlers';
+import * as KIND from '~/inputTypes/kinds';
 
 const toRadians = num => {
   return (num * Math.PI) / 180;
@@ -74,27 +66,27 @@ export const typeDef = gql`
   # }
 `;
 
-function initGeoJSONPoint(field, { types }) {
-  appendTransform(field, TRANSFORM_TO_INPUT, {
-    [INPUT_ORDER_BY]: field => [],
-    [INPUT_CREATE]: field => [
+function initGeoJSONPoint({ field, inputTypes }) {
+  appendTransform(field, HANDLER.TRANSFORM_TO_INPUT, {
+    [KIND.ORDER_BY]: ({ field }) => [],
+    [KIND.CREATE]: ({ field }) => [
       {
         name: field.name,
-        type: types.GeoJSONPointInput,
+        type: inputTypes.exist('GeoJSONPointInput'),
         mmTransform: params => params,
       },
     ],
-    [INPUT_UPDATE]: field => [
+    [KIND.UPDATE]: ({ field }) => [
       {
         name: field.name,
-        type: types.GeoJSONPointInput,
+        type: inputTypes.exist('GeoJSONPointInput'),
         mmTransform: params => params,
       },
     ],
-    [INPUT_WHERE]: field => [
+    [KIND.WHERE]: ({ field }) => [
       {
         name: `${field.name}_near`,
-        type: types.GeoJSONPointNearInput,
+        type: inputTypes.exist('GeoJSONPointNearInput'),
         mmTransform: params => {
           let value = params[`${field.name}_near`];
           params = {
@@ -110,8 +102,11 @@ function initGeoJSONPoint(field, { types }) {
               },
             },
           };
-          if (field[TRANSFORM_INPUT] && field[TRANSFORM_INPUT][INPUT_WHERE]) {
-            params = field[TRANSFORM_INPUT][INPUT_WHERE](params);
+          if (
+            field[HANDLER.TRANSFORM_INPUT] &&
+            field[HANDLER.TRANSFORM_INPUT][KIND.WHERE]
+          ) {
+            params = field[HANDLER.TRANSFORM_INPUT][KIND.WHERE](params);
           }
           return params;
         },

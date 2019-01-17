@@ -1,53 +1,36 @@
 # apollo-model-mongodb BETA
+
+![](cover/cover.jpg)
+
 ## Description
-This package built on top of Apollo Server and allows you to automatically generate resolvers for MongoDB using Prisma-like SDL.
+This package allows you to automatically generate Apollo Server schema and resolvers for MongoDB using Prisma-like SDL.
 
-```graphql
-type Category @model {
-  id: ObjectID! @id @unique @db(name: "_id")
-  title: String!
-  tags: [String!]!
-  items: [Item] @extRelation
-}
+We like Prisma but we want to build a more flexible and customizable solution.
 
-type Item @model {
-  id: ObjectID! @id @unique @db(name: "_id")
-  title: String!
-  color: String
-  description: Description
-  category: Category! @relation
-  labels: [Label!]! @relation
-  location: GeoJSONPoint
-}
+## Quick preview on codesandbox
+Note!
+The database connected with read-only permissions. So mutation will not work. You can create and connect your own database (for example use [Atlas](http://atlas.mongodb.com))
 
-type Label @model {
-  id: ObjectID! @id @unique @db(name: "_id")
-  title: String!
-}
+[![Edit apollo-model-mongodb-example](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/github/vitramir/apollo-model-mongodb/tree/master/examples/example-server)
 
-type Description {
-  full: String
-  short: String
-  location: GeoJSONPoint
-  size: Size
-}
-
-type Size {
-  width: Float
-  height: Float
-}
-```
-The above SDL compiles to this endpoint [https://apollo-model-mongodb-example.now.sh](https://apollo-model-mongodb-example.now.sh)
-Example queries [below](#features)
-
-We like Prisma but can't use it because it doesn't support some features we need. Like Geo Queries, custom scalars, DB queries middleware, easy customization.
 
 ## Installation
+With yarn:
+
+```
+  yarn add apollo-model-mongodb
+  
+```
+or using npm:
+
 ```
   npm install --save apollo-model-mongodb
 ```
 
 ## Usage
+Project initialization is the same as for [Apollo Server](https://www.apollographql.com/docs/apollo-server/getting-started.html). The only difference is that we use `makeExecutableSchema` from this package to generate schema.
+
+
 ```javascript
   import ApolloModelMongo, { QueryExecutor } from 'apollo-model-mongodb';
   const schema = await new ApolloModelMongo({
@@ -62,22 +45,156 @@ We like Prisma but can't use it because it doesn't support some features we need
 ```
 You can find full examples [here](examples)
 
+## SDL example
+
+```graphql
+  type Category @model {
+    id: ObjectID! @id @unique @db(name: "_id")
+    title: String
+    parentCategory: Category @relation(storeField: "parentCategoryId")
+    subcategories: [Category!] @extRelation(storeField: "parentCategoryId")
+    posts: [Post!] @extRelation
+  }
+
+  type Comment {
+    body: String
+    user: User! @relation
+  }
+
+  type Post @model {
+    id: ObjectID! @id @unique @db(name: "_id")
+    title: String!
+    body: String!
+    category: Category @relation
+    keywords: [String!]
+    owner: User! @relation
+    place: GeoJSONPoint
+    comments: [Comment!]
+  }
+
+  interface User @inherit @model {
+    id: ObjectID! @id @unique @db(name: "_id")
+    username: String! @unique
+  }
+
+  enum AdminRole {
+    superadmin
+    moderator
+  }
+
+  type Admin implements User {
+    role: AdminRole
+  }
+
+  enum SubscriberRole {
+    free
+    standard
+    premium
+  }
+
+  type SubscriberProfile {
+    firstName: String!
+    lastName: String!
+  }
+
+  type Subscriber implements User {
+    role: SubscriberRole
+    profile: SubscriberProfile!
+  }
+
+```
+
+The above SDL generates this endpoint [https://apollo-model-mongodb-example.now.sh](https://apollo-model-mongodb-example.now.sh)
+Example queries [below](#features)
+
+## Directives
+
+### The `model` directive
+* Connects object with MongoDB collection.
+* Valid locations: OBJECT or INTERFACE
+* Optional
+* Arguments
+	* collection:String
+		* The name of MongoDB collection
+		* Optional (Default value is pluralized name of the object)
+
+### The `unique` directive
+* Add field to WHERE_UNIQUE input type
+* Valid locations: FIELD
+* Optional
+
+### The `id` directive
+* Mark field as identifier. Skip creation.
+* Valid locations: FIELD
+* Optional
+
+### The `db` directive
+* Map GraphQL field to collection.
+* Valid locations: FIELD
+* Optional
+* Arguments
+	* name:String
+		* The name of field in collection
+		*  Required
+
+### The `inherit` directive
+* Clones interface fields to objects.
+* Valid locations: INTERFACE
+* Required
+
+### The `discriminator` directive
+* Used to define field and values to resolve implementation type.
+* Valid locations: INTERFACE or OBJECT
+* Optional
+* Arguments
+	* value:String
+		* Required
+
+### The `relation` directive
+* Used to define relation between two collections.
+* Valid locations: FIELD
+* Optional
+* Arguments
+	* field:String
+		* Optional
+		* Default value: _id
+	* storeField:String
+		* Optional
+		* Default value: `${TypeName}Id${s}`
+
+### The `extRelation` directive
+* Used to define external relation between two collections (identifiers stored in related documents).
+* Valid locations: FIELD
+* Optional
+* Arguments
+	* field:String
+		* Optional
+		* Default value: _id
+	* storeField:String
+		* Optional
+		* Default value: `${TypeName}Id${s}`
+	* many:Boolean
+		* Optional
+		* Default value: false  
+		
+
 ## Serverless
 You can use this package with serverless environments. Read more [here](https://www.apollographql.com/docs/apollo-server/servers/lambda.html). Also take a look at [example-now](examples/example-now) if you are using Zeit Now.
 
 ## Customization
 * You can define your own scalars and directives as for usual Apollo server.
-* You can add custom modules at MongoModel stage (description coming soon)
+* You can add custom modules at MongoModel stage (docs coming soon)
 * All queries to DB executes with QueryExecutor function. This package has predefined one, but you can override it and add hooks or check user authorization.
 ```
-const QueryExecutor = ({ type, collection, doc, selector, options })=>Promise
+const QueryExecutor = ({ type, collection, doc, docs, selector, options })=>Promise
 ```
 
 ## Contribution
-You are welcome to open PR with new features and bug fixes
+You are welcome to open Issues, Feature Requests and PR with new features and bug fixes
 
 ## Roadmap
 * Add createdAt, updatedAt directives
+* Filter by Nth array element
 * Add subscriptions
 * Release stable version 1.0.0
 * Add Moment scalar
@@ -88,19 +205,20 @@ You are welcome to open PR with new features and bug fixes
 * [Simple create](#simple-create)
 * [Filter](#filter)
 * [Difficult filter](#difficult-filter)
-* [Simple create](#simple-create)
 * [Relation query](#relation-query)
 * [Relation filter](#relation-filter)
-* [Cascade create](#cascade-create)
+* [Relation create](#relation-create)
+* [Nested create](#nested-create)
+* [Interfaces](#interfaces)
 * [Geo queries](#geo-queries)
+
 
 ### Simple query
 
 ##### query
 ```graphql
-query{
-  items
-  {
+{
+  categories {
     id
     title
   }
@@ -110,14 +228,18 @@ query{
 ```json
 {
   "data": {
-    "items": [
+    "categories": [
       {
-        "id": "5c0b7d543aaf685be99bcb13",
-        "title": "apple"
+        "id": "5c3f4d84e98bd4e76e1d34d1",
+        "title": "root"
       },
       {
-        "id": "5c0b7dfb3aaf685be99bcb15",
-        "title": "tomato"
+        "id": "5c3f4dd3e98bd4e76e1d34d2",
+        "title": "JS"
+      },
+      {
+        "id": "5c3f4f46e98bd4e76e1d34d3",
+        "title": "MongoDB"
       }
     ]
   }
@@ -127,12 +249,8 @@ query{
 ### Simple create
 ##### query
 ```graphql
-mutation{
-	createLabel(
-    data:{
-    	title:"New label"
-    }
-  ){
+mutation {
+  createCategory(data: { title: "root" }) {
     id
   }
 }
@@ -141,8 +259,8 @@ mutation{
 ```json
 {
   "data": {
-    "createLabel": {
-      "id": "5c3242ea1dd49857441435ac"
+    "createCategory": {
+      "id": "5c3f4d84e98bd4e76e1d34d1"
     }
   }
 }
@@ -151,20 +269,21 @@ mutation{
 ### Filter 
 ##### request
 ```graphql
-query{
-  items(where:{title_starts_with:"app"})
-  {
+{
+  categories(where: { title: "root" }) {
+    id
     title
   }
 }
 ```
 #### response
-```graphql
+```json
 {
   "data": {
-    "items": [
+    "categories": [
       {
-        "title": "apple"
+        "id": "5c3f4d84e98bd4e76e1d34d1",
+        "title": "root"
       }
     ]
   }
@@ -174,39 +293,25 @@ query{
 ### Difficult filter 
 ##### request
 ```graphql
-query{
-  items(where:{
-    OR:[
-      {category:{title:"fruits"}},
-      {description:{size:{width_gt:10}}}
-    ]
-  })
-  {
+{
+  categories(where: { OR: [{ title: "root" }, { title: "JS" }] }) {
+    id
     title
-    description{
-      size{
-				width
-      }
-    }
   }
 }
 ```
 #### response
-```graphql
+```json
 {
   "data": {
-    "items": [
+    "categories": [
       {
-        "title": "apple",
-        "description": null
+        "id": "5c3f4d84e98bd4e76e1d34d1",
+        "title": "root"
       },
       {
-        "title": "tomato",
-        "description": {
-          "size": {
-            "width": 100
-          }
-        }
+        "id": "5c3f4dd3e98bd4e76e1d34d2",
+        "title": "JS"
       }
     ]
   }
@@ -217,34 +322,38 @@ query{
 ### Relation query
 ##### query
 ```graphql
-query{
-  items
-  {
+{
+  categories {
+    id
     title
-    category{
-      id
+    parentCategory {
       title
     }
-	}
+  }
 }
 ```
 ##### response
 ```json
 {
   "data": {
-    "items": [
+    "categories": [
       {
-        "title": "apple",
-        "category": {
-          "id": "5c0acb20b570c059a050597a",
-          "title": "fruits"
+        "id": "5c3f4d84e98bd4e76e1d34d1",
+        "title": "root",
+        "parentCategory": null
+      },
+      {
+        "id": "5c3f4dd3e98bd4e76e1d34d2",
+        "title": "JS",
+        "parentCategory": {
+          "title": "root"
         }
       },
       {
-        "title": "tomato",
-        "category": {
-          "id": "5c30e76a9ce4a233cb4fc5dc",
-          "title": "berries"
+        "id": "5c3f4f46e98bd4e76e1d34d3",
+        "title": "MongoDB",
+        "parentCategory": {
+          "title": "root"
         }
       }
     ]
@@ -255,9 +364,9 @@ query{
 ### Relation filter
 ##### query
 ```graphql
-query{
-  items(where:{category:{title:"fruits"}})
-  {
+{
+  categories(where: { parentCategory: { title: "root" } }) {
+    id
     title
   }
 }
@@ -266,33 +375,114 @@ query{
 ```json
 {
   "data": {
-    "items": [
+    "categories": [
       {
-        "title": "apple"
+        "id": "5c3f4dd3e98bd4e76e1d34d2",
+        "title": "JS"
+      },
+      {
+        "id": "5c3f4f46e98bd4e76e1d34d3",
+        "title": "MongoDB"
       }
     ]
   }
 }
 ```
 
-### Cascade create
+### Relation create
 ##### query
 ```graphql
-mutation{
-  createItem(data:{
-    title:"new item",
-    category:{
-	  create:{
-        title:"new category"
-        tags:[]
-      }
+mutation {
+  createCategory(
+    data: {
+      title: "Mongodb"
+      parentCategory: { connect: { id: "5c3f4d84e98bd4e76e1d34d1" } }
     }
-  }){
+  ) {
     id
+  }
+}
+```
+##### response
+```json
+{
+  "data": {
+    "createCategory": {
+      "id": "5c3f4f46e98bd4e76e1d34d3"
+    }
+  }
+}
+```
+
+### Nested create
+##### query
+```graphql
+mutation {
+  createSubscriber(
+    data: {
+      username: "subscriber1"
+      profile: { create: { firstName: "Gwion", lastName: "Britt" } }
+    }
+  ) {
+    id
+    username
+  }
+}
+```
+##### response
+```json
+{
+  "data": {
+    "createSubscriber": {
+      "id": "5c3f555b190d25e7bda1dea2",
+      "username": "subscriber1"
+    }
+  }
+}
+```
+
+### Interfaces
+#### Connect
+##### query
+```graphql
+mutation {
+  createPost(
+    data: {
+      title: "Build GraphQL API with Apollo"
+      body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+      owner: { connect: { Admin: { username: "admin" } } }
+    }
+  ) {
+    id
+  }
+}
+```
+##### response
+```json
+{
+  "data": {
+    "createPost": {
+      "id": "5c401347de7e67e9540abad2"
+    }
+  }
+}
+```
+
+#### Query
+
+##### query
+```graphql
+{
+  posts {
     title
-    category{
-      id
-      title
+    owner {
+      username
+      ... on Subscriber {
+        profile {
+          firstName
+          lastName
+        }
+      }
     }
   }
 }
@@ -301,14 +491,14 @@ mutation{
 ```json
 {
   "data": {
-    "createItem": {
-      "id": "5c324d0d05c95f5ad95bde3d",
-      "title": "new item",
-      "category": {
-        "id": "5c324d0d05c95f5ad95bde3c",
-        "title": "new category"
+    "posts": [
+      {
+        "title": "Build GraphQL API with Apollo",
+        "owner": {
+          "username": "admin"
+        }
       }
-    }
+    ]
   }
 }
 ```
@@ -317,25 +507,19 @@ mutation{
 ### Geo queries
 ##### query
 ```graphql
-query{
-  items(where:{
-    location_near:{
-      geometry:{
-        type:Point,
-        coordinates:[0.0001,0.0001]
+{
+  posts(
+    where: {
+      place_near: {
+        geometry: { type: Point, coordinates: [0, 51.01] }
+        maxDistance: 10000
       }
-      minDistance:0,
-      maxDistance:100
     }
-  })
-  {
+  ) {
+    id
     title
-    location{
-      coordinates
-      distance(toPoint:{
-        type:Point
-        coordinates:[0.0001,0.0001]
-      })
+    place {
+      distance(toPoint: { type: Point, coordinates: [0, 51.01] })
     }
   }
 }
@@ -344,15 +528,12 @@ query{
 ```json
 {
   "data": {
-    "items": [
+    "posts": [
       {
-        "title": "tomato",
-        "location": {
-          "coordinates": [
-            0,
-            0
-          ],
-          "distance": 15.725337332777647
+        "id": "5c401347de7e67e9540abad2",
+        "title": "Build GraphQL API with Apollo",
+        "place": {
+          "distance": 1111.9492664453662
         }
       }
     ]
