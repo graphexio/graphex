@@ -104,8 +104,12 @@ You can find full examples [here](examples)
 
 ```
 
+(**Temporary the below link contains old build**. Use [codesanbox](#quick-preview-on-codesandbox) to preview result until we solve [this issue](https://github.com/zeit/now-builders/issues/171))
+
 The above SDL generates this endpoint [https://apollo-model-mongodb-example.now.sh](https://apollo-model-mongodb-example.now.sh)
+
 Example queries [below](#features)
+
 
 ## Directives
 
