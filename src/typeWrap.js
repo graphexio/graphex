@@ -96,7 +96,7 @@ export default class TypeWrap {
   };
   type = () => {
     let type = this._realType;
-    if (this._requiredArrayItem) {
+    if (this._requiredArrayItem && this._many) {
       type = new GraphQLNonNull(type);
     }
     if (this._many) {

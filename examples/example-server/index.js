@@ -1,15 +1,15 @@
 import { ApolloServer } from 'apollo-server';
 import ApolloModelMongo, { QueryExecutor } from 'apollo-model-mongodb';
 import { MongoClient, ObjectID } from 'mongodb';
-import typeDefs from './model.graphql';
+import typeDefs from './model.js';
 
 let db = MongoClient.connect(
   process.env.MONGO_URL,
   { useNewUrlParser: true }
-).then(async conn => {
+).then(conn => {
   let db = conn.db(process.env.MONGO_DB);
 
-  const schema = await new ApolloModelMongo({
+  const schema = new ApolloModelMongo({
     queryExecutor: QueryExecutor(db),
   }).makeExecutablSchema({
     typeDefs,

@@ -22,7 +22,7 @@ import * as HANDLER from '~/inputTypes/handlers';
 import * as KIND from '~/inputTypes/kinds';
 import * as Transforms from '~/inputTypes/transforms';
 
-export const ExtRelationScheme = `directive @extRelation(field:String="_id", fieldType:String="ObjectID", storeField:String=null, many:Boolean=false ) on FIELD_DEFINITION`;
+export const ExtRelationScheme = `directive @extRelation(field:String="_id", storeField:String=null, many:Boolean=false ) on FIELD_DEFINITION`;
 
 export default queryExecutor =>
   class ExtRelationDirective extends SchemaDirectiveVisitor {

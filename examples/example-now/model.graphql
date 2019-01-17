@@ -1,33 +1,53 @@
 type Category @model {
   id: ObjectID! @id @unique @db(name: "_id")
-  title: String!
-  tags: [String!]!
-  items: [Item] @extRelation
+  title: String
+  parentCategory: Category @relation(storeField: "parentCategoryId")
+  subcategories: [Category!] @extRelation(storeField: "parentCategoryId")
+  posts: [Post!] @extRelation
 }
 
-type Item @model {
+type Comment {
+  body: String
+  user: User! @relation
+}
+
+type Post @model {
   id: ObjectID! @id @unique @db(name: "_id")
   title: String!
-  color: String
-  description: Description
-  category: Category! @relation
-  labels: [Label!]! @relation
-  location: GeoJSONPoint
+  body: String!
+  category: Category @relation
+  keywords: [String!]
+  owner: User! @relation
+  place: GeoJSONPoint
+  comments: [Comment!]
 }
 
-type Label @model {
+interface User @inherit @model {
   id: ObjectID! @id @unique @db(name: "_id")
-  title: String!
+  username: String! @unique
 }
 
-type Description {
-  full: String
-  short: String
-  location: GeoJSONPoint
-  size: Size
+enum AdminRole {
+  superadmin
+  moderator
 }
 
-type Size {
-  width: Float
-  height: Float
+type Admin implements User {
+  role: AdminRole
+}
+
+enum SubscriberRole {
+  free
+  standard
+  premium
+}
+
+type SubscriberProfile {
+  firstName: String!
+  lastName: String!
+}
+
+type Subscriber implements User {
+  role: SubscriberRole
+  profile: SubscriberProfile!
 }

@@ -46,7 +46,7 @@ export const INPUT_UPDATE_MANY_RELATION = 'updateManyRelation';
 export const INPUT_UPDATE_ONE_REQUIRED_RELATION = 'updateOneRequiredRelation';
 export const INPUT_UPDATE_MANY_REQUIRED_RELATION = 'updateManyRequiredRelation';
 
-export const RelationScheme = `directive @relation(field:String="_id", fieldType:String="ObjectID", storeField:String=null ) on FIELD_DEFINITION`;
+export const RelationScheme = `directive @relation(field:String="_id", storeField:String=null ) on FIELD_DEFINITION`;
 
 export default queryExecutor =>
   class RelationDirective extends SchemaDirectiveVisitor {

@@ -412,7 +412,7 @@ export default class ModelMongo {
     });
   };
 
-  makeExecutablSchema = async params => {
+  makeExecutablSchema = params => {
     let {
       schemaDirectives = {},
       directiveResolvers = {},
