@@ -29,7 +29,7 @@ export function getDirective(field, name) {
   if (field.astNode && field.astNode.directives) {
     return _.find(
       field.astNode.directives,
-      directive => directive.name.value == name
+      directive => directive.name.value === name
     );
   }
   return undefined;
@@ -38,7 +38,7 @@ export function getDirective(field, name) {
 export function getDirectiveArg(directive, name, defaultValue) {
   let arg = _.find(
     directive.arguments,
-    argument => argument.name.value == name
+    argument => argument.name.value === name
   );
   if (arg) return arg.value.value;
   else {
@@ -49,7 +49,7 @@ export function getDirectiveArg(directive, name, defaultValue) {
 function camelize(str) {
   return str
     .replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index) {
-      return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
+      return index === 0 ? letter.toLowerCase() : letter.toUpperCase();
     })
     .replace(/\s+/g, '');
 }

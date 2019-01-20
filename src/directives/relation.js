@@ -166,7 +166,7 @@ export default queryExecutor =>
 
     _transformToInputCreateUpdate = ({ field, kind, inputTypes }) => {
       let fieldTypeWrap = new TypeWrap(field.type);
-      let isCreate = kind == KIND.CREATE;
+      let isCreate = kind === KIND.CREATE;
 
       let type = inputTypes.get(
         fieldTypeWrap.realType(),
@@ -209,7 +209,7 @@ export default queryExecutor =>
           //     let ids = await this._distinctQuery({
           //       selector,
           //     });
-          //     if (ids.length == 0) {
+          //     if (ids.length === 0) {
           //       throw new UserInputError(
           //         `No records found for selector - ${JSON.stringify(selector)}`
           //       );
@@ -238,7 +238,7 @@ export default queryExecutor =>
           throw new UserInputError(
             `You should not fill multiple fields in ${type.name} type`
           );
-        } else if (_.keys(input) == 0) {
+        } else if (_.keys(input) === 0) {
           throw new UserInputError(
             `You should fill any field in ${type.name} type`
           );
@@ -263,7 +263,7 @@ export default queryExecutor =>
         let ids = await this._distinctQuery({
           selector,
         });
-        if (ids.length == 0) {
+        if (ids.length === 0) {
           throw new UserInputError(
             `No records found for selector - ${JSON.stringify(selector)}`
           );
@@ -299,7 +299,7 @@ export default queryExecutor =>
           ids = await this._distinctQuery({
             selector,
           });
-          if (ids.length == 0) {
+          if (ids.length === 0) {
             throw new UserInputError(
               `No records found for selector - ${JSON.stringify(selector)}`
             );
@@ -321,7 +321,7 @@ export default queryExecutor =>
           ids = await this._distinctQuery({
             selector,
           });
-          // if (ids.length == 0) {
+          // if (ids.length === 0) {
           //   throw new UserInputError(
           //     `No records found for selector - ${JSON.stringify(selector)}`
           //   );
@@ -608,7 +608,7 @@ const createInput = ({ name, initialType, kind, inputTypes }) => {
     mmTransform: createInputTransform(whereUniqueType, typeWrap.isInterface()),
   };
 
-  if (kind == INPUT_UPDATE_ONE_RELATION) {
+  if (kind === INPUT_UPDATE_ONE_RELATION) {
     fields.disconnect = {
       name: 'disconnect',
       type: GraphQLBoolean,
