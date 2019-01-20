@@ -13,7 +13,7 @@ import {
 
 import Scalars from './scalars';
 
-import { combineResolvers as CombineResolvers } from 'graphql-resolvers';
+import {combineResolvers as CombineResolvers} from 'graphql-resolvers';
 
 import _ from 'lodash';
 import pluralize from 'pluralize';
@@ -48,7 +48,7 @@ export function getDirectiveArg(directive, name, defaultValue) {
 
 function camelize(str) {
   return str
-    .replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index) {
+    .replace(/(?:^\w|[A-Z]|\b\w)/g, function (letter, index) {
       return index === 0 ? letter.toLowerCase() : letter.toUpperCase();
     })
     .replace(/\s+/g, '');
@@ -121,7 +121,7 @@ export async function asyncMapValues(object, callback) {
   return newObject;
 }
 
-export function allQueryArgs({ whereType, orderByType }) {
+export function allQueryArgs({whereType, orderByType}) {
   return [
     {
       name: 'where',
@@ -170,8 +170,8 @@ export function combineResolvers(...args) {
 
 export function prepareUpdateDoc(doc) {
   doc = _.cloneDeep(doc);
-  console.log({ doc });
-
+  console.log({doc});
+  
   let set = {};
   let unset = {};
   let push = {};
@@ -179,14 +179,14 @@ export function prepareUpdateDoc(doc) {
   let pullAll = {};
   let arrayFilters = [];
   let validations = {};
-
+  
   _.keys(doc).forEach(path => {
     let value = doc[path];
     _.keys(value).forEach(key => {
       let val = value[key];
       switch (key) {
         case '$mmPushAll':
-          push[path] = { $each: val };
+          push[path] = {$each: val};
           delete value[key];
           break;
         case '$mmArrayFilter':
@@ -206,11 +206,11 @@ export function prepareUpdateDoc(doc) {
           delete value[key];
           break;
         case '$mmExists':
-          validations[path] = { $exists: val };
+          validations[path] = {$exists: val};
           delete value[key];
           break;
         case '$mmEquals':
-          validations[path] = { $equals: val };
+          validations[path] = {$equals: val};
           delete value[key];
           break;
       }
@@ -235,9 +235,9 @@ export function prepareUpdateDoc(doc) {
   if (!_.isEmpty(pullAll)) {
     newDoc.$pullAll = pullAll;
   }
-
+  
   // console.log(newDoc);
   // console.log({ validations });
   // console.log({ arrayFilters });
-  return { doc: newDoc, validations, arrayFilters };
+  return {doc: newDoc, validations, arrayFilters};
 }
