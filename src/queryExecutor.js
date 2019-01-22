@@ -18,7 +18,7 @@ let dataLoaders = {};
 const buildDataLoader = (db, collectionName, selectorField) => {
   let Collection = db.collection(collectionName);
   return new DataLoader(keys => {
-    return Collection.find({[selectorField]: {$in: keys}}).toArray().then(data => keys.map(key => data.find(item => item[selectorField] === key) || null));
+    return Collection.find({[selectorField]: {$in: keys}}).toArray().then(data => {console.log(data); return keys.map(key => data.find(item => item[selectorField] === key) || null)});
   }, {cache: false});
 };
 
