@@ -16,27 +16,28 @@ import {
   GraphQLTypeFromString,
   combineResolvers,
   getDirective,
-} from '~/utils';
+} from '../utils';
 
 import {
   FIND,
   FIND_ONE,
+  FIND_IDS,
   DISTINCT,
   INSERT_ONE,
   INSERT_MANY,
   DELETE_ONE,
   COUNT,
-} from '~/queryExecutor';
+} from '../queryExecutor';
 
-import InputTypes from '~/inputTypes';
-import TypeWrap from '~/typeWrap';
+import InputTypes from '../inputTypes';
+import TypeWrap from '../typeWrap';
 import {
   appendTransform,
   reduceTransforms,
   applyInputTransform,
-} from '~/inputTypes/utils';
-import * as HANDLER from '~/inputTypes/handlers';
-import * as KIND from '~/inputTypes/kinds';
+} from '../inputTypes/utils';
+import * as HANDLER from '../inputTypes/handlers';
+import * as KIND from '../inputTypes/kinds';
 import * as Transforms from '~/inputTypes/transforms';
 
 export const INPUT_CREATE_ONE_RELATION = 'createOneRelation';
@@ -397,7 +398,7 @@ export default queryExecutor =>
         type: FIND_ONE,
         collection,
         selector: {[relationField]: value, ...mmInterfaceModifier},
-        options: {skip: args.skip, limit: args.first},
+        options: {skip: args.skip, limit: args.first, selectorField: relationField, id: value},
         context,
       });
     };
@@ -433,10 +434,10 @@ export default queryExecutor =>
       };
       
       let docs = await queryExecutor({
-        type: FIND,
+        type: FIND_IDS,
         collection,
         selector,
-        options: {skip: args.skip, limit: args.first},
+        options: {skip: args.skip, limit: args.first, selectorField: relationField, ids: value},
         context,
       });
       return docs;

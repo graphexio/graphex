@@ -1,8 +1,10 @@
 import pluralize from 'pluralize';
 import _ from 'lodash';
+import DataLoader from "dataloader";
 
 export const FIND = 'find';
 export const FIND_ONE = 'findOne';
+export const FIND_IDS = 'findIds';
 export const COUNT = 'count';
 export const DISTINCT = 'distinct';
 export const INSERT_ONE = 'insertOne';
@@ -11,10 +13,19 @@ export const DELETE_ONE = 'deleteOne';
 export const UPDATE_ONE = 'updateOne';
 export const UPDATE_MANY = 'updateMany';
 
+let dataLoaders = {};
+
+const buildDataLoader = (db, collectionName, selectorField) => {
+  let Collection = db.collection(collectionName);
+  return new DataLoader(keys => {
+    return Collection.find({[selectorField]: {$in: keys}}).toArray().then(data => keys.map(key => data.find(item => item[selectorField] === key) || null));
+  }, {cache: false});
+};
+
 export default db => async params => {
-  var { type, collection, doc, docs, selector, options = {} } = params;
+  let {type, collection: collectionName, doc, docs, selector, options = {}} = params;
   // console.dir({ type, collection, selector, options }, { depth: null });
-  let { skip, limit, sort, arrayFilters = [] } = options;
+  let {skip, limit, sort, arrayFilters = []} = options;
   //
   // console.log('\n\n');
   // console.log({ type, collection });
@@ -24,10 +35,9 @@ export default db => async params => {
   // console.log('doc');
   // console.dir(doc, { depth: null });
   // console.log('\n\n');
-
-  let collectionName = collection;
+  
   let Collection = db.collection(collectionName);
-
+  
   switch (type) {
     case FIND: {
       let cursor = Collection.find(selector);
@@ -37,7 +47,20 @@ export default db => async params => {
       return cursor.toArray();
     }
     case FIND_ONE: {
-      return Collection.findOne(selector);
+      const dataLoaderKey = `${collectionName}:${options.selectorField}`;
+      if (!Object.keys(dataLoaders).includes(dataLoaderKey)) {
+        dataLoaders[dataLoaderKey] = buildDataLoader(db, collectionName, options.selectorField);
+      }
+      let dataLoader = dataLoaders[dataLoaderKey];
+      return dataLoader.load(options.id);
+    }
+    case FIND_IDS: {
+      const dataLoaderKey = `${collectionName}:${options.selectorField}`;
+      if (!Object.keys(dataLoaders).includes(dataLoaderKey)) {
+        dataLoaders[dataLoaderKey] = buildDataLoader(db, collectionName, options.selectorField);
+      }
+      let dataLoader = dataLoaders[dataLoaderKey];
+      return dataLoader.loadMany(options.ids);
     }
     case COUNT: {
       let cursor = Collection.find(selector);
@@ -55,7 +78,6 @@ export default db => async params => {
     }
     case INSERT_ONE: {
       return Collection.insertOne(doc).then(res => _.head(res.ops));
-      return doc;
     }
     case INSERT_MANY: {
       return Collection.insertMany(docs).then(res => res.ops);
@@ -64,7 +86,6 @@ export default db => async params => {
       return Collection.findOneAndDelete(selector).then(res => res.value);
     }
     case UPDATE_ONE: {
-      // return doc;
       return Collection.findOneAndUpdate(selector, doc, {
         returnOriginal: false,
         arrayFilters,

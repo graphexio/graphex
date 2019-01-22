@@ -2,13 +2,8 @@ import {
   GraphQLID,
   GraphQLString,
   GraphQLInt,
-  GraphQLObjectType,
-  GraphQLInputObjectType,
   GraphQLList,
-  GraphQLNonNull,
-  GraphQLEnumType,
-  GraphQLBoolean,
-  GraphQLFloat,
+  GraphQLNonNull
 } from 'graphql';
 
 import Scalars from './scalars';
@@ -55,7 +50,10 @@ function camelize(str) {
 }
 
 export function lowercaseFirstLetter(string) {
-  return string.charAt(0).toLowerCase() + string.slice(1);
+  if (string instanceof String) {
+    return string.charAt(0).toLowerCase() + string.slice(1);
+  }
+  return string;
 }
 
 export function getRelationFieldName(collection, field, many = false) {

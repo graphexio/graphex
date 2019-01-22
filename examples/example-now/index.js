@@ -11,7 +11,7 @@ let HANDLER = MongoClient.connect(
   .then(db => {
     return new ApolloModelMongo({
       queryExecutor: QueryExecutor(db),
-    }).makeExecutablSchema({
+    }).makeExecutableSchema({
       typeDefs,
     });
   })

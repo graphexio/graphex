@@ -17,18 +17,18 @@ export const resolvers = {
       let lat2 = args.toPoint.coordinates[1];
       let lon2 = args.toPoint.coordinates[0];
 
-      var R = 6371e3; // metres
-      var φ1 = toRadians(lat1);
-      var φ2 = toRadians(lat2);
-      var Δφ = toRadians(lat2 - lat1);
-      var Δλ = toRadians(lon2 - lon1);
+      let R = 6371e3; // metres
+      let φ1 = toRadians(lat1);
+      let φ2 = toRadians(lat2);
+      let Δφ = toRadians(lat2 - lat1);
+      let Δλ = toRadians(lon2 - lon1);
 
-      var a =
+      let a =
         Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
         Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-      var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-      var d = R * c;
+      let d = R * c;
       return d;
     },
   },

@@ -11,22 +11,17 @@ export const DirectiveDBScheme = `directive @db(name:String!, defaultValue:Strin
 
 export default class DirectiveDB extends SchemaDirectiveVisitor {
   visitFieldDefinition(field) {
-    const {name, defaultValue = null} = this.args;
+    const {name} = this.args;
     appendTransform(field, HANDLER.TRANSFORM_INPUT, {
       [KIND.ORDER_BY]: this._renameTransform(field.name, name),
-      [KIND.CREATE]: this._renameTransform(field.name, name, defaultValue),
-      [KIND.WHERE]: this._renameTransform(field.name, name, defaultValue),
+      [KIND.CREATE]: this._renameTransform(field.name, name),
+      [KIND.WHERE]: this._renameTransform(field.name, name),
     });
   }
   
-  _renameTransform = (fieldName, dbName, defaultValue = null) => params => {
+  _renameTransform = (fieldName, dbName) => params => {
     
     let value = params[fieldName];
-    
-    if (defaultValue) {
-      value = value || defaultValue
-    }
-    
     return {
       ..._.omit(params, fieldName),
       [dbName]: value,
