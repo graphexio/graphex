@@ -18,12 +18,12 @@ let dataLoaders = {};
 const buildDataLoader = (db, collectionName, selectorField) => {
   let Collection = db.collection(collectionName);
   return new DataLoader(keys => {
-    return Collection.find({[selectorField]: {$in: keys}}).toArray().then(data => {console.log(data); return keys.map(key => data.find(item => item[selectorField] === key) || null)});
+    return Collection.find({[selectorField]: {$in: keys}}).toArray().then(data => keys.map(key => data.find(item => item[selectorField].toString() === key.toString()) || null));
   }, {cache: false});
 };
 
-export default db => async params => {
-  let {type, collection: collectionName, doc, docs, selector, options = {}} = params;
+export default ({db, hooks: {willGet, didGet, willCreate, didCreate, willUpdate, didUpdate, willDelete, didDelete}}) => async params => {
+  let {type, collection: collectionName, doc, docs, selector, options = {}, context = {}} = params;
   // console.dir({ type, collection, selector, options }, { depth: null });
   let {skip, limit, sort, arrayFilters = []} = options;
   //
@@ -40,19 +40,24 @@ export default db => async params => {
   
   switch (type) {
     case FIND: {
+      // let {selector} = willGet ? await willGet(params) : {selector};
       let cursor = Collection.find(selector);
       if (skip) cursor = cursor.skip(skip);
       if (limit) cursor = cursor.limit(limit);
       if (sort) cursor = cursor.sort(sort);
-      return cursor.toArray();
+      return cursor.toArray().then(data => {
+        return data;
+        // return didGet ? didGet(data).then(() => data) : data
+      });
     }
     case FIND_ONE: {
+      // let {selector} = willGet ? await willGet(params) : {selector};
       const dataLoaderKey = `${collectionName}:${options.selectorField}`;
       if (!Object.keys(dataLoaders).includes(dataLoaderKey)) {
         dataLoaders[dataLoaderKey] = buildDataLoader(db, collectionName, options.selectorField);
       }
       let dataLoader = dataLoaders[dataLoaderKey];
-      return dataLoader.load(options.id);
+      return options.id ? dataLoader.load(options.id) : Promise.resolve(null);
     }
     case FIND_IDS: {
       const dataLoaderKey = `${collectionName}:${options.selectorField}`;
@@ -60,6 +65,13 @@ export default db => async params => {
         dataLoaders[dataLoaderKey] = buildDataLoader(db, collectionName, options.selectorField);
       }
       let dataLoader = dataLoaders[dataLoaderKey];
+      if (!options.ids) {
+        options.ids = [];
+      }
+      
+      if (!Array.isArray(options.ids)) {
+        options.ids = [options.ids];
+      }
       return dataLoader.loadMany(options.ids);
     }
     case COUNT: {
