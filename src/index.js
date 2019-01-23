@@ -51,6 +51,7 @@ import InitialScheme from './initialScheme';
 import Inherit, {InheritScheme} from './directives/inherit';
 import Relation, {RelationScheme} from './directives/relation';
 import ExtRelation, {ExtRelationScheme} from './directives/extRelation';
+import Timestamps, {TimestampsScheme} from './directives/timestamps';
 import DirectiveDB, {
   DirectiveDBScheme,
   DirectiveDBResolver,
@@ -419,6 +420,7 @@ export default class ModelMongo {
       ModelScheme,
       DirectiveDBScheme,
       RelationScheme,
+      TimestampsScheme,
       IDScheme,
       UniqueScheme,
       ExtRelationScheme,
@@ -428,6 +430,7 @@ export default class ModelMongo {
     
     schemaDirectives = {
       ...schemaDirectives,
+      timestamps: Timestamps,
       relation: Relation(this.QueryExecutor),
       extRelation: ExtRelation(this.QueryExecutor),
       db: DirectiveDB,

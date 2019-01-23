@@ -50,7 +50,7 @@ function camelize(str) {
 }
 
 export function lowercaseFirstLetter(string) {
-  if (string instanceof String) {
+  if (typeof string === "string") {
     return string.charAt(0).toLowerCase() + string.slice(1);
   }
   return string;
