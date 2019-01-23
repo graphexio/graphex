@@ -3,7 +3,7 @@ import {DateScalar, DateSchema} from "./date";
 
 export default {
   ObjectID,
-  DateScalar
+  Date: DateScalar
 };
 
 export const typeDefs = [ObjectIDSchema, DateSchema];
