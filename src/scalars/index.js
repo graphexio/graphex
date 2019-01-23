@@ -1,9 +1,9 @@
 import ObjectID, {typeDef as ObjectIDSchema} from './objectID';
-import {DateScalar, DateSchema} from "./date";
+import {DateScalar as Date, DateSchema} from "./date";
 
 export default {
   ObjectID,
-  Date: DateScalar
+  Date
 };
 
 export const typeDefs = [ObjectIDSchema, DateSchema];
