@@ -22,7 +22,8 @@ const buildDataLoader = (db, collectionName, selectorField) => {
   }, {cache: false});
 };
 
-export default ({db, hooks: {willGet, didGet, willCreate, didCreate, willUpdate, didUpdate, willDelete, didDelete}}) => async params => {
+export default ({db, hooks = {}}) => async params => {
+  let {willGet, didGet, willCreate, didCreate, willUpdate, didUpdate, willDelete, didDelete} = hooks;
   let {type, collection: collectionName, doc, docs, selector, options = {}, context = {}} = params;
   // console.dir({ type, collection, selector, options }, { depth: null });
   let {skip, limit, sort, arrayFilters = []} = options;
