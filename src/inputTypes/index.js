@@ -208,9 +208,9 @@ class InputTypesClass {
     }
     if (fieldTypeWrap.isMany()) {
       [
-        {modifier: 'size', type: new GraphQLInt()},
-        {modifier: 'not_size', type: new GraphQLInt()},
-        {modifier: 'exists', type: new GraphQLBoolean()},
+        {modifier: 'size', type: GraphQLInt},
+        {modifier: 'not_size', type: GraphQLInt},
+        {modifier: 'exists', type: GraphQLBoolean},
         {modifier: 'some', type: fieldTypeWrap.realType()},
         {modifier: 'all', type: new GraphQLList(fieldTypeWrap.realType())},
         {modifier: 'exact', type: new GraphQLList(fieldTypeWrap.realType())},
