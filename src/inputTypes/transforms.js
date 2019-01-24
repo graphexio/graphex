@@ -5,6 +5,11 @@ import {asyncForEach, asyncMapValues} from '~/utils';
 import TypeWrap from '~/typeWrap';
 import {UserInputError} from 'apollo-server';
 
+const r = (value) => new RegExp(value);
+// const r = (value) => {
+//   return {$regex: new RegExp(value)}
+// };
+
 export const flattenNested = params => {
   let fieldKey = _.head(_.keys(params));
   let value = params[fieldKey];
@@ -102,29 +107,29 @@ function _mapModifier(modifier, value) {
     case 'not_in':
       return {$nin: value};
     case 'contains':
-      return `/.*${value}.*/`;
+      return r(`/.*${value}.*/`);
     case 'icontains':
-      return `/.*${value}.*/i`;
+      return r(`/.*${value}.*/i`);
     case 'not_contains':
-      return {$not: `/.*${value}.*/`};
+      return {$not: r(`/.*${value}.*/`)};
     case 'not_icontains':
-      return {$not: `/.*${value}.*/i`};
+      return {$not: r(`/.*${value}.*/i`)};
     case 'starts_with':
-      return `/${value}.*/`;
+      return r(`/${value}.*/`);
     case 'istarts_with':
-      return `/${value}.*/i`;
+      return r(`/${value}.*/i`);
     case 'not_starts_with':
-      return {$not: `/${value}.*/`};
+      return {$not: r(`/${value}.*/`)};
     case 'not_istarts_with':
-      return {$not: `/${value}.*/i`};
+      return {$not: r(`/${value}.*/i`)};
     case 'ends_with':
-      return `/.*${value}/`;
+      return r(`/.*${value}/`);
     case 'iends_with':
-      return `/.*${value}/i`;
+      return r(`/.*${value}/i`);
     case 'not_ends_with':
-      return {$not: `/.*${value}/`};
+      return {$not: r(`/.*${value}/`)};
     case 'not_iends_with':
-      return {$not: `/.*${value}/i`};
+      return {$not: r(`/.*${value}/i`)};
     case 'exists':
       return {$exists: value};
     case 'size':
