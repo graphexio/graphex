@@ -20,9 +20,10 @@ import TypeWrap from '../typeWrap';
 const Modifiers = {
   Boolean: ['', 'not', 'exists'],
   ID: ['', 'in', 'not_in', 'exists'],
-  ObjectID: ['', 'in', 'not_in', 'exists'],
+  ObjectID: ['', 'in', 'not', 'not_in', 'exists'],
   Int: ['', 'in', 'not', 'not_in', 'lt', 'lte', 'gt', 'gte', 'exists'],
   Float: ['', 'in', 'not', 'not_in', 'lt', 'lte', 'gt', 'gte', 'exists'],
+  Date: ['', 'not', 'lt', 'lte', 'gt', 'gte', 'exists'],
   String: [
     '',
     'not',
