@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import {
   GraphQLInt,
+  GraphQLString,
   GraphQLObjectType,
   GraphQLInputObjectType,
   GraphQLInterfaceType,
@@ -211,11 +212,10 @@ class InputTypesClass {
         {modifier: 'size', type: GraphQLInt},
         {modifier: 'not_size', type: GraphQLInt},
         {modifier: 'exists', type: GraphQLBoolean},
-        {modifier: 'some', type: fieldTypeWrap.realType()},
-        {modifier: 'all', type: new GraphQLList(fieldTypeWrap.realType())},
-        {modifier: 'exact', type: new GraphQLList(fieldTypeWrap.realType())},
-        {modifier: 'in', type: new GraphQLList(fieldTypeWrap.realType())},
-        {modifier: 'nin', type: new GraphQLList(fieldTypeWrap.realType())},
+        {modifier: 'all', type: new GraphQLList(GraphQLString)},
+        {modifier: 'exact', type: new GraphQLList(GraphQLString)},
+        {modifier: 'in', type: new GraphQLList(GraphQLString)},
+        {modifier: 'nin', type: new GraphQLList(GraphQLString)},
       ].forEach(({modifier, type}) => {
         fields.push({
           type,
