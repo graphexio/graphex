@@ -205,7 +205,8 @@ class InputTypesClass {
           Transforms.flattenNested,
         ]),
       });
-    } else if (fieldTypeWrap.isMany()) {
+    }
+    if (fieldTypeWrap.isMany()) {
       [
         {modifier: 'some', type: fieldTypeWrap.realType()},
         {modifier: 'all', type: new GraphQLList(fieldTypeWrap.realType())},
