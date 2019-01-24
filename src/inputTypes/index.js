@@ -20,8 +20,8 @@ const Modifiers = {
   Boolean: ['', 'not', 'exists'],
   ID: ['', 'in', 'not_in', 'exists'],
   ObjectID: ['', 'in', 'not_in', 'exists'],
-  Int: ['', 'in', 'not_in', 'lt', 'lte', 'gt', 'gte', 'exists'],
-  Float: ['', 'in', 'not_in', 'lt', 'lte', 'gt', 'gte', 'exists'],
+  Int: ['', 'in', 'not', 'not_in', 'lt', 'lte', 'gt', 'gte', 'exists'],
+  Float: ['', 'in', 'not', 'not_in', 'lt', 'lte', 'gt', 'gte', 'exists'],
   String: [
     '',
     'not',
@@ -333,7 +333,7 @@ class InputTypesClass {
   };
   
   _fillInputObject = ({type, initialType, kind}) => {
-    let deafultTransformFunc = this._defaultTransformToInput[kind];
+    let defaultTransformFunc = this._defaultTransformToInput[kind];
     let fields = {};
     if (kind === KIND.WHERE) {
       this._addAndOr(fields, type);
@@ -341,7 +341,15 @@ class InputTypesClass {
     
     _.values(initialType._fields).forEach(field => {
       let {mmTransformToInput = {}} = field;
-      let transformFunc = mmTransformToInput[kind] || deafultTransformFunc;
+      let transformFunc = mmTransformToInput[kind] || defaultTransformFunc;
+      if (kind === KIND.WHERE && transformFunc !== this._defaultTransformToInputWhere) {
+        fields = {
+          ...fields,
+          ...this._fieldsArrayToObject(
+            this._defaultTransformToInputWhere({field})
+          )
+        }
+      }
       fields = {
         ...fields,
         ...this._fieldsArrayToObject(
@@ -380,7 +388,7 @@ class InputTypesClass {
         [KIND.CREATE, KIND.WHERE, KIND.UPDATE, KIND.WHERE_UNIQUE].includes(
           kind
         ) &&
-        fieldType != initialType &&
+        fieldType !== initialType &&
         fieldType.mmDiscriminator &&
         initialType.mmDiscriminatorField
       ) {

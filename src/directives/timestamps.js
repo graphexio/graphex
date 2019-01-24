@@ -101,6 +101,7 @@ export default class Timestamps extends SchemaDirectiveVisitor {
   
   _setDateTransform = (fieldName) => params => {
     params[fieldName] = new Date();
+    return params;
   };
   
   _renameTransform = (fieldName, dbName) => params => {

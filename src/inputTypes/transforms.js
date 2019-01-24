@@ -74,7 +74,7 @@ export const transformModifier = modifier => params =>
   _(params)
     .mapValues(value => _mapModifier(modifier, value))
     .mapKeys((value, key) => {
-      if (modifier != '') {
+      if (modifier !== '') {
         return key.substring(key.length - modifier.length - 1, 0);
       } else {
         return key;
@@ -127,6 +127,10 @@ function _mapModifier(modifier, value) {
       return {$not: `/.*${value}/i`};
     case 'exists':
       return {$exists: value};
+    case 'size':
+      return {$size: value};
+    case 'not_size':
+      return {$not: {$size: value}};
     default:
       return {};
   }
