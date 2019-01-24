@@ -17,6 +17,15 @@ import {reduceTransforms, applyInputTransform} from './utils';
 
 import TypeWrap from '../typeWrap';
 
+const ModifierTypes = {
+  'in': type => new GraphQLList(type),
+  'not_in': type => new GraphQLList(type),
+  'not': null,
+  'exists': GraphQLBoolean,
+  'lt': null,
+}
+
+
 const Modifiers = {
   Boolean: ['', 'not', 'exists'],
   ID: ['', 'in', 'not_in', 'exists'],
@@ -210,6 +219,7 @@ class InputTypesClass {
     }
     if (fieldTypeWrap.isMany()) {
       [
+        {modifier: '', type: GraphQLString},
         {modifier: 'size', type: GraphQLInt},
         {modifier: 'not_size', type: GraphQLInt},
         {modifier: 'exists', type: GraphQLBoolean},
