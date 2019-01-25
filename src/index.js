@@ -7,6 +7,8 @@ import {
 } from 'graphql';
 import _ from 'lodash';
 import pluralize from 'pluralize';
+
+export {default as QueryExecutor} from './queryExecutor';
 import {
   FIND,
   FIND_ONE,
