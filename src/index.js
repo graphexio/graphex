@@ -7,8 +7,6 @@ import {
 } from 'graphql';
 import _ from 'lodash';
 import pluralize from 'pluralize';
-
-export {default as QueryExecutor} from './queryExecutor';
 import {
   FIND,
   FIND_ONE,
@@ -51,7 +49,9 @@ import InitialScheme from './initialScheme';
 import Inherit, {InheritScheme} from './directives/inherit';
 import Relation, {RelationScheme} from './directives/relation';
 import ExtRelation, {ExtRelationScheme} from './directives/extRelation';
-import Timestamps, {TimestampsScheme} from './directives/timestamps';
+import CreatedAt, {CreatedAtScheme, CreatedAtResolver} from "./directives/createdAt";
+import UpdatedAt, {UpdatedAtScheme, UpdatedAtResolver} from "./directives/updatedAt";
+
 import DirectiveDB, {
   DirectiveDBScheme,
   DirectiveDBResolver,
@@ -420,7 +420,8 @@ export default class ModelMongo {
       ModelScheme,
       DirectiveDBScheme,
       RelationScheme,
-      TimestampsScheme,
+      CreatedAtScheme,
+      UpdatedAtScheme,
       IDScheme,
       UniqueScheme,
       ExtRelationScheme,
@@ -430,7 +431,8 @@ export default class ModelMongo {
     
     schemaDirectives = {
       ...schemaDirectives,
-      timestamps: Timestamps,
+      createdAt: CreatedAt,
+      updatedAt: UpdatedAt,
       relation: Relation(this.QueryExecutor),
       extRelation: ExtRelation(this.QueryExecutor),
       db: DirectiveDB,
@@ -443,6 +445,8 @@ export default class ModelMongo {
     directiveResolvers = {
       ...directiveResolvers,
       db: DirectiveDBResolver,
+      createdAt: CreatedAtResolver,
+      updatedAt: UpdatedAtResolver,
     };
     
     resolvers = {
