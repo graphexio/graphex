@@ -215,6 +215,8 @@ export default class ModelMongo {
       name,
       resolve: async (parent, args, context) => {
         let selector = await applyInputTransform(args.where, whereUniqueType);
+        let selectorField = "_id";
+        let id = selector[selectorField];
         if (typeWrap.isInherited()) {
           selector[
             typeWrap.interfaceType().mmDiscriminatorField
@@ -225,8 +227,8 @@ export default class ModelMongo {
           collection: modelType.mmCollectionName,
           selector,
           options: {
-            selectorField: typeWrap.interfaceType().mmDiscriminatorField,
-            id: typeWrap.realType().mmDiscriminator
+            selectorField,
+            id
           },
           context,
         });
