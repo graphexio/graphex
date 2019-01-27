@@ -7,6 +7,7 @@ export const InheritScheme = `directive @inherit on INTERFACE`;
 
 export default class Inherit extends SchemaDirectiveVisitor {
   visitInterface(iface) {
+    
     const { _typeMap: SchemaTypes } = this.schema;
 
     if (!iface.mmDiscriminatorField) {
