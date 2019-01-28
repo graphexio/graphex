@@ -432,9 +432,9 @@ export default queryExecutor =>
         [relationField]: {$in: value},
         ...mmInterfaceModifier,
       };
-      
+      let type = Object.keys(selector).length > 1 || args.skip || args.first ? FIND : FIND_IDS;
       let docs = await queryExecutor({
-        type: FIND_IDS,
+        type,
         collection,
         selector,
         options: {skip: args.skip, limit: args.first, selectorField: relationField, ids: value},

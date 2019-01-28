@@ -142,8 +142,11 @@ export default queryExecutor =>
         [storeField]: value,
         ...mmInterfaceModifier,
       };
+      
+      let type = Object.keys(selector).length > 1 || args.skip || args.first ? FIND : FIND_IDS;
+      
       return queryExecutor({
-        type: FIND_IDS,
+        type,
         collection: this.mmCollectionName,
         selector,
         options: {skip: args.skip, limit: args.first, selectorField: storeField, ids: value},
