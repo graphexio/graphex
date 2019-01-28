@@ -1,11 +1,9 @@
 import _ from 'lodash';
-
-import {defaultFieldResolver} from 'graphql';
 import {SchemaDirectiveVisitor} from 'graphql-tools';
 
-import {appendTransform} from '~/inputTypes/utils';
-import * as HANDLER from '~/inputTypes/handlers';
-import * as KIND from '~/inputTypes/kinds';
+import {appendTransform} from '../inputTypes/utils';
+import * as HANDLER from '../inputTypes/handlers';
+import * as KIND from '../inputTypes/kinds';
 
 export const DirectiveDBScheme = `directive @db(name:String!, defaultValue:String=null) on FIELD_DEFINITION`;
 

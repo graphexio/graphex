@@ -1,8 +1,7 @@
 import _ from 'lodash';
 import * as HANDLER from './handlers';
 import {applyInputTransform} from './utils';
-import {asyncForEach, asyncMapValues} from '~/utils';
-import TypeWrap from '~/typeWrap';
+import {asyncMapValues} from '../utils';
 import {UserInputError} from 'apollo-server';
 
 // const r = (value) => new RegExp(value);

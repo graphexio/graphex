@@ -9,18 +9,18 @@ import {
   getRelationFieldName,
   allQueryArgs,
   GraphQLTypeFromString,
-} from '~/utils';
+} from '../utils';
 
-import {applyInputTransform} from '~/inputTypes/utils';
+import {applyInputTransform} from '../inputTypes/utils';
 
-import {FIND, FIND_ONE, DISTINCT, COUNT} from '~/queryExecutor';
+import {FIND, FIND_ONE, DISTINCT, COUNT} from '../queryExecutor';
 
-import InputTypes from '~/inputTypes';
-import TypeWrap from '~/typeWrap';
-import {appendTransform, reduceTransforms} from '~/inputTypes/utils';
-import * as HANDLER from '~/inputTypes/handlers';
-import * as KIND from '~/inputTypes/kinds';
-import * as Transforms from '~/inputTypes/transforms';
+import InputTypes from '../inputTypes';
+import TypeWrap from '../typeWrap';
+import {appendTransform, reduceTransforms} from '../inputTypes/utils';
+import * as HANDLER from '../inputTypes/handlers';
+import * as KIND from '../inputTypes/kinds';
+import * as Transforms from '../inputTypes/transforms';
 import {FIND_IDS} from "../queryExecutor";
 
 export const ExtRelationScheme = `directive @extRelation(field:String="_id", storeField:String=null, many:Boolean=false ) on FIELD_DEFINITION`;
@@ -130,7 +130,7 @@ export default queryExecutor =>
         value = {$in: value};
       }
       
-      let selector = await applyInputTransform(args.where, whereType);
+      let selector = await applyInputTransform(args.where, whereType, {parent, context});
       if (fieldTypeWrap.isInterface()) {
         selector = Transforms.validateAndTransformInterfaceInput(whereType)({
           selector,

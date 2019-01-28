@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 
-import { appendTransform } from '~/inputTypes/utils';
-import * as HANDLER from '~/inputTypes/handlers';
-import * as KIND from '~/inputTypes/kinds';
+import { appendTransform } from '../inputTypes/utils';
+import * as HANDLER from '../inputTypes/handlers';
+import * as KIND from '../inputTypes/kinds';
 
 const toRadians = num => {
   return (num * Math.PI) / 180;

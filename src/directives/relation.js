@@ -38,7 +38,7 @@ import {
 } from '../inputTypes/utils';
 import * as HANDLER from '../inputTypes/handlers';
 import * as KIND from '../inputTypes/kinds';
-import * as Transforms from '~/inputTypes/transforms';
+import * as Transforms from '../inputTypes/transforms';
 
 export const INPUT_CREATE_ONE_RELATION = 'createOneRelation';
 export const INPUT_CREATE_MANY_RELATION = 'createManyRelation';
@@ -104,7 +104,7 @@ export default queryExecutor =>
       let fields = [];
       modifiers.forEach(modifier => {
         let fieldName = field.name;
-        if (modifier != '') {
+        if (modifier !== '') {
           fieldName = `${field.name}_${modifier}`;
         }
         fields.push({
@@ -420,7 +420,7 @@ export default queryExecutor =>
       let value = parent[storeField];
       if (!value) return fieldTypeWrap.isRequired() ? [] : null;
       
-      let selector = await applyInputTransform(args.where, whereType);
+      let selector = await applyInputTransform(args.where, whereType, {parent, context});
       if (fieldTypeWrap.isInterface()) {
         selector = Transforms.validateAndTransformInterfaceInput(whereType)({
           selector,
@@ -476,7 +476,7 @@ export default queryExecutor =>
           }
           let selector = {
             $and: [
-              await applyInputTransform(args.where, whereType),
+              await applyInputTransform(args.where, whereType, {parent, context}),
               {[relationField]: value},
             ],
           };

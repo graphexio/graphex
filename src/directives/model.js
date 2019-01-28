@@ -13,7 +13,7 @@ import {
 import _ from 'lodash';
 import pluralize from 'pluralize';
 
-import { getDirective, lowercaseFirstLetter } from '~/utils';
+import { getDirective, lowercaseFirstLetter } from '../utils';
 
 export const ModelScheme = `directive @model(collection:String=null) on OBJECT | INTERFACE`;
 

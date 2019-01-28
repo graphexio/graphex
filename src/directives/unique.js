@@ -1,11 +1,11 @@
 import { defaultFieldResolver } from 'graphql';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
 
-import TypeWrap from '~/typeWrap';
-import { appendTransform, reduceTransforms } from '~/inputTypes/utils';
-import * as HANDLER from '~/inputTypes/handlers';
-import * as KIND from '~/inputTypes/kinds';
-import * as Transforms from '~/inputTypes/transforms';
+import TypeWrap from '../typeWrap';
+import { appendTransform, reduceTransforms } from '../inputTypes/utils';
+import * as HANDLER from '../inputTypes/handlers';
+import * as KIND from '../inputTypes/kinds';
+import * as Transforms from '../inputTypes/transforms';
 
 export const UniqueScheme = `directive @unique on FIELD_DEFINITION`;
 

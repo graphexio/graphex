@@ -1,8 +1,6 @@
 import gql from 'graphql-tag';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
 
-import InputTypes from '~/inputTypes';
-
 export const typeDef = gql`
   directive @discriminator(value: String) on OBJECT | INTERFACE
 `;
