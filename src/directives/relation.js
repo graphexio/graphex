@@ -115,7 +115,7 @@ export default queryExecutor =>
             let value = await queryExecutor({
               type: DISTINCT,
               collection,
-              selector: await applyInputTransform(params, inputType),
+              selector: await applyInputTransform({})(params, inputType),
               options: {
                 key: relationField,
               },
@@ -420,7 +420,7 @@ export default queryExecutor =>
       let value = parent[storeField];
       if (!value) return fieldTypeWrap.isRequired() ? [] : null;
       
-      let selector = await applyInputTransform(args.where, whereType, {parent, context});
+      let selector = await applyInputTransform({parent, context})(args.where, whereType);
       if (fieldTypeWrap.isInterface()) {
         selector = Transforms.validateAndTransformInterfaceInput(whereType)({
           selector,
@@ -476,7 +476,7 @@ export default queryExecutor =>
           }
           let selector = {
             $and: [
-              await applyInputTransform(args.where, whereType, {parent, context}),
+              await applyInputTransform({parent, context})(args.where, whereType),
               {[relationField]: value},
             ],
           };

@@ -18,39 +18,41 @@ export const reduceTransforms = arr => async params => {
   return params;
 };
 
-export async function applyInputTransform(value, type, info) {
-  if (type instanceof GraphQLList) {
-    return await Promise.all(
-      value.map(val => applyInputTransform(val, type.ofType, info))
-    );
-  } else if (type instanceof GraphQLNonNull) {
-    return applyInputTransform(value, type.ofType, info);
-  }
-
-  let fields = type._fields;
-  if (!fields) return value;
-  let result = {};
-  await asyncForEach(_.keys(value), async key => {
-    let field = fields[key];
-    if (!field) {
-        throw 'Wrong type for input provided';
+export async function applyInputTransform(context) {
+  return async (value, type) => {
+    if (type instanceof GraphQLList) {
+      return await Promise.all(
+        value.map(val => applyInputTransform(context)(val, type.ofType))
+      );
+    } else if (type instanceof GraphQLNonNull) {
+      return applyInputTransform(context)(value, type.ofType);
     }
-    let val = value[key];
-    result = {
-      ...result,
-      ...(field.mmTransform
-        ? await field.mmTransform({
-            [key]: val,
-          }, info)
-        : {
-            [key]: await applyInputTransform(val, field.type, info),
-          }),
-    };
-  });
-  await asyncForEach(_.keys(fields), async fieldName => {
   
-  });
-  return result;
+    let fields = type._fields;
+    if (!fields) return value;
+    let result = {};
+    await asyncForEach(_.keys(value), async key => {
+      let field = fields[key];
+      if (!field) {
+        throw 'Wrong type for input provided';
+      }
+      let val = value[key];
+      result = {
+        ...result,
+        ...(field.mmTransform
+          ? await field.mmTransform({
+            [key]: val,
+          }, context)
+          : {
+            [key]: await applyInputTransform(context)(val, field.type),
+          }),
+      };
+    });
+    await asyncForEach(_.keys(fields), async fieldName => {
+    
+    });
+    return result;
+  }
 }
 
 export function appendTransform(field, handler, functions) {

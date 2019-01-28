@@ -130,7 +130,7 @@ export default queryExecutor =>
         value = {$in: value};
       }
       
-      let selector = await applyInputTransform(args.where, whereType, {parent, context});
+      let selector = await applyInputTransform({parent, context})(args.where, whereType);
       if (fieldTypeWrap.isInterface()) {
         selector = Transforms.validateAndTransformInterfaceInput(whereType)({
           selector,
@@ -178,7 +178,7 @@ export default queryExecutor =>
           }
           let selector = {
             $and: [
-              await applyInputTransform(args.where, whereType),
+              await applyInputTransform({})(args.where, whereType),
               {[storeField]: value},
             ],
           };
