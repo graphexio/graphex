@@ -11,7 +11,7 @@ let db = MongoClient.connect(
 
   const schema = new ApolloModelMongo({
     queryExecutor: QueryExecutor(db),
-  }).makeExecutablSchema({
+  }).makeExecutableSchema({
     typeDefs,
   });
 

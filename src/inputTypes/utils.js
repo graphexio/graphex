@@ -18,13 +18,13 @@ export const reduceTransforms = arr => async params => {
   return params;
 };
 
-export async function applyInputTransform(value, type) {
+export async function applyInputTransform(value, type, info) {
   if (type instanceof GraphQLList) {
     return await Promise.all(
-      value.map(val => applyInputTransform(val, type.ofType))
+      value.map(val => applyInputTransform(val, type.ofType, info))
     );
   } else if (type instanceof GraphQLNonNull) {
-    return applyInputTransform(value, type.ofType);
+    return applyInputTransform(value, type.ofType, info);
   }
 
   let fields = type._fields;
@@ -32,18 +32,23 @@ export async function applyInputTransform(value, type) {
   let result = {};
   await asyncForEach(_.keys(value), async key => {
     let field = fields[key];
-    if (!field) throw 'Wrong type for input provided';
+    if (!field) {
+        throw 'Wrong type for input provided';
+    }
     let val = value[key];
     result = {
       ...result,
       ...(field.mmTransform
         ? await field.mmTransform({
             [key]: val,
-          })
+          }, info)
         : {
-            [key]: await applyInputTransform(val, field.type),
+            [key]: await applyInputTransform(val, field.type, info),
           }),
     };
+  });
+  await asyncForEach(_.keys(fields), async fieldName => {
+  
   });
   return result;
 }

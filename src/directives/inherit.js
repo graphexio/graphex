@@ -1,12 +1,13 @@
 import { defaultFieldResolver } from 'graphql';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
 import _ from 'lodash';
-import { lowercaseFirstLetter } from '~/utils';
+import { lowercaseFirstLetter } from '../utils';
 
 export const InheritScheme = `directive @inherit on INTERFACE`;
 
 export default class Inherit extends SchemaDirectiveVisitor {
   visitInterface(iface) {
+    
     const { _typeMap: SchemaTypes } = this.schema;
 
     if (!iface.mmDiscriminatorField) {

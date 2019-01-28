@@ -1,15 +1,19 @@
 import _ from 'lodash';
 import * as HANDLER from './handlers';
-import { applyInputTransform } from './utils';
-import { asyncForEach, asyncMapValues } from '~/utils';
-import TypeWrap from '~/typeWrap';
-import { UserInputError } from 'apollo-server';
+import {applyInputTransform} from './utils';
+import {asyncMapValues} from '../utils';
+import {UserInputError} from 'apollo-server';
+
+// const r = (value) => new RegExp(value);
+const r = (value, options) => {
+  return {$regex: new RegExp(value, options)}
+};
 
 export const flattenNested = params => {
   let fieldKey = _.head(_.keys(params));
   let value = params[fieldKey];
   let newValue = {};
-
+  
   _.keys(value).forEach(key => {
     let val = value[key];
     //don't flatten modifiers
@@ -32,7 +36,7 @@ export const flattenNested = params => {
 
 export const validateAndTransformNestedInput = (type, isMany) => params => {
   let value = _.head(_.values(params));
-
+  
   if (!isMany) {
     if (_.keys(value).length > 1) {
       throw new UserInputError(
@@ -44,7 +48,7 @@ export const validateAndTransformNestedInput = (type, isMany) => params => {
       throw new UserInputError(`Wrong input in ${type.name} type`);
     }
   }
-
+  
   return _.mapValues(params, value => _.merge(..._.values(value)));
 };
 
@@ -53,7 +57,7 @@ const validateAndTransformInterfaceValue = type => value => {
     throw new UserInputError(
       `You should not fill multiple fields in ${type.name} type`
     );
-  } else if (_.keys(value).length == 0) {
+  } else if (_.keys(value).length === 0) {
     return {};
     // throw new UserInputError(`You should fill any field in ${type.name} type`);
   }
@@ -74,7 +78,7 @@ export const transformModifier = modifier => params =>
   _(params)
     .mapValues(value => _mapModifier(modifier, value))
     .mapKeys((value, key) => {
-      if (modifier != '') {
+      if (modifier !== '') {
         return key.substring(key.length - modifier.length - 1, 0);
       } else {
         return key;
@@ -87,37 +91,50 @@ function _mapModifier(modifier, value) {
     case '':
       return value;
     case 'not':
-      return { $not: { $eq: value } };
+      return {$not: {$eq: value}};
     case 'lt':
     case 'lte':
     case 'gt':
     case 'gte':
-      return { [`$${modifier}`]: value };
+      return {[`$${modifier}`]: value};
     case 'in':
     case 'some':
-      return { $in: value };
+      return {$in: value};
     case 'every':
-      return { $all: value };
+      return {$all: value};
     case 'none':
     case 'not_in':
-      return { $nin: value };
+      return {$nin: value};
     case 'contains':
-      return { $regex: `.*${value}.*` };
-    case 'contains':
-      return { $regex: `.*${value}.*` };
-      break;
+      return r(value);
+    case 'icontains':
+      return r(value, "i");
     case 'not_contains':
-      return { $not: { $regex: `.*${value}.*` } };
+      return {$not: r(value)};
+    case 'not_icontains':
+      return {$not: r(value, "i")};
     case 'starts_with':
-      return { $regex: `.*${value}` };
+      return r(`^${value}`);
+    case 'istarts_with':
+      return r(`^${value}`, "i");
     case 'not_starts_with':
-      return { $not: { $regex: `.*${value}` } };
+      return {$not: r(`^${value}`)};
+    case 'not_istarts_with':
+      return {$not: r(`^${value}`, "i")};
     case 'ends_with':
-      return { $regex: `${value}.*` };
+      return r(`${value}$`);
+    case 'iends_with':
+      return r(`${value}$`, "i");
     case 'not_ends_with':
-      return { $not: { $regex: `${value}.*` } };
+      return {$not: r(`${value}$`)};
+    case 'not_iends_with':
+      return {$not: r(`${value}$`, "i")};
     case 'exists':
-      return { $exists: value };
+      return {$exists: value};
+    case 'size':
+      return {$size: value};
+    case 'not_size':
+      return {$not: {$size: value}};
     default:
       return {};
   }
@@ -141,6 +158,6 @@ export const fieldInputTransform = (field = {}, kind) => async params => {
 };
 
 export const log = message => params => {
-  console.dir({ message, params }, { depth: null });
+  console.dir({message, params}, {depth: null});
   return params;
 };

@@ -28,7 +28,9 @@
   "homepage": "https://github.com/vitramir/apollo-model-mongodb",
   "peerDependencies": {
     "graphql": "^14.0.2",
-    "graphql-tools": "^4.0.3"
+    "graphql-tools": "^4.0.3",
+    "mongodb": "^3.1.12",
+    "dataloader": "^1.4.0"
   },
   "dependencies": {
     "@babel/runtime": "^7.2.0",
