@@ -1,6 +1,7 @@
 import pluralize from 'pluralize';
 import _ from 'lodash';
-import DataLoader from "dataloader";
+import DataLoader from 'dataloader';
+import ObjectHash from 'object-hash';
 
 export const FIND = 'find';
 export const FIND_ONE = 'findOne';
@@ -16,161 +17,119 @@ export const UPDATE_MANY = 'updateMany';
 
 let dataLoaders = {};
 
-const buildDataLoaderWithSelector = (db, collectionName, selectorField, selector = {}) => {
+const getDataLoader = (db, collectionName, selectorField, selector = {}) => {
+  let key = ObjectHash({ collectionName, selectorField, selector });
+  if (!dataLoaders[key]) {
     let Collection = db.collection(collectionName);
-    return new DataLoader(keys => {
-        return Collection.find({[selectorField]: {$in: keys}, ...selector}).toArray().then(data => keys.map(key => data.find(item => item[selectorField].toString() === key.toString()) || null));
-    }, {cache: false});
+    dataLoaders[key] = new DataLoader(
+      keys => {
+        return Collection.find({ [selectorField]: { $in: keys }, ...selector })
+          .toArray()
+          .then(data => keys.map(key => data.find(item => item[selectorField].toString() === key.toString()) || null));
+      },
+      { cache: false }
+    );
+  }
+  return dataLoaders[key];
 };
 
-const hasDataLoader = (key) => {
-    return Object.keys(dataLoaders).includes(key);
-};
+const queryExecutor = db => async params => {
+  let { type, collection: collectionName, doc, docs, selector, options = {}, context = {} } = params;
+  // console.dir({ type, collection, selector, options }, { depth: null });
+  let { skip, limit, sort, arrayFilters = [] } = options;
+  //
+  // console.log('\n\n');
+  // console.log({ type, collection });
+  // console.log('selector');
+  // console.dir(selector, { depth: null });
+  // console.dir({ options });
+  // console.log('doc');
+  // console.dir(doc, { depth: null });
+  // console.log('\n\n');
 
-const dataLoaderKey = (collectionName, selectorField, selector = {}) => {
-    let params = Object.entries(selector).sort((a, b) => {
-        return a[0] > b[0]
-    }).map(([k, v]) => {
-        return `${k}:${JSON.stringify(v)}`;
-    });
-    if (params) {
-        params = ":" + params.join(':')
-    }
-    let key = `${collectionName}:${selectorField}${params}`;
-    console.log(key);
-    return key;
-    
-};
-let dbResolver = (t, c, data) => {
-    if (t.indexOf('Post') !== -1) {
-        return;
-    }
-    return data;
-};
+  let Collection = db.collection(collectionName);
 
-const queryExecutor = ({db, hooks = {}, dbResolve = dbResolver}) => async params => {
-    let {type, collection: collectionName, doc, docs, selector, options = {}, context = {}} = params;
-    // console.dir({ type, collection, selector, options }, { depth: null });
-    let {skip, limit, sort, arrayFilters = []} = options;
-    //
-    // console.log('\n\n');
-    // console.log({ type, collection });
-    // console.log('selector');
-    // console.dir(selector, { depth: null });
-    // console.dir({ options });
-    // console.log('doc');
-    // console.dir(doc, { depth: null });
-    // console.log('\n\n');
-    
-    let Collection = db.collection(collectionName);
-    
-    switch (type) {
-        case FIND: {
-            selector = dbResolve(FIND, collectionName, selector, context);
-            let cursor = Collection.find(selector);
-            if (skip) cursor = cursor.skip(skip);
-            if (limit) cursor = cursor.limit(limit);
-            if (sort) cursor = cursor.sort(sort);
-            return cursor.toArray().then(data => {
-                return data;
-            }).catch(e => {
-                console.log(e);
-            });
-        }
-        case FIND_ONE: {
-            selector = dbResolve(FIND, collectionName, selector, context);
-            options.id = options.id || selector[options.selectorField];
-            selector = {
-                ..._.omit(selector, options.selectorField)
-            };
-            const dlKey = dataLoaderKey(collectionName, options.selectorField, selector);
-            if (!hasDataLoader(dlKey)) {
-                dataLoaders[dlKey] = buildDataLoaderWithSelector(db, collectionName, options.selectorField, selector);
-            }
-            let dataLoader = dataLoaders[dlKey];
-            return options.id ? dataLoader.load(options.id) : Promise.resolve(null);
-        }
-        case FIND_IDS: {
-            selector = dbResolve(FIND, collectionName, selector, context);
-            selector = {
-                ..._.omit(selector, options.selectorField)
-            };
-            const dlKey = dataLoaderKey(collectionName, options.selectorField, selector);
-            if (!hasDataLoader(dlKey)) {
-                dataLoaders[dlKey] = buildDataLoaderWithSelector(db, collectionName, options.selectorField, selector);
-            }
-            let dataLoader = dataLoaders[dlKey];
-            if (!options.ids) {
-                options.ids = [];
-            }
-            
-            if (!Array.isArray(options.ids)) {
-                options.ids = [options.ids];
-            }
-            return dataLoader.loadMany(options.ids);
-        }
-        case COUNT: {
-            selector = dbResolve(FIND, collectionName, selector, context);
-            let cursor = Collection.find(selector);
-            if (skip) cursor = cursor.skip(skip);
-            if (limit) cursor = cursor.limit(limit);
-            if (sort) cursor = cursor.sort(sort);
-            return cursor.count(true);
-        }
-        case DISTINCT: {
-            selector = dbResolve(FIND, collectionName, selector, context);
-            let cursor = Collection.find(selector);
-            if (skip) cursor = cursor.skip(skip);
-            if (limit) cursor = cursor.limit(limit);
-            if (sort) cursor = cursor.sort(sort);
-            return cursor.toArray().then(data => data.map(item => item[options.key]));
-        }
-        case INSERT_ONE: {
-            doc = dbResolve(INSERT_ONE + "Pre", collectionName, doc, context);
-            return Collection.insertOne(doc).then(res => {
-                let data = _.head(res.ops);
-                let {_id} = data;
-                let update = dbResolve(INSERT_ONE + "Post", collectionName, data, context);
-                if (update) {
-                    return Collection.findOneAndUpdate({_id}, update, {
-                        returnOriginal: false,
-                    }).then(res => res.value);
-                }
-                return data
-            });
-        }
-        case INSERT_MANY: {
-            return Collection.insertMany(docs).then(res => res.ops);
-        }
-        
-        case DELETE_MANY: {
-            return Collection.deleteMany(selector).then(res => res.deletedCount);
-        }
-        
-        case DELETE_ONE: {
-            return Collection.findOneAndDelete(selector).then(res => res.deletedCount);
-        }
-        case UPDATE_MANY: {
-            return Collection.updateMany(selector, docs, {arrayFilters}).then(res => res.ops);
-        }
-        case UPDATE_ONE: {
-            doc = dbResolve(UPDATE_ONE + "Pre", collectionName, doc, context);
-            return Collection.findOneAndUpdate(selector, doc, {
-                returnOriginal: false,
-                arrayFilters,
-            }).then(res => {
-                let data = res.value;
-                let update = dbResolve(UPDATE_ONE + "Post", collectionName, data, context);
-                if (update) {
-                    return Collection.findOneAndUpdate(selector, update, {
-                        returnOriginal: false,
-                        arrayFilters,
-                    }).then(res => res.value);
-                }
-                return data;
-            });
-        }
+  switch (type) {
+    case FIND: {
+      let cursor = Collection.find(selector);
+      if (skip) cursor = cursor.skip(skip);
+      if (limit) cursor = cursor.limit(limit);
+      if (sort) cursor = cursor.sort(sort);
+      return cursor
+        .toArray()
+        .then(data => {
+          return data;
+        })
+        .catch(e => {
+          console.log(e);
+        });
     }
-    return null;
+    case FIND_ONE: {
+      return Collection.findOne(selector);
+      // selector = dbResolve(FIND, collectionName, selector, context);
+      // options.id = options.id || selector[options.selectorField];
+      // selector = {
+      //   ..._.omit(selector, options.selectorField),
+      // };
+      // const dlKey = dataLoaderKey(collectionName, options.selectorField, selector);
+      // if (!hasDataLoader(dlKey)) {
+      //   dataLoaders[dlKey] = buildDataLoaderWithSelector(db, collectionName, options.selectorField, selector);
+      // }
+      // let dataLoader = dataLoaders[dlKey];
+      // return options.id ? dataLoader.load(options.id) : Promise.resolve(null);
+    }
+    case FIND_IDS: {
+      selector = {
+        ..._.omit(selector, options.selectorField),
+      };
+      //BUG selectorField may be in nested operator ($and for example)
+      if (!options.ids) {
+        options.ids = [];
+      }
+
+      if (!Array.isArray(options.ids)) {
+        options.ids = [options.ids];
+      }
+      return getDataLoader(db, collectionName, options.selectorField, selector).loadMany(options.ids);
+    }
+    case COUNT: {
+      let cursor = Collection.find(selector);
+      if (skip) cursor = cursor.skip(skip);
+      if (limit) cursor = cursor.limit(limit);
+      if (sort) cursor = cursor.sort(sort);
+      return cursor.count(true);
+    }
+    case DISTINCT: {
+      let cursor = Collection.find(selector);
+      if (skip) cursor = cursor.skip(skip);
+      if (limit) cursor = cursor.limit(limit);
+      if (sort) cursor = cursor.sort(sort);
+      return cursor.toArray().then(data => data.map(item => item[options.key]));
+    }
+    case INSERT_ONE: {
+      return Collection.insertOne(doc).then(res => _.head(res.ops));
+    }
+    case INSERT_MANY: {
+      return Collection.insertMany(docs).then(res => res.ops);
+    }
+
+    case DELETE_MANY: {
+      return Collection.deleteMany(selector).then(res => res.deletedCount);
+    }
+
+    case DELETE_ONE: {
+      return Collection.findOneAndDelete(selector).then(res => res.deletedCount);
+    }
+    case UPDATE_MANY: {
+      return Collection.updateMany(selector, docs, { arrayFilters }).then(res => res.ops);
+    }
+    case UPDATE_ONE: {
+      return Collection.findOneAndUpdate(selector, doc, {
+        returnOriginal: false,
+        arrayFilters,
+      }).then(res => res.value);
+    }
+  }
+  return null;
 };
 export default queryExecutor;

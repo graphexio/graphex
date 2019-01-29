@@ -897,16 +897,17 @@ apollo-link@^1.2.3:
     apollo-utilities "^1.0.0"
     zen-observable-ts "^0.8.11"
 
-apollo-model-mongodb@^0.2.1:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/apollo-model-mongodb/-/apollo-model-mongodb-0.2.1.tgz#3c1823407785d539b3ffb7aa8e979ca420c593e9"
-  integrity sha512-PfVCDfBfy3ZzBMtCfD71ZI62/OgqhgmQW2jOgmP52pfHv2EdMCQYNp35vx8aL/OiwahhbvqAkACsGSActlIouw==
+apollo-model-mongodb@^0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/apollo-model-mongodb/-/apollo-model-mongodb-0.3.1.tgz#d78ecb92d6897542a6ba77a22788f6c97441cdfa"
+  integrity sha512-sEBngbmMiT1bmlnZGbVKE0loYXYmzZNcSTy+UU6eCSvo1b32rbT+TZaJWGvTqrINguWUVZyfk0K3OKJMzMSQWg==
   dependencies:
     "@babel/runtime" "^7.2.0"
     graphql-resolvers "^0.2.2"
     graphql-tag "^2.10.0"
     graphql-tools "^4.0.3"
     lodash "^4.17.11"
+    object-hash "^1.3.1"
     pluralize "^7.0.0"
 
 apollo-server-caching@0.2.1:
@@ -2450,6 +2451,11 @@ object-copy@^0.1.0:
     copy-descriptor "^0.1.0"
     define-property "^0.2.5"
     kind-of "^3.0.3"
+
+object-hash@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/object-hash/-/object-hash-1.3.1.tgz#fde452098a951cb145f039bb7d455449ddc126df"
+  integrity sha512-OSuu/pU4ENM9kmREg0BdNrUDIl1heYa4mBZacJc+vVWz4GtAwu7jO8s4AIt2aGRUTqxykpWzI3Oqnsm13tTMDA==
 
 object-keys@^1.0.12:
   version "1.0.12"
