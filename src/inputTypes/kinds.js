@@ -1,7 +1,9 @@
 export const CREATE = 'create';
+export const CREATE_ALWAYS = 'createAlways';
 export const WHERE = 'where';
 export const WHERE_UNIQUE = 'whereUnique';
 export const UPDATE = 'update';
+export const UPDATE_ALWAYS = 'updateAlways';
 export const ORDER_BY = 'orderBy';
 export const CREATE_INTERFACE = 'interfaceCreate';
 export const WHERE_INTERFACE = 'interfaceWhere';

@@ -54,6 +54,7 @@ import Relation, {RelationScheme} from './directives/relation';
 import ExtRelation, {ExtRelationScheme} from './directives/extRelation';
 import CreatedAt, {CreatedAtScheme, CreatedAtResolver} from "./directives/createdAt";
 import UpdatedAt, {UpdatedAtScheme, UpdatedAtResolver} from "./directives/updatedAt";
+import DefaultDirective, {DefaultDirectiveScheme} from "./directives/default";
 import DirectiveDB, {
     DirectiveDBScheme,
     DirectiveDBResolver,
@@ -65,7 +66,7 @@ import Scalars, {typeDefs as ScalarsSchemes} from './scalars';
 import Modules from './modules';
 
 import InputTypes from './inputTypes';
-import {applyInputTransform} from './inputTypes/utils';
+import {applyAlwaysInputTransform, applyInputTransform} from './inputTypes/utils';
 import * as KIND from './inputTypes/kinds';
 
 export default class ModelMongo {
@@ -98,7 +99,7 @@ export default class ModelMongo {
             isDeprecated: false,
             name,
             resolve: async (parent, args, context) => {
-                let selector = await applyInputTransform(args.where, whereType, {parent, context});
+                let selector = await applyInputTransform({parent, context})(args.where, whereType);
                 if (typeWrap.isInherited()) {
                     selector[
                         typeWrap.interfaceType().mmDiscriminatorField
@@ -106,6 +107,7 @@ export default class ModelMongo {
                 }
                 return this.QueryExecutor({
                     type: FIND,
+                    modelType,
                     collection: modelType.mmCollectionName,
                     selector,
                     options: {skip: args.skip, limit: args.first, sort: args.orderBy},
@@ -181,7 +183,7 @@ export default class ModelMongo {
             name,
             resolve: async (parent, args, context) => {
                 return {
-                    _selector: await applyInputTransform(args.where, whereType, {parent, context}),
+                    _selector: await applyInputTransform({parent, context})(args.where, whereType),
                     _skip: args.skip,
                     _limit: args.first,
                 };
@@ -214,9 +216,9 @@ export default class ModelMongo {
             isDeprecated: false,
             name,
             resolve: async (parent, args, context) => {
-                let selector = await applyInputTransform(args.where, whereUniqueType, {parent, context});
-                let [selectorField, id] = Object.entries(selector)[0];
-                console.log(selectorField, id);
+                let selector = await applyInputTransform({parent, context})(args.where, whereUniqueType);
+                let entries = Object.entries(selector);
+                let [selectorField, id] = entries.length ? Object.entries(selector)[0]: ["_id"];
                 if (typeWrap.isInherited()) {
                     selector[
                         typeWrap.interfaceType().mmDiscriminatorField
@@ -258,16 +260,9 @@ export default class ModelMongo {
             isDeprecated: false,
             name,
             resolve: async (parent, args, context) => {
-                await asyncForEach(Object.entries(modelType._fields), async ([fieldName, field]) => {
-                    if (field.mmTransformAlways && field.mmTransformAlways.includes(KIND.CREATE)) {
-                        if (field.mmTransform) {
-                            let value = args.data[fieldName] || null;
-                            value = await field.mmTransform({[fieldName]: value});
-                            args.data[fieldName] = value;
-                        }
-                    }
-                });
-                let doc = await applyInputTransform(args.data, inputType, {parent, context});
+                let data = await applyAlwaysInputTransform({parent, context})(modelType, args.data, KIND.CREATE_ALWAYS);
+                let doc = await applyInputTransform({parent, context})(data, inputType);
+                
                 if (typeWrap.isInherited()) {
                     doc[
                         typeWrap.interfaceType().mmDiscriminatorField
@@ -308,7 +303,7 @@ export default class ModelMongo {
             isDeprecated: false,
             name,
             resolve: async (parent, args, context) => {
-                let selector = await applyInputTransform(args.where, whereUniqueType, {parent, context});
+                let selector = await applyInputTransform({parent, context})(args.where, whereUniqueType);
                 if (typeWrap.isInherited()) {
                     selector[
                         typeWrap.interfaceType().mmDiscriminatorField
@@ -355,20 +350,12 @@ export default class ModelMongo {
             isDeprecated: false,
             name,
             resolve: async (parent, args, context) => {
-                await asyncForEach(Object.entries(modelType._fields), async ([fieldName, field]) => {
-                    if (field.mmTransformAlways && field.mmTransformAlways.includes(KIND.CREATE)) {
-                        if (field.mmTransform) {
-                            let value = args.data[fieldName] || null;
-                            value = await field.mmTransform({[fieldName]: value});
-                            args.data[fieldName] = value;
-                        }
-                    }
-                });
-                let {doc, validations, arrayFilters} = prepareUpdateDoc(
-                    await applyInputTransform(args.data, updateType, {parent, context})
-                );
+                let data = await applyAlwaysInputTransform({parent, context})(modelType, args.data, KIND.UPDATE_ALWAYS);
+                data = await applyInputTransform({parent, context})(data, updateType);
+                let {doc, validations, arrayFilters} = prepareUpdateDoc(data);
+                console.log(doc, validations, arrayFilters);
                 let selector = {
-                    $and: [await applyInputTransform(args.where, whereType, {parent, context}), validations],
+                    $and: [await applyInputTransform({parent, context})(args.where, whereType), validations],
                 };
                 if (typeWrap.isInherited()) {
                     selector[
@@ -442,6 +429,7 @@ export default class ModelMongo {
             ModelScheme,
             DirectiveDBScheme,
             RelationScheme,
+            DefaultDirectiveScheme,
             CreatedAtScheme,
             UpdatedAtScheme,
             IDScheme,
@@ -455,6 +443,7 @@ export default class ModelMongo {
             ...schemaDirectives,
             createdAt: CreatedAt,
             updatedAt: UpdatedAt,
+            default: DefaultDirective,
             relation: Relation(this.QueryExecutor),
             extRelation: ExtRelation(this.QueryExecutor),
             db: DirectiveDB,

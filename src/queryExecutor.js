@@ -10,100 +10,167 @@ export const DISTINCT = 'distinct';
 export const INSERT_ONE = 'insertOne';
 export const INSERT_MANY = 'insertMany';
 export const DELETE_ONE = 'deleteOne';
+export const DELETE_MANY = 'deleteMany';
 export const UPDATE_ONE = 'updateOne';
 export const UPDATE_MANY = 'updateMany';
 
 let dataLoaders = {};
 
-const buildDataLoader = (db, collectionName, selectorField) => {
-  let Collection = db.collection(collectionName);
-  return new DataLoader(keys => {
-    return Collection.find({[selectorField]: {$in: keys}}).toArray().then(data => keys.map(key => data.find(item => item[selectorField].toString() === key.toString()) || null));
-  }, {cache: false});
+const buildDataLoaderWithSelector = (db, collectionName, selectorField, selector = {}) => {
+    let Collection = db.collection(collectionName);
+    return new DataLoader(keys => {
+        return Collection.find({[selectorField]: {$in: keys}, ...selector}).toArray().then(data => keys.map(key => data.find(item => item[selectorField].toString() === key.toString()) || null));
+    }, {cache: false});
 };
 
-export default ({db, hooks = {}}) => async params => {
-  let {willGet, didGet, willCreate, didCreate, willUpdate, didUpdate, willDelete, didDelete} = hooks;
-  let {type, collection: collectionName, doc, docs, selector, options = {}, context = {}} = params;
-  // console.dir({ type, collection, selector, options }, { depth: null });
-  let {skip, limit, sort, arrayFilters = []} = options;
-  //
-  // console.log('\n\n');
-  // console.log({ type, collection });
-  // console.log('selector');
-  // console.dir(selector, { depth: null });
-  // console.dir({ options });
-  // console.log('doc');
-  // console.dir(doc, { depth: null });
-  // console.log('\n\n');
-  
-  let Collection = db.collection(collectionName);
-  
-  switch (type) {
-    case FIND: {
-      // let {selector} = willGet ? await willGet(params) : {selector};
-      let cursor = Collection.find(selector);
-      if (skip) cursor = cursor.skip(skip);
-      if (limit) cursor = cursor.limit(limit);
-      if (sort) cursor = cursor.sort(sort);
-      return cursor.toArray().then(data => {
-        return data;
-        // return didGet ? didGet(data).then(() => data) : data
-      });
-    }
-    case FIND_ONE: {
-      // let {selector} = willGet ? await willGet(params) : {selector};
-      const dataLoaderKey = `${collectionName}:${options.selectorField}`;
-      if (!Object.keys(dataLoaders).includes(dataLoaderKey)) {
-        dataLoaders[dataLoaderKey] = buildDataLoader(db, collectionName, options.selectorField);
-      }
-      let dataLoader = dataLoaders[dataLoaderKey];
-      return options.id ? dataLoader.load(options.id) : Promise.resolve(null);
-    }
-    case FIND_IDS: {
-      const dataLoaderKey = `${collectionName}:${options.selectorField}`;
-      if (!Object.keys(dataLoaders).includes(dataLoaderKey)) {
-        dataLoaders[dataLoaderKey] = buildDataLoader(db, collectionName, options.selectorField);
-      }
-      let dataLoader = dataLoaders[dataLoaderKey];
-      if (!options.ids) {
-        options.ids = [];
-      }
-      
-      if (!Array.isArray(options.ids)) {
-        options.ids = [options.ids];
-      }
-      return dataLoader.loadMany(options.ids);
-    }
-    case COUNT: {
-      let cursor = Collection.find(selector);
-      if (skip) cursor = cursor.skip(skip);
-      if (limit) cursor = cursor.limit(limit);
-      if (sort) cursor = cursor.sort(sort);
-      return cursor.count(true);
-    }
-    case DISTINCT: {
-      let cursor = Collection.find(selector);
-      if (skip) cursor = cursor.skip(skip);
-      if (limit) cursor = cursor.limit(limit);
-      if (sort) cursor = cursor.sort(sort);
-      return cursor.toArray().then(data => data.map(item => item[options.key]));
-    }
-    case INSERT_ONE: {
-      return Collection.insertOne(doc).then(res => _.head(res.ops));
-    }
-    case INSERT_MANY: {
-      return Collection.insertMany(docs).then(res => res.ops);
-    }
-    case DELETE_ONE: {
-      return Collection.findOneAndDelete(selector).then(res => res.value);
-    }
-    case UPDATE_ONE: {
-      return Collection.findOneAndUpdate(selector, doc, {
-        returnOriginal: false,
-        arrayFilters,
-      }).then(res => res.value);
-    }
-  }
-  return null;
+const hasDataLoader = (key) => {
+    return Object.keys(dataLoaders).includes(key);
 };
+
+const dataLoaderKey = (collectionName, selectorField, selector = {}) => {
+    let params = Object.entries(selector).sort((a, b) => {
+        return a[0] > b[0]
+    }).map(([k, v]) => {
+        return `${k}:${JSON.stringify(v)}`;
+    });
+    if (params) {
+        params = ":" + params.join(':')
+    }
+    let key = `${collectionName}:${selectorField}${params}`;
+    console.log(key);
+    return key;
+    
+};
+let dbResolver = (t, c, data) => {
+    if (t.indexOf('Post') !== -1) {
+        return;
+    }
+    return data;
+};
+
+const queryExecutor = ({db, hooks = {}, dbResolve = dbResolver}) => async params => {
+    let {type, collection: collectionName, doc, docs, selector, options = {}, context = {}} = params;
+    // console.dir({ type, collection, selector, options }, { depth: null });
+    let {skip, limit, sort, arrayFilters = []} = options;
+    //
+    // console.log('\n\n');
+    // console.log({ type, collection });
+    // console.log('selector');
+    // console.dir(selector, { depth: null });
+    // console.dir({ options });
+    // console.log('doc');
+    // console.dir(doc, { depth: null });
+    // console.log('\n\n');
+    
+    let Collection = db.collection(collectionName);
+    
+    switch (type) {
+        case FIND: {
+            selector = dbResolve(FIND, collectionName, selector, context);
+            let cursor = Collection.find(selector);
+            if (skip) cursor = cursor.skip(skip);
+            if (limit) cursor = cursor.limit(limit);
+            if (sort) cursor = cursor.sort(sort);
+            return cursor.toArray().then(data => {
+                return data;
+            }).catch(e => {
+                console.log(e);
+            });
+        }
+        case FIND_ONE: {
+            selector = dbResolve(FIND, collectionName, selector, context);
+            options.id = options.id || selector[options.selectorField];
+            selector = {
+                ..._.omit(selector, options.selectorField)
+            };
+            const dlKey = dataLoaderKey(collectionName, options.selectorField, selector);
+            if (!hasDataLoader(dlKey)) {
+                dataLoaders[dlKey] = buildDataLoaderWithSelector(db, collectionName, options.selectorField, selector);
+            }
+            let dataLoader = dataLoaders[dlKey];
+            return options.id ? dataLoader.load(options.id) : Promise.resolve(null);
+        }
+        case FIND_IDS: {
+            selector = dbResolve(FIND, collectionName, selector, context);
+            selector = {
+                ..._.omit(selector, options.selectorField)
+            };
+            const dlKey = dataLoaderKey(collectionName, options.selectorField, selector);
+            if (!hasDataLoader(dlKey)) {
+                dataLoaders[dlKey] = buildDataLoaderWithSelector(db, collectionName, options.selectorField, selector);
+            }
+            let dataLoader = dataLoaders[dlKey];
+            if (!options.ids) {
+                options.ids = [];
+            }
+            
+            if (!Array.isArray(options.ids)) {
+                options.ids = [options.ids];
+            }
+            return dataLoader.loadMany(options.ids);
+        }
+        case COUNT: {
+            selector = dbResolve(FIND, collectionName, selector, context);
+            let cursor = Collection.find(selector);
+            if (skip) cursor = cursor.skip(skip);
+            if (limit) cursor = cursor.limit(limit);
+            if (sort) cursor = cursor.sort(sort);
+            return cursor.count(true);
+        }
+        case DISTINCT: {
+            selector = dbResolve(FIND, collectionName, selector, context);
+            let cursor = Collection.find(selector);
+            if (skip) cursor = cursor.skip(skip);
+            if (limit) cursor = cursor.limit(limit);
+            if (sort) cursor = cursor.sort(sort);
+            return cursor.toArray().then(data => data.map(item => item[options.key]));
+        }
+        case INSERT_ONE: {
+            doc = dbResolve(INSERT_ONE + "Pre", collectionName, doc, context);
+            return Collection.insertOne(doc).then(res => {
+                let data = _.head(res.ops);
+                let {_id} = data;
+                let update = dbResolve(INSERT_ONE + "Post", collectionName, data, context);
+                if (update) {
+                    return Collection.findOneAndUpdate({_id}, update, {
+                        returnOriginal: false,
+                    }).then(res => res.value);
+                }
+                return data
+            });
+        }
+        case INSERT_MANY: {
+            return Collection.insertMany(docs).then(res => res.ops);
+        }
+        
+        case DELETE_MANY: {
+            return Collection.deleteMany(selector).then(res => res.deletedCount);
+        }
+        
+        case DELETE_ONE: {
+            return Collection.findOneAndDelete(selector).then(res => res.deletedCount);
+        }
+        case UPDATE_MANY: {
+            return Collection.updateMany(selector, docs, {arrayFilters}).then(res => res.ops);
+        }
+        case UPDATE_ONE: {
+            doc = dbResolve(UPDATE_ONE + "Pre", collectionName, doc, context);
+            return Collection.findOneAndUpdate(selector, doc, {
+                returnOriginal: false,
+                arrayFilters,
+            }).then(res => {
+                let data = res.value;
+                let update = dbResolve(UPDATE_ONE + "Post", collectionName, data, context);
+                if (update) {
+                    return Collection.findOneAndUpdate(selector, update, {
+                        returnOriginal: false,
+                        arrayFilters,
+                    }).then(res => res.value);
+                }
+                return data;
+            });
+        }
+    }
+    return null;
+};
+export default queryExecutor;

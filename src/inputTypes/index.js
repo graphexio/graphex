@@ -333,7 +333,7 @@ class InputTypesClass {
             name: 'AND',
             type: manyType,
             mmTransform: async params => {
-                params = await applyInputTransform(params.AND, manyType);
+                params = await applyInputTransform({})(params.AND, manyType);
                 return {$and: params};
             },
         };
@@ -341,7 +341,7 @@ class InputTypesClass {
             name: 'OR',
             type: manyType,
             mmTransform: async params => {
-                params = await applyInputTransform(params.OR, manyType);
+                params = await applyInputTransform({})(params.OR, manyType);
                 return {$or: params};
             },
         };
