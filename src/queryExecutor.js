@@ -15,15 +15,38 @@ export const UPDATE_MANY = 'updateMany';
 
 let dataLoaders = {};
 
-const buildDataLoader = (db, collectionName, selectorField) => {
+const buildDataLoaderWithSelector = (db, collectionName, selectorField, selector = {}) => {
   let Collection = db.collection(collectionName);
   return new DataLoader(keys => {
-    return Collection.find({[selectorField]: {$in: keys}}).toArray().then(data => keys.map(key => data.find(item => item[selectorField].toString() === key.toString()) || null));
+    return Collection.find({[selectorField]: {$in: keys}, ...selector}).toArray().then(data => keys.map(key => data.find(item => item[selectorField].toString() === key.toString()) || null));
   }, {cache: false});
 };
 
-export default ({db, hooks = {}}) => async params => {
-  let {willGet, didGet, willCreate, didCreate, willUpdate, didUpdate, willDelete, didDelete} = hooks;
+const hasDataLoader = (key) => {
+  return Object.keys(dataLoaders).includes(key);
+};
+
+const dataLoaderKey = (collectionName, selectorField, selector = {}) => {
+  let params = Object.entries(selector).sort((a, b) => {
+    return a[0] > b[0]
+  }).map(([k, v]) => {
+    return `${k}:${JSON.stringify(v)}`;
+  });
+  if (params) {
+    params = ":" + params.join(':')
+  }
+  let key = `${collectionName}:${selectorField}${params}`;
+  console.log(key);
+  return key;
+  
+};
+
+let dbResolver = (t, c, data) => {
+  return data;
+};
+
+
+export default ({db, hooks = {}, dbResolve = dbResolver}) => async params => {
   let {type, collection: collectionName, doc, docs, selector, options = {}, context = {}} = params;
   // console.dir({ type, collection, selector, options }, { depth: null });
   let {skip, limit, sort, arrayFilters = []} = options;
@@ -41,31 +64,40 @@ export default ({db, hooks = {}}) => async params => {
   
   switch (type) {
     case FIND: {
-      // let {selector} = willGet ? await willGet(params) : {selector};
+      selector = dbResolve(FIND, collectionName, selector, context);
       let cursor = Collection.find(selector);
       if (skip) cursor = cursor.skip(skip);
       if (limit) cursor = cursor.limit(limit);
       if (sort) cursor = cursor.sort(sort);
       return cursor.toArray().then(data => {
         return data;
-        // return didGet ? didGet(data).then(() => data) : data
+      }).catch(e => {
+        console.log(e);
       });
     }
     case FIND_ONE: {
-      // let {selector} = willGet ? await willGet(params) : {selector};
-      const dataLoaderKey = `${collectionName}:${options.selectorField}`;
-      if (!Object.keys(dataLoaders).includes(dataLoaderKey)) {
-        dataLoaders[dataLoaderKey] = buildDataLoader(db, collectionName, options.selectorField);
+      selector = dbResolve(FIND, collectionName, selector, context);
+      options.id = options.id || selector[options.selectorField];
+      selector = {
+        ..._.omit(selector, options.selectorField)
+      };
+      const dlKey = dataLoaderKey(collectionName, options.selectorField, selector);
+      if (!hasDataLoader(dlKey)) {
+        dataLoaders[dlKey] = buildDataLoaderWithSelector(db, collectionName, options.selectorField, selector);
       }
-      let dataLoader = dataLoaders[dataLoaderKey];
+      let dataLoader = dataLoaders[dlKey];
       return options.id ? dataLoader.load(options.id) : Promise.resolve(null);
     }
     case FIND_IDS: {
-      const dataLoaderKey = `${collectionName}:${options.selectorField}`;
-      if (!Object.keys(dataLoaders).includes(dataLoaderKey)) {
-        dataLoaders[dataLoaderKey] = buildDataLoader(db, collectionName, options.selectorField);
+      selector = dbResolve(FIND, collectionName, selector, context);
+      selector = {
+        ..._.omit(selector, options.selectorField)
+      };
+      const dlKey = dataLoaderKey(collectionName, options.selectorField, selector);
+      if (!hasDataLoader(dlKey)) {
+        dataLoaders[dlKey] = buildDataLoaderWithSelector(db, collectionName, options.selectorField, selector);
       }
-      let dataLoader = dataLoaders[dataLoaderKey];
+      let dataLoader = dataLoaders[dlKey];
       if (!options.ids) {
         options.ids = [];
       }
@@ -76,6 +108,7 @@ export default ({db, hooks = {}}) => async params => {
       return dataLoader.loadMany(options.ids);
     }
     case COUNT: {
+      selector = dbResolve(FIND, collectionName, selector, context);
       let cursor = Collection.find(selector);
       if (skip) cursor = cursor.skip(skip);
       if (limit) cursor = cursor.limit(limit);
@@ -83,6 +116,7 @@ export default ({db, hooks = {}}) => async params => {
       return cursor.count(true);
     }
     case DISTINCT: {
+      selector = dbResolve(FIND, collectionName, selector, context);
       let cursor = Collection.find(selector);
       if (skip) cursor = cursor.skip(skip);
       if (limit) cursor = cursor.limit(limit);
@@ -90,7 +124,12 @@ export default ({db, hooks = {}}) => async params => {
       return cursor.toArray().then(data => data.map(item => item[options.key]));
     }
     case INSERT_ONE: {
-      return Collection.insertOne(doc).then(res => _.head(res.ops));
+      doc = dbResolve(INSERT_ONE + "Pre", collectionName, doc, context);
+      return Collection.insertOne(doc).then(res => {
+        console.log('---', res);
+        return _.head(res.ops)
+      });
+      //didSave(type, response) if returns response //save again
     }
     case INSERT_MANY: {
       return Collection.insertMany(docs).then(res => res.ops);
