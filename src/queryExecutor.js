@@ -25,7 +25,14 @@ const getDataLoader = (db, collectionName, selectorField, selector = {}) => {
       keys => {
         return Collection.find({ [selectorField]: { $in: keys }, ...selector })
           .toArray()
-          .then(data => keys.map(key => data.find(item => item[selectorField].toString() === key.toString()) || null));
+          .then(data =>
+            keys.map(
+              key =>
+                data.find(
+                  item => item[selectorField].toString() === key.toString()
+                ) || null
+            )
+          );
       },
       { cache: false }
     );
@@ -34,18 +41,26 @@ const getDataLoader = (db, collectionName, selectorField, selector = {}) => {
 };
 
 const queryExecutor = db => async params => {
-  let { type, collection: collectionName, doc, docs, selector, options = {}, context = {} } = params;
+  let {
+    type,
+    collection: collectionName,
+    doc,
+    docs,
+    selector,
+    options = {},
+    context = {},
+  } = params;
   // console.dir({ type, collection, selector, options }, { depth: null });
   let { skip, limit, sort, arrayFilters = [] } = options;
   //
-  // console.log('\n\n');
-  // console.log({ type, collection });
-  // console.log('selector');
-  // console.dir(selector, { depth: null });
-  // console.dir({ options });
-  // console.log('doc');
-  // console.dir(doc, { depth: null });
-  // console.log('\n\n');
+  console.log('\n\n');
+  console.log({ type, collectionName });
+  console.log('selector');
+  console.dir(selector, { depth: null });
+  console.dir({ options });
+  console.log('doc');
+  console.dir(doc, { depth: null });
+  console.log('\n\n');
 
   let Collection = db.collection(collectionName);
 
@@ -66,17 +81,6 @@ const queryExecutor = db => async params => {
     }
     case FIND_ONE: {
       return Collection.findOne(selector);
-      // selector = dbResolve(FIND, collectionName, selector, context);
-      // options.id = options.id || selector[options.selectorField];
-      // selector = {
-      //   ..._.omit(selector, options.selectorField),
-      // };
-      // const dlKey = dataLoaderKey(collectionName, options.selectorField, selector);
-      // if (!hasDataLoader(dlKey)) {
-      //   dataLoaders[dlKey] = buildDataLoaderWithSelector(db, collectionName, options.selectorField, selector);
-      // }
-      // let dataLoader = dataLoaders[dlKey];
-      // return options.id ? dataLoader.load(options.id) : Promise.resolve(null);
     }
     case FIND_IDS: {
       selector = {
@@ -90,7 +94,12 @@ const queryExecutor = db => async params => {
       if (!Array.isArray(options.ids)) {
         options.ids = [options.ids];
       }
-      return getDataLoader(db, collectionName, options.selectorField, selector).loadMany(options.ids);
+      return getDataLoader(
+        db,
+        collectionName,
+        options.selectorField,
+        selector
+      ).loadMany(options.ids);
     }
     case COUNT: {
       let cursor = Collection.find(selector);
@@ -118,10 +127,14 @@ const queryExecutor = db => async params => {
     }
 
     case DELETE_ONE: {
-      return Collection.findOneAndDelete(selector).then(res => res.deletedCount);
+      return Collection.findOneAndDelete(selector).then(
+        res => res.deletedCount
+      );
     }
     case UPDATE_MANY: {
-      return Collection.updateMany(selector, docs, { arrayFilters }).then(res => res.ops);
+      return Collection.updateMany(selector, docs, { arrayFilters }).then(
+        res => res.ops
+      );
     }
     case UPDATE_ONE: {
       return Collection.findOneAndUpdate(selector, doc, {

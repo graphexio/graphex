@@ -2,10 +2,12 @@ import gql from 'graphql-tag';
 export default gql`
   type Category @model {
     id: ObjectID! @id @unique @db(name: "_id")
-    title: String
+    title: String @default(value: "New Category")
     parentCategory: Category @relation(storeField: "parentCategoryId")
     subcategories: [Category!] @extRelation(storeField: "parentCategoryId")
     posts: [Post!] @extRelation
+    createdAt: Date @createdAt
+    updatedAt: Date @updatedAt
   }
 
   type Comment {

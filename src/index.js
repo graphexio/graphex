@@ -52,15 +52,7 @@ import InitialScheme from './initialScheme';
 import Inherit, { InheritScheme } from './directives/inherit';
 import Relation, { RelationScheme } from './directives/relation';
 import ExtRelation, { ExtRelationScheme } from './directives/extRelation';
-import CreatedAt, {
-  CreatedAtScheme,
-  CreatedAtResolver,
-} from './directives/createdAt';
-import UpdatedAt, {
-  UpdatedAtScheme,
-  UpdatedAtResolver,
-} from './directives/updatedAt';
-import DefaultDirective, { DefaultDirectiveScheme } from './directives/default';
+
 import DirectiveDB, {
   DirectiveDBScheme,
   DirectiveDBResolver,
@@ -73,7 +65,7 @@ import Modules from './modules';
 
 import InputTypes from './inputTypes';
 import {
-  applyAlwaysInputTransform,
+  // applyAlwaysInputTransform,
   applyInputTransform,
 } from './inputTypes/utils';
 import * as KIND from './inputTypes/kinds';
@@ -277,13 +269,13 @@ export default class ModelMongo {
       isDeprecated: false,
       name,
       resolve: async (parent, args, context) => {
-        let data = await applyAlwaysInputTransform({ parent, context })(
-          modelType,
-          args.data,
-          KIND.CREATE_ALWAYS
-        );
+        // let data = await applyAlwaysInputTransform({ parent, context })(
+        //   modelType,
+        //   args.data,
+        //   KIND.CREATE_ALWAYS
+        // );
         let doc = await applyInputTransform({ parent, context })(
-          data,
+          args.data,
           inputType
         );
 
@@ -377,14 +369,17 @@ export default class ModelMongo {
       isDeprecated: false,
       name,
       resolve: async (parent, args, context) => {
-        let data = await applyAlwaysInputTransform({ parent, context })(
-          modelType,
+        // let data = await applyAlwaysInputTransform({ parent, context })(
+        //   modelType,
+        //   args.data,
+        //   KIND.UPDATE_ALWAYS
+        // );
+        let data = await applyInputTransform({ parent, context })(
           args.data,
-          KIND.UPDATE_ALWAYS
+          updateType
         );
-        data = await applyInputTransform({ parent, context })(data, updateType);
         let { doc, validations, arrayFilters } = prepareUpdateDoc(data);
-        console.log(doc, validations, arrayFilters);
+        // console.log(doc, validations, arrayFilters);
         let selector = {
           $and: [
             await applyInputTransform({ parent, context })(
@@ -466,9 +461,6 @@ export default class ModelMongo {
       ModelScheme,
       DirectiveDBScheme,
       RelationScheme,
-      DefaultDirectiveScheme,
-      CreatedAtScheme,
-      UpdatedAtScheme,
       IDScheme,
       UniqueScheme,
       ExtRelationScheme,
@@ -478,9 +470,6 @@ export default class ModelMongo {
 
     schemaDirectives = {
       ...schemaDirectives,
-      createdAt: CreatedAt,
-      updatedAt: UpdatedAt,
-      default: DefaultDirective,
       relation: Relation(this.QueryExecutor),
       extRelation: ExtRelation(this.QueryExecutor),
       db: DirectiveDB,
@@ -493,8 +482,6 @@ export default class ModelMongo {
     directiveResolvers = {
       ...directiveResolvers,
       db: DirectiveDBResolver,
-      createdAt: CreatedAtResolver,
-      updatedAt: UpdatedAtResolver,
     };
 
     resolvers = {

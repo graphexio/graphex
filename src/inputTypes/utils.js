@@ -12,32 +12,6 @@ export const reduceTransforms = arr => async (params, context) => {
   return params;
 };
 
-export const applyAlwaysInputTransform = context => async (
-  modelType,
-  args,
-  kind
-) => {
-  let data = { ...args };
-  await asyncForEach(
-    Object.entries(modelType._fields),
-    async ([fieldName, field]) => {
-      if (field.mmTransformAlways && field.mmTransformAlways.includes(kind)) {
-        if (field.mmTransformInput || field.mmTransformInput[kind]) {
-          let transform = field.mmTransformInput[kind];
-          data = {
-            ...data,
-            ...(await transform(
-              { [fieldName]: data[fieldName] || null },
-              context
-            )),
-          };
-        }
-      }
-    }
-  );
-  return data;
-};
-
 export const applyInputTransform = context => {
   return async (value, type) => {
     if (type instanceof GraphQLList) {
@@ -52,26 +26,39 @@ export const applyInputTransform = context => {
     if (!fields) return value;
     let result = {};
     await Promise.all(
-      _.keys(value).map(async key => {
+      _.keys(fields).map(async key => {
         let field = fields[key];
         if (!field) {
           console.log('Key', key, 'fields', fields);
           throw 'Wrong type for input provided';
         }
-        let val = value[key];
-        result = {
-          ...result,
-          ...(field.mmTransform
-            ? await field.mmTransform(
-                {
-                  [key]: val,
-                },
-                context
-              )
-            : {
-                [key]: await applyInputTransform(context)(val, field.type),
-              }),
-        };
+        let val = value && value[key];
+        //Apply mmTransformAlways
+        if (field.mmTransformAlways) {
+          _.toPairs(
+            await field.mmTransformAlways(
+              {
+                [key]: val,
+              },
+              context
+            )
+          ).forEach(([k, v]) => (result[k] = v));
+        }
+        if (val) {
+          //Apply mmTransform or recurcively call applyInputTransform
+          _.toPairs(
+            field.mmTransform
+              ? await field.mmTransform(
+                  {
+                    [key]: val,
+                  },
+                  context
+                )
+              : {
+                  [key]: await applyInputTransform(context)(val, field.type),
+                }
+          ).forEach(([k, v]) => (result[k] = v));
+        }
       })
     );
     return result;

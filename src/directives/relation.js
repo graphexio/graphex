@@ -129,41 +129,6 @@ export default queryExecutor =>
       });
       return fields;
     };
-    //
-    // _transformToInputCreateMany = ({ field }) => {
-    //   let { mmStoreField: storeField } = this;
-    //
-    //   let type = InputTypes.get(
-    //     new TypeWrap(field.type).realType(),
-    //     INPUT_CREATE_MANY_RELATION
-    //   );
-    //   return [
-    //     {
-    //       name: field.name,
-    //       type,
-    //       mmTransform: async params => {
-    //         let input = params[field.name];
-    //         let ids = [];
-    //         if (input.create) {
-    //           ////Create
-    //           let docs = (await applyInputTransform(input, type)).create;
-    //           let create_ids = await this._insertManyQuery({
-    //             docs,
-    //           });
-    //           ids = [...ids, ...create_ids];
-    //         }
-    //         if (input.connect) {
-    //           ////Connect
-    //           let selector = (await applyInputTransform(input, type)).connect;
-    //           selector = { $or: selector };
-    //           let connect_ids = await this._distinctQuery({ selector });
-    //           ids = [...ids, ...connect_ids];
-    //         }
-    //         return { [storeField]: { $mmPushAll: ids } };
-    //       },
-    //     },
-    //   ];
-    // };
 
     _transformToInputCreateUpdate = ({ field, kind, inputTypes }) => {
       let fieldTypeWrap = new TypeWrap(field.type);
@@ -188,46 +153,12 @@ export default queryExecutor =>
           name: field.name,
           type,
           mmTransform: reduceTransforms([
-            Transforms.log(1),
             this._validateInput(type, fieldTypeWrap.isMany()),
             Transforms.applyNestedTransform(type),
             fieldTypeWrap.isMany()
               ? this._transformInputMany
               : this._transformInputOne,
-            Transforms.log(2),
           ]),
-
-          // async params => {
-          //   let input = params[field.name];
-          //   ////Create and Connect
-          //   if (input.create && input.connect) {
-          //     throw new UserInputError(
-          //       `You should return only one document for singular relation.`
-          //     );
-          //   } else if (input.connect) {
-          //     ////Connect
-          //     let selector = (await applyInputTransform(input, type)).connect;
-          //     let ids = await this._distinctQuery({
-          //       selector,
-          //     });
-          //     if (ids.length === 0) {
-          //       throw new UserInputError(
-          //         `No records found for selector - ${JSON.stringify(selector)}`
-          //       );
-          //     }
-          //     return { [storeField]: _.head(ids) };
-          //   } else if (input.create) {
-          //     ////Create
-          //     let doc = (await applyInputTransform(input, type)).create;
-          //     let id = await this._insertOneQuery({
-          //       doc,
-          //     });
-          //     return { [storeField]: id };
-          //   } else {
-          //     ////Nothing
-          //     return {};
-          //   }
-          // },
         },
       ];
     };
@@ -262,7 +193,7 @@ export default queryExecutor =>
       if (input.connect) {
         ////Connect
         let selector = input.connect;
-        console.log(selector);
+        // console.log(selector);
         let ids = await this._distinctQuery({
           selector,
           context,
