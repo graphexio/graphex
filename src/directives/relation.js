@@ -276,7 +276,7 @@ export default queryExecutor =>
           });
           ids = [...ids, ...create_ids];
         }
-        return { [storeField]: { $mmPushAll: ids } };
+        return { [storeField]: ids };
       }
     };
 
@@ -468,7 +468,7 @@ export default queryExecutor =>
       });
     };
 
-    _deleteOneQuery = async ({ selector }, context) => {
+    _deleteOneQuery = async ({ selector, context }) => {
       const { field: relationField } = this.args;
       let {
         mmCollectionName: collection,
@@ -485,7 +485,7 @@ export default queryExecutor =>
       }).then(res => (res ? res[relationField] : null));
     };
 
-    _insertOneQuery = async ({ doc }, context) => {
+    _insertOneQuery = async ({ doc, context }) => {
       const { field: relationField } = this.args;
       let {
         mmCollectionName: collection,
@@ -498,11 +498,11 @@ export default queryExecutor =>
         type: INSERT_ONE,
         collection,
         doc,
-        context
+        context,
       }).then(res => res[relationField]);
     };
 
-    _insertManyQuery = async ({ docs }, context) => {
+    _insertManyQuery = async ({ docs, context }) => {
       const { field: relationField } = this.args;
       let {
         mmCollectionName: collection,
@@ -515,7 +515,7 @@ export default queryExecutor =>
         type: INSERT_MANY,
         collection,
         docs,
-        context
+        context,
       }).then(res => res.map(item => item[relationField]));
     };
   };

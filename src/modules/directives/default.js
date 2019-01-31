@@ -22,8 +22,8 @@ class DefaultDirective extends SchemaDirectiveVisitor {
           name: field.name,
           type: field.type,
           mmTransformAlways: reduceTransforms([
-            fieldInputTransform(field, CREATE),
             this._setDefaultValue(field.name, value),
+            fieldInputTransform(field, CREATE),
           ]),
         },
       ],
