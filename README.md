@@ -2,6 +2,8 @@
 
 ![](cover/cover.jpg)
 
+[![Build Status](https://travis-ci.org/vitramir/apollo-model-mongodb.svg?branch=master)](https://travis-ci.org/vitramir/apollo-model-mongodb)
+
 ## Description
 
 This package allows you to automatically generate Apollo Server schema and resolvers for MongoDB using Prisma-like SDL.

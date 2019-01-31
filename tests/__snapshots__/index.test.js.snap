@@ -78,7 +78,7 @@ Object {
 exports[`CreatePostWithInterfaceRelation 1`] = `
 Object {
   "createPost": Object {
-    "id": "5c52d62a96f015b8c52da87d",
+    "title": "Build GraphQL API with Apollo",
   },
 }
 `;
