@@ -1,0 +1,15 @@
+query {
+  posts(
+    where: {
+      place_near: {
+        geometry: { type: Point, coordinates: [0, 51.01] }
+        maxDistance: 10000
+      }
+    }
+  ) {
+    title
+    place {
+      distance(toPoint: { type: Point, coordinates: [0, 51.01] })
+    }
+  }
+}

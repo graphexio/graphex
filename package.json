@@ -5,9 +5,8 @@
   "main": "lib/index.js",
   "scripts": {
     "build": "babel src -d lib",
-    "babel": "npx onchange 'src/*' -- babel src -d lib",
-    "watch-dev-server": "nodemon --exec 'babel src -d examples/example-server/node_modules/apollo-model-mongodb/lib && cd examples/example-server && rm -rf node_modules/.cache/\\@babel/ && MONGO_URL='mongodb+srv://private:cimgaw-rypTu1-rodwat@cluster0-c6p6b.mongodb.net/admin' MONGO_DB='db1' npx babel-node index.js'",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "MONGO_URL='mongodb+srv://public:public@cluster0-c6p6b.mongodb.net/admin' MONGO_DB='db1' nodemon --exec babel-node dev-server/index.js",
+    "test": "MONGO_URL='mongodb+srv://test:TLOHY8Ysg6Ipu02r@cluster0-c6p6b.mongodb.net/admin' MONGO_DB='dbTest' jest --forceExit --detectOpenHandles"
   },
   "repository": {
     "type": "git",
@@ -29,11 +28,11 @@
   "peerDependencies": {
     "graphql": "^14.0.2",
     "graphql-tools": "^4.0.3",
-    "mongodb": "^3.1.12",
-    "dataloader": "^1.4.0"
+    "mongodb": "^3.1.12"
   },
   "dependencies": {
     "@babel/runtime": "^7.2.0",
+    "dataloader": "^1.4.0",
     "graphql-resolvers": "^0.2.2",
     "graphql-tag": "^2.10.0",
     "graphql-tools": "^4.0.3",
@@ -44,10 +43,18 @@
   "devDependencies": {
     "@babel/cli": "^7.1.2",
     "@babel/core": "^7.1.2",
+    "@babel/node": "^7.2.2",
     "@babel/plugin-proposal-class-properties": "^7.2.3",
     "@babel/plugin-transform-runtime": "^7.2.0",
     "@babel/preset-env": "^7.1.0",
+    "apollo-server": "^2.3.3",
+    "apollo-server-testing": "^2.3.3",
+    "babel-jest": "^24.0.0",
+    "babel-plugin-import-graphql": "^2.6.2",
     "babel-plugin-root-import": "^6.1.0",
+    "graphql": "^14.1.1",
+    "jest": "^24.0.0",
+    "mongodb": "^3.1.13",
     "nodemon": "^1.18.9"
   }
 }

@@ -40,7 +40,8 @@ const getDataLoader = (db, collectionName, selectorField, selector = {}) => {
   return dataLoaders[key];
 };
 
-const queryExecutor = db => async params => {
+const queryExecutor = DB => async params => {
+  const db = await DB;
   let {
     type,
     collection: collectionName,
@@ -53,14 +54,14 @@ const queryExecutor = db => async params => {
   // console.dir({ type, collection, selector, options }, { depth: null });
   let { skip, limit, sort, arrayFilters = [] } = options;
   //
-  console.log('\n\n');
-  console.log({ type, collectionName });
-  console.log('selector');
-  console.dir(selector, { depth: null });
-  console.dir({ options });
-  console.log('doc');
-  console.dir(doc, { depth: null });
-  console.log('\n\n');
+  // console.log('\n\n');
+  // console.log({ type, collectionName });
+  // console.log('selector');
+  // console.dir(selector, { depth: null });
+  // console.dir({ options });
+  // console.log('doc');
+  // console.dir(doc, { depth: null });
+  // console.log('\n\n');
 
   let Collection = db.collection(collectionName);
 

@@ -1,0 +1,13 @@
+mutation createChildCategory($title: String!, $parentTitle: String!) {
+  createCategory(
+    data: {
+      title: $title
+      parentCategory: { connect: { title: $parentTitle } }
+    }
+  ) {
+    title
+    parentCategory {
+      title
+    }
+  }
+}

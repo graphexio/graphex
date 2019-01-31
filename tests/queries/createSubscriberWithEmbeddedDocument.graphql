@@ -1,0 +1,14 @@
+mutation {
+  createSubscriber(
+    data: {
+      username: "subscriber1"
+      profile: { create: { firstName: "Gwion", lastName: "Britt" } }
+    }
+  ) {
+    username
+    profile {
+      firstName
+      lastName
+    }
+  }
+}

@@ -1,0 +1,5 @@
+query filterByTitle($title: String) {
+  categories(where: { title: $title }) {
+    title
+  }
+}
