@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 
-import { appendTransform } from '../inputTypes/utils';
+import {appendTransform} from '../inputTypes/utils';
 import * as HANDLER from '../inputTypes/handlers';
 import * as KIND from '../inputTypes/kinds';
 
@@ -16,18 +16,18 @@ export const resolvers = {
       let lon1 = parent.coordinates[0];
       let lat2 = args.toPoint.coordinates[1];
       let lon2 = args.toPoint.coordinates[0];
-
+      
       let R = 6371e3; // metres
       let φ1 = toRadians(lat1);
       let φ2 = toRadians(lat2);
       let Δφ = toRadians(lat2 - lat1);
       let Δλ = toRadians(lon2 - lon1);
-
+      
       let a =
         Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
         Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
       let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
+      
       let d = R * c;
       return d;
     },
@@ -66,26 +66,29 @@ export const typeDef = gql`
   # }
 `;
 
-function initGeoJSONPoint({ field, inputTypes }) {
+function initGeoJSONPoint({field, inputTypes}) {
   appendTransform(field, HANDLER.TRANSFORM_TO_INPUT, {
-    [KIND.ORDER_BY]: ({ field }) => [],
-    [KIND.CREATE]: ({ field }) => [
+    [KIND.ORDER_BY]: ({field}) => [],
+    [KIND.CREATE]: ({field}) => [
       {
         name: field.name,
+        mmDatabaseName: field.mmDatabaseName,
         type: inputTypes.exist('GeoJSONPointInput'),
         mmTransform: params => params,
       },
     ],
-    [KIND.UPDATE]: ({ field }) => [
+    [KIND.UPDATE]: ({field}) => [
       {
         name: field.name,
+        mmDatabaseName: field.mmDatabaseName,
         type: inputTypes.exist('GeoJSONPointInput'),
         mmTransform: params => params,
       },
     ],
-    [KIND.WHERE]: ({ field }) => [
+    [KIND.WHERE]: ({field}) => [
       {
         name: `${field.name}_near`,
+        mmDatabaseName: field.mmDatabaseName,
         type: inputTypes.exist('GeoJSONPointNearInput'),
         mmTransform: params => {
           let value = params[`${field.name}_near`];
@@ -94,10 +97,10 @@ function initGeoJSONPoint({ field, inputTypes }) {
               $near: {
                 $geometry: value.geometry,
                 ...(value.minDistance
-                  ? { $minDistance: value.minDistance }
+                  ? {$minDistance: value.minDistance}
                   : null),
                 ...(value.maxDistance
-                  ? { $maxDistance: value.maxDistance }
+                  ? {$maxDistance: value.maxDistance}
                   : null),
               },
             },

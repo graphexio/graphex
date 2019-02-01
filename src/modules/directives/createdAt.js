@@ -15,7 +15,7 @@ class CreatedAt extends TimestampDirective {
           type: field.type,
           mmTransformAlways: reduceTransforms([
             fieldInputTransform(field, CREATE),
-            this._setDate(field.name),
+            this._setDate(field),
           ]),
         },
       ],

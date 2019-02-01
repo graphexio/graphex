@@ -444,6 +444,8 @@ export default class ModelMongo {
       if (init) {
         init({field, inputTypes: InputTypes});
       }
+      let dbName = field.mmDatabaseName || field.name;
+      field.mmDatabaseName = dbName;
     });
   };
   

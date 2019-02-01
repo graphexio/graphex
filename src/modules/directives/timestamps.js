@@ -1,10 +1,10 @@
 import _ from 'lodash';
-import { SchemaDirectiveVisitor } from 'graphql-tools';
+import {SchemaDirectiveVisitor} from 'graphql-tools';
 
 export class TimestampDirective extends SchemaDirectiveVisitor {
-  _setDate = fieldName => params => {
+  _setDate = field => params => {
     return {
-      [fieldName]: new Date(),
+      [field.mmDatabaseName || field.name]: new Date()
     };
   };
 }

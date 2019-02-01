@@ -167,6 +167,7 @@ class InputTypesClass {
       {
         type,
         name: field.name,
+        mmDatabaseName: field.mmDatabaseName,
         mmTransform: reduceTransforms([
           // Transforms.log(1),
           Transforms.fieldInputTransform(field, kind),
@@ -210,6 +211,7 @@ class InputTypesClass {
       fields.push({
         type,
         name: field.name,
+        mmDatabaseName: field.mmDatabaseName,
         mmTransform: reduceTransforms([
           Transforms.fieldInputTransform(field, KIND.WHERE),
           Transforms.applyNestedTransform(type),
@@ -235,6 +237,7 @@ class InputTypesClass {
         fields.push({
           type,
           name: this._fieldNameWithModifier(field.name, modifier),
+          mmDatabaseName: field.mmDatabaseName,
           mmTransform: reduceTransforms([
             Transforms.fieldInputTransform(field, KIND.WHERE),
             Transforms.transformModifier(modifier),
@@ -256,6 +259,7 @@ class InputTypesClass {
         }
         fields.push({
           type,
+          mmDatabaseName: field.mmDatabaseName,
           name: this._fieldNameWithModifier(field.name, modifier),
           mmTransform: reduceTransforms([
             Transforms.transformModifier(modifier),
@@ -432,6 +436,7 @@ class InputTypesClass {
       return {
         name: fieldType.name,
         type: inputType,
+        mmDatabaseName: fieldType.mmDatabaseName,
         mmTransform,
       };
     });

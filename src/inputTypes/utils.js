@@ -37,7 +37,7 @@ export const applyInputTransform = (context) => {
           _.toPairs(
             await field.mmTransformAlways(
               {
-                [key]: val,
+                [field.mmDatabaseName || key]: val,
               },
               context
             )
@@ -49,12 +49,12 @@ export const applyInputTransform = (context) => {
             field.mmTransform
               ? await field.mmTransform(
               {
-                [key]: val,
+                [field.mmDatabaseName || key]: val,
               },
               context
               )
               : {
-                [key]: await applyInputTransform(contex)(val, field.type),
+                [key]: await applyInputTransform(context)(val, field.type),
               }
           ).forEach(([k, v]) => (result[k] = v));
         }
