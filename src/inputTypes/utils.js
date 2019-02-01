@@ -1,7 +1,7 @@
-import { GraphQLList, GraphQLNonNull } from 'graphql';
+import {GraphQLList, GraphQLNonNull} from 'graphql';
 import _ from 'lodash';
 
-import { asyncForEach } from '../utils';
+import {asyncForEach} from '../utils';
 
 export const reduceTransforms = arr => async (params, context) => {
   await asyncForEach(arr, async func => {
@@ -12,17 +12,16 @@ export const reduceTransforms = arr => async (params, context) => {
   return params;
 };
 
-export const applyInputTransform = context => {
+export const applyInputTransform = (context, key = "_fields") => {
   return async (value, type) => {
     if (type instanceof GraphQLList) {
       return await Promise.all(
-        value.map(val => applyInputTransform(context)(val, type.ofType))
+        value.map(val => applyInputTransform(context, key)(val, type.ofType))
       );
     } else if (type instanceof GraphQLNonNull) {
-      return applyInputTransform(context)(value, type.ofType);
+      return applyInputTransform(context, key)(value, type.ofType);
     }
-
-    let fields = type._fields;
+    let fields = type[key];
     if (!fields) return value;
     let result = {};
     await Promise.all(
@@ -49,14 +48,14 @@ export const applyInputTransform = context => {
           _.toPairs(
             field.mmTransform
               ? await field.mmTransform(
-                  {
-                    [key]: val,
-                  },
-                  context
-                )
+              {
+                [key]: val,
+              },
+              context
+              )
               : {
-                  [key]: await applyInputTransform(context)(val, field.type),
-                }
+                [key]: await applyInputTransform(context, key)(val, field.type),
+              }
           ).forEach(([k, v]) => (result[k] = v));
         }
       })
@@ -67,5 +66,5 @@ export const applyInputTransform = context => {
 
 export function appendTransform(field, handler, functions) {
   if (!field[handler]) field[handler] = {};
-  field[handler] = { ...field[handler], ...functions };
+  field[handler] = {...field[handler], ...functions};
 }
