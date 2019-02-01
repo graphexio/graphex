@@ -24,14 +24,13 @@ The database connected with read-only permissions. So mutation will not work. Yo
 With yarn:
 
 ```
-  yarn add apollo-model-mongodb
-
+yarn add apollo-model-mongodb
 ```
 
 or using npm:
 
 ```
-  npm install --save apollo-model-mongodb
+npm install --save apollo-model-mongodb
 ```
 
 ## Usage
@@ -58,10 +57,12 @@ You can find full examples [here](examples)
 ```graphql
 type Category @model {
   id: ObjectID! @id @unique @db(name: "_id")
-  title: String
+  title: String @default(value: "New Category")
   parentCategory: Category @relation(storeField: "parentCategoryId")
   subcategories: [Category!] @extRelation(storeField: "parentCategoryId")
   posts: [Post!] @extRelation
+  createdAt: Date @createdAt
+  updatedAt: Date @updatedAt
 }
 
 type Comment {
@@ -111,8 +112,6 @@ type Subscriber implements User {
 }
 ```
 
-(**Temporary the below link contains old build**. Use [codesanbox](#quick-preview-on-codesandbox) to preview result until we solve [this issue](https://github.com/zeit/now-builders/issues/171))
-
 The above SDL generates this endpoint [https://apollo-model-mongodb-example.now.sh](https://apollo-model-mongodb-example.now.sh)
 
 Example queries [below](#features)
@@ -125,8 +124,8 @@ Example queries [below](#features)
 - Valid locations: OBJECT or INTERFACE
 - Optional
 - Arguments
-  _ collection:String
-  _ The name of MongoDB collection \* Optional (Default value is pluralized name of the object)
+  - collection:String
+  - The name of MongoDB collection \* Optional (Default value is pluralized name of the object)
 
 ### The `unique` directive
 
@@ -146,8 +145,8 @@ Example queries [below](#features)
 - Valid locations: FIELD
 - Optional
 - Arguments
-  _ name:String
-  _ The name of field in collection \* Required
+  - name:String
+  - The name of field in collection \* Required
 
 ### The `inherit` directive
 
@@ -161,8 +160,8 @@ Example queries [below](#features)
 - Valid locations: INTERFACE or OBJECT
 - Optional
 - Arguments
-  _ value:String
-  _ Required
+  - value:String
+  - Required
 
 ### The `relation` directive
 
@@ -170,12 +169,12 @@ Example queries [below](#features)
 - Valid locations: FIELD
 - Optional
 - Arguments
-  _ field:String
-  _ Optional
-  _ Default value: \_id
-  _ storeField:String
-  _ Optional
-  _ Default value: `${TypeName}Id${s}`
+  - field:String
+  - Optional
+  - Default value: \_id
+  - storeField:String
+  - Optional
+  - Default value: `${TypeName}Id${s}`
 
 ### The `extRelation` directive
 
@@ -183,14 +182,15 @@ Example queries [below](#features)
 - Valid locations: FIELD
 - Optional
 - Arguments
-  _ field:String
-  _ Optional
-  _ Default value: \_id
-  _ storeField:String
-  _ Optional
-  _ Default value: `${TypeName}Id${s}`
-  _ many:Boolean
-  _ Optional \* Default value: false
+  - field:String
+    - Optional
+    - Default value: \_id
+  - storeField:String
+    - Optional
+    - Default value: `${TypeName}Id${s}`
+  - many:Boolean
+    - Optional 
+    - Default value: false
 
 ## Serverless
 

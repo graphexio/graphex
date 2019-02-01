@@ -1,3 +1,6 @@
 examples
 src
 cover
+dev-server
+tests
+.travis.yml
