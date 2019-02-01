@@ -104,10 +104,6 @@ export default class ModelMongo {
           args.where,
           whereType
         );
-        let sort = await applyInputTransform({parent, context}, "_values")(
-          args.orderBy,
-          orderByType
-        );
         if (typeWrap.isInherited()) {
           selector[
             typeWrap.interfaceType().mmDiscriminatorField
@@ -118,7 +114,7 @@ export default class ModelMongo {
           modelType,
           collection: modelType.mmCollectionName,
           selector,
-          options: {skip: args.skip, limit: args.first, sort},
+          options: {skip: args.skip, limit: args.first, sort: args.orderBy},
           context,
         });
       },

@@ -12,16 +12,16 @@ export const reduceTransforms = arr => async (params, context) => {
   return params;
 };
 
-export const applyInputTransform = (context, key = "_fields") => {
+export const applyInputTransform = (context) => {
   return async (value, type) => {
     if (type instanceof GraphQLList) {
       return await Promise.all(
-        value.map(val => applyInputTransform(context, key)(val, type.ofType))
+        value.map(val => applyInputTransform(context)(val, type.ofType))
       );
     } else if (type instanceof GraphQLNonNull) {
-      return applyInputTransform(context, key)(value, type.ofType);
+      return applyInputTransform(context)(value, type.ofType);
     }
-    let fields = type[key];
+    let fields = type._fields;
     if (!fields) return value;
     let result = {};
     await Promise.all(
@@ -54,7 +54,7 @@ export const applyInputTransform = (context, key = "_fields") => {
               context
               )
               : {
-                [key]: await applyInputTransform(context, key)(val, field.type),
+                [key]: await applyInputTransform(contex)(val, field.type),
               }
           ).forEach(([k, v]) => (result[k] = v));
         }
