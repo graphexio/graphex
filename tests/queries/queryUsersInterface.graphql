@@ -1,0 +1,14 @@
+query {
+  users {
+    username
+    ... on Admin {
+      role
+    }
+    ... on Subscriber {
+      profile {
+        firstName
+        lastName
+      }
+    }
+  }
+}

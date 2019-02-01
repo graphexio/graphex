@@ -1,0 +1,5 @@
+query subcategories($title: String) {
+  categories(where: { parentCategory: { title: $title } }) {
+    title
+  }
+}

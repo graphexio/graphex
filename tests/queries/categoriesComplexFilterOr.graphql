@@ -1,0 +1,5 @@
+query {
+  categories(where: { OR: [{ title: "root" }, { title: "JS" }] }) {
+    title
+  }
+}

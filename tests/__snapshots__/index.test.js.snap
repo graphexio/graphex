@@ -1,0 +1,198 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CategoriesComplexFilterOr 1`] = `
+Object {
+  "categories": Array [
+    Object {
+      "title": "root",
+    },
+    Object {
+      "title": "JS",
+    },
+  ],
+}
+`;
+
+exports[`CategoriesRelationFilter 1`] = `
+Object {
+  "categories": Array [
+    Object {
+      "title": "JS",
+    },
+    Object {
+      "title": "MongoDB",
+    },
+  ],
+}
+`;
+
+exports[`CreateAdmin 1`] = `
+Object {
+  "createAdmin": Object {
+    "username": "admin",
+  },
+}
+`;
+
+exports[`CreateCategory 1`] = `
+Object {
+  "createCategory": Object {
+    "title": "root",
+  },
+}
+`;
+
+exports[`CreateChildCategory "JS" 1`] = `
+Object {
+  "createCategory": Object {
+    "parentCategory": Object {
+      "title": "root",
+    },
+    "title": "JS",
+  },
+}
+`;
+
+exports[`CreateChildCategory "JS" 2`] = `
+Object {
+  "createCategory": Object {
+    "parentCategory": Object {
+      "title": "JS",
+    },
+    "title": "React",
+  },
+}
+`;
+
+exports[`CreateChildCategory "MongoDB" 1`] = `
+Object {
+  "createCategory": Object {
+    "parentCategory": Object {
+      "title": "root",
+    },
+    "title": "MongoDB",
+  },
+}
+`;
+
+exports[`CreatePostWithInterfaceRelation 1`] = `
+Object {
+  "createPost": Object {
+    "title": "Build GraphQL API with Apollo",
+  },
+}
+`;
+
+exports[`CreateSubscriberWithEmbeddedDocument 1`] = `
+Object {
+  "createSubscriber": Object {
+    "profile": Object {
+      "firstName": "Gwion",
+      "lastName": "Britt",
+    },
+    "username": "subscriber1",
+  },
+}
+`;
+
+exports[`QueryCategories after create 1`] = `
+Object {
+  "categories": Array [
+    Object {
+      "title": "root",
+    },
+  ],
+}
+`;
+
+exports[`QueryCategories empty 1`] = `
+Object {
+  "categories": Array [],
+}
+`;
+
+exports[`QueryCategoriesByTitle 1`] = `
+Object {
+  "categories": Array [
+    Object {
+      "title": "root",
+    },
+  ],
+}
+`;
+
+exports[`QueryCategoriesExtRelation 1`] = `
+Object {
+  "categories": Array [
+    Object {
+      "subcategories": Array [
+        Object {
+          "subcategories": Array [
+            Object {
+              "title": "React",
+            },
+          ],
+          "title": "JS",
+        },
+        Object {
+          "subcategories": Array [],
+          "title": "MongoDB",
+        },
+      ],
+      "title": "root",
+    },
+    Object {
+      "subcategories": Array [
+        Object {
+          "subcategories": Array [],
+          "title": "React",
+        },
+      ],
+      "title": "JS",
+    },
+    Object {
+      "subcategories": Array [],
+      "title": "MongoDB",
+    },
+    Object {
+      "subcategories": Array [],
+      "title": "React",
+    },
+  ],
+}
+`;
+
+exports[`QueryPostsNearPoint 1`] = `
+Object {
+  "posts": Array [
+    Object {
+      "place": Object {
+        "distance": 1111.9492664453662,
+      },
+      "title": "Build GraphQL API with Apollo",
+    },
+  ],
+}
+`;
+
+exports[`QueryUsersInterface 1`] = `
+Object {
+  "users": Array [
+    Object {
+      "profile": Object {
+        "firstName": "Gwion",
+        "lastName": "Britt",
+      },
+      "username": "subscriber1",
+    },
+    Object {
+      "role": null,
+      "username": "admin",
+    },
+    Object {
+      "role": null,
+      "username": "moderator",
+    },
+  ],
+}
+`;
