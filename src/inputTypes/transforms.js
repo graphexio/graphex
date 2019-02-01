@@ -77,13 +77,13 @@ export const validateAndTransformInterfaceInput = type => params => {
 export const transformModifier = modifier => params =>
   _(params)
     .mapValues(value => _mapModifier(modifier, value))
-    .mapKeys((value, key) => {
-      if (modifier !== '') {
-        return key.substring(key.length - modifier.length - 1, 0);
-      } else {
-        return key;
-      }
-    })
+    // .mapKeys((value, key) => {
+    //   if (modifier !== '') {
+    //     return key.substring(key.length - modifier.length - 1, 0);
+    //   } else {
+    //     return key;
+    //   }
+    // })
     .value();
 
 function _mapModifier(modifier, value) {
