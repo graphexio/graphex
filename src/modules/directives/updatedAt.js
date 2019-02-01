@@ -14,8 +14,8 @@ class UpdatedAt extends TimestampDirective {
           name: field.name,
           type: field.type,
           mmTransformAlways: reduceTransforms([
-            fieldInputTransform(field, CREATE),
             this._setDateCreate(field.name),
+            fieldInputTransform(field, CREATE),
           ]),
         },
       ],
@@ -24,8 +24,8 @@ class UpdatedAt extends TimestampDirective {
           name: field.name,
           type: field.type,
           mmTransformAlways: reduceTransforms([
-            fieldInputTransform(field, UPDATE),
             this._setDateUpdate(field.name),
+            fieldInputTransform(field, UPDATE),
           ]),
         },
       ],

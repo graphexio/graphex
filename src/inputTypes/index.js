@@ -1,21 +1,22 @@
 import _ from 'lodash';
 import {
-    GraphQLInt,
-    GraphQLString,
-    GraphQLObjectType,
-    GraphQLInputObjectType,
-    GraphQLInterfaceType,
-    GraphQLList,
-    GraphQLNonNull,
-    GraphQLEnumType,
-    GraphQLBoolean,
+  GraphQLBoolean,
+  GraphQLEnumType,
+  GraphQLInputObjectType,
+  GraphQLInt,
+  GraphQLInterfaceType,
+  GraphQLList,
+  GraphQLNonNull,
+  GraphQLObjectType,
+  GraphQLString,
 } from 'graphql';
-
-const ObjectHash = require('object-hash');
-import {asyncForEach, asyncMapValues} from '../utils';
-import {reduceTransforms, applyInputTransform} from './utils';
+import {applyInputTransform, reduceTransforms} from './utils';
 
 import TypeWrap from '../typeWrap';
+import * as KIND from './kinds';
+import * as Transforms from './transforms';
+
+const ObjectHash = require('object-hash');
 
 const ModifierTypes = {
     'in': type => new GraphQLList(type),
@@ -57,10 +58,6 @@ const Modifiers = {
         'exists',
     ],
 };
-
-import * as KIND from './kinds';
-import * as HANDLER from './handlers';
-import * as Transforms from './transforms';
 
 export class EmptyTypeException extends Error {
     constructor(type) {
@@ -332,16 +329,16 @@ class InputTypesClass {
         fields.AND = {
             name: 'AND',
             type: manyType,
-            mmTransform: async params => {
-                params = await applyInputTransform({})(params.AND, manyType);
+            mmTransform: async (params, context) => {
+                params = await applyInputTransform(context)(params.AND, manyType);
                 return {$and: params};
             },
         };
         fields.OR = {
             name: 'OR',
             type: manyType,
-            mmTransform: async params => {
-                params = await applyInputTransform({})(params.OR, manyType);
+            mmTransform: async (params, context) => {
+                params = await applyInputTransform(context)(params.OR, manyType);
                 return {$or: params};
             },
         };

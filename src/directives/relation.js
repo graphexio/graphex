@@ -110,12 +110,13 @@ export default queryExecutor =>
         fields.push({
           name: fieldName,
           type: inputType,
-          mmTransform: async params => {
+          mmTransform: async (params, context) => {
             params = params[fieldName];
             let value = await queryExecutor({
               type: DISTINCT,
               collection,
-              selector: await applyInputTransform({})(params, inputType),
+              context,
+              selector: await applyInputTransform(context)(params, inputType),
               options: {
                 key: relationField,
               },
@@ -275,7 +276,7 @@ export default queryExecutor =>
           });
           ids = [...ids, ...create_ids];
         }
-        return { [storeField]: { $mmPushAll: ids } };
+        return { [storeField]: ids };
       }
     };
 
@@ -467,7 +468,7 @@ export default queryExecutor =>
       });
     };
 
-    _deleteOneQuery = async ({ selector }) => {
+    _deleteOneQuery = async ({ selector, context }) => {
       const { field: relationField } = this.args;
       let {
         mmCollectionName: collection,
@@ -480,10 +481,11 @@ export default queryExecutor =>
         type: DELETE_ONE,
         collection,
         selector,
+        context,
       }).then(res => (res ? res[relationField] : null));
     };
 
-    _insertOneQuery = async ({ doc }) => {
+    _insertOneQuery = async ({ doc, context }) => {
       const { field: relationField } = this.args;
       let {
         mmCollectionName: collection,
@@ -496,10 +498,11 @@ export default queryExecutor =>
         type: INSERT_ONE,
         collection,
         doc,
+        context,
       }).then(res => res[relationField]);
     };
 
-    _insertManyQuery = async ({ docs }) => {
+    _insertManyQuery = async ({ docs, context }) => {
       const { field: relationField } = this.args;
       let {
         mmCollectionName: collection,
@@ -512,6 +515,7 @@ export default queryExecutor =>
         type: INSERT_MANY,
         collection,
         docs,
+        context,
       }).then(res => res.map(item => item[relationField]));
     };
   };

@@ -140,10 +140,10 @@ function _mapModifier(modifier, value) {
   }
 }
 
-export const applyNestedTransform = type => async params => {
+export const applyNestedTransform = type => async (params, context) => {
   return await asyncMapValues(
     params,
-    async value => await applyInputTransform({})(value, type)
+    async value => await applyInputTransform(context)(value, type)
   );
 };
 
