@@ -6,7 +6,7 @@ export default gql`
     parentCategory: Category @relation(storeField: "parentCategoryId")
     subcategories: [Category!] @extRelation(storeField: "parentCategoryId")
     posts: [Post!] @extRelation
-    createdAt: Date @createdAt
+    createdAt: Date @createdAt @db(name: "created_at")
     updatedAt: Date @updatedAt
   }
 

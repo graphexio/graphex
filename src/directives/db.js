@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import {SchemaDirectiveVisitor} from 'graphql-tools';
+import { SchemaDirectiveVisitor } from 'graphql-tools';
 
-import {appendTransform} from '../inputTypes/utils';
+import { appendTransform } from '../inputTypes/utils';
 import * as HANDLER from '../inputTypes/handlers';
 import * as KIND from '../inputTypes/kinds';
 
@@ -9,16 +9,27 @@ export const DirectiveDBScheme = `directive @db(name:String!, defaultValue:Strin
 
 export default class DirectiveDB extends SchemaDirectiveVisitor {
   visitFieldDefinition(field) {
-    const {name} = this.args;
+    const { name } = this.args;
     appendTransform(field, HANDLER.TRANSFORM_INPUT, {
-      [KIND.ORDER_BY]: this._renameTransform(field.name, name),
       [KIND.CREATE]: this._renameTransform(field.name, name),
       [KIND.WHERE]: this._renameTransform(field.name, name),
     });
+
+    appendTransform(field, HANDLER.TRANSFORM_TO_INPUT, {
+      [KIND.ORDER_BY]: ({ field }) => [
+        {
+          name: `${field.name}_ASC`,
+          value: { [name]: 1 },
+        },
+        {
+          name: `${field.name}_DESC`,
+          value: { [name]: -1 },
+        },
+      ],
+    });
   }
-  
+
   _renameTransform = (fieldName, dbName) => params => {
-    
     let value = params[fieldName];
     return {
       ..._.omit(params, fieldName),
@@ -28,7 +39,7 @@ export default class DirectiveDB extends SchemaDirectiveVisitor {
 }
 
 export function DirectiveDBResolver(next, source, args, ctx, info) {
-  const {name} = args;
+  const { name } = args;
   info.fieldName = name;
   return next();
 }

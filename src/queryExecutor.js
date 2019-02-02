@@ -114,31 +114,21 @@ const queryExecutor = DB => async params => {
       if (skip) cursor = cursor.skip(skip);
       if (limit) cursor = cursor.limit(limit);
       if (sort) cursor = cursor.sort(sort);
-      return cursor.toArray().then(
-        data => data.map(item => item[options.key])
-      );
+      return cursor.toArray().then(data => data.map(item => item[options.key]));
     }
     case INSERT_ONE: {
-      return Collection.insertOne(doc).then(
-        res => _.head(res.ops)
-      );
+      return Collection.insertOne(doc).then(res => _.head(res.ops));
     }
     case INSERT_MANY: {
-      return Collection.insertMany(docs).then(
-        res => res.ops
-      );
+      return Collection.insertMany(docs).then(res => res.ops);
     }
 
     case DELETE_MANY: {
-      return Collection.deleteMany(selector).then(
-        res => res.deletedCount
-      );
+      return Collection.deleteMany(selector).then(res => res.deletedCount);
     }
 
     case DELETE_ONE: {
-      return Collection.findOneAndDelete(selector).then(
-        res => res.deletedCount
-      );
+      return Collection.findOneAndDelete(selector).then(res => res.value);
     }
     case UPDATE_MANY: {
       return Collection.updateMany(selector, docs, { arrayFilters }).then(
