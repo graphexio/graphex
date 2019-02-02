@@ -1,0 +1,5 @@
+query {
+  categories(orderBy: createdAt_DESC) {
+    title
+  }
+}

@@ -13,6 +13,25 @@ Object {
 }
 `;
 
+exports[`CategoriesOrderByFieldWithDBDirective 1`] = `
+Object {
+  "categories": Array [
+    Object {
+      "title": "React",
+    },
+    Object {
+      "title": "MongoDB",
+    },
+    Object {
+      "title": "JS",
+    },
+    Object {
+      "title": "root",
+    },
+  ],
+}
+`;
+
 exports[`CategoriesRelationFilter 1`] = `
 Object {
   "categories": Array [
