@@ -110,6 +110,7 @@ export default queryExecutor =>
         fields.push({
           name: fieldName,
           type: inputType,
+          mmDatabaseName: field.mmDatabaseName,
           mmTransform: async (params, context) => {
             params = params[fieldName];
             let value = await queryExecutor({

@@ -381,15 +381,16 @@ export default class ModelMongo {
         );
         let {doc, validations, arrayFilters} = prepareUpdateDoc(data);
         // console.log(doc, validations, arrayFilters);
-        let selector = {
-          $and: [
-            await applyInputTransform({parent, context})(
-              args.where,
-              whereType
-            ),
-            validations,
-          ],
-        };
+        let selector = await applyInputTransform({parent, context})(
+          args.where,
+          whereType
+          );
+        if(Object.keys(validations)) {
+          selector = {
+            $and: [selector, validations]
+          }
+        }
+        
         if (typeWrap.isInherited()) {
           selector[
             typeWrap.interfaceType().mmDiscriminatorField
