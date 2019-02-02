@@ -88,7 +88,6 @@ function initGeoJSONPoint({field, inputTypes}) {
     [KIND.WHERE]: ({field}) => [
       {
         name: `${field.name}_near`,
-        mmDatabaseName: field.mmDatabaseName,
         type: inputTypes.exist('GeoJSONPointNearInput'),
         mmTransform: params => {
           let value = params[`${field.name}_near`];
