@@ -53,17 +53,6 @@ Object {
 }
 `;
 
-exports[`CreateChildCategory "JS" 2`] = `
-Object {
-  "createCategory": Object {
-    "parentCategory": Object {
-      "title": "JS",
-    },
-    "title": "React",
-  },
-}
-`;
-
 exports[`CreateChildCategory "MongoDB" 1`] = `
 Object {
   "createCategory": Object {
@@ -71,6 +60,17 @@ Object {
       "title": "root",
     },
     "title": "MongoDB",
+  },
+}
+`;
+
+exports[`CreateChildCategory "React" 1`] = `
+Object {
+  "createCategory": Object {
+    "parentCategory": Object {
+      "title": "JS",
+    },
+    "title": "React",
   },
 }
 `;
@@ -100,6 +100,22 @@ Object {
   "categories": Array [
     Object {
       "title": "root",
+    },
+  ],
+}
+`;
+
+exports[`QueryCategories after delete 1`] = `
+Object {
+  "categories": Array [
+    Object {
+      "title": "root",
+    },
+    Object {
+      "title": "JS",
+    },
+    Object {
+      "title": "MongoDB",
     },
   ],
 }
@@ -172,6 +188,14 @@ Object {
       "title": "Build GraphQL API with Apollo",
     },
   ],
+}
+`;
+
+exports[`QueryPostsNearPoint 2`] = `
+Object {
+  "deleteCategory": Object {
+    "title": "React",
+  },
 }
 `;
 
