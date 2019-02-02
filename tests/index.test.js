@@ -12,6 +12,7 @@ import CreateAdmin from './queries/createAdmin.graphql';
 import CreatePostWithInterfaceRelation from './queries/createPostWithInterfaceRelation.graphql';
 import QueryUsersInterface from './queries/queryUsersInterface.graphql';
 import QueryPostsNearPoint from './queries/queryPostsNearPoint.graphql';
+import CategoryDelete from './queries/categoryDelete.graphql';
 
 jest.setTimeout(10000);
 
@@ -55,7 +56,7 @@ test('CreateChildCategory "MongoDB"', async () => {
   expect(data).toMatchSnapshot();
 });
 
-test('CreateChildCategory "JS"', async () => {
+test('CreateChildCategory "React"', async () => {
   let { data } = await mutate({
     mutation: CreateChildCategory,
     variables: { title: 'React', parentTitle: 'JS' },
@@ -130,6 +131,22 @@ test('QueryUsersInterface', async () => {
 test('QueryPostsNearPoint', async () => {
   let { data } = await query({
     query: QueryPostsNearPoint,
+    variables: {},
+  });
+  expect(data).toMatchSnapshot();
+});
+
+test('QueryPostsNearPoint', async () => {
+  let { data } = await query({
+    query: CategoryDelete,
+    variables: { title: 'React' },
+  });
+  expect(data).toMatchSnapshot();
+});
+
+test('QueryCategories after delete', async () => {
+  let { data } = await query({
+    query: QueryCategories,
     variables: {},
   });
   expect(data).toMatchSnapshot();
