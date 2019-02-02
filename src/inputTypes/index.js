@@ -141,7 +141,6 @@ class InputTypesClass {
     let isCreate = kind === KIND.CREATE;
     let fieldTypeWrap = new TypeWrap(field.type);
     let typeWrap = fieldTypeWrap.clone();
-    let type = typeWrap.type();
     if (fieldTypeWrap.isNested()) {
       typeWrap.setRealType(
         this._inputType(
@@ -161,8 +160,8 @@ class InputTypesClass {
     if (!isCreate) {
       typeWrap.setRequired(false);
     }
-    
-    
+  
+    let type = typeWrap.type();
     return [
       {
         type,
