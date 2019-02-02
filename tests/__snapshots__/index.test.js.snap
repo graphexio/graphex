@@ -26,6 +26,24 @@ Object {
 }
 `;
 
+exports[`CategoriesSameFieldFilter 1`] = `
+Object {
+  "categories": Array [
+    Object {
+      "title": "JS",
+    },
+  ],
+}
+`;
+
+exports[`CategoryDelete 1`] = `
+Object {
+  "deleteCategory": Object {
+    "title": "React",
+  },
+}
+`;
+
 exports[`CreateAdmin 1`] = `
 Object {
   "createAdmin": Object {
@@ -188,14 +206,6 @@ Object {
       "title": "Build GraphQL API with Apollo",
     },
   ],
-}
-`;
-
-exports[`QueryPostsNearPoint 2`] = `
-Object {
-  "deleteCategory": Object {
-    "title": "React",
-  },
 }
 `;
 

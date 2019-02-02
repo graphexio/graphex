@@ -1,0 +1,5 @@
+query {
+  categories(where: { title_gt: "A", title_lt: "L" }) {
+    title
+  }
+}

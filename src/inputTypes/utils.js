@@ -57,7 +57,11 @@ export const applyInputTransform = context => {
               : {
                   [key]: await applyInputTransform(context)(val, field.type),
                 }
-          ).forEach(([k, v]) => (result[k] = v));
+          ).forEach(
+            ([k, v]) =>
+              (result[k] =
+                _.isObject(v) && !_.isArray(v) ? _.merge(result[k], v) : v)
+          );
         }
       })
     );

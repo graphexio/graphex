@@ -13,6 +13,7 @@ import CreatePostWithInterfaceRelation from './queries/createPostWithInterfaceRe
 import QueryUsersInterface from './queries/queryUsersInterface.graphql';
 import QueryPostsNearPoint from './queries/queryPostsNearPoint.graphql';
 import CategoryDelete from './queries/categoryDelete.graphql';
+import CategoriesSameFieldFilter from './queries/categoriesSameFieldFilter.graphql';
 
 jest.setTimeout(10000);
 
@@ -136,7 +137,15 @@ test('QueryPostsNearPoint', async () => {
   expect(data).toMatchSnapshot();
 });
 
-test('QueryPostsNearPoint', async () => {
+test('CategoriesSameFieldFilter', async () => {
+  let { data } = await query({
+    query: CategoriesSameFieldFilter,
+    variables: { title: 'React' },
+  });
+  expect(data).toMatchSnapshot();
+});
+
+test('CategoryDelete', async () => {
   let { data } = await query({
     query: CategoryDelete,
     variables: { title: 'React' },
