@@ -7,13 +7,12 @@ export const InheritScheme = `directive @inherit on INTERFACE`;
 
 export default class Inherit extends SchemaDirectiveVisitor {
   visitInterface(iface) {
-    
     const { _typeMap: SchemaTypes } = this.schema;
 
     if (!iface.mmDiscriminatorField) {
       iface.mmDiscriminatorField = '_type';
     }
-
+    iface.mmInherit = true;
     _.values(SchemaTypes)
       .filter(type => type._interfaces && type._interfaces.includes(iface))
       .forEach(type => {

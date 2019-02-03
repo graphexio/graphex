@@ -30,6 +30,7 @@ export default class TypeWrap {
       this._nested = type._nested;
       this._interface = type._interface;
       this._inherited = type._inherited;
+      this._abstract = type._abstract;
       return;
     }
 
@@ -61,12 +62,16 @@ export default class TypeWrap {
     //inherited
     if (_.isArray(realType._interfaces) && realType._interfaces.length > 0) {
       this._inherited = _.head(realType._interfaces);
+      this._abstract = realType.mmAbstract;
     }
 
     this._realType = realType;
   }
 
   _updateNestedInterface = realType => {
+    this._nested = false;
+    this._interface = false;
+
     if (
       realType instanceof GraphQLObjectType ||
       realType instanceof GraphQLInputObjectType
@@ -76,9 +81,6 @@ export default class TypeWrap {
     } else if (realType instanceof GraphQLInterfaceType) {
       this._nested = true;
       this._interface = true;
-    } else {
-      this._nested = false;
-      this._interface = false;
     }
   };
 
@@ -90,6 +92,7 @@ export default class TypeWrap {
   isNested = () => this._nested;
   isInterface = () => this._interface;
   isInherited = () => Boolean(this._inherited);
+  isAbstract = () => this._abstract;
   interfaceType = () => this._inherited;
   clone = () => {
     return new TypeWrap(this);

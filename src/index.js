@@ -49,10 +49,10 @@ import TypeWrap from './typeWrap';
 
 import InitialScheme from './initialScheme';
 
+import Abstract, {AbstractScheme} from "./directives/abstract";
 import Inherit, {InheritScheme} from './directives/inherit';
 import Relation, {RelationScheme} from './directives/relation';
 import ExtRelation, {ExtRelationScheme} from './directives/extRelation';
-
 import DirectiveDB, {
   DirectiveDBScheme,
   DirectiveDBResolver,
@@ -457,6 +457,7 @@ export default class ModelMongo {
     
     typeDefs = [
       InitialScheme,
+      AbstractScheme,
       InheritScheme,
       ModelScheme,
       DirectiveDBScheme,
@@ -473,6 +474,7 @@ export default class ModelMongo {
       relation: Relation(this.QueryExecutor),
       extRelation: ExtRelation(this.QueryExecutor),
       db: DirectiveDB,
+      abstract: Abstract,
       inherit: Inherit,
       model: Model,
       unique: Unique,

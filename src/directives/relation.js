@@ -55,13 +55,14 @@ export default queryExecutor =>
       const { _typeMap: SchemaTypes } = this.schema;
       const { field: relationField, storeField } = this.args;
       let fieldTypeWrap = new TypeWrap(field.type);
-
+      let isAbstract = fieldTypeWrap.realType().mmAbstract;
       if (
         !getDirective(fieldTypeWrap.realType(), 'model') &&
         !(
           fieldTypeWrap.isInherited() &&
           getDirective(fieldTypeWrap.interfaceType(), 'model')
-        )
+        ) &&
+        !isAbstract
       ) {
         throw `Relation field type should be defined with Model directive. (Field '${
           field.name
@@ -82,7 +83,7 @@ export default queryExecutor =>
         [KIND.ORDER_BY]: field => [],
         [KIND.CREATE]: this._transformToInputCreateUpdate,
         [KIND.UPDATE]: this._transformToInputCreateUpdate,
-        [KIND.WHERE]: this._transformToInputWhere,
+        [KIND.WHERE]: isAbstract ? [] : this._transformToInputWhere,
       });
       field.mmOnSchemaInit = this._onSchemaInit;
       field.mmOnSchemaBuild = this._onSchemaBuild;
@@ -282,19 +283,17 @@ export default queryExecutor =>
 
     _onSchemaBuild = ({ field }) => {
       let fieldTypeWrap = new TypeWrap(field.type);
-
+      this.mmCollectionName = fieldTypeWrap.realType().mmCollectionName;
+      this.mmInterfaceModifier = {};
       //Collection name and interface modifier
       if (fieldTypeWrap.isInherited()) {
         let { mmDiscriminator } = fieldTypeWrap.realType();
         let { mmDiscriminatorField } = fieldTypeWrap.interfaceType();
-
-        this.mmCollectionName = fieldTypeWrap.realType().mmCollectionName;
         this.mmInterfaceModifier = {
           [mmDiscriminatorField]: mmDiscriminator,
         };
       } else {
-        this.mmInterfaceModifier = {};
-        this.mmCollectionName = fieldTypeWrap.realType().mmCollectionName;
+        this.isAbstract = fieldTypeWrap.isAbstract();
       }
     };
 
@@ -302,7 +301,7 @@ export default queryExecutor =>
       let fieldTypeWrap = new TypeWrap(field.type);
 
       ///Args and connection field
-      if (fieldTypeWrap.isMany()) {
+      if (fieldTypeWrap.isMany() && !fieldTypeWrap.isAbstract()) {
         let whereType = InputTypes.get(
           fieldTypeWrap.realType(),
           fieldTypeWrap.isInterface() ? KIND.WHERE_INTERFACE : KIND.WHERE
@@ -317,19 +316,27 @@ export default queryExecutor =>
           orderByType,
         });
 
-        this._addConnectionField(field);
+        if (!fieldTypeWrap.isAbstract()) {
+          this._addConnectionField(field);
+        }
       }
     };
 
     _resolveSingle = field => async (parent, args, context, info) => {
       const { field: relationField } = this.args;
       let {
+        mmFieldTypeWrap: fieldTypeWrap,
         mmCollectionName: collection,
         mmStoreField: storeField,
         mmInterfaceModifier,
       } = this;
 
-      let value = parent[storeField];
+      let value = fieldTypeWrap.isAbstract()
+        ? parent[storeField]['$id']
+        : parent[storeField];
+      collection = fieldTypeWrap.isAbstract()
+        ? parent[storeField]['$ref']
+        : collection;
       if (!value) return null;
 
       let selector = {
@@ -364,11 +371,14 @@ export default queryExecutor =>
 
       let value = parent[storeField];
       if (!value) return fieldTypeWrap.isRequired() ? [] : null;
+      let selector = {};
+      if (!fieldTypeWrap.isAbstract()) {
+        selector = await applyInputTransform({ parent, context })(
+          args.where,
+          whereType
+        );
+      }
 
-      let selector = await applyInputTransform({ parent, context })(
-        args.where,
-        whereType
-      );
       if (fieldTypeWrap.isInterface()) {
         selector = Transforms.validateAndTransformInterfaceInput(whereType)({
           selector,
@@ -386,16 +396,49 @@ export default queryExecutor =>
         value = _.take(value, args.first);
       }
 
-      return queryExecutor({
-        type: FIND_IDS,
-        collection,
-        selector,
-        options: {
-          selectorField: relationField,
-          ids: value,
-        },
-        context,
-      });
+      if (fieldTypeWrap.isAbstract()) {
+        let collections = {};
+        value.forEach(v => {
+          let coll = v['$ref'];
+          let id = v['$id'];
+          if (!collections[coll]) {
+            collections[coll] = [];
+          }
+          collections[coll].push(id);
+        });
+
+        let queries = [];
+        Object.entries(collections).forEach((collection, value) => {
+          queries.push(
+            queryExecutor({
+              type: FIND_IDS,
+              collection,
+              selector,
+              options: {
+                selectorField: relationField,
+                ids: value,
+              },
+              context,
+            })
+          );
+        });
+        return Promise.all(queries).then(results => {
+          let data = [];
+          results.forEach(r => (data = [...data, ...results]));
+          return data;
+        });
+      } else {
+        return queryExecutor({
+          type: FIND_IDS,
+          collection,
+          selector,
+          options: {
+            selectorField: relationField,
+            ids: value,
+          },
+          context,
+        });
+      }
     };
 
     _addConnectionField = field => {

@@ -11,7 +11,6 @@ import {
   GraphQLString,
 } from 'graphql';
 import { applyInputTransform, reduceTransforms } from './utils';
-
 import TypeWrap from '../typeWrap';
 import * as KIND from './kinds';
 import * as Transforms from './transforms';
@@ -67,6 +66,20 @@ export class EmptyTypeException extends Error {
   toString = () => `Type ${this._type.name} must define one or more fields`;
 }
 
+const addInterfaceValues = (val, initialType, fieldType) => {
+  if (initialType.mmAbstract) return {};
+  return { [initialType.mmDiscriminatorField]: fieldType.mmDiscriminator };
+};
+
+const addUpdateInterfaceValues = (val, initialType, fieldType) => {
+  if (initialType.mmAbstract) return {};
+  return {
+    [initialType.mmDiscriminatorField]: {
+      $mmEquals: fieldType.mmDiscriminator,
+    },
+  };
+};
+
 class InputTypesClass {
   Kinds = [];
 
@@ -98,7 +111,6 @@ class InputTypesClass {
       this._createInputObject,
       this._fillInputObjectInterface
     );
-
     this.registerKind(
       [
         KIND.CREATE_ONE_NESTED,
@@ -260,7 +272,7 @@ class InputTypesClass {
   };
 
   _fieldNameWithModifier = (name, modifier) => {
-    if (modifier != '') {
+    if (modifier !== '') {
       return `${name}_${modifier}`;
     } else {
       return name;
@@ -297,6 +309,9 @@ class InputTypesClass {
       name,
       fields: {},
     });
+    if (initialType.mmCollectionName) {
+      newType.mmCollectionName = initialType.mmCollectionName;
+    }
     newType.getFields();
     return newType;
   };
@@ -382,10 +397,14 @@ class InputTypesClass {
       [KIND.UPDATE_INTERFACE]: KIND.UPDATE,
     }[kind];
 
-    let fieldsArr = _.values(this.SchemaTypes).filter(
-      itype =>
+    let fieldsArr = _.values(this.SchemaTypes).filter(itype => {
+      if (initialType.mmAbstract) {
+        return initialType.mmAbstractTypes.includes(itype);
+      }
+      return (
         _.isArray(itype._interfaces) && itype._interfaces.includes(initialType)
-    );
+      );
+    });
     if ([KIND.WHERE, KIND.UPDATE, KIND.WHERE_UNIQUE].includes(kind)) {
       fieldsArr.push(initialType);
     }
@@ -402,9 +421,7 @@ class InputTypesClass {
         [KIND.CREATE, KIND.WHERE, KIND.UPDATE, KIND.WHERE_UNIQUE].includes(
           kind
         ) &&
-        fieldType !== initialType &&
-        fieldType.mmDiscriminator &&
-        initialType.mmDiscriminatorField
+        fieldType !== initialType
       ) {
         mmTransform = reduceTransforms([
           Transforms.applyNestedTransform(inputType),
@@ -412,14 +429,12 @@ class InputTypesClass {
             ? params =>
                 _.mapValues(params, val => ({
                   ...val,
-                  [initialType.mmDiscriminatorField]: {
-                    $mmEquals: fieldType.mmDiscriminator,
-                  },
+                  ...addUpdateInterfaceValues(val, initialType, fieldType),
                 }))
             : params =>
                 _.mapValues(params, val => ({
                   ...val,
-                  [initialType.mmDiscriminatorField]: fieldType.mmDiscriminator,
+                  ...addInterfaceValues(val, initialType, fieldType),
                 })),
         ]);
       }
