@@ -312,18 +312,14 @@ export default queryExecutor =>
         mmStoreField: storeField,
         mmInterfaceModifier,
       } = this;
-
-      let value = fieldTypeWrap.isAbstract()
-        ? parent[storeField]['$id']
-        : parent[storeField];
-      collection = fieldTypeWrap.isAbstract()
-        ? parent[storeField]['$ref']
-        : collection;
-      if (!value) return null;
-
       let selector = {
         ...mmInterfaceModifier,
       };
+      let value = parent[storeField];
+      if (fieldTypeWrap.isAbstract()) {
+        let { $id: value, $ref: collection } = value.toJSON();
+      }
+      if (!value) return null;
 
       return queryExecutor({
         type: FIND_IDS,
