@@ -1,27 +1,16 @@
-import { defaultFieldResolver } from 'graphql';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
 
-import _ from 'lodash';
+import { allQueryArgs, getRelationFieldName } from '../utils';
 
-import { GraphQLID, GraphQLList } from 'graphql';
+import { appendTransform, applyInputTransform } from '../inputTypes/utils';
 
-import {
-  getRelationFieldName,
-  allQueryArgs,
-  GraphQLTypeFromString,
-} from '../utils';
-
-import { applyInputTransform } from '../inputTypes/utils';
-
-import { FIND, FIND_ONE, DISTINCT, COUNT } from '../queryExecutor';
+import { FIND, FIND_ONE } from '../queryExecutor';
 
 import InputTypes from '../inputTypes';
 import TypeWrap from '../typeWrap';
-import { appendTransform, reduceTransforms } from '../inputTypes/utils';
 import * as HANDLER from '../inputTypes/handlers';
 import * as KIND from '../inputTypes/kinds';
 import * as Transforms from '../inputTypes/transforms';
-import { FIND_IDS } from '../queryExecutor';
 
 export const ExtRelationScheme = `directive @extRelation(field:String="_id", storeField:String=null, many:Boolean=false ) on FIELD_DEFINITION`;
 

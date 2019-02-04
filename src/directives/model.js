@@ -1,16 +1,4 @@
-import { defaultFieldResolver } from 'graphql';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
-
-import {
-  GraphQLInt,
-  GraphQLObjectType,
-  GraphQLInputObjectType,
-  GraphQLList,
-  GraphQLNonNull,
-  GraphQLEnumType,
-} from 'graphql';
-
-import _ from 'lodash';
 import pluralize from 'pluralize';
 
 import { getDirective, lowercaseFirstLetter } from '../utils';
