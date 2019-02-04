@@ -4,7 +4,7 @@ import { allQueryArgs, getRelationFieldName } from '../utils';
 
 import { appendTransform, applyInputTransform } from '../inputTypes/utils';
 
-import { FIND, FIND_ONE } from '../queryExecutor';
+import { FIND, FIND_IDS, FIND_ONE } from '../queryExecutor';
 
 import InputTypes from '../inputTypes';
 import TypeWrap from '../typeWrap';
@@ -128,12 +128,30 @@ export default queryExecutor =>
           selector,
         }).selector;
       }
-
-      selector = {
-        ...selector,
-        [storeField]: value,
-        ...mmInterfaceModifier,
-      };
+      if (Object.keys(mmInterfaceModifier)) {
+        selector = {
+          ...selector,
+          [storeField]: value,
+          ...mmInterfaceModifier,
+        };
+      } else if (fieldTypeWrap.realType().mmInherit) {
+        selector = {
+          ...selector,
+        };
+        let ids = value || [];
+        return queryExecutor({
+          type: FIND_IDS,
+          collection: this.mmCollectionName,
+          selector,
+          options: {
+            ids,
+            skip: args.skip,
+            limit: args.first,
+            selectorField: storeField,
+          },
+          context,
+        });
+      }
 
       return queryExecutor({
         type: FIND,
