@@ -333,7 +333,7 @@ export default queryExecutor =>
         },
         context,
       }).then(res => {
-        let data = _lodash.default.head(res);
+        let data = _.head(res);
         data['mmCollection'] = collection;
         return data;
       });
