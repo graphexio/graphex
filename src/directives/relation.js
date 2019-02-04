@@ -67,7 +67,7 @@ export default queryExecutor =>
         [KIND.ORDER_BY]: field => [],
         [KIND.CREATE]: this._transformToInputCreateUpdate,
         [KIND.UPDATE]: this._transformToInputCreateUpdate,
-        [KIND.WHERE]: isAbstract ? [] : this._transformToInputWhere,
+        [KIND.WHERE]: isAbstract ? () => [] : this._transformToInputWhere,
       });
       field.mmOnSchemaInit = this._onSchemaInit;
       field.mmOnSchemaBuild = this._onSchemaBuild;
