@@ -2,7 +2,7 @@ import { GraphQLBoolean, GraphQLInputObjectType, GraphQLList } from 'graphql';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
 import { UserInputError } from 'apollo-server';
 
-import _ from 'lodash';
+import * as _ from 'lodash';
 
 import { allQueryArgs, getDirective, getRelationFieldName } from '../utils';
 
