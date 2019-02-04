@@ -285,7 +285,7 @@ export default queryExecutor =>
       let fieldTypeWrap = new TypeWrap(field.type);
 
       ///Args and connection field
-      if (fieldTypeWrap.isMany() && !fieldTypeWrap.isAbstract()) {
+      if (fieldTypeWrap.isMany()) {
         let whereType = InputTypes.get(
           fieldTypeWrap.realType(),
           fieldTypeWrap.isInterface() ? KIND.WHERE_INTERFACE : KIND.WHERE
