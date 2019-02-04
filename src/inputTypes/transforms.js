@@ -10,11 +10,11 @@ const r = (value, options) => {
 };
 
 export const flattenNested = params => {
-  let fieldKey = _.head(_.keys(params));
+  let fieldKey = _.head(Object.keys(params));
   let value = params[fieldKey];
   let newValue = {};
   
-  _.keys(value).forEach(key => {
+  Object.keys(value).forEach(key => {
     let val = value[key];
     //don't flatten modifiers
     if (key.startsWith('$mm')) {
@@ -31,42 +31,42 @@ export const flattenNested = params => {
   //   });
   //   return value;
   // });
-  // return _.head(_.values(params));
+  // return _.head(Object.values(params));
 };
 
 export const validateAndTransformNestedInput = (type, isMany) => params => {
-  let value = _.head(_.values(params));
+  let value = _.head(Object.values(params));
   
   if (!isMany) {
-    if (_.keys(value).length > 1) {
+    if (Object.keys(value).length > 1) {
       throw new UserInputError(
         `You should not fill multiple fields in ${type.name} type`
       );
     }
   } else {
-    if (value.delete && _.keys(value).length > 1) {
+    if (value.delete && Object.keys(value).length > 1) {
       throw new UserInputError(`Wrong input in ${type.name} type`);
     }
   }
   
-  return _.mapValues(params, value => _.merge(..._.values(value)));
+  return _.mapValues(params, value => _.merge(...Object.values(value)));
 };
 
 const validateAndTransformInterfaceValue = type => value => {
-  if (_.keys(value).length > 1) {
+  if (Object.keys(value).length > 1) {
     throw new UserInputError(
       `You should not fill multiple fields in ${type.name} type`
     );
-  } else if (_.keys(value).length === 0) {
+  } else if (Object.keys(value).length === 0) {
     return {};
     // throw new UserInputError(`You should fill any field in ${type.name} type`);
   }
-  return _.head(_.values(value));
+  return _.head(Object.values(value));
 };
 export const validateAndTransformInterfaceInput = type => params => {
   let func = validateAndTransformInterfaceValue(type);
   return _.mapValues(params, value => {
-    if (_.isArray(value)) {
+    if (Array.isArray(value)) {
       return value.map(val => func(val));
     } else {
       return func(value);

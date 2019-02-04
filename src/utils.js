@@ -22,8 +22,7 @@ export function getLastType(fieldType) {
 
 export function getDirective(field, name) {
   if (field.astNode && field.astNode.directives) {
-    return _.find(
-      field.astNode.directives,
+    return field.astNode.directives.find(
       directive => directive.name.value === name
     );
   }
@@ -31,10 +30,7 @@ export function getDirective(field, name) {
 }
 
 export function getDirectiveArg(directive, name, defaultValue) {
-  let arg = _.find(
-    directive.arguments,
-    argument => argument.name.value === name
-  );
+  let arg = directive.arguments.find(argument => argument.name.value === name);
   if (arg) return arg.value.value;
   else {
     return defaultValue;
@@ -112,7 +108,7 @@ export async function asyncForEach(array, callback) {
 
 export async function asyncMapValues(object, callback) {
   let newObject = {};
-  await asyncForEach(_.keys(object), async key => {
+  await asyncForEach(Object.keys(object), async key => {
     let value = object[key];
     newObject[key] = await callback(value, key, object);
   });
@@ -178,9 +174,9 @@ export function prepareUpdateDoc(doc) {
   let arrayFilters = [];
   let validations = {};
 
-  _.keys(doc).forEach(path => {
+  Object.keys(doc).forEach(path => {
     let value = doc[path];
-    _.keys(value).forEach(key => {
+    Object.keys(value).forEach(key => {
       let val = value[key];
       switch (key) {
         case '$mmPushAll':
@@ -213,7 +209,7 @@ export function prepareUpdateDoc(doc) {
           break;
       }
     });
-    if (!_.isObject(value) || _.keys(value).length > 0) {
+    if (!_.isObject(value) || Object.keys(value).length > 0) {
       set[path] = value;
     }
   });

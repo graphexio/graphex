@@ -411,7 +411,7 @@ export default class ModelMongo {
     if (type.mmOnSchemaInit) {
       type.mmOnSchemaInit({type, inputTypes: InputTypes});
     }
-    _.values(type._fields).forEach(field => {
+    Object.values(type._fields).forEach(field => {
       if (field.mmOnSchemaInit) {
         field.mmOnSchemaInit({field, inputTypes: InputTypes});
       }
@@ -422,7 +422,7 @@ export default class ModelMongo {
     if (type.mmOnSchemaBuild) {
       type.mmOnSchemaBuild({type, inputTypes: InputTypes});
     }
-    _.values(type._fields).forEach(field => {
+    Object.values(type._fields).forEach(field => {
       if (field.mmOnSchemaBuild) {
         field.mmOnSchemaBuild({field, inputTypes: InputTypes});
       }
@@ -437,7 +437,7 @@ export default class ModelMongo {
   };
   
   _onFieldsInit = type => {
-    _.values(type._fields).forEach(field => {
+    Object.values(type._fields).forEach(field => {
       let lastType = getLastType(field.type);
       let init = this.FieldsInit[lastType.name];
       if (init) {
@@ -453,7 +453,7 @@ export default class ModelMongo {
       resolvers = {},
       typeDefs = [],
     } = params;
-    if (!_.isArray(typeDefs)) typeDefs = [typeDefs];
+    if (!Array.isArray(typeDefs)) typeDefs = [typeDefs];
     
     typeDefs = [
       InitialScheme,
@@ -519,19 +519,19 @@ export default class ModelMongo {
     this.Query = Query;
     this.Mutation = Mutation;
     
-    _.values(SchemaTypes).forEach(type => {
+    Object.values(SchemaTypes).forEach(type => {
       this._onSchemaBuild(type);
     });
     
-    _.values(SchemaTypes).forEach(type => {
+    Object.values(SchemaTypes).forEach(type => {
       this._onTypeInit(type);
     });
     
-    _.values(SchemaTypes).forEach(type => {
+    Object.values(SchemaTypes).forEach(type => {
       this._onFieldsInit(type);
     });
     
-    _.values(SchemaTypes).forEach(type => {
+    Object.values(SchemaTypes).forEach(type => {
       let typeWrap = new TypeWrap(type);
       if (
         getDirective(type, 'model') ||
@@ -542,7 +542,7 @@ export default class ModelMongo {
       }
     });
     
-    _.values(SchemaTypes).forEach(type => {
+    Object.values(SchemaTypes).forEach(type => {
       this._onSchemaInit(type);
       
       let typeWrap = new TypeWrap(type);

@@ -1,40 +1,25 @@
-import {
-  defaultFieldResolver,
-  GraphQLInputObjectType,
-  GraphQLID,
-  GraphQLList,
-  GraphQLBoolean,
-} from 'graphql';
+import { GraphQLBoolean, GraphQLInputObjectType, GraphQLList } from 'graphql';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
 import { UserInputError } from 'apollo-server';
 
 import _ from 'lodash';
 
-import {
-  getRelationFieldName,
-  allQueryArgs,
-  GraphQLTypeFromString,
-  combineResolvers,
-  getDirective,
-} from '../utils';
+import { allQueryArgs, getDirective, getRelationFieldName } from '../utils';
 
 import {
-  FIND,
-  FIND_ONE,
-  FIND_IDS,
-  DISTINCT,
-  INSERT_ONE,
-  INSERT_MANY,
   DELETE_ONE,
-  COUNT,
+  DISTINCT,
+  FIND_IDS,
+  INSERT_MANY,
+  INSERT_ONE,
 } from '../queryExecutor';
 
 import InputTypes from '../inputTypes';
 import TypeWrap from '../typeWrap';
 import {
   appendTransform,
-  reduceTransforms,
   applyInputTransform,
+  reduceTransforms,
 } from '../inputTypes/utils';
 import * as HANDLER from '../inputTypes/handlers';
 import * as KIND from '../inputTypes/kinds';
@@ -52,7 +37,6 @@ export const RelationScheme = `directive @relation(field:String="_id", storeFiel
 export default queryExecutor =>
   class RelationDirective extends SchemaDirectiveVisitor {
     visitFieldDefinition(field, { objectType }) {
-      const { _typeMap: SchemaTypes } = this.schema;
       const { field: relationField, storeField } = this.args;
       let fieldTypeWrap = new TypeWrap(field.type);
       let isAbstract = fieldTypeWrap.realType().mmAbstract;
@@ -166,13 +150,13 @@ export default queryExecutor =>
     };
 
     _validateInput = (type, isMany) => params => {
-      let input = _.head(_.values(params));
+      let input = _.head(Object.values(params));
       if (!isMany) {
-        if (_.keys(input) > 1) {
+        if (Object.keys(input) > 1) {
           throw new UserInputError(
             `You should not fill multiple fields in ${type.name} type`
           );
-        } else if (_.keys(input) === 0) {
+        } else if (Object.keys(input) === 0) {
           throw new UserInputError(
             `You should fill any field in ${type.name} type`
           );
@@ -180,7 +164,7 @@ export default queryExecutor =>
       } else {
         if (
           (input.disconnect || input.delete) &&
-          _.difference(_.keys(input), ['delete', 'disconnect']).length > 0
+          _.difference(Object.keys(input), ['delete', 'disconnect']).length > 0
         ) {
           throw new UserInputError(`Wrong input in ${type.name} type`);
         }
@@ -191,7 +175,7 @@ export default queryExecutor =>
     _transformInputOne = async (params, resolverArgs) => {
       let { parent, context } = resolverArgs;
       let { mmStoreField: storeField } = this;
-      let input = _.head(_.values(params));
+      let input = _.head(Object.values(params));
       if (input.connect) {
         ////Connect
         let selector = input.connect;
@@ -227,7 +211,7 @@ export default queryExecutor =>
     _transformInputMany = async (params, resolverArgs) => {
       let { mmStoreField: storeField } = this;
       let { parent, context } = resolverArgs;
-      let input = _.head(_.values(params));
+      let input = _.head(Object.values(params));
 
       let ids = [];
 
@@ -316,9 +300,7 @@ export default queryExecutor =>
           orderByType,
         });
 
-        if (!fieldTypeWrap.isAbstract()) {
-          this._addConnectionField(field);
-        }
+        this._addConnectionField(field);
       }
     };
 
@@ -397,30 +379,17 @@ export default queryExecutor =>
       }
 
       if (fieldTypeWrap.isAbstract()) {
-        let collections = {};
-        value.forEach(v => {
-          let coll = v['$ref'];
-          let id = v['$id'];
-          if (!collections[coll]) {
-            collections[coll] = [];
-          }
-          collections[coll].push(id);
+        let collections = value.reduce((acc, v) => {
+          let { $ref: col, $id: id } = v;
+          acc[col] = !acc[col] ? [id] : [...acc[col], id];
         });
 
-        let queries = [];
-        Object.entries(collections).forEach((collection, value) => {
-          queries.push(
-            queryExecutor({
-              type: FIND_IDS,
-              collection,
-              selector,
-              options: {
-                selectorField: relationField,
-                ids: value,
-              },
-              context,
-            })
-          );
+        let queries = Object.entries(collections).map((collection, value) => {
+          let options = {
+            selectorField: relationField,
+            ids: value,
+          };
+          return this._findIDsQuery({ collection, selector, options, context });
         });
         return Promise.all(queries).then(results => {
           let data = [];
@@ -428,8 +397,7 @@ export default queryExecutor =>
           return data;
         });
       } else {
-        return queryExecutor({
-          type: FIND_IDS,
+        return this._findIDsQuery({
           collection,
           selector,
           options: {
@@ -464,7 +432,7 @@ export default queryExecutor =>
         type: SchemaTypes[`${fieldTypeWrap.realType().name}Connection`],
         resolve: async (parent, args, context, info) => {
           let value = parent[storeField];
-          if (_.isArray(value)) {
+          if (Array.isArray(value)) {
             value = { $in: value };
           }
           let selector = {
@@ -508,6 +476,16 @@ export default queryExecutor =>
         options: {
           key: relationField,
         },
+      });
+    };
+
+    _findIDsQuery = async ({ collection, selector, options, context }) => {
+      return queryExecutor({
+        type: FIND_IDS,
+        collection,
+        selector,
+        options,
+        context,
       });
     };
 

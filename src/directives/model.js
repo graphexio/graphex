@@ -31,7 +31,7 @@ export default class Model extends SchemaDirectiveVisitor {
 
     const { _typeMap: SchemaTypes } = this.schema;
 
-    _.values(SchemaTypes)
+    Object.values(SchemaTypes)
       .filter(type => type._interfaces && type._interfaces.includes(iface))
       .forEach(type => {
         if (getDirective(type, 'model')) {

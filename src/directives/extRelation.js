@@ -126,7 +126,7 @@ export default queryExecutor =>
       );
 
       let value = parent[relationField];
-      if (_.isArray(value)) {
+      if (Array.isArray(value)) {
         value = { $in: value };
       }
 
@@ -177,7 +177,7 @@ export default queryExecutor =>
         type: SchemaTypes[`${fieldTypeWrap.realType().name}Connection`],
         resolve: async (parent, args, context, info) => {
           let value = parent[relationField];
-          if (_.isArray(value)) {
+          if (Array.isArray(value)) {
             value = { $in: value };
           }
           let selector = {

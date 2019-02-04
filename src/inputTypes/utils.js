@@ -26,7 +26,7 @@ export const applyInputTransform = context => {
     if (!fields) return value;
     let result = {};
     await Promise.all(
-      _.keys(fields).map(async key => {
+      Object.keys(fields).map(async key => {
         let field = fields[key];
         if (!field) {
           console.log('Key', key, 'fields', fields);
@@ -60,7 +60,7 @@ export const applyInputTransform = context => {
           ).forEach(
             ([k, v]) =>
               (result[k] =
-                _.isObject(v) && !_.isArray(v) ? _.merge(result[k], v) : v)
+                _.isObject(v) && !Array.isArray(v) ? _.merge(result[k], v) : v)
           );
         }
       })

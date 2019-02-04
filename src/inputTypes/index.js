@@ -192,7 +192,7 @@ class InputTypesClass {
           // Transforms.log(5),
           !isCreate && fieldTypeWrap.isNested()
             ? params =>
-                !_.isArray(_.head(_.values(params)))
+                !Array.isArray(_.head(Object.values(params)))
                   ? Transforms.flattenNested(params)
                   : params
             : null,
@@ -291,7 +291,7 @@ class InputTypesClass {
   _createInputEnum = ({ name, initialType, kind }) => {
     let deafultTransformFunc = this._defaultTransformToInput[kind];
     let values = [];
-    _.values(initialType._fields).forEach(field => {
+    Object.values(initialType._fields).forEach(field => {
       let { mmTransformToInput = {} } = field;
       let transformFunc = mmTransformToInput[kind] || deafultTransformFunc;
       values = [...values, ...transformFunc({ field, kind, inputTypes: this })];
@@ -365,7 +365,7 @@ class InputTypesClass {
       this._addAndOr(fields, type);
     }
 
-    _.values(initialType._fields).forEach(field => {
+    Object.values(initialType._fields).forEach(field => {
       let { mmTransformToInput = {} } = field;
       let transformFunc = mmTransformToInput[kind] || defaultTransformFunc;
       if (
@@ -397,12 +397,12 @@ class InputTypesClass {
       [KIND.UPDATE_INTERFACE]: KIND.UPDATE,
     }[kind];
 
-    let fieldsArr = _.values(this.SchemaTypes).filter(itype => {
+    let fieldsArr = Object.values(this.SchemaTypes).filter(itype => {
       if (initialType.mmAbstract) {
         return initialType.mmAbstractTypes.includes(itype);
       }
       return (
-        _.isArray(itype._interfaces) && itype._interfaces.includes(initialType)
+        Array.isArray(itype._interfaces) && itype._interfaces.includes(initialType)
       );
     });
     if ([KIND.WHERE, KIND.UPDATE, KIND.WHERE_UNIQUE].includes(kind)) {
@@ -582,7 +582,7 @@ class InputTypesClass {
   };
 
   _schemaRollback = snapshotTypes => {
-    _.difference(_.keys(this.SchemaTypes), _.keys(snapshotTypes)).forEach(
+    _.difference(Object.keys(this.SchemaTypes), Object.keys(snapshotTypes)).forEach(
       typeName => {
         delete this.SchemaTypes[typeName];
       }
@@ -629,7 +629,7 @@ class InputTypesClass {
   get = this._inputType;
 
   registerKind = (kind, init, fill) => {
-    if (_.isArray(kind)) {
+    if (Array.isArray(kind)) {
       kind.forEach(item => {
         this.registerKind(item, init, fill);
       });

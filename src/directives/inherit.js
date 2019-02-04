@@ -1,6 +1,4 @@
-import { defaultFieldResolver } from 'graphql';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
-import _ from 'lodash';
 import { lowercaseFirstLetter } from '../utils';
 
 export const InheritScheme = `directive @inherit on INTERFACE`;
@@ -13,7 +11,7 @@ export default class Inherit extends SchemaDirectiveVisitor {
       iface.mmDiscriminatorField = '_type';
     }
     iface.mmInherit = true;
-    _.values(SchemaTypes)
+    Object.values(SchemaTypes)
       .filter(type => type._interfaces && type._interfaces.includes(iface))
       .forEach(type => {
         type._fields = { ...iface._fields, ...type._fields };
@@ -25,10 +23,10 @@ export default class Inherit extends SchemaDirectiveVisitor {
     iface.mmDiscriminatorMap = {};
 
     iface.mmOnSchemaInit = () => {
-      _.values(SchemaTypes)
+      Object.values(SchemaTypes)
         .filter(
           type =>
-            _.isArray(type._interfaces) && type._interfaces.includes(iface)
+            Array.isArray(type._interfaces) && type._interfaces.includes(iface)
         )
         .forEach(type => {
           type.mmDiscriminatorField = iface.mmDiscriminatorField;
