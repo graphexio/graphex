@@ -384,7 +384,7 @@ export default queryExecutor =>
 
       if (fieldTypeWrap.isAbstract()) {
         let collections = value.reduce((acc, v) => {
-          let { $ref: col, $id: id } = v;
+          let { $ref: col, $id: id } = v.toJSON();
           acc[col] = !acc[col] ? [id] : [...acc[col], id];
         });
 
