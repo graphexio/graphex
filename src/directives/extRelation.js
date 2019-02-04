@@ -1,3 +1,4 @@
+import * as _ from 'lodash';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
 
 import { allQueryArgs, getRelationFieldName } from '../utils';
@@ -128,17 +129,14 @@ export default queryExecutor =>
           selector,
         }).selector;
       }
-      if (Object.keys(mmInterfaceModifier)) {
+      if (!_.isEmpty(mmInterfaceModifier)) {
         selector = {
           ...selector,
-          [storeField]: value,
           ...mmInterfaceModifier,
         };
-      } else if (fieldTypeWrap.realType().mmInherit) {
-        selector = {
-          ...selector,
-        };
+      } else if (fieldTypeWrap.realType().mmInherit && _.isEmpty(selector)) {
         let ids = value || [];
+
         return queryExecutor({
           type: FIND_IDS,
           collection: this.mmCollectionName,
@@ -152,7 +150,8 @@ export default queryExecutor =>
           context,
         });
       }
-
+      selector[[storeField]] = value;
+      console.log('--', selector);
       return queryExecutor({
         type: FIND,
         collection: this.mmCollectionName,
