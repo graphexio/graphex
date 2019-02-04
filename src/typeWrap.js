@@ -62,9 +62,9 @@ export default class TypeWrap {
     //inherited
     if (Array.isArray(realType._interfaces) && realType._interfaces.length > 0) {
       this._inherited = _.head(realType._interfaces);
-      this._abstract = realType.mmAbstract;
     }
-
+    
+    this._abstract = realType.mmAbstract;
     this._realType = realType;
   }
 
