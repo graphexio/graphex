@@ -317,7 +317,9 @@ export default queryExecutor =>
       };
       let value = parent[storeField];
       if (fieldTypeWrap.isAbstract()) {
-        let { $id: value, $ref: collection } = value.toJSON();
+        let { $id: id, $ref: c } = value.toJSON();
+        collection = c;
+        value = id;
       }
       if (!value) return null;
 
