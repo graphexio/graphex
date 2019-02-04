@@ -148,6 +148,15 @@ Example queries [below](#features)
   - name:String
   - The name of field in collection \* Required
 
+### The `default` directive
+
+- Sets a default value for a field.
+- Valid locations: FIELD
+- Optional
+- Arguments
+  - value:String
+  - The default value for the field \* Required
+
 ### The `inherit` directive
 
 - Clones interface fields to objects.
@@ -182,6 +191,7 @@ Example queries [below](#features)
 - Valid locations: FIELD
 - Optional
 - Arguments
+
   - field:String
     - Optional
     - Default value: \_id
@@ -189,8 +199,20 @@ Example queries [below](#features)
     - Optional
     - Default value: `${TypeName}Id${s}`
   - many:Boolean
-    - Optional 
+
+    - Optional
     - Default value: false
+
+### The `createdAt` directive
+
+- Sets date on field on CREATE.
+- Valid locations: FIELD
+- Optional
+
+### The `updatedAt` directive
+
+- Sets date on field on CREATE and UPDATE.
+- Valid locations: FIELD
 
 ## Serverless
 
@@ -212,7 +234,6 @@ You are welcome to open Issues, Feature Requests and PR with new features and bu
 
 ## Roadmap
 
-- Add createdAt, updatedAt directives
 - Filter by Nth array element
 - Add subscriptions
 - Release stable version 1.0.0
