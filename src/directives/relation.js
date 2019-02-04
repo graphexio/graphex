@@ -334,7 +334,11 @@ export default queryExecutor =>
           ids: [value],
         },
         context,
-      }).then(res => _.head(res));
+      }).then(res => {
+        let data = _lodash.default.head(res);
+        data['mmCollection'] = collection;
+        return data;
+      });
     };
 
     _resolveMany = field => async (parent, args, context, info) => {
@@ -389,7 +393,17 @@ export default queryExecutor =>
             selectorField: relationField,
             ids: value,
           };
-          return this._findIDsQuery({ collection, selector, options, context });
+          return this._findIDsQuery({
+            collection,
+            selector,
+            options,
+            context,
+          }).then(results => {
+            return results.map(r => {
+              r['mmCollection'] = collection;
+              return r;
+            });
+          });
         });
         return Promise.all(queries).then(results => {
           let data = [];
