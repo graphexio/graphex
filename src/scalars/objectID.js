@@ -1,4 +1,4 @@
-import { GraphQLScalarType } from 'graphql';
+import { GraphQLScalarType, Kind } from 'graphql';
 import gql from 'graphql-tag';
 import { ObjectID } from 'mongodb';
 
@@ -7,7 +7,8 @@ export default new GraphQLScalarType({
   description: 'MongoDB ObjectID type',
   serialize: val => val.toString(),
   parseValue: val => ObjectID(val),
-  parseLiteral: ast => ObjectID(ast.value),
+  parseLiteral: ast =>
+    ast.kind === Kind.STRING ? ObjectID(ast.value) : ast.value,
 });
 
 export const typeDef = gql`
