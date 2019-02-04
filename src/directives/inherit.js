@@ -1,16 +1,27 @@
 import { SchemaDirectiveVisitor } from 'graphql-tools';
 import { lowercaseFirstLetter } from '../utils';
 
-export const InheritScheme = `directive @inherit on INTERFACE`;
+export const InheritScheme = `directive @inherit(from:String = null) on INTERFACE`;
 
 export default class Inherit extends SchemaDirectiveVisitor {
   visitInterface(iface) {
     const { _typeMap: SchemaTypes } = this.schema;
-
     if (!iface.mmDiscriminatorField) {
       iface.mmDiscriminatorField = '_type';
     }
     iface.mmInherit = true;
+
+    const { from = null } = this.args;
+    if (from) {
+      let fromInherit = Object.values(SchemaTypes).find(
+        type => type.name === from
+      );
+      if (!fromInherit || !fromInherit.mmInherit) {
+        throw `from:${from} was not found or does not contain the inherit directive`;
+      }
+      iface._fields = { ...fromInherit._fields, ...iface._fields };
+    }
+
     Object.values(SchemaTypes)
       .filter(type => type._interfaces && type._interfaces.includes(iface))
       .forEach(type => {
@@ -20,7 +31,7 @@ export default class Inherit extends SchemaDirectiveVisitor {
         }
       });
 
-    iface.mmDiscriminatorMap = {};
+    iface.mmDiscriminatorMap = iface.mmDiscriminatorMap || {};
 
     iface.mmOnSchemaInit = () => {
       Object.values(SchemaTypes)
