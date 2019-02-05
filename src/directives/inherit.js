@@ -13,7 +13,7 @@ export default class Inherit extends SchemaDirectiveVisitor {
 
     iface._addFromInterfaces = function(type) {
       if (this.mmFrom) {
-        if (!type._interfaces.find(type)) {
+        if (!type._interfaces.find(i => i === this.mmFrom)) {
           type._interfaces.push(this.mmFrom);
           this.mmFrom._addFromInterfaces(type);
         }
