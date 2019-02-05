@@ -16,7 +16,7 @@ export default class Inherit extends SchemaDirectiveVisitor {
       let fromInherit = Object.values(SchemaTypes).find(
         type => type.name === from
       );
-      if (!fromInherit || !fromInherit.mmInherit) {
+      if (!fromInherit) {
         throw `from:${from} was not found or does not contain the inherit directive`;
       }
       iface._fields = { ...fromInherit._fields, ...iface._fields };

@@ -23,8 +23,8 @@ export default class Inherit extends SchemaDirectiveVisitor {
       let fromAbstract = Object.values(SchemaTypes).find(
         type => type.name === from
       );
-      this.mmFromAbstract = fromAbstract;
-      if (!fromAbstract || !fromAbstract.mmAbstract) {
+      this.mmFromAbstract = fromAbstract.mmInherit ? fromAbstract : null;
+      if (!fromAbstract) {
         throw `from:${from} was not found or does not contain the abstract directive`;
       }
       iface._fields = { ...fromAbstract._fields, ...iface._fields };
