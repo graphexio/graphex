@@ -67,7 +67,7 @@ export default queryExecutor =>
         [KIND.ORDER_BY]: field => [],
         [KIND.CREATE]: this._transformToInputCreateUpdate,
         [KIND.UPDATE]: this._transformToInputCreateUpdate,
-        [KIND.WHERE]: isAbstract ? () => [] : this._transformToInputWhere,
+        [KIND.WHERE]: this._transformToInputWhere,
       });
       field.mmOnSchemaInit = this._onSchemaInit;
       field.mmOnSchemaBuild = this._onSchemaBuild;
@@ -269,6 +269,7 @@ export default queryExecutor =>
       let fieldTypeWrap = new TypeWrap(field.type);
       this.mmCollectionName = fieldTypeWrap.realType().mmCollectionName;
       this.mmInterfaceModifier = {};
+      this.isAbstract = fieldTypeWrap.isAbstract();
       //Collection name and interface modifier
       if (fieldTypeWrap.isInherited()) {
         let { mmDiscriminator } = fieldTypeWrap.realType();
@@ -276,8 +277,6 @@ export default queryExecutor =>
         this.mmInterfaceModifier = {
           [mmDiscriminatorField]: mmDiscriminator,
         };
-      } else {
-        this.isAbstract = fieldTypeWrap.isAbstract();
       }
     };
 

@@ -92,7 +92,7 @@ export default class TypeWrap {
   isNested = () => this._nested;
   isInterface = () => this._interface;
   isInherited = () => Boolean(this._inherited);
-  isAbstract = () => this._abstract;
+  isAbstract = () => Boolean(this._abstract);
   interfaceType = () => this._inherited;
   clone = () => {
     return new TypeWrap(this);

@@ -176,41 +176,42 @@ export function prepareUpdateDoc(doc) {
 
   Object.keys(doc).forEach(path => {
     let value = doc[path];
-    Object.keys(value).forEach(key => {
-      let val = value[key];
-      switch (key) {
-        case '$mmPushAll':
-          push[path] = { $each: val };
-          delete value[key];
-          break;
-        case '$mmArrayFilter':
-          arrayFilters.push(val);
-          delete value[key];
-          break;
-        case '$mmPull':
-          pull[path] = val;
-          delete value[key];
-          break;
-        case '$mmPullAll':
-          pullAll[path] = val;
-          delete value[key];
-          break;
-        case '$mmUnset':
-          unset[path] = true;
-          delete value[key];
-          break;
-        case '$mmExists':
-          validations[path] = { $exists: val };
-          delete value[key];
-          break;
-        case '$mmEquals':
-          validations[path] = { $equals: val };
-          delete value[key];
-          break;
-      }
-    });
     if (!_.isObject(value) || Object.keys(value).length > 0) {
       set[path] = value;
+    }else if (_.isObject(value)){
+      Object.keys(value).forEach(key => {
+        let val = value[key];
+        switch (key) {
+          case '$mmPushAll':
+            push[path] = { $each: val };
+            delete value[key];
+            break;
+          case '$mmArrayFilter':
+            arrayFilters.push(val);
+            delete value[key];
+            break;
+          case '$mmPull':
+            pull[path] = val;
+            delete value[key];
+            break;
+          case '$mmPullAll':
+            pullAll[path] = val;
+            delete value[key];
+            break;
+          case '$mmUnset':
+            unset[path] = true;
+            delete value[key];
+            break;
+          case '$mmExists':
+            validations[path] = { $exists: val };
+            delete value[key];
+            break;
+          case '$mmEquals':
+            validations[path] = { $equals: val };
+            delete value[key];
+            break;
+        }
+      });
     }
   });
   let newDoc = {};
