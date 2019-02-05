@@ -18,15 +18,25 @@ export default class Inherit extends SchemaDirectiveVisitor {
       }
     }.bind(iface);
 
+    iface._addFromInterfaces = function(type) {
+      if (this.mmFrom) {
+        if (!type._interfaces.find(type)) {
+          type._interfaces.push(this.mmFrom);
+          this.mmFrom._addFromInterfaces(type);
+        }
+      }
+    }.bind(iface);
+
     const { from = null } = this.args;
     if (from) {
       let fromAbstract = Object.values(SchemaTypes).find(
         type => type.name === from
       );
-      this.mmFromAbstract = fromAbstract.mmInherit ? fromAbstract : null;
       if (!fromAbstract) {
         throw `from:${from} was not found or does not contain the abstract directive`;
       }
+      iface.mmFromAbstract = fromAbstract.mmInherit ? fromAbstract : null;
+      iface.mmFrom = fromAbstract;
       iface._fields = { ...fromAbstract._fields, ...iface._fields };
     }
 
@@ -34,6 +44,7 @@ export default class Inherit extends SchemaDirectiveVisitor {
       .filter(type => type._interfaces && type._interfaces.includes(iface))
       .forEach(type => {
         iface.mmAbstractTypes.push(type);
+        iface._addFromInterfaces(type);
         type._fields = { ...iface._fields, ...type._fields };
       });
 

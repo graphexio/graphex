@@ -11,6 +11,15 @@ export default class Inherit extends SchemaDirectiveVisitor {
     }
     iface.mmInherit = true;
 
+    iface._addFromInterfaces = function(type) {
+      if (this.mmFrom) {
+        if (!type._interfaces.find(type)) {
+          type._interfaces.push(this.mmFrom);
+          this.mmFrom._addFromInterfaces(type);
+        }
+      }
+    }.bind(iface);
+
     const { from = null } = this.args;
     if (from) {
       let fromInherit = Object.values(SchemaTypes).find(
@@ -19,6 +28,7 @@ export default class Inherit extends SchemaDirectiveVisitor {
       if (!fromInherit) {
         throw `from:${from} was not found or does not contain the inherit directive`;
       }
+      iface.mmFrom = fromInherit;
       iface._fields = { ...fromInherit._fields, ...iface._fields };
     }
 
@@ -40,6 +50,7 @@ export default class Inherit extends SchemaDirectiveVisitor {
             Array.isArray(type._interfaces) && type._interfaces.includes(iface)
         )
         .forEach(type => {
+          iface._addFromInterfaces(type);
           type.mmDiscriminatorField = iface.mmDiscriminatorField;
           iface.mmDiscriminatorMap[type.mmDiscriminator] = type.name;
         });
