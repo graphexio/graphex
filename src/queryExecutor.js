@@ -41,7 +41,8 @@ const getDataLoader = (db, collectionName, selectorField, selector = {}) => {
 };
 
 const queryExecutor = DB => async params => {
-  const db = await DB;
+  const db = _.isFunction(DB) ? await DB(params) : await DB;
+
   let {
     type,
     collection: collectionName,

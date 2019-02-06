@@ -7,6 +7,8 @@ import {
 } from 'graphql';
 import _ from 'lodash';
 import pluralize from 'pluralize';
+
+export { default as QueryExecutor } from './queryExecutor';
 import {
   COUNT,
   DELETE_ONE,
@@ -30,6 +32,7 @@ import {
   prepareUpdateDoc,
 } from './utils';
 import TypeWrap from './typeWrap';
+export { default as TypeWrap } from './typeWrap';
 
 import InitialScheme from './initialScheme';
 
@@ -38,8 +41,8 @@ import Inherit, { InheritScheme } from './directives/inherit';
 import Relation, { RelationScheme } from './directives/relation';
 import ExtRelation, { ExtRelationScheme } from './directives/extRelation';
 import DirectiveDB, {
-  DirectiveDBResolver,
   DirectiveDBScheme,
+  DirectiveDBResolver,
 } from './directives/db';
 import Model, { ModelScheme } from './directives/model';
 import Unique, { UniqueScheme } from './directives/unique';
@@ -51,24 +54,10 @@ import InputTypes from './inputTypes';
 import { applyInputTransform } from './inputTypes/utils';
 import * as KIND from './inputTypes/kinds';
 
-export { default as QueryExecutor } from './queryExecutor';
-
-export {
-  getLastType,
-  getDirective,
-  getDirectiveArg,
-  getRelationFieldName,
-  hasQLListType,
-  allQueryArgs,
-  hasQLNonNullType,
-  cloneSchema,
-  combineResolvers,
-} from './utils';
-
 export default class ModelMongo {
-  constructor({ queryExecutor, options = {} }) {
+  constructor({ queryExecutor, options = {}, modules = [] }) {
     this.QueryExecutor = queryExecutor;
-    this.Modules = Modules;
+    this.Modules = [...Modules, ...modules];
     this.TypesInit = {};
     this.FieldsInit = {};
     this.options = options;
