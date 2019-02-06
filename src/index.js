@@ -601,7 +601,9 @@ export default class ModelMongo {
         (typeWrap.isInherited() &&
           getDirective(typeWrap.interfaceType(), 'model'))
       ) {
-        this._createAggregateAndConnectionTypes(type);
+        if (!typeWrap.isAbstract()) {
+          this._createAggregateAndConnectionTypes(type);
+        }
       }
     });
 
@@ -610,21 +612,23 @@ export default class ModelMongo {
 
       let typeWrap = new TypeWrap(type);
       if (
-        !typeWrap.isAbstract() &&
-        (getDirective(type, 'model') ||
-          (typeWrap.isInherited() &&
-            getDirective(typeWrap.interfaceType(), 'model')))
+        getDirective(type, 'model') ||
+        (typeWrap.isInherited() &&
+          getDirective(typeWrap.interfaceType(), 'model'))
       ) {
-        this._createAllQuery(type);
-        this._createSingleQuery(type);
-        this._createConnectionQuery(type);
+        if (!typeWrap.isAbstract()) {
+          console.log(`Building queries for ${type.name}`);
+          this._createAllQuery(type);
+          this._createAllPaginationQuery(type);
+          this._createSingleQuery(type);
+          this._createConnectionQuery(type);
 
-        if (!typeWrap.isInterface()) {
-          this._createCreateMutation(type);
+          if (!typeWrap.isInterface()) {
+            this._createCreateMutation(type);
+          }
+          this._createDeleteMutation(type);
+          this._createUpdateMutation(type);
         }
-        this._createDeleteMutation(type);
-        this._createUpdateMutation(type);
-        // }
       }
     });
 
