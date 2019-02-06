@@ -610,12 +610,12 @@ export default class ModelMongo {
 
       let typeWrap = new TypeWrap(type);
       if (
-        getDirective(type, 'model') ||
-        (typeWrap.isInherited() &&
-          getDirective(typeWrap.interfaceType(), 'model'))
+        !typeWrap.isAbstract() &&
+        (getDirective(type, 'model') ||
+          (typeWrap.isInherited() &&
+            getDirective(typeWrap.interfaceType(), 'model')))
       ) {
         this._createAllQuery(type);
-        this._createAllPaginationQuery(type);
         this._createSingleQuery(type);
         this._createConnectionQuery(type);
 

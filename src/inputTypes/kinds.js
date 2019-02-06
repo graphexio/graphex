@@ -9,7 +9,6 @@ export const CREATE_INTERFACE = 'interfaceCreate';
 export const WHERE_INTERFACE = 'interfaceWhere';
 export const UPDATE_INTERFACE = 'interfaceUpdate';
 export const WHERE_UNIQUE_INTERFACE = 'interfaceWhereUnique';
-// export const UPDATE_INHERIT = 'inheritUpdate';
 export const CREATE_ONE_NESTED = 'createOneNested';
 export const CREATE_MANY_NESTED = 'createManyNested';
 export const CREATE_ONE_REQUIRED_NESTED = 'createOneRequiredNested';
