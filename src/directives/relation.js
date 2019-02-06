@@ -34,6 +34,8 @@ export const INPUT_UPDATE_MANY_REQUIRED_RELATION = 'updateManyRequiredRelation';
 
 export const RelationScheme = `directive @relation(field:String="_id", storeField:String=null ) on FIELD_DEFINITION`;
 
+const dbRef = dbRef => dbRef.toJSON();
+
 export default queryExecutor =>
   class RelationDirective extends SchemaDirectiveVisitor {
     visitFieldDefinition(field, { objectType }) {
@@ -116,39 +118,6 @@ export default queryExecutor =>
       return fields;
     };
 
-    _transformToInputCreateUpdate = ({ field, kind, inputTypes }) => {
-      let fieldTypeWrap = new TypeWrap(field.type);
-      let isCreate = kind === KIND.CREATE;
-
-      let type = inputTypes.get(
-        fieldTypeWrap.realType(),
-        fieldTypeWrap.isMany()
-          ? isCreate
-            ? INPUT_CREATE_MANY_RELATION
-            : fieldTypeWrap.isRequired()
-            ? INPUT_UPDATE_MANY_REQUIRED_RELATION
-            : INPUT_UPDATE_MANY_RELATION
-          : isCreate
-          ? INPUT_CREATE_ONE_RELATION
-          : fieldTypeWrap.isRequired()
-          ? INPUT_UPDATE_ONE_REQUIRED_RELATION
-          : INPUT_UPDATE_ONE_RELATION
-      );
-      return [
-        {
-          name: field.name,
-          type,
-          mmTransform: reduceTransforms([
-            this._validateInput(type, fieldTypeWrap.isMany()),
-            Transforms.applyNestedTransform(type),
-            fieldTypeWrap.isMany()
-              ? this._transformInputMany
-              : this._transformInputOne,
-          ]),
-        },
-      ];
-    };
-
     _validateInput = (type, isMany) => params => {
       let input = _.head(Object.values(params));
       if (!isMany) {
@@ -170,6 +139,39 @@ export default queryExecutor =>
         }
       }
       return params;
+    };
+  
+    _transformToInputCreateUpdate = ({ field, kind, inputTypes }) => {
+      let fieldTypeWrap = new TypeWrap(field.type);
+      let isCreate = kind === KIND.CREATE;
+    
+      let type = inputTypes.get(
+        fieldTypeWrap.realType(),
+        fieldTypeWrap.isMany()
+          ? isCreate
+          ? INPUT_CREATE_MANY_RELATION
+          : fieldTypeWrap.isRequired()
+            ? INPUT_UPDATE_MANY_REQUIRED_RELATION
+            : INPUT_UPDATE_MANY_RELATION
+          : isCreate
+          ? INPUT_CREATE_ONE_RELATION
+          : fieldTypeWrap.isRequired()
+            ? INPUT_UPDATE_ONE_REQUIRED_RELATION
+            : INPUT_UPDATE_ONE_RELATION
+      );
+      return [
+        {
+          name: field.name,
+          type,
+          mmTransform: reduceTransforms([
+            this._validateInput(type, fieldTypeWrap.isMany()),
+            Transforms.applyNestedTransform(type),
+            fieldTypeWrap.isMany()
+              ? this._transformInputMany
+              : this._transformInputOne,
+          ]),
+        },
+      ];
     };
 
     _transformInputOne = async (params, resolverArgs) => {
@@ -299,7 +301,9 @@ export default queryExecutor =>
           orderByType,
         });
 
-        this._addConnectionField(field);
+        if (!fieldTypeWrap.isAbstract()) {
+          this._addConnectionField(field);
+        }
       }
     };
 
@@ -316,7 +320,7 @@ export default queryExecutor =>
       };
       let value = parent[storeField];
       if (fieldTypeWrap.isAbstract()) {
-        let { $id: id, $ref: c } = value.toJSON();
+        let { $id: id, $ref: c } = dbRef(value);
         collection = c;
         value = id;
       }
@@ -343,6 +347,7 @@ export default queryExecutor =>
       let {
         mmFieldTypeWrap: fieldTypeWrap,
         mmCollectionName: collection,
+        mmObjectType: modelType,
         mmStoreField: storeField,
         mmInterfaceModifier,
       } = this;

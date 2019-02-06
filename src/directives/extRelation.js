@@ -3,7 +3,11 @@ import { SchemaDirectiveVisitor } from 'graphql-tools';
 
 import { allQueryArgs, getRelationFieldName } from '../utils';
 
-import { appendTransform, applyInputTransform } from '../inputTypes/utils';
+import {
+  appendTransform,
+  applyInputTransform,
+  reduceTransforms,
+} from '../inputTypes/utils';
 
 import { FIND, FIND_IDS, FIND_ONE } from '../queryExecutor';
 
@@ -12,6 +16,14 @@ import TypeWrap from '../typeWrap';
 import * as HANDLER from '../inputTypes/handlers';
 import * as KIND from '../inputTypes/kinds';
 import * as Transforms from '../inputTypes/transforms';
+import {
+  INPUT_CREATE_MANY_RELATION,
+  INPUT_CREATE_ONE_RELATION,
+  INPUT_UPDATE_MANY_RELATION,
+  INPUT_UPDATE_MANY_REQUIRED_RELATION,
+  INPUT_UPDATE_ONE_RELATION,
+  INPUT_UPDATE_ONE_REQUIRED_RELATION,
+} from './relation';
 
 export const ExtRelationScheme = `directive @extRelation(field:String="_id", storeField:String=null, many:Boolean=false ) on FIELD_DEFINITION`;
 
@@ -83,9 +95,136 @@ export default queryExecutor =>
       }
     };
 
+    _transformToInputCreateUpdate = ({ field, kind, inputTypes }) => {
+      let fieldTypeWrap = new TypeWrap(field.type);
+      let isCreate = kind === KIND.CREATE;
+
+      let type = inputTypes.get(
+        fieldTypeWrap.realType(),
+        fieldTypeWrap.isMany()
+          ? isCreate
+            ? INPUT_CREATE_MANY_RELATION
+            : fieldTypeWrap.isRequired()
+            ? INPUT_UPDATE_MANY_REQUIRED_RELATION
+            : INPUT_UPDATE_MANY_RELATION
+          : isCreate
+          ? INPUT_CREATE_ONE_RELATION
+          : fieldTypeWrap.isRequired()
+          ? INPUT_UPDATE_ONE_REQUIRED_RELATION
+          : INPUT_UPDATE_ONE_RELATION
+      );
+      return [
+        {
+          name: field.name,
+          type,
+          mmTransform: reduceTransforms([
+            this._validateInput(type, fieldTypeWrap.isMany()),
+            Transforms.applyNestedTransform(type),
+            fieldTypeWrap.isMany()
+              ? this._transformInputMany
+              : this._transformInputOne,
+          ]),
+        },
+      ];
+    };
+
+    _transformInputOne = async (params, resolverArgs) => {
+      let { parent, context } = resolverArgs;
+      let { mmStoreField: storeField } = this;
+      let input = _.head(Object.values(params));
+      if (input.connect) {
+        ////Connect
+        let selector = input.connect;
+        // console.log(selector);
+        let ids = await this._distinctQuery({
+          selector,
+          context,
+        });
+        if (ids.length === 0) {
+          throw new UserInputError(
+            `No records found for selector - ${JSON.stringify(selector)}`
+          );
+        }
+        
+        return {};
+      } else if (input.create) {
+        ////Create
+        let doc = input.create;
+        let id = await this._insertOneQuery({
+          doc,
+          context,
+        });
+        return { [storeField]: id };
+      } else if (input.disconnect) {
+        ////Disconnect
+        return {
+          [storeField]: null,
+        };
+      } else if (input.delete) {
+        ////Delete
+      }
+    };
+
+    _transformInputMany = async (params, resolverArgs) => {
+      let { mmStoreField: storeField } = this;
+      let { parent, context } = resolverArgs;
+      let input = _.head(Object.values(params));
+
+      let ids = [];
+
+      if (input.disconnect || input.delete) {
+        if (input.disconnect) {
+          ////Disconnect
+          let selector = { $or: input.disconnect };
+          ids = await this._distinctQuery({
+            selector,
+            context,
+          });
+          if (ids.length === 0) {
+            throw new UserInputError(
+              `No records found for selector - ${JSON.stringify(selector)}`
+            );
+          }
+        }
+        if (input.delete) {
+          let delete_ids = input.delete.map(selector =>
+            this._deleteOneQuery({ selector, context })
+          );
+          delete_ids = await Promise.all(delete_ids);
+          delete_ids = delete_ids.filter(id => id);
+          ids = [...ids, ...delete_ids];
+        }
+        return { [storeField]: { $mmPullAll: ids } };
+      } else {
+        if (input.connect) {
+          ////Connect
+          let selector = { $or: input.connect };
+          ids = await this._distinctQuery({
+            selector,
+            context,
+          });
+          // if (ids.length === 0) {
+          //   throw new UserInputError(
+          //     `No records found for selector - ${JSON.stringify(selector)}`
+          //   );
+          // }
+        }
+        if (input.create) {
+          ////Create
+          let docs = input.create;
+          let create_ids = await this._insertManyQuery({
+            docs,
+            context,
+          });
+          ids = [...ids, ...create_ids];
+        }
+        return { [storeField]: ids };
+      }
+    };
+
     _resolveSingle = field => async (parent, args, context, info) => {
       const { field: relationField } = this.args;
-      let { mmStoreField: storeField, mmInterfaceModifier } = this;
+      let { mmStoreField: storeField, mmInterfaceModifier, mmObjectType:modelType } = this;
 
       let value = parent[relationField];
       let selector = {
@@ -95,6 +234,7 @@ export default queryExecutor =>
 
       return queryExecutor({
         type: FIND_ONE,
+        modelType,
         collection: this.mmCollectionName,
         selector,
         options: {},
@@ -107,6 +247,7 @@ export default queryExecutor =>
       let {
         mmFieldTypeWrap: fieldTypeWrap,
         mmStoreField: storeField,
+        mmObjectType: modelType,
         mmInterfaceModifier,
       } = this;
 
@@ -140,6 +281,7 @@ export default queryExecutor =>
         return queryExecutor({
           type: FIND_IDS,
           collection: this.mmCollectionName,
+          modelType,
           selector,
           options: {
             ids,
@@ -151,10 +293,10 @@ export default queryExecutor =>
         });
       }
       selector[[storeField]] = value;
-      console.log('--', selector);
       return queryExecutor({
         type: FIND,
         collection: this.mmCollectionName,
+        modelType,
         selector,
         options: {
           skip: args.skip,
@@ -166,7 +308,9 @@ export default queryExecutor =>
 
     _addConnectionField = field => {
       const { field: relationField } = this.args;
-      let { mmFieldTypeWrap: fieldTypeWrap, mmStoreField: storeField } = this;
+      let {
+        mmFieldTypeWrap: fieldTypeWrap,
+        mmStoreField: storeField } = this;
       const { _typeMap: SchemaTypes } = this.schema;
 
       let whereType = InputTypes.get(fieldTypeWrap.realType(), KIND.WHERE);

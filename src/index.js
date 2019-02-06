@@ -116,6 +116,74 @@ export default class ModelMongo {
     };
   };
 
+  _paginationType = type => {
+    return InputTypes._paginationType(type);
+  };
+
+  _createAllPaginationQuery = modelType => {
+    let typeWrap = new TypeWrap(modelType);
+    let whereType, orderByType, paginationType;
+    try {
+      whereType = this._inputType(modelType, KIND.WHERE);
+      orderByType = this._inputType(modelType, KIND.ORDER_BY);
+      paginationType = this._paginationType(modelType);
+    } catch (e) {
+      console.log(e);
+      return;
+    }
+
+    const returnFieldName = lowercaseFirstLetter(pluralize(modelType.name));
+
+    const name = `${returnFieldName}Paged`;
+    this.Query._fields[name] = {
+      type: new GraphQLNonNull(paginationType),
+      args: allQueryArgs({ whereType, orderByType }),
+      isDeprecated: false,
+      name,
+      resolve: async (parent, args, context) => {
+        let selector = await applyInputTransform({ parent, context })(
+          args.where,
+          whereType
+        );
+        if (typeWrap.isInherited()) {
+          selector[
+            typeWrap.interfaceType().mmDiscriminatorField
+          ] = typeWrap.realType().mmDiscriminator;
+        }
+        let total = await this.QueryExecutor({
+          type: COUNT,
+          modelType,
+          collection: modelType.mmCollectionName,
+          selector,
+          context,
+        });
+        let results = await this.QueryExecutor({
+          type: FIND,
+          modelType,
+          collection: modelType.mmCollectionName,
+          selector,
+          options: { skip: args.skip, limit: args.first, sort: args.orderBy },
+          context,
+        });
+
+        let { first = results.length, skip = 0 } = args;
+        let cursor = {
+          first,
+          skip,
+        };
+        console.log(args, first, skip, total);
+        let hasMore = first + skip < total;
+
+        return {
+          cursor,
+          hasMore,
+          total,
+          [returnFieldName]: results,
+        };
+      },
+    };
+  };
+
   _createAggregateAndConnectionTypes = modelType => {
     let typeWrap = new TypeWrap(modelType);
 
@@ -231,6 +299,7 @@ export default class ModelMongo {
         }
         return this.QueryExecutor({
           type: FIND_ONE,
+          modelType,
           collection: modelType.mmCollectionName,
           selector,
           options: {
@@ -546,6 +615,7 @@ export default class ModelMongo {
           getDirective(typeWrap.interfaceType(), 'model'))
       ) {
         this._createAllQuery(type);
+        this._createAllPaginationQuery(type);
         this._createSingleQuery(type);
         this._createConnectionQuery(type);
 

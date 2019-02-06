@@ -14,6 +14,8 @@ import { applyInputTransform, reduceTransforms } from './utils';
 import TypeWrap from '../typeWrap';
 import * as KIND from './kinds';
 import * as Transforms from './transforms';
+import { lowercaseFirstLetter } from '../utils';
+import pluralize from 'pluralize';
 
 const ObjectHash = require('object-hash');
 
@@ -288,6 +290,10 @@ class InputTypesClass {
     return `${typeName}${kind.charAt(0).toUpperCase() + kind.slice(1)}Input`;
   };
 
+  _paginationTypeName = typeName => {
+    return `${typeName}Pagination`;
+  };
+
   _createInputEnum = ({ name, initialType, kind }) => {
     let deafultTransformFunc = this._defaultTransformToInput[kind];
     let values = [];
@@ -297,11 +303,10 @@ class InputTypesClass {
       values = [...values, ...transformFunc({ field, kind, inputTypes: this })];
     });
 
-    let newType = new GraphQLEnumType({
+    return new GraphQLEnumType({
       name,
       values: this._fieldsArrayToObject(values),
     });
-    return newType;
   };
 
   _createInputObject = ({ name, initialType, kind }) => {
@@ -402,7 +407,8 @@ class InputTypesClass {
         return initialType.mmAbstractTypes.includes(itype);
       }
       return (
-        Array.isArray(itype._interfaces) && itype._interfaces.includes(initialType)
+        Array.isArray(itype._interfaces) &&
+        itype._interfaces.includes(initialType)
       );
     });
     if ([KIND.WHERE, KIND.UPDATE, KIND.WHERE_UNIQUE].includes(kind)) {
@@ -582,11 +588,48 @@ class InputTypesClass {
   };
 
   _schemaRollback = snapshotTypes => {
-    _.difference(Object.keys(this.SchemaTypes), Object.keys(snapshotTypes)).forEach(
-      typeName => {
-        delete this.SchemaTypes[typeName];
-      }
-    );
+    _.difference(
+      Object.keys(this.SchemaTypes),
+      Object.keys(snapshotTypes)
+    ).forEach(typeName => {
+      delete this.SchemaTypes[typeName];
+    });
+  };
+
+  _createPaginationType = (name, initialType) => {
+    let snapshotTypes = _.clone(this.SchemaTypes);
+    let pluralName = lowercaseFirstLetter(pluralize(initialType.name));
+    let PaginationCursor = snapshotTypes['Cursor'];
+    let newType = new GraphQLObjectType({
+      name,
+      fields: {
+        cursor: {
+          name: 'cursor',
+          type: new GraphQLNonNull(PaginationCursor),
+          description: 'Holds the current pagination information',
+        },
+        hasMore: {
+          type: new GraphQLNonNull(GraphQLBoolean),
+          description: 'Does the pagination have more records',
+        },
+        total: {
+          type: new GraphQLNonNull(GraphQLInt),
+          description:
+            'Total number of records for the provided query without skip and first',
+        },
+        [pluralName]: {
+          type: new GraphQLNonNull(new GraphQLList(initialType)),
+          description: 'The records for the current page',
+        },
+      },
+    });
+    if (initialType.mmCollectionName) {
+      newType.mmCollectionName = initialType.mmCollectionName;
+    }
+    newType.getFields();
+    this.SchemaTypes[name] = newType;
+
+    return newType;
   };
 
   _createInputType = (name, initialType, kind) => {
@@ -613,8 +656,20 @@ class InputTypesClass {
     return type;
   };
 
+  _paginationType = type => {
+    if (typeof type === 'string') {
+      type = this._type(type);
+    }
+    let paginationName = this._paginationTypeName(type.name);
+    try {
+      return this._type(paginationName);
+    } catch (err) {
+      return this._createPaginationType(paginationName, type);
+    }
+  };
+
   _inputType = (type, kind) => {
-    if (typeof type === String) {
+    if (typeof type === 'string') {
       type = this._type(type);
     }
     let typeName = this._inputTypeName(type.name, kind);
