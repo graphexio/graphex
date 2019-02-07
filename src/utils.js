@@ -12,6 +12,7 @@ import { combineResolvers as CombineResolvers } from 'graphql-resolvers';
 
 import _ from 'lodash';
 import pluralize from 'pluralize';
+import { DELETE_ONE, INSERT_ONE, UPDATE_ONE } from './queryExecutor';
 
 export function getLastType(fieldType) {
   if (fieldType.ofType) {
@@ -173,14 +174,16 @@ export function prepareUpdateDoc(doc) {
   let pullAll = {};
   let arrayFilters = [];
   let validations = {};
+  let postResolvers = {};
 
   Object.keys(doc).forEach(path => {
     let value = doc[path];
     if (!_.isObject(value) || Object.keys(value).length > 0) {
       set[path] = value;
-    }else if (_.isObject(value)){
+    } else if (_.isObject(value)) {
       Object.keys(value).forEach(key => {
         let val = value[key];
+        let resolve;
         switch (key) {
           case '$mmPushAll':
             push[path] = { $each: val };
@@ -210,6 +213,52 @@ export function prepareUpdateDoc(doc) {
             validations[path] = { $equals: val };
             delete value[key];
             break;
+          case '$mmDeleteSingleRelation':
+            resolve = {
+              fieldName: path,
+              ...val,
+            };
+            postResolvers[DELETE_ONE]
+              ? postResolvers[DELETE_ONE].push(resolve)
+              : (postResolvers[DELETE_ONE] = [resolve]);
+            delete value[key];
+            break;
+          case '$mmConnectExtRealtion':
+            resolve = {
+              fieldName: path,
+              ...val,
+            };
+            postResolvers[UPDATE_ONE]
+              ? postResolvers[UPDATE_ONE].push(resolve)
+              : (postResolvers[UPDATE_ONE] = [resolve]);
+            break;
+          case '$mmDisconnectExtRelation':
+            resolve = {
+              fieldName: path,
+              ...val,
+            };
+            postResolvers[UPDATE_ONE]
+              ? postResolvers[UPDATE_ONE].push(resolve)
+              : (postResolvers[UPDATE_ONE] = [resolve]);
+            break;
+          case '$mmCreateExtRealtion':
+            resolve = {
+              fieldName: path,
+              ...val,
+            };
+            postResolvers[INSERT_ONE]
+              ? postResolvers[INSERT_ONE].push(resolve)
+              : (postResolvers[INSERT_ONE] = [resolve]);
+            break;
+          case '$mmDeleteExtRelation':
+            resolve = {
+              fieldName: path,
+              ...val,
+            };
+            postResolvers[DELETE_ONE]
+              ? postResolvers[DELETE_ONE].push(resolve)
+              : (postResolvers[DELETE_ONE] = [resolve]);
+            break;
         }
       });
     }
@@ -234,5 +283,5 @@ export function prepareUpdateDoc(doc) {
   // console.log(newDoc);
   // console.log({ validations });
   // console.log({ arrayFilters });
-  return { doc: newDoc, validations, arrayFilters };
+  return { doc: newDoc, validations, arrayFilters, postResolvers };
 }

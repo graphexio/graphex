@@ -431,7 +431,12 @@ export default class ModelMongo {
           args.data,
           updateType
         );
-        let { doc, validations, arrayFilters } = prepareUpdateDoc(data);
+        let {
+          doc,
+          validations,
+          arrayFilters,
+          postResolvers,
+        } = prepareUpdateDoc(data);
         // console.log(doc, validations, arrayFilters);
         let selector = await applyInputTransform({ parent, context })(
           args.where,
@@ -454,6 +459,42 @@ export default class ModelMongo {
           doc,
           options: { arrayFilters },
           context,
+        }).then(response => {
+          if (Object.keys(postResolvers)) {
+            let promises = [];
+            let update = {};
+            Object.entries(postResolvers).forEach(([type, resolvers]) => {
+              switch (type) {
+                case DELETE_ONE:
+                  promises = resolvers.map(r => {
+                    let { fieldName, collection, relationField } = r;
+                    let id = response[fieldName];
+                    let _s = { [relationField]: response[fieldName] };
+                    return this.QueryExecutor({
+                      type,
+                      collection,
+                      selector: _s,
+                    }).then(() => {
+                      let { $unset = {} } = update;
+                      $unset[fieldName] = 1;
+                      update.$unset = $unset;
+                    });
+                  });
+                  break;
+              }
+            });
+            return Promise.all(promises).then(() => {
+              return this.QueryExecutor({
+                type: UPDATE_ONE,
+                collection: modelType.mmCollectionName,
+                selector,
+                doc: update,
+                options: { arrayFilters },
+                context,
+              });
+            });
+          }
+          return response;
         });
       },
     };

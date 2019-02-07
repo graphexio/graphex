@@ -1,4 +1,9 @@
-import { GraphQLBoolean, GraphQLInputObjectType, GraphQLList } from 'graphql';
+import {
+  GraphQLBoolean,
+  GraphQLInputObjectType,
+  GraphQLList,
+  GraphQLNonNull,
+} from 'graphql';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
 import { UserInputError } from 'apollo-server';
 
@@ -24,6 +29,7 @@ import {
 import * as HANDLER from '../inputTypes/handlers';
 import * as KIND from '../inputTypes/kinds';
 import * as Transforms from '../inputTypes/transforms';
+import { DBRef } from 'mongodb';
 
 export const INPUT_CREATE_ONE_RELATION = 'createOneRelation';
 export const INPUT_CREATE_MANY_RELATION = 'createManyRelation';
@@ -31,6 +37,9 @@ export const INPUT_UPDATE_ONE_RELATION = 'updateOneRelation';
 export const INPUT_UPDATE_MANY_RELATION = 'updateManyRelation';
 export const INPUT_UPDATE_ONE_REQUIRED_RELATION = 'updateOneRequiredRelation';
 export const INPUT_UPDATE_MANY_REQUIRED_RELATION = 'updateManyRequiredRelation';
+export const INPUT_UPDATE_MANY_RELATION_UPDATE = 'updateManyRelationUpdateMany';
+export const INPUT_UPDATE_MANY_REQUIRED_RELATION_UPDATE =
+  'updateManyRequiredRelationUpdateMany';
 
 export const RelationScheme = `directive @relation(field:String="_id", storeField:String=null ) on FIELD_DEFINITION`;
 
@@ -57,6 +66,7 @@ export default queryExecutor =>
 
       this.mmObjectType = objectType;
       this.mmFieldTypeWrap = fieldTypeWrap;
+      this.mmRelationField = relationField;
       this.mmStoreField =
         storeField ||
         getRelationFieldName(
@@ -140,24 +150,24 @@ export default queryExecutor =>
       }
       return params;
     };
-  
+
     _transformToInputCreateUpdate = ({ field, kind, inputTypes }) => {
       let fieldTypeWrap = new TypeWrap(field.type);
       let isCreate = kind === KIND.CREATE;
-    
+
       let type = inputTypes.get(
         fieldTypeWrap.realType(),
         fieldTypeWrap.isMany()
           ? isCreate
-          ? INPUT_CREATE_MANY_RELATION
-          : fieldTypeWrap.isRequired()
+            ? INPUT_CREATE_MANY_RELATION
+            : fieldTypeWrap.isRequired()
             ? INPUT_UPDATE_MANY_REQUIRED_RELATION
             : INPUT_UPDATE_MANY_RELATION
           : isCreate
           ? INPUT_CREATE_ONE_RELATION
           : fieldTypeWrap.isRequired()
-            ? INPUT_UPDATE_ONE_REQUIRED_RELATION
-            : INPUT_UPDATE_ONE_RELATION
+          ? INPUT_UPDATE_ONE_REQUIRED_RELATION
+          : INPUT_UPDATE_ONE_RELATION
       );
       return [
         {
@@ -167,22 +177,28 @@ export default queryExecutor =>
             this._validateInput(type, fieldTypeWrap.isMany()),
             Transforms.applyNestedTransform(type),
             fieldTypeWrap.isMany()
-              ? this._transformInputMany
-              : this._transformInputOne,
+              ? this._transformInputMany(isCreate)
+              : this._transformInputOne(isCreate),
           ]),
         },
       ];
     };
 
-    _transformInputOne = async (params, resolverArgs) => {
+    _transformInputOne = isCreate => async (params, resolverArgs) => {
       let { parent, context } = resolverArgs;
-      let { mmStoreField: storeField } = this;
+      let { mmStoreField: storeField, mmRelationField: relationField } = this;
       let input = _.head(Object.values(params));
+      let collection = this.mmCollectionName;
       if (input.connect) {
         ////Connect
         let selector = input.connect;
         // console.log(selector);
+        if (this.isAbstract) {
+          collection = selector.mmCollectionName;
+          delete selector.mmCollectionName;
+        }
         let ids = await this._distinctQuery({
+          collection,
           selector,
           context,
         });
@@ -191,27 +207,42 @@ export default queryExecutor =>
             `No records found for selector - ${JSON.stringify(selector)}`
           );
         }
-        return { [storeField]: _.head(ids) };
+        let id = this.isAbstract
+          ? new DBRef(collection, _.head(ids))
+          : _.head(ids);
+        return { [storeField]: id };
       } else if (input.create) {
         ////Create
         let doc = input.create;
+        if (this.isAbstract) {
+          let { mmCollectionName: collection, ...doc } = doc;
+        }
         let id = await this._insertOneQuery({
           doc,
+          collection,
           context,
         });
+        id = this.isAbstract ? new DBRef(collection, id) : id;
         return { [storeField]: id };
       } else if (input.disconnect) {
         ////Disconnect
         return {
-          [storeField]: null,
+          [storeField]: { $mmUnset: 1 },
         };
       } else if (input.delete) {
-        ////Delete
+        collection = this.isAbstract
+          ? input.delete.mmCollectionName
+          : collection;
+        return {
+          [storeField]: {
+            $mmDeleteSingleRelation: { collection, relationField },
+          },
+        };
       }
     };
 
-    _transformInputMany = async (params, resolverArgs) => {
-      let { mmStoreField: storeField } = this;
+    _transformInputMany = isCreate => async (params, resolverArgs) => {
+      let { mmStoreField: storeField, mmCollectionName: collection } = this;
       let { parent, context } = resolverArgs;
       let input = _.head(Object.values(params));
 
@@ -219,35 +250,97 @@ export default queryExecutor =>
 
       if (input.disconnect || input.delete) {
         if (input.disconnect) {
-          ////Disconnect
-          let selector = { $or: input.disconnect };
-          ids = await this._distinctQuery({
-            selector,
-            context,
-          });
+          if (this.isAbstract) {
+            let collections = input.disconnect.reduce((colls, d) => {
+              let { mmCollectionName, ...disconnect } = d;
+              colls[mmCollectionName]
+                ? colls[mmCollectionName].push(disconnect)
+                : (colls[mmCollectionName] = [disconnect]);
+            });
+            Object.entries(collections).forEach(async ([coll, selector]) => {
+              ids = [
+                ...ids,
+                ...(await this._distinctQuery({
+                  selector,
+                  collection: coll,
+                  context,
+                })),
+              ];
+            });
+          } else {
+            ////Disconnect
+            let selector = { $and: input.disconnect };
+            ids = await this._distinctQuery({
+              selector,
+              context,
+            });
+          }
+
           if (ids.length === 0) {
-            throw new UserInputError(
-              `No records found for selector - ${JSON.stringify(selector)}`
-            );
+            throw new UserInputError(`No records found for where clause`);
           }
         }
         if (input.delete) {
-          let delete_ids = input.delete.map(selector =>
-            this._deleteOneQuery({ selector, context })
-          );
+          let delete_ids;
+          if (this.isAbstract) {
+            let collections = input.delete.reduce((colls, d) => {
+              let { mmCollectionName, ...del } = d;
+              colls[mmCollectionName]
+                ? colls[mmCollectionName].push(del)
+                : (colls[mmCollectionName] = [del]);
+            });
+            Object.entries(collections).forEach(async ([coll, selectors]) => {
+              delete_ids = [
+                ...delete_ids,
+                ...selectors.map(selector =>
+                  this._deleteOneQuery({ collection: coll, selector, context })
+                ),
+              ];
+            });
+          } else {
+            delete_ids = input.delete.map(selector =>
+              this._deleteOneQuery({ selector, context })
+            );
+          }
           delete_ids = await Promise.all(delete_ids);
           delete_ids = delete_ids.filter(id => id);
           ids = [...ids, ...delete_ids];
+        }
+        if (this.isAbstract) {
+          return { [storeField]: { $mmPull: { $id: { $in: ids } } } };
         }
         return { [storeField]: { $mmPullAll: ids } };
       } else {
         if (input.connect) {
           ////Connect
-          let selector = { $or: input.connect };
-          ids = await this._distinctQuery({
-            selector,
-            context,
-          });
+          if (this.isAbstract) {
+            let collections = input.connect.reduce((colls, c) => {
+              let { mmCollectionName, ...conn } = c;
+              colls[mmCollectionName]
+                ? colls[mmCollectionName].push(conn)
+                : (colls[mmCollectionName] = [conn]);
+            });
+            Object.entries(collections).forEach(async ([coll, connects]) => {
+              ids = [
+                ...ids,
+                ...connects.map(
+                  async selector =>
+                    await this._distinctQuery({
+                      selector,
+                      collection: coll,
+                      context,
+                    }).then(ids => ids.map(id => new DBRef(coll, id)))
+                ),
+              ];
+            });
+          } else {
+            let selector = { $or: input.connect };
+            ids = await this._distinctQuery({
+              selector,
+              context,
+            });
+          }
+
           // if (ids.length === 0) {
           //   throw new UserInputError(
           //     `No records found for selector - ${JSON.stringify(selector)}`
@@ -257,13 +350,46 @@ export default queryExecutor =>
         if (input.create) {
           ////Create
           let docs = input.create;
-          let create_ids = await this._insertManyQuery({
-            docs,
-            context,
-          });
+          let create_ids = [];
+          if (this.isAbstract) {
+            let collections = input.create.reduce((colls, c) => {
+              let { mmCollectionName, ...create } = c;
+              colls[mmCollectionName]
+                ? colls[mmCollectionName].push(create)
+                : (colls[mmCollectionName] = [conn]);
+            });
+            Object.entries(collections).forEach(async ([coll, creates]) => {
+              let _ids = [];
+              if (creates.length > 1) {
+                _ids = await this._insertManyQuery({
+                  docs: creates,
+                  context,
+                  collection: coll,
+                }).then(ids => ids.map(id => new DBRef(coll, id)));
+              } else {
+                _ids = await this._insertOneQuery({
+                  doc: creates[0],
+                  context,
+                  collection: coll,
+                }).then(id => [new DBRef(coll, id)]);
+              }
+              create_ids = [...create_ids, ..._ids];
+            });
+          } else {
+            create_ids = await this._insertManyQuery({
+              docs,
+              context,
+            });
+          }
+
           ids = [...ids, ...create_ids];
         }
-        return { [storeField]: {$mmPushAll: ids} };
+        if (isCreate) {
+          return { [storeField]: ids}
+        }else {
+          return { [storeField]: { $mmPushAll: ids } };
+        }
+        
       }
     };
 
@@ -475,15 +601,15 @@ export default queryExecutor =>
       };
     };
 
-    _distinctQuery = async ({ selector, context }) => {
+    _distinctQuery = async ({ collection, selector, context }) => {
       const { field: relationField } = this.args;
       let {
-        mmCollectionName: collection,
+        mmCollectionName,
         mmStoreField: storeField,
         mmInterfaceModifier,
       } = this;
       selector = { ...selector, ...mmInterfaceModifier };
-
+      collection = collection || mmCollectionName;
       return queryExecutor({
         type: DISTINCT,
         collection,
@@ -505,13 +631,14 @@ export default queryExecutor =>
       });
     };
 
-    _deleteOneQuery = async ({ selector, context }) => {
+    _deleteOneQuery = async ({ collection, selector, context }) => {
       const { field: relationField } = this.args;
       let {
-        mmCollectionName: collection,
+        mmCollectionName,
         mmStoreField: storeField,
         mmInterfaceModifier,
       } = this;
+      collection = collection || mmCollectionName;
       selector = { ...selector, ...mmInterfaceModifier };
 
       return queryExecutor({
@@ -522,15 +649,15 @@ export default queryExecutor =>
       }).then(res => (res ? res[relationField] : null));
     };
 
-    _insertOneQuery = async ({ doc, context }) => {
+    _insertOneQuery = async ({ collection, doc, context }) => {
       const { field: relationField } = this.args;
       let {
-        mmCollectionName: collection,
+        mmCollectionName,
         mmStoreField: storeField,
         mmInterfaceModifier,
       } = this;
       doc = { ...doc, ...mmInterfaceModifier };
-
+      collection = collection || mmCollectionName;
       return queryExecutor({
         type: INSERT_ONE,
         collection,
@@ -539,15 +666,15 @@ export default queryExecutor =>
       }).then(res => res[relationField]);
     };
 
-    _insertManyQuery = async ({ docs, context }) => {
+    _insertManyQuery = async ({ collection, docs, context }) => {
       const { field: relationField } = this.args;
       let {
-        mmCollectionName: collection,
+        mmCollectionName,
         mmStoreField: storeField,
         mmInterfaceModifier,
       } = this;
       docs = docs.map(doc => ({ ...doc, ...mmInterfaceModifier }));
-
+      collection = collection || mmCollectionName;
       return queryExecutor({
         type: INSERT_MANY,
         collection,
@@ -575,6 +702,12 @@ const createInput = ({ name, initialType, kind, inputTypes }) => {
     initialType,
     typeWrap.isInterface() ? KIND.WHERE_INTERFACE : KIND.WHERE
   );
+
+  let updateType = inputTypes.get(
+    initialType,
+    typeWrap.isInterface() ? KIND.UPDATE_INTERFACE : KIND.UPDATE
+  );
+
   let whereUniqueType = inputTypes.get(
     initialType,
     typeWrap.isInterface() ? KIND.WHERE_UNIQUE_INTERFACE : KIND.WHERE_UNIQUE
@@ -591,7 +724,6 @@ const createInput = ({ name, initialType, kind, inputTypes }) => {
     whereType = new GraphQLList(whereType);
     whereUniqueType = new GraphQLList(whereUniqueType);
   }
-
   fields.create = {
     name: 'create',
     type: createType,
@@ -603,22 +735,35 @@ const createInput = ({ name, initialType, kind, inputTypes }) => {
     mmTransform: createInputTransform(whereUniqueType, typeWrap.isInterface()),
   };
 
-  if (kind === INPUT_UPDATE_ONE_RELATION) {
-    fields.disconnect = {
-      name: 'disconnect',
-      type: GraphQLBoolean,
-    };
-
-    // fields.delete = {
-    //   name: 'delete',
-    //   type: GraphQLBoolean,
-    // };
-  }
-
   if (
     [INPUT_UPDATE_MANY_RELATION, INPUT_UPDATE_MANY_REQUIRED_RELATION].includes(
       kind
     )
+  ) {
+    let updateKind = INPUT_UPDATE_MANY_RELATION ? INPUT_UPDATE_MANY_RELATION_UPDATE : INPUT_UPDATE_MANY_REQUIRED_RELATION_UPDATE;
+    let updateManyType = inputTypes.get(initialType, updateKind);
+    fields.updateMany = {
+      name: 'updateMany',
+      type: updateManyType,
+      mmTransform: createInputTransform(updateManyType, typeWrap.isInterface())
+    }
+  }else if([
+    INPUT_UPDATE_ONE_RELATION,
+    INPUT_UPDATE_ONE_REQUIRED_RELATION
+  ].includes(kind)) {
+    fields.update = {
+      name: 'update',
+      type: updateType,
+      mmTransform: createInputTransform(updateType, typeWrap.isInterface())
+    }
+  }
+
+  if (
+    [
+      INPUT_UPDATE_ONE_RELATION,
+      INPUT_UPDATE_MANY_RELATION,
+      INPUT_UPDATE_MANY_REQUIRED_RELATION,
+    ].includes(kind)
   ) {
     fields.disconnect = {
       name: 'disconnect',
@@ -628,11 +773,8 @@ const createInput = ({ name, initialType, kind, inputTypes }) => {
 
     fields.delete = {
       name: 'delete',
-      type: whereUniqueType,
-      mmTransform: createInputTransform(
-        whereUniqueType,
-        typeWrap.isInterface()
-      ),
+      type: whereType,
+      mmTransform: createInputTransform(whereType, typeWrap.isInterface()),
     };
   }
 
@@ -643,10 +785,48 @@ const createInput = ({ name, initialType, kind, inputTypes }) => {
   newType.getFields();
   return newType;
 };
+const createUpdateManyInput = ({ name, initialType, kind, inputTypes }) => {
+  let fields = {};
+  let typeWrap = new TypeWrap(initialType);
 
+  let updateType = inputTypes.get(
+    initialType,
+    typeWrap.isInterface() ? KIND.UPDATE_INTERFACE : KIND.UPDATE
+  );
+
+  let whereUniqueType = inputTypes.get(
+    initialType,
+    typeWrap.isInterface() ? KIND.WHERE_UNIQUE_INTERFACE : KIND.WHERE_UNIQUE
+  );
+  fields.where = {
+    name: 'where',
+    type: whereUniqueType,
+    mmTransform: createInputTransform(whereUniqueType, typeWrap.isInterface()),
+  };
+
+  fields.data = {
+    name: 'data',
+    type: updateType,
+    mmTransform: createInputTransform(updateType, typeWrap.isInterface()),
+  };
+  let newType = new GraphQLInputObjectType({
+    name,
+    fields,
+  });
+  newType.getFields();
+  return newType;
+};
 InputTypes.registerKind(INPUT_CREATE_ONE_RELATION, createInput);
 InputTypes.registerKind(INPUT_CREATE_MANY_RELATION, createInput);
 InputTypes.registerKind(INPUT_UPDATE_ONE_RELATION, createInput);
 InputTypes.registerKind(INPUT_UPDATE_MANY_RELATION, createInput);
 InputTypes.registerKind(INPUT_UPDATE_ONE_REQUIRED_RELATION, createInput);
 InputTypes.registerKind(INPUT_UPDATE_MANY_REQUIRED_RELATION, createInput);
+InputTypes.registerKind(
+  INPUT_UPDATE_MANY_RELATION_UPDATE,
+  createUpdateManyInput
+);
+InputTypes.registerKind(
+  INPUT_UPDATE_MANY_REQUIRED_RELATION_UPDATE,
+  createUpdateManyInput
+);

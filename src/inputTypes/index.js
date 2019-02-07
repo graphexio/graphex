@@ -69,12 +69,16 @@ export class EmptyTypeException extends Error {
 }
 
 const addInterfaceValues = (val, initialType, fieldType) => {
-  if (initialType.mmAbstract) return {};
+  if (initialType.mmAbstract) return {
+    mmCollectionName: fieldType.mmCollectionName
+  };
   return { [initialType.mmDiscriminatorField]: fieldType.mmDiscriminator };
 };
 
 const addUpdateInterfaceValues = (val, initialType, fieldType) => {
-  if (initialType.mmAbstract) return {};
+  if (initialType.mmAbstract) return {
+    mmCollectionName: fieldType.mmCollectionName
+  };
   return {
     [initialType.mmDiscriminatorField]: {
       $mmEquals: fieldType.mmDiscriminator,
