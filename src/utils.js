@@ -178,9 +178,7 @@ export function prepareUpdateDoc(doc) {
 
   Object.keys(doc).forEach(path => {
     let value = doc[path];
-    if (!_.isObject(value) || Object.keys(value).length > 0) {
-      set[path] = value;
-    } else if (_.isObject(value)) {
+    if (_.isObject(value)) {
       Object.keys(value).forEach(key => {
         let val = value[key];
         let resolve;
@@ -261,6 +259,9 @@ export function prepareUpdateDoc(doc) {
             break;
         }
       });
+    }
+    if (!_.isObject(value) || Object.keys(value).length > 0) {
+      set[path] = value;
     }
   });
   let newDoc = {};

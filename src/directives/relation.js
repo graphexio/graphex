@@ -463,7 +463,9 @@ export default queryExecutor =>
         context,
       }).then(res => {
         let data = _.head(res);
-        data['mmCollection'] = collection;
+        if(data) {
+          data['mmCollection'] = collection;
+        }
         return data;
       });
     };

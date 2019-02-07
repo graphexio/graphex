@@ -460,7 +460,7 @@ export default class ModelMongo {
           options: { arrayFilters },
           context,
         }).then(response => {
-          if (Object.keys(postResolvers)) {
+          if (Object.keys(postResolvers).length) {
             let promises = [];
             let update = {};
             Object.entries(postResolvers).forEach(([type, resolvers]) => {
