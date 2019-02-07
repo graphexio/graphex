@@ -263,7 +263,7 @@ export default queryExecutor =>
           });
           ids = [...ids, ...create_ids];
         }
-        return { [storeField]: ids };
+        return { [storeField]: {$mmPushAll: ids} };
       }
     };
 
