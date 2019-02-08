@@ -11,6 +11,7 @@ import pluralize from 'pluralize';
 export { default as QueryExecutor } from './queryExecutor';
 import {
   COUNT,
+  DELETE_MANY,
   DELETE_ONE,
   FIND,
   FIND_ONE,
@@ -393,6 +394,50 @@ export default class ModelMongo {
     };
   };
 
+  _createDeleteManyMutation = modelType => {
+    let typeWrap = new TypeWrap(modelType);
+    let whereType;
+    try {
+      whereType = this._inputType(modelType, KIND.WHERE);
+    } catch (e) {
+      return;
+    }
+
+    let args = [
+      {
+        type: new GraphQLNonNull(whereType),
+        name: 'where',
+      },
+    ];
+
+    const name = `deleteMany${modelType.name}`;
+    this.Mutation._fields[name] = {
+      type: modelType,
+      args,
+      isDeprecated: false,
+      name,
+      resolve: async (parent, args, context) => {
+        let selector = await applyInputTransform({ parent, context })(
+          args.where,
+          whereUniqueType
+        );
+        if (typeWrap.isInherited()) {
+          selector[
+            typeWrap.interfaceType().mmDiscriminatorField
+          ] = typeWrap.realType().mmDiscriminator;
+        }
+
+        return this.QueryExecutor({
+          type: DELETE_MANY,
+          collection: modelType.mmCollectionName,
+          selector,
+          options: {},
+          context,
+        });
+      },
+    };
+  };
+
   _createUpdateMutation = modelType => {
     let typeWrap = new TypeWrap(modelType);
     let args;
@@ -657,6 +702,7 @@ export default class ModelMongo {
             this._createCreateMutation(type);
           }
           this._createDeleteMutation(type);
+          this._createDeleteManyMutation(type);
           this._createUpdateMutation(type);
         }
       }
