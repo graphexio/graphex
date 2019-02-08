@@ -89,7 +89,10 @@ export default class ModelMongo {
           args.where,
           whereType
         );
-        if (typeWrap.isInherited()) {
+        if (
+          typeWrap.isInherited() &&
+          typeWrap.interfaceType().mmDiscriminatorField
+        ) {
           selector[
             typeWrap.interfaceType().mmDiscriminatorField
           ] = typeWrap.realType().mmDiscriminator;
@@ -135,7 +138,10 @@ export default class ModelMongo {
           args.where,
           whereType
         );
-        if (typeWrap.isInherited()) {
+        if (
+          typeWrap.isInherited() &&
+          typeWrap.interfaceType().mmDiscriminatorField
+        ) {
           selector[
             typeWrap.interfaceType().mmDiscriminatorField
           ] = typeWrap.realType().mmDiscriminator;
@@ -186,7 +192,10 @@ export default class ModelMongo {
           type: new GraphQLNonNull(GraphQLInt),
           resolve: async (parent, args, context) => {
             let selector = parent._selector;
-            if (typeWrap.isInherited()) {
+            if (
+              typeWrap.isInherited() &&
+              typeWrap.interfaceType().mmDiscriminatorField
+            ) {
               selector[
                 typeWrap.interfaceType().mmDiscriminatorField
               ] = typeWrap.realType().mmDiscriminator;
@@ -282,7 +291,10 @@ export default class ModelMongo {
         );
         // let entries = Object.entries(selector);
         // let [selectorField, id] = entries.length ? Object.entries(selector)[0]: ["_id"];
-        if (typeWrap.isInherited()) {
+        if (
+          typeWrap.isInherited() &&
+          typeWrap.interfaceType().mmDiscriminatorField
+        ) {
           selector[
             typeWrap.interfaceType().mmDiscriminatorField
           ] = typeWrap.realType().mmDiscriminator;
@@ -333,7 +345,10 @@ export default class ModelMongo {
           inputType
         );
 
-        if (typeWrap.isInherited()) {
+        if (
+          typeWrap.isInherited() &&
+          typeWrap.interfaceType().mmDiscriminatorField
+        ) {
           doc[
             typeWrap.interfaceType().mmDiscriminatorField
           ] = typeWrap.realType().mmDiscriminator;
@@ -377,7 +392,10 @@ export default class ModelMongo {
           args.where,
           whereUniqueType
         );
-        if (typeWrap.isInherited()) {
+        if (
+          typeWrap.isInherited() &&
+          typeWrap.interfaceType().mmDiscriminatorField
+        ) {
           selector[
             typeWrap.interfaceType().mmDiscriminatorField
           ] = typeWrap.realType().mmDiscriminator;
@@ -421,7 +439,10 @@ export default class ModelMongo {
           args.where,
           whereType
         );
-        if (typeWrap.isInherited()) {
+        if (
+          typeWrap.isInherited() &&
+          typeWrap.interfaceType().mmDiscriminatorField
+        ) {
           selector[
             typeWrap.interfaceType().mmDiscriminatorField
           ] = typeWrap.realType().mmDiscriminator;
@@ -491,7 +512,10 @@ export default class ModelMongo {
           selector = { $and: [selector, validations] };
         }
 
-        if (typeWrap.isInherited()) {
+        if (
+          typeWrap.isInherited() &&
+          typeWrap.interfaceType().mmDiscriminatorField
+        ) {
           selector[
             typeWrap.interfaceType().mmDiscriminatorField
           ] = typeWrap.realType().mmDiscriminator;
