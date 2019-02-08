@@ -69,21 +69,29 @@ export class EmptyTypeException extends Error {
 }
 
 const addInterfaceValues = (val, initialType, fieldType) => {
-  if (initialType.mmAbstract) return {
-    mmCollectionName: fieldType.mmCollectionName
-  };
-  return { [initialType.mmDiscriminatorField]: fieldType.mmDiscriminator };
+  if (initialType.mmAbstract)
+    return {
+      mmCollectionName: fieldType.mmCollectionName,
+    };
+  if (initialType.mmDiscriminatorField) {
+    return { [initialType.mmDiscriminatorField]: fieldType.mmDiscriminator };
+  }
+  return {};
 };
 
 const addUpdateInterfaceValues = (val, initialType, fieldType) => {
-  if (initialType.mmAbstract) return {
-    mmCollectionName: fieldType.mmCollectionName
-  };
-  return {
-    [initialType.mmDiscriminatorField]: {
-      $mmEquals: fieldType.mmDiscriminator,
-    },
-  };
+  if (initialType.mmAbstract)
+    return {
+      mmCollectionName: fieldType.mmCollectionName,
+    };
+  if (initialType.mmDiscriminatorField) {
+    return {
+      [initialType.mmDiscriminatorField]: {
+        $mmEquals: fieldType.mmDiscriminator,
+      },
+    };
+  }
+  return {}
 };
 
 class InputTypesClass {
