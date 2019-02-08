@@ -412,7 +412,7 @@ export default class ModelMongo {
 
     const name = `deleteMany${modelType.name}`;
     this.Mutation._fields[name] = {
-      type: modelType,
+      type: new GraphQLNonNull(GraphQLInt),
       args,
       isDeprecated: false,
       name,
