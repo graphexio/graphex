@@ -35,30 +35,15 @@ export const applyInputTransform = context => {
         let val = value && value[key];
         //Apply mmTransformAlways
         if (field.mmTransformAlways) {
-          _.toPairs(
-            await field.mmTransformAlways(
-              {
-                [key]: val,
-              },
-              context
-            )
-          ).forEach(([k, v]) => (result[k] = v));
+          val = await field.mmTransformAlways({ [key]: val }, context);
         }
-        
+
         if (val !== undefined) {
-          //Apply mmTransform or recurcively call applyInputTransform
-          _.toPairs(
-            field.mmTransform
-              ? await field.mmTransform(
-                  {
-                    [key]: val,
-                  },
-                  context
-                )
-              : {
-                  [key]: await applyInputTransform(context)(val, field.type),
-                }
-          ).forEach(
+          //Apply mmTransform or recursively call applyInputTransform
+          val = field.mmTransform
+            ? await field.mmTransform({ [key]: val }, context)
+            : { [key]: await applyInputTransform(context)(val, field.type) };
+          Object.entries(val).forEach(
             ([k, v]) =>
               (result[k] =
                 _.isObject(v) && !Array.isArray(v) ? _.merge(result[k], v) : v)
