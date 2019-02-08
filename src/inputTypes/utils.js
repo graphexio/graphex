@@ -35,7 +35,11 @@ export const applyInputTransform = context => {
         let val = value && value[key];
         //Apply mmTransformAlways
         if (field.mmTransformAlways) {
-          val = await field.mmTransformAlways({ [key]: val }, context);
+          let transform = await field.mmTransformAlways(
+            { [key]: val },
+            context
+          );
+          val = transform[key];
         }
 
         if (val !== undefined) {
