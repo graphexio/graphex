@@ -410,7 +410,7 @@ export default class ModelMongo {
       },
     ];
 
-    const name = `deleteMany${modelType.name}`;
+    const name = `deleteMany${pluralize(modelType.name)}`;
     this.Mutation._fields[name] = {
       type: new GraphQLNonNull(GraphQLInt),
       args,
@@ -419,7 +419,7 @@ export default class ModelMongo {
       resolve: async (parent, args, context) => {
         let selector = await applyInputTransform({ parent, context })(
           args.where,
-          whereUniqueType
+          whereType
         );
         if (typeWrap.isInherited()) {
           selector[
