@@ -43,7 +43,9 @@ export const applyInputTransform = context => {
               context
             )
           ).forEach(([k, v]) => (result[k] = v));
-        }else if (val !== undefined) {
+        }
+        
+        if (val !== undefined) {
           //Apply mmTransform or recurcively call applyInputTransform
           _.toPairs(
             field.mmTransform
