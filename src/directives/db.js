@@ -4,6 +4,7 @@ import { SchemaDirectiveVisitor } from 'graphql-tools';
 import { appendTransform } from '../inputTypes/utils';
 import * as HANDLER from '../inputTypes/handlers';
 import * as KIND from '../inputTypes/kinds';
+import {combineResolvers} from "../utils";
 
 export const DirectiveDBScheme = `directive @db(name:String!, defaultValue:String=null) on FIELD_DEFINITION`;
 
@@ -12,6 +13,7 @@ export default class DirectiveDB extends SchemaDirectiveVisitor {
     const { name } = this.args;
     appendTransform(field, HANDLER.TRANSFORM_INPUT, {
       [KIND.CREATE]: this._renameTransform(field.name, name),
+      [KIND.UPDATE]: this._renameTransform(field.name, name),
       [KIND.WHERE]: this._renameTransform(field.name, name),
     });
 
