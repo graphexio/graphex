@@ -178,7 +178,7 @@ export function prepareUpdateDoc(doc) {
 
   Object.keys(doc).forEach(path => {
     let value = doc[path];
-    if (_.isObject(value)) {
+    if (_.isObject(value) && !value instanceof Date && !Array.isArray(value)) {
       Object.keys(value).forEach(key => {
         let val = value[key];
         let resolve;
@@ -260,7 +260,12 @@ export function prepareUpdateDoc(doc) {
         }
       });
     }
-    if (!_.isObject(value) || Object.keys(value).length > 0) {
+    if (
+      Array.isArray(value) ||
+      value instanceof Date ||
+      !_.isObject(value) ||
+      Object.keys(value).length > 0
+    ) {
       set[path] = value;
     }
   });
