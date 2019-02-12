@@ -163,6 +163,23 @@ export function combineResolvers(...args) {
   return CombineResolvers(...args);
 }
 
+function checkForModifiers(value) {
+  return (
+    _.isObject(value) &&
+    value instanceof Date === false &&
+    !Array.isArray(value)
+  );
+}
+
+function isSet(value) {
+  return (
+    Array.isArray(value) ||
+    value instanceof Date === true ||
+    !_.isObject(value) ||
+    Object.keys(value).length > 0
+  );
+}
+
 export function prepareUpdateDoc(doc) {
   doc = _.cloneDeep(doc);
   // console.log({doc});
@@ -178,7 +195,7 @@ export function prepareUpdateDoc(doc) {
 
   Object.keys(doc).forEach(path => {
     let value = doc[path];
-    if (_.isObject(value) && !value instanceof Date && !Array.isArray(value)) {
+    if (checkForModifiers(value)) {
       Object.keys(value).forEach(key => {
         let val = value[key];
         let resolve;
@@ -260,12 +277,7 @@ export function prepareUpdateDoc(doc) {
         }
       });
     }
-    if (
-      Array.isArray(value) ||
-      value instanceof Date ||
-      !_.isObject(value) ||
-      Object.keys(value).length > 0
-    ) {
+    if (isSet(value)) {
       set[path] = value;
     }
   });
