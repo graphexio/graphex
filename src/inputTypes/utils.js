@@ -58,9 +58,7 @@ export const applyInputTransform = context => {
                   [key]: await applyInputTransform(context)(val, field.type),
                 }
           ).forEach(
-            ([k, v]) =>
-              (result[k] =
-                shouldMerge(v) ? _.merge(result[k], v) : v)
+            ([k, v]) => (result[k] = shouldMerge(v) ? _.merge(result[k], v) : v)
           );
         }
       })
@@ -70,7 +68,7 @@ export const applyInputTransform = context => {
 };
 
 function shouldMerge(v) {
-  return _.isObject(v) && !Array.isArray(v) && !v instanceof Date;
+  return _.isObject(v) && !Array.isArray(v) && !(v instanceof Date);
 }
 
 export function appendTransform(field, handler, functions) {
