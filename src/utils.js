@@ -6,8 +6,6 @@ import {
   GraphQLNonNull,
 } from 'graphql';
 
-import Scalars from './scalars';
-
 import { combineResolvers as CombineResolvers } from 'graphql-resolvers';
 
 import _ from 'lodash';
@@ -144,19 +142,19 @@ export function allQueryArgs({ whereType, orderByType }) {
     },
   ];
 }
-
-export function GraphQLTypeFromString(type) {
-  switch (type) {
-    case 'ID':
-      return GraphQLID;
-    case 'Int':
-      return GraphQLInt;
-    case 'String':
-      return GraphQLString;
-    case 'ObjectID':
-      return Scalars.ObjectID;
-  }
-}
+//
+// export function GraphQLTypeFromString(type) {
+//   switch (type) {
+//     case 'ID':
+//       return GraphQLID;
+//     case 'Int':
+//       return GraphQLInt;
+//     case 'String':
+//       return GraphQLString;
+//     case 'ObjectID':
+//       return Scalars.ObjectID;
+//   }
+// }
 
 export function combineResolvers(...args) {
   args = args.filter(arg => arg);

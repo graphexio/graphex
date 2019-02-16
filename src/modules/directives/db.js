@@ -1,14 +1,14 @@
 import _ from 'lodash';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
 
-import { appendTransform } from '../inputTypes/utils';
-import * as HANDLER from '../inputTypes/handlers';
-import * as KIND from '../inputTypes/kinds';
-import {combineResolvers} from "../utils";
+import { appendTransform } from '../../inputTypes/utils';
+import * as HANDLER from '../../inputTypes/handlers';
+import * as KIND from '../../inputTypes/kinds';
+import { combineResolvers } from '../../utils';
 
-export const DirectiveDBScheme = `directive @db(name:String!, defaultValue:String=null) on FIELD_DEFINITION`;
+export const typeDef = `directive @db(name:String!, defaultValue:String=null) on FIELD_DEFINITION`;
 
-export default class DirectiveDB extends SchemaDirectiveVisitor {
+class DirectiveDB extends SchemaDirectiveVisitor {
   visitFieldDefinition(field) {
     const { name } = this.args;
     appendTransform(field, HANDLER.TRANSFORM_INPUT, {
@@ -40,8 +40,16 @@ export default class DirectiveDB extends SchemaDirectiveVisitor {
   };
 }
 
-export function DirectiveDBResolver(next, source, args, ctx, info) {
+const DirectiveDBResolver = (next, source, args, ctx, info) => {
   const { name } = args;
   info.fieldName = name;
   return next();
-}
+};
+
+export const schemaDirectives = {
+  db: DirectiveDB,
+};
+
+export const directiveResolvers = {
+  db: DirectiveDBResolver,
+};

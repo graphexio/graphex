@@ -1,9 +1,9 @@
 import { SchemaDirectiveVisitor } from 'graphql-tools';
-import { lowercaseFirstLetter } from '../utils';
+import { lowercaseFirstLetter } from '../../utils';
 
-export const InheritScheme = `directive @inherit(from:String = null) on INTERFACE`;
+export const typeDef = `directive @inherit(from:String = null) on INTERFACE`;
 
-export default class Inherit extends SchemaDirectiveVisitor {
+class Inherit extends SchemaDirectiveVisitor {
   visitInterface(iface) {
     const { _typeMap: SchemaTypes } = this.schema;
     if (!iface.mmDiscriminatorField) {
@@ -61,3 +61,7 @@ export default class Inherit extends SchemaDirectiveVisitor {
     };
   }
 }
+
+export const schemaDirectives = {
+  inherit: Inherit,
+};

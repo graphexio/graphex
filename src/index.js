@@ -36,19 +36,6 @@ import TypeWrap from './typeWrap';
 export { default as TypeWrap } from './typeWrap';
 
 import InitialScheme from './initialScheme';
-
-import Abstract, { AbstractScheme } from './directives/abstract';
-import Inherit, { InheritScheme } from './directives/inherit';
-import Relation, { RelationScheme } from './directives/relation';
-import ExtRelation, { ExtRelationScheme } from './directives/extRelation';
-import DirectiveDB, {
-  DirectiveDBScheme,
-  DirectiveDBResolver,
-} from './directives/db';
-import Model, { ModelScheme } from './directives/model';
-import Unique, { UniqueScheme } from './directives/unique';
-import ID, { IDScheme } from './directives/id';
-import Scalars, { typeDefs as ScalarsSchemes } from './scalars';
 import Modules from './modules';
 
 import InputTypes from './inputTypes';
@@ -624,51 +611,26 @@ export default class ModelMongo {
     } = params;
     if (!Array.isArray(typeDefs)) typeDefs = [typeDefs];
 
-    typeDefs = [
-      InitialScheme,
-      AbstractScheme,
-      InheritScheme,
-      ModelScheme,
-      DirectiveDBScheme,
-      RelationScheme,
-      IDScheme,
-      UniqueScheme,
-      ExtRelationScheme,
-      ...ScalarsSchemes,
-      ...typeDefs,
-    ];
-
-    schemaDirectives = {
-      ...schemaDirectives,
-      relation: Relation(this.QueryExecutor),
-      extRelation: ExtRelation(this.QueryExecutor),
-      db: DirectiveDB,
-      abstract: Abstract,
-      inherit: Inherit,
-      model: Model,
-      unique: Unique,
-      id: ID,
-    };
-
-    directiveResolvers = {
-      ...directiveResolvers,
-      db: DirectiveDBResolver,
-    };
-
-    resolvers = {
-      ...resolvers,
-      ...Scalars,
-    };
+    typeDefs = [InitialScheme, ...typeDefs];
 
     this.Modules.forEach(module => {
       if (module.typeDef) typeDefs.push(module.typeDef);
       if (module.resolvers) resolvers = _.merge(resolvers, module.resolvers);
       if (module.schemaDirectives)
         schemaDirectives = _.merge(schemaDirectives, module.schemaDirectives);
+      if (module.directiveResolvers) {
+        directiveResolvers = _.merge(
+          directiveResolvers,
+          module.directiveResolvers
+        );
+      }
       if (module.typesInit)
         this.TypesInit = _.merge(this.TypesInit, module.typesInit);
       if (module.fieldsInit)
         this.FieldsInit = _.merge(this.FieldsInit, module.fieldsInit);
+      if (module.setQueryExecutor) {
+        module.setQueryExecutor(this.QueryExecutor);
+      }
     });
 
     let modelParams = {

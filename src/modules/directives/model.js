@@ -1,11 +1,11 @@
 import { SchemaDirectiveVisitor } from 'graphql-tools';
 import pluralize from 'pluralize';
 
-import { getDirective, lowercaseFirstLetter } from '../utils';
+import { getDirective, lowercaseFirstLetter } from '../../utils';
 
-export const ModelScheme = `directive @model(collection:String=null) on OBJECT | INTERFACE`;
+export const typeDef = `directive @model(collection:String=null) on OBJECT | INTERFACE`;
 
-export default class Model extends SchemaDirectiveVisitor {
+class Model extends SchemaDirectiveVisitor {
   visitObject(object) {
     const { collection } = this.args;
     object.mmCollectionName =
@@ -29,3 +29,7 @@ export default class Model extends SchemaDirectiveVisitor {
       });
   }
 }
+
+export const schemaDirectives = {
+  model: Model,
+};

@@ -1,8 +1,8 @@
 import { SchemaDirectiveVisitor } from 'graphql-tools';
 
-export const AbstractScheme = `directive @abstract(from:String = null) on INTERFACE`;
+export const typeDef = `directive @abstract(from:String = null) on INTERFACE`;
 
-export default class Inherit extends SchemaDirectiveVisitor {
+class Abstract extends SchemaDirectiveVisitor {
   visitInterface(iface) {
     const { _typeMap: SchemaTypes } = this.schema;
     iface.mmAbstract = true;
@@ -56,3 +56,7 @@ export default class Inherit extends SchemaDirectiveVisitor {
     };
   }
 }
+
+export const schemaDirectives = {
+  abstract: Abstract,
+};
