@@ -11,11 +11,15 @@ import {
   GraphQLString,
 } from 'graphql';
 import { applyInputTransform, reduceTransforms } from './utils';
+import { getDirective } from '../utils';
+import SDLSyntaxException from '../sdlSyntaxException';
 import TypeWrap from '../typeWrap';
 import * as KIND from './kinds';
 import * as Transforms from './transforms';
 import { lowercaseFirstLetter } from '../utils';
 import pluralize from 'pluralize';
+
+export const UNMARKED_OBJECT_FIELD = 'unmarkedObjectField';
 
 const ObjectHash = require('object-hash');
 
@@ -80,7 +84,6 @@ const addInterfaceValues = (val, initialType, fieldType) => {
 };
 
 const addUpdateInterfaceValues = (val, initialType, fieldType) => {
-  console.log({ val });
   if (initialType.mmAbstract)
     return {
       mmCollectionName: fieldType.mmCollectionName,
@@ -161,6 +164,17 @@ class InputTypesClass {
     let typeWrap = fieldTypeWrap.clone();
 
     if (fieldTypeWrap.isNested()) {
+      if (!getDirective(fieldTypeWrap.realType(), 'embedded')) {
+        throw new SDLSyntaxException(
+          `Type '${
+            fieldTypeWrap.realType().name
+          }' should be marked with @embedded directive or field '${
+            field.name
+          }' should be marked with @relation or @extRelation directives`,
+          UNMARKED_OBJECT_FIELD,
+          [field]
+        );
+      }
       typeWrap.setRealType(
         this._inputType(
           fieldTypeWrap.realType(),
@@ -437,7 +451,12 @@ class InputTypesClass {
       try {
         inputType = this._inputType(fieldType, kind);
       } catch (e) {
-        return null;
+        if (e instanceof EmptyTypeException) {
+          return null;
+        } else {
+          console.log(e);
+          throw e;
+        }
       }
       if (
         [KIND.CREATE, KIND.WHERE, KIND.UPDATE, KIND.WHERE_UNIQUE].includes(

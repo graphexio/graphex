@@ -1,5 +1,14 @@
 import gql from 'graphql-tag';
 export default gql`
+  interface Node @inherit {
+    id: ObjectID! @id @unique @db(name: "_id")
+  }
+
+  interface Timestamp @inherit {
+    createdAt: Date @createdAt @db(name: "created_at")
+    updatedAt: Date @updatedAt
+  }
+
   type Category @model {
     id: ObjectID! @id @unique @db(name: "_id")
     title: String @unique
@@ -10,13 +19,12 @@ export default gql`
     updatedAt: Date @updatedAt
   }
 
-  type Comment {
+  type Comment @embedded {
     body: String
     user: User! @relation
   }
 
-  type Post @model {
-    id: ObjectID! @id @unique @db(name: "_id")
+  type Post implements Node & Timestamp @model {
     title: String!
     body: String!
     category: Category @relation
@@ -48,7 +56,7 @@ export default gql`
     premium
   }
 
-  type SubscriberProfile {
+  type SubscriberProfile @embedded {
     firstName: String!
     lastName: String!
   }

@@ -1,4 +1,10 @@
 import { SchemaDirectiveVisitor } from 'graphql-tools';
+import { getDirective } from '../../utils';
+import SDLSyntaxException from '../../sdlSyntaxException';
+
+export const SHOULD_BE_MODEL = 'shouldBeModel';
+export const ABSTRACT_WITH_MODEL = 'abstractWithModel';
+export const ABSTRACT_WITH_EMBEDDED = 'abstractWithEmbedded';
 
 export const typeDef = `directive @abstract(from:String = null) on INTERFACE`;
 
@@ -46,6 +52,46 @@ class Abstract extends SchemaDirectiveVisitor {
         iface.mmAbstractTypes.push(type);
         iface._addFromInterfaces(type);
         type._fields = { ...iface._fields, ...type._fields };
+
+        //validate usage
+        if (!getDirective(type, 'model')) {
+          throw new SDLSyntaxException(
+            `
+            Type '${type.name}' is inherited from abstract interface '${
+              iface.name
+            }' and should be marked with @model directive
+          `,
+            SHOULD_BE_MODEL,
+            [type, iface]
+          );
+        }
+
+        type._interfaces
+          .filter(i => i != iface)
+          .forEach(i => {
+            if (getDirective(i, 'model')) {
+              throw new SDLSyntaxException(
+                `Type '${type.name}' can not inherit both '${
+                  iface.name
+                }' and '${
+                  i.name
+                }' because they marked with @abstract and @model directives`,
+                ABSTRACT_WITH_MODEL,
+                [i, iface]
+              );
+            }
+            if (getDirective(i, 'embedded')) {
+              throw new SDLSyntaxException(
+                `Type '${type.name}' can not inherit both '${
+                  iface.name
+                }' and '${
+                  i.name
+                }' because they marked with @abstract and @embedded directives`,
+                ABSTRACT_WITH_EMBEDDED,
+                [i, iface]
+              );
+            }
+          });
       });
 
     iface._setAbstractTypes();

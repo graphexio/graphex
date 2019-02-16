@@ -38,7 +38,7 @@ export { default as TypeWrap } from './typeWrap';
 import InitialScheme from './initialScheme';
 import Modules from './modules';
 
-import InputTypes from './inputTypes';
+import InputTypes, { EmptyTypeException } from './inputTypes';
 import { applyInputTransform } from './inputTypes/utils';
 import * as KIND from './inputTypes/kinds';
 
@@ -62,7 +62,9 @@ export default class ModelMongo {
       whereType = this._inputType(modelType, KIND.WHERE);
       orderByType = this._inputType(modelType, KIND.ORDER_BY);
     } catch (e) {
-      return;
+      if (e instanceof EmptyTypeException) {
+        return;
+      } else throw e;
     }
 
     const name = lowercaseFirstLetter(pluralize(modelType.name));
@@ -109,8 +111,9 @@ export default class ModelMongo {
       orderByType = this._inputType(modelType, KIND.ORDER_BY);
       paginationType = this._paginationType(modelType);
     } catch (e) {
-      console.log(e);
-      return;
+      if (e instanceof EmptyTypeException) {
+        return;
+      } else throw e;
     }
 
     const returnFieldName = lowercaseFirstLetter(pluralize(modelType.name));
@@ -226,7 +229,9 @@ export default class ModelMongo {
       whereType = this._inputType(modelType, KIND.WHERE);
       orderByType = this._inputType(modelType, KIND.ORDER_BY);
     } catch (e) {
-      return;
+      if (e instanceof EmptyTypeException) {
+        return;
+      } else throw e;
     }
 
     const connectionTypeName = `${modelType.name}Connection`;
@@ -255,7 +260,9 @@ export default class ModelMongo {
     try {
       whereUniqueType = this._inputType(modelType, KIND.WHERE_UNIQUE);
     } catch (e) {
-      return;
+      if (e instanceof EmptyTypeException) {
+        return;
+      } else throw e;
     }
 
     let args = [
@@ -316,7 +323,11 @@ export default class ModelMongo {
           name: 'data',
         },
       ];
-    } catch (e) {}
+    } catch (e) {
+      if (!(e instanceof EmptyTypeException)) {
+        throw e;
+      }
+    }
 
     const name = `create${modelType.name}`;
     this.Mutation._fields[name] = {
@@ -362,7 +373,9 @@ export default class ModelMongo {
     try {
       whereUniqueType = this._inputType(modelType, KIND.WHERE_UNIQUE);
     } catch (e) {
-      return;
+      if (e instanceof EmptyTypeException) {
+        return;
+      } else throw e;
     }
 
     let args = [
@@ -410,7 +423,9 @@ export default class ModelMongo {
     try {
       whereType = this._inputType(modelType, KIND.WHERE);
     } catch (e) {
-      return;
+      if (e instanceof EmptyTypeException) {
+        return;
+      } else throw e;
     }
 
     let args = [
@@ -460,7 +475,9 @@ export default class ModelMongo {
       whereType = this._inputType(modelType, KIND.WHERE_UNIQUE);
       updateType = this._inputType(modelType, KIND.UPDATE);
     } catch (e) {
-      return;
+      if (e instanceof EmptyTypeException) {
+        return;
+      } else throw e;
     }
     args = [
       {

@@ -1,18 +1,24 @@
 import { ApolloServer } from 'apollo-server';
-import ApolloModelMongo, { QueryExecutor } from '../src/';
+import AMM, { QueryExecutor } from '../src/';
 import { MongoClient, ObjectID } from 'mongodb';
 import typeDefs from './model.js';
 
-export const CONNECTION = MongoClient.connect(
-  process.env.MONGO_URL,
-  { useNewUrlParser: true }
-);
-export const DB = CONNECTION.then(conn => {
-  return conn.db(process.env.MONGO_DB);
-});
+let DB = null;
 
-const schema = new ApolloModelMongo({
-  queryExecutor: QueryExecutor(DB),
+export const connectToDatabase = () => {
+  if (DB && DB.serverConfig.isConnected()) {
+    return Promise.resolve(DB);
+  }
+  return MongoClient.connect(process.env.MONGO_URL, {
+    useNewUrlParser: true,
+  }).then(client => {
+    DB = client.db(process.env.MONGO_DB);
+    return DB;
+  });
+};
+
+const schema = new AMM({
+  queryExecutor: QueryExecutor(connectToDatabase),
 }).makeExecutableSchema({
   typeDefs,
 });

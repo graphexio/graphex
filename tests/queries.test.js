@@ -1,4 +1,6 @@
-const { query, mutate, CONNECTION, DB } = require('./apolloTest');
+jest.setTimeout(20000);
+
+const { query, mutate, mongod, connectToDatabase } = require('./apolloTest');
 const _ = require('lodash');
 
 import QueryCategories from './queries/queryCategories.graphql';
@@ -269,14 +271,10 @@ test('QueryShopById', async () => {
 });
 
 beforeAll(async () => {
-  let db = await DB;
-  let collections = await db.listCollections().toArray();
-  await Promise.all(
-    collections.map(({ name }) => db.collection(name).deleteMany({}))
-  );
+  let DB = await connectToDatabase();
+  DB.collection('posts').createIndex({ place: '2dsphere' });
 });
 
 afterAll(async () => {
-  // Closing the DB connection allows Jest to exit successfully.
-  await (await CONNECTION).close();
+  mongod.stop();
 });
