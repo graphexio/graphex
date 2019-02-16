@@ -15,7 +15,7 @@ import * as Unique from './directives/unique';
 import * as Embedded from './directives/embedded';
 
 import * as Date from './scalars/date';
-import * as JSON from './scalars/json';
+import * as JSON from './scalars/JSON';
 import * as ObjectID from './scalars/objectID';
 
 export default [
