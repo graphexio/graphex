@@ -1,4 +1,5 @@
 const { query, mutate, CONNECTION, DB } = require('./apolloTest');
+const _ = require('lodash');
 
 import QueryCategories from './queries/queryCategories.graphql';
 import CreateCategory from './queries/createCategory.graphql';
@@ -15,6 +16,15 @@ import QueryPostsNearPoint from './queries/queryPostsNearPoint.graphql';
 import CategoryDelete from './queries/categoryDelete.graphql';
 import CategoriesSameFieldFilter from './queries/categoriesSameFieldFilter.graphql';
 import CategoriesOrderByFieldWithDBDirective from './queries/categoriesOrderByFieldWithDBDirective.graphql';
+import CreateShop from './queries/createShop.graphql';
+import CreateHotel from './queries/createHotel.graphql';
+import QueryShops from './queries/queryShops.graphql';
+import QueryShopById from './queries/queryShopById.graphql';
+import QueryHotels from './queries/queryHotels.graphql';
+import UpdatePostCreateHotel from './queries/updatePostCreateHotel.graphql';
+import UpdatePostConnectShop from './queries/updatePostConnectShop.graphql';
+import UpdatePostDisconnectShop from './queries/updatePostDisconnectShop.graphql';
+import UpdatePostDeleteShop from './queries/updatePostDeleteShop.graphql';
 
 jest.setTimeout(10000);
 
@@ -114,11 +124,15 @@ test('CreateAdmin', async () => {
   expect(data).toMatchSnapshot();
 });
 
+let postId = '';
 test('CreatePostWithInterfaceRelation', async () => {
   let { data } = await query({
     query: CreatePostWithInterfaceRelation,
     variables: {},
   });
+
+  postId = data.createPost.id;
+  delete data.createPost.id;
   expect(data).toMatchSnapshot();
 });
 
@@ -166,6 +180,90 @@ test('QueryCategories after delete', async () => {
   let { data } = await query({
     query: QueryCategories,
     variables: {},
+  });
+  expect(data).toMatchSnapshot();
+});
+
+let shopId = '';
+test('CreateShop abstract interface', async () => {
+  let { data } = await query({
+    query: CreateShop,
+    variables: { title: 'ifc mall' },
+  });
+  shopId = data.createShop.id;
+  delete data.createShop.id;
+
+  expect(data).toMatchSnapshot();
+});
+
+test('QueryShops', async () => {
+  let { data } = await query({
+    query: QueryShops,
+    variables: {},
+  });
+  expect(data).toMatchSnapshot();
+});
+
+test('QueryShopById', async () => {
+  let { data } = await query({
+    query: QueryShopById,
+    variables: { shopId },
+  });
+  expect(data).toMatchSnapshot();
+});
+
+test('Update Post create abstract relation Hotel ', async () => {
+  let { data } = await query({
+    query: UpdatePostCreateHotel,
+    variables: { postId },
+  });
+  expect(data).toMatchSnapshot();
+});
+
+test('QueryHotels', async () => {
+  let { data } = await query({
+    query: QueryHotels,
+    variables: {},
+  });
+  expect(data).toMatchSnapshot();
+});
+
+test('UpdatePostConnectShop', async () => {
+  let { data } = await query({
+    query: UpdatePostConnectShop,
+    variables: { postId, shopId },
+  });
+  expect(data).toMatchSnapshot();
+});
+
+test('UpdatePostDisconnectShop', async () => {
+  let { data } = await query({
+    query: UpdatePostDisconnectShop,
+    variables: { postId, shopId },
+  });
+  expect(data).toMatchSnapshot();
+});
+
+test('UpdatePostConnectShop', async () => {
+  let { data } = await query({
+    query: UpdatePostConnectShop,
+    variables: { postId, shopId },
+  });
+  expect(data).toMatchSnapshot();
+});
+
+test('UpdatePostDeleteShop', async () => {
+  let { data } = await query({
+    query: UpdatePostDeleteShop,
+    variables: { postId, shopId },
+  });
+  expect(data).toMatchSnapshot();
+});
+
+test('QueryShopById', async () => {
+  let { data } = await query({
+    query: QueryShopById,
+    variables: { shopId },
   });
   expect(data).toMatchSnapshot();
 });

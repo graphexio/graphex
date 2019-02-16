@@ -24,6 +24,8 @@ export default gql`
     owner: User! @relation
     place: GeoJSONPoint
     comments: [Comment!]
+    poi: Poi @relation
+    pois: [Poi] @relation
   }
 
   interface User @inherit @model {
@@ -54,5 +56,15 @@ export default gql`
   type Subscriber implements User {
     role: SubscriberRole
     profile: SubscriberProfile!
+  }
+
+  interface Poi @inherit @abstract {
+    id: ObjectID! @id @unique @db(name: "_id")
+    title: String
+  }
+
+  type Shop implements Poi @model
+  type Hotel implements Poi @model {
+    stars: Int
   }
 `;

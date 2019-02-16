@@ -8,6 +8,7 @@ mutation {
       place: { type: Point, coordinates: [0, 51] }
     }
   ) {
+    id
     title
   }
 }

@@ -1,0 +1,6 @@
+mutation createShop($title: String!) {
+  createShop(data: { title: $title }) {
+    id
+    title
+  }
+}

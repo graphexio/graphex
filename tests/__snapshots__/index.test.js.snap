@@ -120,6 +120,14 @@ Object {
 }
 `;
 
+exports[`CreateShop abstract interface 1`] = `
+Object {
+  "createShop": Object {
+    "title": "ifc mall",
+  },
+}
+`;
+
 exports[`CreateSubscriberWithEmbeddedDocument 1`] = `
 Object {
   "createSubscriber": Object {
@@ -215,6 +223,17 @@ Object {
 }
 `;
 
+exports[`QueryHotels 1`] = `
+Object {
+  "hotels": Array [
+    Object {
+      "stars": 5,
+      "title": "Marriott",
+    },
+  ],
+}
+`;
+
 exports[`QueryPostsNearPoint 1`] = `
 Object {
   "posts": Array [
@@ -223,6 +242,30 @@ Object {
         "distance": 1111.9492664453662,
       },
       "title": "Build GraphQL API with Apollo",
+    },
+  ],
+}
+`;
+
+exports[`QueryShopById 1`] = `
+Object {
+  "shop": Object {
+    "title": "ifc mall",
+  },
+}
+`;
+
+exports[`QueryShopById 2`] = `
+Object {
+  "shop": null,
+}
+`;
+
+exports[`QueryShops 1`] = `
+Object {
+  "shops": Array [
+    Object {
+      "title": "ifc mall",
     },
   ],
 }
@@ -247,5 +290,71 @@ Object {
       "username": "moderator",
     },
   ],
+}
+`;
+
+exports[`Update Post create abstract relation Hotel  1`] = `
+Object {
+  "updatePost": Object {
+    "pois": Array [
+      Object {
+        "title": "Marriott",
+      },
+    ],
+  },
+}
+`;
+
+exports[`UpdatePostConnectShop 1`] = `
+Object {
+  "updatePost": Object {
+    "pois": Array [
+      Object {
+        "title": "Marriott",
+      },
+      Object {
+        "title": "ifc mall",
+      },
+    ],
+  },
+}
+`;
+
+exports[`UpdatePostConnectShop 2`] = `
+Object {
+  "updatePost": Object {
+    "pois": Array [
+      Object {
+        "title": "Marriott",
+      },
+      Object {
+        "title": "ifc mall",
+      },
+    ],
+  },
+}
+`;
+
+exports[`UpdatePostDeleteShop 1`] = `
+Object {
+  "updatePost": Object {
+    "pois": Array [
+      Object {
+        "title": "Marriott",
+      },
+    ],
+  },
+}
+`;
+
+exports[`UpdatePostDisconnectShop 1`] = `
+Object {
+  "updatePost": Object {
+    "pois": Array [
+      Object {
+        "title": "Marriott",
+      },
+    ],
+  },
 }
 `;

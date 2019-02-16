@@ -1,0 +1,10 @@
+mutation updatePost($postId: ObjectID, $shopId: ObjectID) {
+  updatePost(
+    where: { id: $postId }
+    data: { pois: { delete: { Shop: { id: $shopId } } } }
+  ) {
+    pois {
+      title
+    }
+  }
+}

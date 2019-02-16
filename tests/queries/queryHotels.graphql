@@ -1,0 +1,6 @@
+{
+  hotels {
+    title
+    stars
+  }
+}

@@ -51,7 +51,7 @@ export default class Inherit extends SchemaDirectiveVisitor {
     iface._setAbstractTypes();
     iface.resolveType = data => {
       return iface.mmAbstractTypes.find(
-        t => t.mmCollectionName === data['mmCollection']
+        t => t.mmCollectionName === data['mmCollectionName']
       );
     };
   }

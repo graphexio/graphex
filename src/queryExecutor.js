@@ -54,12 +54,10 @@ const queryExecutor = DB => async params => {
   } = params;
   // console.dir({ type, collection, selector, options }, { depth: null });
   let { skip, limit, sort, arrayFilters = [] } = options;
-  //
+
   // console.log('\n\n');
   // console.log({ type, collectionName });
-  // console.log('selector');
-  // console.dir(selector, { depth: null });
-  // console.dir({ options });
+  // console.dir({ selector, options }, { depth: null });
   // console.log('doc');
   // console.dir(doc, { depth: null });
   // console.log('\n\n');

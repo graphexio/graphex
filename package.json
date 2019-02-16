@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "build": "rm -rf lib && babel src -d lib",
-    "dev": "MONGO_URL='mongodb+srv://public:public@cluster0-c6p6b.mongodb.net/admin' MONGO_DB='db1' nodemon --exec babel-node dev-server/index.js",
+    "dev": "MONGO_URL='mongodb+srv://private:cimgaw-rypTu1-rodwat@cluster0-c6p6b.mongodb.net/admin' MONGO_DB='db1' nodemon --exec babel-node dev-server/index.js",
     "test": "MONGO_URL='mongodb+srv://test:TLOHY8Ysg6Ipu02r@cluster0-c6p6b.mongodb.net/admin' MONGO_DB='dbTest' jest --forceExit --detectOpenHandles"
   },
 "husky": {

@@ -80,6 +80,7 @@ const addInterfaceValues = (val, initialType, fieldType) => {
 };
 
 const addUpdateInterfaceValues = (val, initialType, fieldType) => {
+  console.log({ val });
   if (initialType.mmAbstract)
     return {
       mmCollectionName: fieldType.mmCollectionName,
@@ -91,7 +92,7 @@ const addUpdateInterfaceValues = (val, initialType, fieldType) => {
       },
     };
   }
-  return {}
+  return {};
 };
 
 class InputTypesClass {
@@ -423,7 +424,10 @@ class InputTypesClass {
         itype._interfaces.includes(initialType)
       );
     });
-    if ([KIND.WHERE, KIND.UPDATE, KIND.WHERE_UNIQUE].includes(kind)) {
+    if (
+      [KIND.WHERE, KIND.UPDATE, KIND.WHERE_UNIQUE].includes(kind) &&
+      !initialType.mmAbstract
+    ) {
       fieldsArr.push(initialType);
     }
 

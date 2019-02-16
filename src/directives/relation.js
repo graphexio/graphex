@@ -50,7 +50,10 @@ export default queryExecutor =>
     visitFieldDefinition(field, { objectType }) {
       const { field: relationField, storeField } = this.args;
       let fieldTypeWrap = new TypeWrap(field.type);
-      let isAbstract = fieldTypeWrap.realType().mmAbstract;
+      // let isAbstract = fieldTypeWrap.realType().mmAbstract;
+      // issue if interface defined after relation
+      let isAbstract = getDirective(fieldTypeWrap.realType(), 'abstract');
+
       if (
         !getDirective(fieldTypeWrap.realType(), 'model') &&
         !(
@@ -59,7 +62,7 @@ export default queryExecutor =>
         ) &&
         !isAbstract
       ) {
-        throw `Relation field type should be defined with Model directive. (Field '${
+        throw `Relation field type should be defined with Model directive or Abstract interface. (Field '${
           field.name
         }' of type '${fieldTypeWrap.realType().name}')`;
       }
@@ -151,6 +154,23 @@ export default queryExecutor =>
       return params;
     };
 
+    _groupBy = (input, field) =>
+      input.reduce((colls, c) => {
+        let parameter = c[field];
+        let value = _.omit(c, field);
+        return colls[parameter]
+          ? {
+              ...colls,
+              [parameter]: [...colls[parameter], value],
+            }
+          : {
+              ...colls,
+              [parameter]: [value],
+            };
+      }, {});
+
+    _groupByCollection = input => this._groupBy(input, 'mmCollectionName');
+
     _transformToInputCreateUpdate = ({ field, kind, inputTypes }) => {
       let fieldTypeWrap = new TypeWrap(field.type);
       let isCreate = kind === KIND.CREATE;
@@ -192,7 +212,6 @@ export default queryExecutor =>
       if (input.connect) {
         ////Connect
         let selector = input.connect;
-        // console.log(selector);
         if (this.isAbstract) {
           collection = selector.mmCollectionName;
           delete selector.mmCollectionName;
@@ -246,96 +265,86 @@ export default queryExecutor =>
       let { parent, context } = resolverArgs;
       let input = _.head(Object.values(params));
 
-      let ids = [];
+      let disconnect_ids = [];
+      let delete_ids = [];
+      let connect_ids = [];
+      let create_ids = [];
 
       if (input.disconnect || input.delete) {
         if (input.disconnect) {
           if (this.isAbstract) {
-            let collections = input.disconnect.reduce((colls, d) => {
-              let { mmCollectionName, ...disconnect } = d;
-              colls[mmCollectionName]
-                ? colls[mmCollectionName].push(disconnect)
-                : (colls[mmCollectionName] = [disconnect]);
-            });
-            Object.entries(collections).forEach(async ([coll, selector]) => {
-              ids = [
-                ...ids,
-                ...(await this._distinctQuery({
-                  selector,
-                  collection: coll,
-                  context,
-                })),
-              ];
-            });
+            disconnect_ids = Promise.all(
+              _.toPairs(this._groupByCollection(input.disconnect)).map(
+                ([collection, disconnects]) =>
+                  this._distinctQuery({
+                    selector: { $or: disconnects },
+                    collection,
+                    context,
+                  }).then(res => res.map(id => new DBRef(collection, id)))
+              )
+            ).then(res => _.flatten(res));
           } else {
             ////Disconnect
-            let selector = { $and: input.disconnect };
-            ids = await this._distinctQuery({
+            let selector = { $or: input.disconnect };
+            disconnect_ids = this._distinctQuery({
               selector,
               context,
             });
           }
 
-          if (ids.length === 0) {
-            throw new UserInputError(`No records found for where clause`);
-          }
+          // if (disconnect_ids.length === 0) {
+          //   throw new UserInputError(`No records found for where clause`);
+          // }
         }
         if (input.delete) {
-          let delete_ids;
           if (this.isAbstract) {
-            let collections = input.delete.reduce((colls, d) => {
-              let { mmCollectionName, ...del } = d;
-              colls[mmCollectionName]
-                ? colls[mmCollectionName].push(del)
-                : (colls[mmCollectionName] = [del]);
-            });
-            Object.entries(collections).forEach(async ([coll, selectors]) => {
-              delete_ids = [
-                ...delete_ids,
-                ...selectors.map(selector =>
-                  this._deleteOneQuery({ collection: coll, selector, context })
-                ),
-              ];
-            });
+            delete_ids = Promise.all(
+              _.flatten(
+                _.toPairs(this._groupByCollection(input.delete)).map(
+                  ([collection, deletes]) =>
+                    deletes.map(selector =>
+                      this._deleteOneQuery({
+                        collection,
+                        selector,
+                        context,
+                      }).then(id => new DBRef(collection, id))
+                    )
+                )
+              )
+            );
           } else {
             delete_ids = input.delete.map(selector =>
               this._deleteOneQuery({ selector, context })
             );
           }
-          delete_ids = await Promise.all(delete_ids);
-          delete_ids = delete_ids.filter(id => id);
-          ids = [...ids, ...delete_ids];
         }
-        if (this.isAbstract) {
-          return { [storeField]: { $mmPull: { $id: { $in: ids } } } };
-        }
+        disconnect_ids = await disconnect_ids;
+        delete_ids = await delete_ids;
+
+        delete_ids = delete_ids.filter(id => id);
+        let ids = [...disconnect_ids, ...delete_ids];
+
+        // if (this.isAbstract) {
+        //   return { [storeField]: { $mmPull: { $id: { $in: ids } } } };
+        // }
         return { [storeField]: { $mmPullAll: ids } };
       } else {
         if (input.connect) {
           ////Connect
           if (this.isAbstract) {
-            let collections = input.connect.reduce((colls, c) => {
-              let { mmCollectionName, ...conn } = c;
-              colls[mmCollectionName]
-                ? colls[mmCollectionName].push(conn)
-                : (colls[mmCollectionName] = [conn]);
-            });
-            Object.entries(collections).forEach(async ([coll, connects]) => {
-              ids = [
-                ...ids,
-                ...connects.map(
-                  async selector =>
-                    await this._distinctQuery({
-                      selector,
-                      collection: coll,
-                      context,
-                    }).then(ids => ids.map(id => new DBRef(coll, id)))
-                ),
-              ];
-            });
+            connect_ids = Promise.all(
+              _.toPairs(this._groupByCollection(input.connect)).map(
+                ([collection, connects]) =>
+                  this._distinctQuery({
+                    selector: { $or: connects },
+                    collection,
+                    context,
+                  }).then(ids => ids.map(id => new DBRef(collection, id)))
+              )
+            ).then(res => _.flatten(res));
           } else {
             let selector = { $or: input.connect };
-            ids = await this._distinctQuery({
+            connect_ids = this._distinctQuery({
               selector,
               context,
             });
@@ -350,46 +359,41 @@ export default queryExecutor =>
         if (input.create) {
           ////Create
           let docs = input.create;
-          let create_ids = [];
           if (this.isAbstract) {
-            let collections = input.create.reduce((colls, c) => {
-              let { mmCollectionName, ...create } = c;
-              colls[mmCollectionName]
-                ? colls[mmCollectionName].push(create)
-                : (colls[mmCollectionName] = [conn]);
-            });
-            Object.entries(collections).forEach(async ([coll, creates]) => {
-              let _ids = [];
-              if (creates.length > 1) {
-                _ids = await this._insertManyQuery({
-                  docs: creates,
-                  context,
-                  collection: coll,
-                }).then(ids => ids.map(id => new DBRef(coll, id)));
-              } else {
-                _ids = await this._insertOneQuery({
-                  doc: creates[0],
-                  context,
-                  collection: coll,
-                }).then(id => [new DBRef(coll, id)]);
-              }
-              create_ids = [...create_ids, ..._ids];
-            });
+            create_ids = Promise.all(
+              _.toPairs(this._groupByCollection(input.create)).map(
+                ([collection, creates]) =>
+                  ////if creates.length>0
+                  this._insertManyQuery({
+                    docs: creates,
+                    context,
+                    collection,
+                  }).then(ids => ids.map(id => new DBRef(collection, id)))
+              )
+            ).then(res => _.flatten(res));
+            // } else {
+            //   _ids = await this._insertOneQuery({
+            //     doc: creates[0],
+            //     context,
+            //     collection: coll,
+            //   }).then(id => [new DBRef(coll, id)]);
+            // }
           } else {
-            create_ids = await this._insertManyQuery({
+            create_ids = this._insertManyQuery({
               docs,
               context,
             });
           }
-
-          ids = [...ids, ...create_ids];
         }
+        connect_ids = await connect_ids;
+        create_ids = await create_ids;
+        let ids = [...connect_ids, ...create_ids];
+
         if (isCreate) {
-          return { [storeField]: ids}
-        }else {
+          return { [storeField]: ids };
+        } else {
           return { [storeField]: { $mmPushAll: ids } };
         }
-        
       }
     };
 
@@ -463,7 +467,7 @@ export default queryExecutor =>
         context,
       }).then(res => {
         let data = _.head(res);
-        if(data) {
+        if (data) {
           data['mmCollection'] = collection;
         }
         return data;
@@ -511,35 +515,27 @@ export default queryExecutor =>
       if (args.first) {
         value = _.take(value, args.first);
       }
+      if (this.isAbstract) {
+        let collections = this._groupBy(value.map(v => v.toJSON()), '$ref');
 
-      if (fieldTypeWrap.isAbstract()) {
-        let collections = value.reduce((acc, v) => {
-          let { $ref: col, $id: id } = v.toJSON();
-          acc[col] = !acc[col] ? [id] : [...acc[col], id];
-        });
-
-        let queries = Object.entries(collections).map((collection, value) => {
-          let options = {
-            selectorField: relationField,
-            ids: value,
-          };
-          return this._findIDsQuery({
-            collection,
-            selector,
-            options,
-            context,
-          }).then(results => {
-            return results.map(r => {
-              r['mmCollection'] = collection;
-              return r;
-            });
-          });
-        });
-        return Promise.all(queries).then(results => {
-          let data = [];
-          results.forEach(r => (data = [...data, ...results]));
-          return data;
-        });
+        return Promise.all(
+          _.toPairs(collections).map(([collection, ids]) =>
+            this._findIDsQuery({
+              collection,
+              selector,
+              options: {
+                selectorField: relationField,
+                ids: ids.map(id => id.$id),
+              },
+              context,
+            }).then(results =>
+              results.map(r => ({
+                ...r,
+                mmCollectionName: collection,
+              }))
+            )
+          )
+        ).then(res => _.flatten(res));
       } else {
         return this._findIDsQuery({
           collection,
@@ -742,30 +738,31 @@ const createInput = ({ name, initialType, kind, inputTypes }) => {
       kind
     )
   ) {
-    let updateKind = INPUT_UPDATE_MANY_RELATION ? INPUT_UPDATE_MANY_RELATION_UPDATE : INPUT_UPDATE_MANY_REQUIRED_RELATION_UPDATE;
+    let updateKind = INPUT_UPDATE_MANY_RELATION
+      ? INPUT_UPDATE_MANY_RELATION_UPDATE
+      : INPUT_UPDATE_MANY_REQUIRED_RELATION_UPDATE;
     let updateManyType = inputTypes.get(initialType, updateKind);
     fields.updateMany = {
       name: 'updateMany',
       type: updateManyType,
-      mmTransform: createInputTransform(updateManyType, typeWrap.isInterface())
-    }
-  }else if([
-    INPUT_UPDATE_ONE_RELATION,
-    INPUT_UPDATE_ONE_REQUIRED_RELATION
-  ].includes(kind)) {
+      mmTransform: createInputTransform(updateManyType, typeWrap.isInterface()),
+    };
+  } else if (
+    [INPUT_UPDATE_ONE_RELATION, INPUT_UPDATE_ONE_REQUIRED_RELATION].includes(
+      kind
+    )
+  ) {
     fields.update = {
       name: 'update',
       type: updateType,
-      mmTransform: createInputTransform(updateType, typeWrap.isInterface())
-    }
+      mmTransform: createInputTransform(updateType, typeWrap.isInterface()),
+    };
   }
 
   if (
-    [
-      INPUT_UPDATE_ONE_RELATION,
-      INPUT_UPDATE_MANY_RELATION,
-      INPUT_UPDATE_MANY_REQUIRED_RELATION,
-    ].includes(kind)
+    [INPUT_UPDATE_MANY_RELATION, INPUT_UPDATE_MANY_REQUIRED_RELATION].includes(
+      kind
+    )
   ) {
     fields.disconnect = {
       name: 'disconnect',
@@ -777,6 +774,24 @@ const createInput = ({ name, initialType, kind, inputTypes }) => {
       name: 'delete',
       type: whereType,
       mmTransform: createInputTransform(whereType, typeWrap.isInterface()),
+    };
+  }
+
+  if ([INPUT_UPDATE_ONE_RELATION].includes(kind)) {
+    fields.disconnect = {
+      name: 'disconnect',
+      type: GraphQLBoolean,
+      mmTransform: () => {
+        throw new Error('Disconnect is not supported for single relation yet');
+      },
+    };
+
+    fields.delete = {
+      name: 'delete',
+      type: GraphQLBoolean,
+      mmTransform: () => {
+        throw new Error('Delete is not supported for single relation yet');
+      },
     };
   }
 

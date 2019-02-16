@@ -184,7 +184,7 @@ export default queryExecutor =>
         let selector = input.disconnect;
         if (this.isAbstract) {
           let { mmCollectionName: collection, _selector } = selector;
-          selector = _selector
+          selector = _selector;
         }
         return {
           [storeField]: {

@@ -1,0 +1,5 @@
+query shop($id: ObjectID) {
+  shop(where: { id: $id }) {
+    title
+  }
+}
