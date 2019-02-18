@@ -158,23 +158,44 @@ class InputTypesClass {
     },
   ];
 
+  _validateDirectivesForNestedObjects = field => {
+    let fieldTypeWrap = new TypeWrap(field.type);
+    if (
+      getDirective(fieldTypeWrap.realType(), 'model') ||
+      getDirective(fieldTypeWrap.realType(), 'abstract')
+    ) {
+      if (
+        !getDirective(field, 'relation') &&
+        !getDirective(field, 'extRelation')
+      ) {
+        throw new SDLSyntaxException(
+          `Field '${
+            field.name
+          }' should be marked with @relation or @extRelation directive`,
+          UNMARKED_OBJECT_FIELD,
+          [field]
+        );
+      }
+    }
+    if (!getDirective(fieldTypeWrap.realType(), 'embedded')) {
+      throw new SDLSyntaxException(
+        `Type '${
+          fieldTypeWrap.realType().name
+        }' should be marked with @embedded, @abstract or @model directive`,
+        UNMARKED_OBJECT_FIELD,
+        [field]
+      );
+    }
+  };
+
   _defaultTransformToInputCreateUpdate = ({ field, kind }) => {
     let isCreate = kind === KIND.CREATE;
     let fieldTypeWrap = new TypeWrap(field.type);
     let typeWrap = fieldTypeWrap.clone();
 
     if (fieldTypeWrap.isNested()) {
-      if (!getDirective(fieldTypeWrap.realType(), 'embedded')) {
-        throw new SDLSyntaxException(
-          `Type '${
-            fieldTypeWrap.realType().name
-          }' should be marked with @embedded directive or field '${
-            field.name
-          }' should be marked with @relation or @extRelation directives`,
-          UNMARKED_OBJECT_FIELD,
-          [field]
-        );
-      }
+      this._validateDirectivesForNestedObjects(field);
+
       typeWrap.setRealType(
         this._inputType(
           fieldTypeWrap.realType(),
@@ -454,7 +475,6 @@ class InputTypesClass {
         if (e instanceof EmptyTypeException) {
           return null;
         } else {
-          console.log(e);
           throw e;
         }
       }

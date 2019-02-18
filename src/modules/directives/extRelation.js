@@ -81,18 +81,18 @@ class ExtRelationDirective extends SchemaDirectiveVisitor {
     let fieldTypeWrap = new TypeWrap(field.type);
 
     //Collection name and interface modifier
-    if (fieldTypeWrap.isInherited()) {
+    if (fieldTypeWrap.interfaceWithDirective('model')) {
       let { mmDiscriminator } = fieldTypeWrap.realType();
-      let { mmDiscriminatorField } = fieldTypeWrap.interfaceType();
-
-      this.mmCollectionName = fieldTypeWrap.realType().mmCollectionName;
+      let { mmDiscriminatorField } = fieldTypeWrap.interfaceWithDirective(
+        'model'
+      );
       this.mmInterfaceModifier = {
         [mmDiscriminatorField]: mmDiscriminator,
       };
     } else {
       this.mmInterfaceModifier = {};
-      this.mmCollectionName = fieldTypeWrap.realType().mmCollectionName;
     }
+    this.mmCollectionName = fieldTypeWrap.realType().mmCollectionName;
   };
 
   _transformToInputCreateUpdate = ({ field, kind, inputTypes }) => {

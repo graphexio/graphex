@@ -128,11 +128,11 @@ test('CreateAdmin', async () => {
 
 let postId = '';
 test('CreatePostWithInterfaceRelation', async () => {
-  let { data } = await query({
+  let res = await query({
     query: CreatePostWithInterfaceRelation,
     variables: {},
   });
-
+  let { data } = res;
   postId = data.createPost.id;
   delete data.createPost.id;
   expect(data).toMatchSnapshot();

@@ -121,12 +121,46 @@ test('Inherited from abstract and embedded', () => {
   }
 });
 
-test('Object field should be embedded, relation or extRelation', () => {
+test('Type of object field should be embedded, abstract  or model', () => {
   expect.assertions(1);
   try {
     makeExecutableSchema({
       typeDefs: gql`
         type Comment
+        type Post @model {
+          comment: Comment
+        }
+      `,
+    });
+  } catch (err) {
+    if (!(err instanceof SDLSyntaxException)) throw err;
+    expect(err.code).toMatchInlineSnapshot(`"unmarkedObjectField"`);
+  }
+});
+
+test('Object field of model type should be marked with @relation or @extRelation directive', () => {
+  expect.assertions(1);
+  try {
+    makeExecutableSchema({
+      typeDefs: gql`
+        type Comment @model
+        type Post @model {
+          comment: Comment
+        }
+      `,
+    });
+  } catch (err) {
+    if (!(err instanceof SDLSyntaxException)) throw err;
+    expect(err.code).toMatchInlineSnapshot(`"unmarkedObjectField"`);
+  }
+});
+
+test('Object field of abstract type should be marked with @relation or @extRelation directive', () => {
+  expect.assertions(1);
+  try {
+    makeExecutableSchema({
+      typeDefs: gql`
+        interface Comment @abstract
         type Post @model {
           comment: Comment
         }

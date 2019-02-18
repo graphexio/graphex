@@ -35,6 +35,11 @@ export const server = new ApolloServer({
   schema,
   introspection: true,
   playground: true,
+  formatError: error => {
+    console.log(error);
+    console.dir(error.extensions);
+    return error;
+  },
 });
 
 const { createTestClient } = require('apollo-server-testing');

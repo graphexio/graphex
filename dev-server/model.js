@@ -9,14 +9,11 @@ export default gql`
     updatedAt: Date @updatedAt
   }
 
-  type Category @model {
-    id: ObjectID! @id @unique @db(name: "_id")
+  type Category implements Node & Timestamp @model {
     title: String @unique
     parentCategory: Category @relation(storeField: "parentCategoryId")
     subcategories: [Category!] @extRelation(storeField: "parentCategoryId")
     posts: [Post!] @extRelation
-    createdAt: Date @createdAt @db(name: "created_at")
-    updatedAt: Date @updatedAt
   }
 
   type Comment @embedded {
@@ -37,7 +34,6 @@ export default gql`
   }
 
   interface User @inherit @model {
-    id: ObjectID! @id @unique @db(name: "_id")
     username: String! @unique
   }
 
@@ -46,7 +42,7 @@ export default gql`
     moderator
   }
 
-  type Admin implements User {
+  type Admin implements Node & Timestamp & User {
     role: AdminRole
   }
 
@@ -61,18 +57,17 @@ export default gql`
     lastName: String!
   }
 
-  type Subscriber implements User {
+  type Subscriber implements Node & Timestamp & User {
     role: SubscriberRole
     profile: SubscriberProfile!
   }
 
   interface Poi @inherit @abstract {
-    id: ObjectID! @id @unique @db(name: "_id")
     title: String
   }
 
-  type Shop implements Poi @model
-  type Hotel implements Poi @model {
+  type Shop implements Node & Timestamp & Poi @model
+  type Hotel implements Node & Timestamp & Poi @model {
     stars: Int
   }
 `;

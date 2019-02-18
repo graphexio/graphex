@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
+import { lowercaseFirstLetter } from '../../utils';
 
 export const typeDef = `directive @embedded on OBJECT | INTERFACE`;
 
@@ -8,7 +9,39 @@ class EmbeddedDirective extends SchemaDirectiveVisitor {
     // object.mmEmbedded = true;
   }
   visitInterface(iface) {
+    const { _typeMap: SchemaTypes } = this.schema;
     // iface.mmEmbedded = true;
+
+    //Set discriminator
+    if (!iface.mmDiscriminatorField) {
+      iface.mmDiscriminatorField = '_type';
+    }
+
+    Object.values(SchemaTypes)
+      .filter(type => type._interfaces && type._interfaces.includes(iface))
+      .forEach(type => {
+        if (!type.mmDiscriminator) {
+          type.mmDiscriminator = lowercaseFirstLetter(type.name);
+        }
+      });
+    iface.mmDiscriminatorMap = iface.mmDiscriminatorMap || {};
+
+    iface.mmOnSchemaInit = () => {
+      Object.values(SchemaTypes)
+        .filter(
+          type =>
+            Array.isArray(type._interfaces) && type._interfaces.includes(iface)
+        )
+        .forEach(type => {
+          type.mmDiscriminatorField = iface.mmDiscriminatorField;
+          iface.mmDiscriminatorMap[type.mmDiscriminator] = type.name;
+        });
+    };
+
+    iface.resolveType = doc => {
+      return iface.mmDiscriminatorMap[doc[iface.mmDiscriminatorField]];
+    };
+    ////////////
   }
 }
 

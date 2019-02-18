@@ -10,6 +10,8 @@ import {
 } from 'graphql';
 import _ from 'lodash';
 
+import { getDirective } from './utils';
+
 export default class TypeWrap {
   _type = null;
   _realType = null;
@@ -18,7 +20,8 @@ export default class TypeWrap {
   _requiredArrayItem = false;
   _nested = false;
   _interface = false;
-  _inherited = null;
+  _inherited = null; //deprecated
+  _interfaces = [];
 
   constructor(type) {
     if (type instanceof TypeWrap) {
@@ -29,8 +32,9 @@ export default class TypeWrap {
       this._requiredArrayItem = type._requiredArrayItem;
       this._nested = type._nested;
       this._interface = type._interface;
-      this._inherited = type._inherited;
+      this._inherited = type._inherited; //deprecated
       this._abstract = type._abstract;
+      this._interfaces = type._interfaces;
       return;
     }
 
@@ -60,6 +64,7 @@ export default class TypeWrap {
     this._updateNestedInterface(realType);
 
     //inherited
+    this._interfaces = realType._interfaces;
     if (
       Array.isArray(realType._interfaces) &&
       realType._interfaces.length > 0
@@ -94,9 +99,12 @@ export default class TypeWrap {
   isRequiredArrayItem = () => this._requiredArrayItem;
   isNested = () => this._nested;
   isInterface = () => this._interface;
-  isInherited = () => Boolean(this._inherited);
+  isInherited = () => _.size(this._interfaces) > 0;
   isAbstract = () => Boolean(this._abstract);
-  interfaceType = () => this._inherited;
+  interfaceType = () => this._inherited; //deprecated
+  interfaceWithDirective = directive => {
+    return _.find(this._interfaces, iface => getDirective(iface, directive));
+  };
   clone = () => {
     return new TypeWrap(this);
   };

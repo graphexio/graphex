@@ -54,10 +54,9 @@ class EmbeddedDirective extends SchemaDirectiveVisitor {
   visitFieldDefinition(field, { objectType }) {
     let fieldTypeWrap = new TypeWrap(field.type);
     if (
-      !getDirective(fieldTypeWrap.realType(), 'embedded') &&
       !(
-        fieldTypeWrap.isInherited() &&
-        getDirective(fieldTypeWrap.interfaceType(), 'embedded')
+        getDirective(fieldTypeWrap.realType(), 'embedded') ||
+        fieldTypeWrap.interfaceWithDirective('embedded')
       )
     ) {
       throw `Embedded field type should be defined with embedded directive. (Field '${

@@ -79,12 +79,12 @@ export default class ModelMongo {
           whereType
         );
         if (
-          typeWrap.isInherited() &&
-          typeWrap.interfaceType().mmDiscriminatorField &&
-          !new TypeWrap(typeWrap.interfaceType()).isAbstract()
+          typeWrap.interfaceWithDirective('model') &&
+          typeWrap.interfaceWithDirective('model').mmDiscriminatorField
+          // && !new TypeWrap(typeWrap.interfaceType()).isAbstract()
         ) {
           selector[
-            typeWrap.interfaceType().mmDiscriminatorField
+            typeWrap.interfaceWithDirective('model').mmDiscriminatorField
           ] = typeWrap.realType().mmDiscriminator;
         }
         return this.QueryExecutor({
@@ -130,11 +130,11 @@ export default class ModelMongo {
           whereType
         );
         if (
-          typeWrap.isInherited() &&
-          typeWrap.interfaceType().mmDiscriminatorField
+          typeWrap.interfaceWithDirective('model') &&
+          typeWrap.interfaceWithDirective('model').mmDiscriminatorField
         ) {
           selector[
-            typeWrap.interfaceType().mmDiscriminatorField
+            typeWrap.interfaceWithDirective('model').mmDiscriminatorField
           ] = typeWrap.realType().mmDiscriminator;
         }
         let total = await this.QueryExecutor({
@@ -184,12 +184,12 @@ export default class ModelMongo {
           resolve: async (parent, args, context) => {
             let selector = parent._selector;
             if (
-              typeWrap.isInherited() &&
-              typeWrap.interfaceType().mmDiscriminatorField &&
-              !new TypeWrap(typeWrap.interfaceType()).isAbstract()
+              typeWrap.interfaceWithDirective('model') &&
+              typeWrap.interfaceWithDirective('model').mmDiscriminatorField
+              // && !new TypeWrap(typeWrap.interfaceType()).isAbstract()
             ) {
               selector[
-                typeWrap.interfaceType().mmDiscriminatorField
+                typeWrap.interfaceWithDirective('model').mmDiscriminatorField
               ] = typeWrap.realType().mmDiscriminator;
             }
 
@@ -288,12 +288,12 @@ export default class ModelMongo {
         // let entries = Object.entries(selector);
         // let [selectorField, id] = entries.length ? Object.entries(selector)[0]: ["_id"];
         if (
-          typeWrap.isInherited() &&
-          typeWrap.interfaceType().mmDiscriminatorField &&
-          !new TypeWrap(typeWrap.interfaceType()).isAbstract()
+          typeWrap.interfaceWithDirective('model') &&
+          typeWrap.interfaceWithDirective('model').mmDiscriminatorField
+          // && !new TypeWrap(typeWrap.interfaceType()).isAbstract()
         ) {
           selector[
-            typeWrap.interfaceType().mmDiscriminatorField
+            typeWrap.interfaceWithDirective('model').mmDiscriminatorField
           ] = typeWrap.realType().mmDiscriminator;
         }
         return this.QueryExecutor({
@@ -347,12 +347,12 @@ export default class ModelMongo {
         );
 
         if (
-          typeWrap.isInherited() &&
-          typeWrap.interfaceType().mmDiscriminatorField &&
-          !new TypeWrap(typeWrap.interfaceType()).isAbstract()
+          typeWrap.interfaceWithDirective('model') &&
+          typeWrap.interfaceWithDirective('model').mmDiscriminatorField
+          // && !new TypeWrap(typeWrap.interfaceType()).isAbstract()
         ) {
           doc[
-            typeWrap.interfaceType().mmDiscriminatorField
+            typeWrap.interfaceWithDirective('model').mmDiscriminatorField
           ] = typeWrap.realType().mmDiscriminator;
         }
 
@@ -397,12 +397,12 @@ export default class ModelMongo {
           whereUniqueType
         );
         if (
-          typeWrap.isInherited() &&
-          typeWrap.interfaceType().mmDiscriminatorField &&
-          !new TypeWrap(typeWrap.interfaceType()).isAbstract()
+          typeWrap.interfaceWithDirective('model') &&
+          typeWrap.interfaceWithDirective('model').mmDiscriminatorField
+          // && !new TypeWrap(typeWrap.interfaceType()).isAbstract()
         ) {
           selector[
-            typeWrap.interfaceType().mmDiscriminatorField
+            typeWrap.interfaceWithDirective('model').mmDiscriminatorField
           ] = typeWrap.realType().mmDiscriminator;
         }
 
@@ -447,12 +447,12 @@ export default class ModelMongo {
           whereType
         );
         if (
-          typeWrap.isInherited() &&
-          typeWrap.interfaceType().mmDiscriminatorField &&
-          !new TypeWrap(typeWrap.interfaceType()).isAbstract()
+          typeWrap.interfaceWithDirective('model') &&
+          typeWrap.interfaceWithDirective('model').mmDiscriminatorField
+          // && !new TypeWrap(typeWrap.interfaceType()).isAbstract()
         ) {
           selector[
-            typeWrap.interfaceType().mmDiscriminatorField
+            typeWrap.interfaceWithDirective('model').mmDiscriminatorField
           ] = typeWrap.realType().mmDiscriminator;
         }
 
@@ -523,12 +523,12 @@ export default class ModelMongo {
         }
 
         if (
-          typeWrap.isInherited() &&
-          typeWrap.interfaceType().mmDiscriminatorField &&
-          !new TypeWrap(typeWrap.interfaceType()).isAbstract()
+          typeWrap.interfaceWithDirective('model') &&
+          typeWrap.interfaceWithDirective('model').mmDiscriminatorField
+          // && !new TypeWrap(typeWrap.interfaceType()).isAbstract()
         ) {
           selector[
-            typeWrap.interfaceType().mmDiscriminatorField
+            typeWrap.interfaceWithDirective('model').mmDiscriminatorField
           ] = typeWrap.realType().mmDiscriminator;
         }
 
@@ -683,8 +683,7 @@ export default class ModelMongo {
       let typeWrap = new TypeWrap(type);
       if (
         getDirective(type, 'model') ||
-        (typeWrap.isInherited() &&
-          getDirective(typeWrap.interfaceType(), 'model'))
+        typeWrap.interfaceWithDirective('model')
       ) {
         if (!typeWrap.isAbstract()) {
           this._createAggregateAndConnectionTypes(type);
@@ -698,8 +697,7 @@ export default class ModelMongo {
       let typeWrap = new TypeWrap(type);
       if (
         getDirective(type, 'model') ||
-        (typeWrap.isInherited() &&
-          getDirective(typeWrap.interfaceType(), 'model'))
+        typeWrap.interfaceWithDirective('model')
       ) {
         if (!typeWrap.isAbstract()) {
           // console.log(`Building queries for ${type.name}`);

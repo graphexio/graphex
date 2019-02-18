@@ -57,12 +57,11 @@ class RelationDirective extends SchemaDirectiveVisitor {
     let isAbstract = getDirective(fieldTypeWrap.realType(), 'abstract');
 
     if (
-      !getDirective(fieldTypeWrap.realType(), 'model') &&
       !(
-        fieldTypeWrap.isInherited() &&
-        getDirective(fieldTypeWrap.interfaceType(), 'model')
-      ) &&
-      !isAbstract
+        getDirective(fieldTypeWrap.realType(), 'model') ||
+        fieldTypeWrap.interfaceWithDirective('model') ||
+        isAbstract
+      )
     ) {
       throw `Relation field type should be defined with Model directive or Abstract interface. (Field '${
         field.name
@@ -403,9 +402,11 @@ class RelationDirective extends SchemaDirectiveVisitor {
     this.mmInterfaceModifier = {};
     this.isAbstract = fieldTypeWrap.isAbstract();
     //Collection name and interface modifier
-    if (fieldTypeWrap.isInherited()) {
+    if (fieldTypeWrap.interfaceWithDirective('model')) {
       let { mmDiscriminator } = fieldTypeWrap.realType();
-      let { mmDiscriminatorField } = fieldTypeWrap.interfaceType();
+      let { mmDiscriminatorField } = fieldTypeWrap.interfaceWithDirective(
+        'model'
+      );
       this.mmInterfaceModifier = {
         [mmDiscriminatorField]: mmDiscriminator,
       };
