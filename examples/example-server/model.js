@@ -1,22 +1,27 @@
 import gql from 'graphql-tag';
 export default gql`
-  type Category @model {
+  interface Node @inherit {
     id: ObjectID! @id @unique @db(name: "_id")
-    title: String @default(value: "New Category")
-    parentCategory: Category @relation(storeField: "parentCategoryId")
-    subcategories: [Category!] @extRelation(storeField: "parentCategoryId")
-    posts: [Post!] @extRelation
-    createdAt: Date @createdAt
+  }
+
+  interface Timestamp @inherit {
+    createdAt: Date @createdAt @db(name: "created_at")
     updatedAt: Date @updatedAt
   }
 
-  type Comment {
+  type Category implements Node & Timestamp @model {
+    title: String @unique
+    parentCategory: Category @relation(storeField: "parentCategoryId")
+    subcategories: [Category!] @extRelation(storeField: "parentCategoryId")
+    posts: [Post!] @extRelation
+  }
+
+  type Comment @embedded {
     body: String
     user: User! @relation
   }
 
-  type Post @model {
-    id: ObjectID! @id @unique @db(name: "_id")
+  type Post implements Node & Timestamp @model {
     title: String!
     body: String!
     category: Category @relation
@@ -24,10 +29,11 @@ export default gql`
     owner: User! @relation
     place: GeoJSONPoint
     comments: [Comment!]
+    poi: Poi @relation
+    pois: [Poi] @relation
   }
 
   interface User @inherit @model {
-    id: ObjectID! @id @unique @db(name: "_id")
     username: String! @unique
   }
 
@@ -36,7 +42,7 @@ export default gql`
     moderator
   }
 
-  type Admin implements User {
+  type Admin implements Node & Timestamp & User {
     role: AdminRole
   }
 
@@ -46,13 +52,22 @@ export default gql`
     premium
   }
 
-  type SubscriberProfile {
+  type SubscriberProfile @embedded {
     firstName: String!
     lastName: String!
   }
 
-  type Subscriber implements User {
+  type Subscriber implements Node & Timestamp & User {
     role: SubscriberRole
     profile: SubscriberProfile!
+  }
+
+  interface Poi @inherit @abstract {
+    title: String
+  }
+
+  type Shop implements Node & Timestamp & Poi @model
+  type Hotel implements Node & Timestamp & Poi @model {
+    stars: Int
   }
 `;

@@ -897,12 +897,13 @@ apollo-link@^1.2.3:
     apollo-utilities "^1.0.0"
     zen-observable-ts "^0.8.11"
 
-apollo-model-mongodb@^0.3.1:
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/apollo-model-mongodb/-/apollo-model-mongodb-0.3.1.tgz#d78ecb92d6897542a6ba77a22788f6c97441cdfa"
-  integrity sha512-sEBngbmMiT1bmlnZGbVKE0loYXYmzZNcSTy+UU6eCSvo1b32rbT+TZaJWGvTqrINguWUVZyfk0K3OKJMzMSQWg==
+apollo-model-mongodb@^0.4.4:
+  version "0.4.4"
+  resolved "https://registry.yarnpkg.com/apollo-model-mongodb/-/apollo-model-mongodb-0.4.4.tgz#ec3d911376fa620548b5c62be189fa4edc584400"
+  integrity sha512-V4haW35qHRlI4yrC01pggGW9EPQNOYcR6/WZ2l8i1Wxm0t9B/Aa94P8cao0X1G+tUSgGrq49+qqdfzuw5XkMSQ==
   dependencies:
     "@babel/runtime" "^7.2.0"
+    dataloader "^1.4.0"
     graphql-resolvers "^0.2.2"
     graphql-tag "^2.10.0"
     graphql-tools "^4.0.3"
@@ -1346,6 +1347,11 @@ cors@^2.8.4:
   dependencies:
     object-assign "^4"
     vary "^1"
+
+dataloader@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/dataloader/-/dataloader-1.4.0.tgz#bca11d867f5d3f1b9ed9f737bd15970c65dff5c8"
+  integrity sha512-68s5jYdlvasItOJnCuI2Q9s4q98g0pCyL3HrcKJu8KNugUl8ahgmZYg38ysLTgQjjXX3H8CJLkAvWrclWfcalw==
 
 debug@2.6.9, debug@^2.1.2, debug@^2.2.0, debug@^2.3.3:
   version "2.6.9"

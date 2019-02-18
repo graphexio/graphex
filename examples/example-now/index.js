@@ -3,30 +3,34 @@ import ApolloModelMongo, { QueryExecutor } from 'apollo-model-mongodb';
 import { MongoClient, ObjectID } from 'mongodb';
 import typeDefs from './model.graphql';
 
-let HANDLER = MongoClient.connect(
-  process.env.MONGO_URL,
-  { useNewUrlParser: true }
-)
-  .then(conn => conn.db(process.env.MONGO_DB))
-  .then(db => {
-    return new ApolloModelMongo({
-      queryExecutor: QueryExecutor(db),
-    }).makeExecutableSchema({
-      typeDefs,
-    });
-  })
-  .then(schema => {
-    let server = new ApolloServer({
-      schema,
-      introspection: true,
-      playground: true,
-    });
+let DB = null;
 
-    let handler = server.createHandler({ path: '/' });
-    return handler;
+export const connectToDatabase = () => {
+  if (DB && DB.serverConfig.isConnected()) {
+    return Promise.resolve(DB);
+  }
+  return MongoClient.connect(process.env.MONGO_URL, {
+    useNewUrlParser: true,
+  }).then(client => {
+    DB = client.db(process.env.MONGO_DB);
+    return DB;
   });
+};
 
-module.exports = async (req, res) => {
-  let handler = await HANDLER;
-  await handler(req, res);
+let schema = new ApolloModelMongo({
+  queryExecutor: QueryExecutor(connectToDatabase),
+}).makeExecutableSchema({
+  typeDefs,
+});
+
+let server = new ApolloServer({
+  schema,
+  introspection: true,
+  playground: true,
+});
+
+let Handler = server.createHandler({ path: '/' });
+
+module.exports = (req, res) => {
+  return Handler(req, res);
 };
