@@ -29,7 +29,7 @@ export const applyInputTransform = context => {
       Object.keys(fields).map(async key => {
         let field = fields[key];
         if (!field) {
-          console.log('Key', key, 'fields', fields);
+          // console.log('Key', key, 'fields', fields);
           throw 'Wrong type for input provided';
         }
         let val = value && value[key];

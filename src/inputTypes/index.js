@@ -382,7 +382,7 @@ class InputTypesClass {
           name: 'data',
           type: this._inputType(
             initialType,
-            typeWrap.isInterface() ? KIND.UPDSTE_INTERFACE : KIND.UPDATE
+            typeWrap.isInterface() ? KIND.UPDATE_INTERFACE : KIND.UPDATE
           ),
         },
       },
