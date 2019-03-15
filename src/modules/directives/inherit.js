@@ -10,7 +10,7 @@ class Inherit extends SchemaDirectiveVisitor {
     Object.values(SchemaTypes)
       .filter(type => type._interfaces && type._interfaces.includes(iface))
       .forEach(type => {
-        type._fields = { ...type._fields, ...iface._fields };
+        type._fields = { ...iface._fields, ...type._fields };
       });
 
     //Looks like this code is unused
