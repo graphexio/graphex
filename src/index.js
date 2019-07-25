@@ -158,7 +158,7 @@ export default class ModelMongo {
           first,
           skip,
         };
-        console.log(args, first, skip, total);
+        // console.log(args, first, skip, total);
         let hasMore = first + skip < total;
 
         return {
