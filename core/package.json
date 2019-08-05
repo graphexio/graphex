@@ -1,5 +1,5 @@
 {
-  "name": "apollo-model-mongodb",
+  "name": "@apollo-model/core",
   "version": "0.4.5",
   "description": "",
   "main": "lib/index.js",

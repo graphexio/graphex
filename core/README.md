@@ -38,7 +38,7 @@ npm install --save apollo-model-mongodb
 Project initialization is the same as for [Apollo Server](https://www.apollographql.com/docs/apollo-server/getting-started.html). The only difference is that we use `makeExecutableSchema` from this package to generate schema.
 
 ```javascript
-import ApolloModelMongo, { QueryExecutor } from 'apollo-model-mongodb';
+import ApolloModelMongo, { QueryExecutor } from '@apollo-model/core';
 const schema = await new ApolloModelMongo({
   queryExecutor: QueryExecutor(db),
 }).makeExecutablSchema({
