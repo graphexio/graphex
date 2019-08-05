@@ -1,0 +1,30 @@
+{
+  "name": "apollo-model",
+  "version": "0.4.0",
+  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apollo-model/apollo-model.git"
+  },
+  "devDependencies": {
+    "lerna": "^3.13.1"
+  },
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
+  },
+  "scripts": {
+    "bootstrap": "lerna bootstrap",
+    "prepare": "lerna run --stream --sort prepare",
+    "test": "lerna run --stream --sort test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/apollo-model/apollo-model/issues"
+  },
+  "homepage": "https://github.com/apollo-model/apollo-model#readme"
+}
