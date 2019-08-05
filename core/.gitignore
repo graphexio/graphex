@@ -1,0 +1,6 @@
+.idea/
+examples/example-lib
+
+node_modules/
+
+\.DS_Store
