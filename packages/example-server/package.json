@@ -1,5 +1,5 @@
 {
-  "name": "apollo-model-mongodb-example-server",
+  "name": "@apollo-model/example-server",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",

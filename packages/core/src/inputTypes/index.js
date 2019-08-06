@@ -13,7 +13,7 @@ import {
 import { applyInputTransform, reduceTransforms } from './utils';
 import { getDirective } from '../utils';
 import SDLSyntaxException from '../sdlSyntaxException';
-import TypeWrap from '../typeWrap';
+import TypeWrap from '@apollo-model/type-wrap';
 import * as KIND from './kinds';
 import * as Transforms from './transforms';
 import { lowercaseFirstLetter } from '../utils';

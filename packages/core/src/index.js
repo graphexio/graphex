@@ -32,8 +32,7 @@ import {
   lowercaseFirstLetter,
   prepareUpdateDoc,
 } from './utils';
-import TypeWrap from './typeWrap';
-export { default as TypeWrap } from './typeWrap';
+import TypeWrap from '@apollo-model/type-wrap';
 
 import InitialScheme from './initialScheme';
 import Modules from './modules';

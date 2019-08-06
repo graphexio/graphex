@@ -1,0 +1,30 @@
+{
+  "name": "@apollo-model/schema-filter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lib/index.js",
+  "scripts": {
+    "dev": "nodemon --exec babel-node dev-server/index.js",
+    "test": "jest",
+    "prepare": "rimraf ./lib && babel ./src --out-dir ./lib"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@apollo/federation": "^0.7.0",
+    "@babel/core": "^7.5.5",
+    "apollo-server": "^2.7.0",
+    "graphql": "^14.4.2",
+    "graphql-tools": "^4.0.5",
+    "ramda": "^0.26.1"
+  },
+  "devDependencies": {
+    "@babel/node": "^7.5.5",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/plugin-proposal-pipeline-operator": "^7.5.0",
+    "@babel/preset-env": "^7.5.5",
+    "jest": "^24.8.0",
+    "nodemon": "^1.19.1",
+    "rimraf": "^2.6.3"
+  }
+}

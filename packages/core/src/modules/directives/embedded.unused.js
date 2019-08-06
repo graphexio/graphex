@@ -17,7 +17,7 @@ import {
 } from '../../queryExecutor';
 
 import InputTypes from '../../inputTypes';
-import TypeWrap from '../../typeWrap';
+import TypeWrap from '@apollo-model/type-wrap';
 import {
   appendTransform,
   applyInputTransform,

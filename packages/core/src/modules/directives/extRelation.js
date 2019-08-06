@@ -12,7 +12,7 @@ import {
 import { FIND, FIND_IDS, FIND_ONE } from '../../queryExecutor';
 
 import InputTypes from '../../inputTypes';
-import TypeWrap from '../../typeWrap';
+import TypeWrap from '@apollo-model/type-wrap';
 import * as HANDLER from '../../inputTypes/handlers';
 import * as KIND from '../../inputTypes/kinds';
 import * as Transforms from '../../inputTypes/transforms';

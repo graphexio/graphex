@@ -1,7 +1,7 @@
 import { defaultFieldResolver } from 'graphql';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
 
-import TypeWrap from '../../typeWrap';
+import TypeWrap from '@apollo-model/type-wrap';
 import { appendTransform, reduceTransforms } from '../../inputTypes/utils';
 import * as HANDLER from '../../inputTypes/handlers';
 import * as KIND from '../../inputTypes/kinds';

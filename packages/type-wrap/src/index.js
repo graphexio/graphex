@@ -6,11 +6,18 @@ import {
   GraphQLList,
   GraphQLNonNull,
   GraphQLEnumType,
-  GraphQLBoolean,
-} from 'graphql';
-import _ from 'lodash';
+  GraphQLBoolean
+} from "graphql";
+import _ from "lodash";
 
-import { getDirective } from './utils';
+function getDirective(field, name) {
+  if (field.astNode && field.astNode.directives) {
+    return field.astNode.directives.find(
+      directive => directive.name.value === name
+    );
+  }
+  return undefined;
+}
 
 export default class TypeWrap {
   _type = null;
