@@ -1,5 +1,4 @@
-import { ApolloServer } from 'apollo-server';
-import AMM from '../src/';
+import AMM from '@apollo-model/core';
 import QueryExecutor from '@apollo-model/mongodb-executor';
 import { MongoClient, ObjectID } from 'mongodb';
 import typeDefs from './model.js';
@@ -18,14 +17,8 @@ export const connectToDatabase = () => {
   });
 };
 
-const schema = new AMM({
+export const schema = new AMM({
   queryExecutor: QueryExecutor(connectToDatabase),
 }).makeExecutableSchema({
   typeDefs,
-});
-
-export const server = new ApolloServer({
-  schema,
-  introspection: true,
-  playground: true,
 });

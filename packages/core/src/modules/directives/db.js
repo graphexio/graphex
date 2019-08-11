@@ -1,3 +1,4 @@
+import gql from 'graphql-tag';
 import _ from 'lodash';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
 
@@ -6,7 +7,9 @@ import * as HANDLER from '../../inputTypes/handlers';
 import * as KIND from '../../inputTypes/kinds';
 import { combineResolvers } from '../../utils';
 
-export const typeDef = `directive @db(name:String!, defaultValue:String=null) on FIELD_DEFINITION`;
+export const typeDef = gql`
+  directive @db(name: String!, defaultValue: String = null) on FIELD_DEFINITION
+`;
 
 class DirectiveDB extends SchemaDirectiveVisitor {
   visitFieldDefinition(field) {

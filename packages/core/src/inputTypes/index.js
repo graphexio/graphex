@@ -16,7 +16,7 @@ import SDLSyntaxException from '../sdlSyntaxException';
 import TypeWrap from '@apollo-model/type-wrap';
 import * as KIND from './kinds';
 import * as Transforms from './transforms';
-import { lowercaseFirstLetter } from '../utils';
+import { lowercaseFirstLetter, uppercaseFirstLetter } from '../utils';
 import pluralize from 'pluralize';
 
 export const UNMARKED_OBJECT_FIELD = 'unmarkedObjectField';
@@ -98,6 +98,10 @@ const addUpdateInterfaceValues = (val, initialType, fieldType) => {
   return {};
 };
 
+export const getInputTypeName = (kind, typeName) => {
+  return `${typeName}${uppercaseFirstLetter(kind)}Input`;
+};
+
 class InputTypesClass {
   Kinds = [];
 
@@ -169,9 +173,7 @@ class InputTypesClass {
         !getDirective(field, 'extRelation')
       ) {
         throw new SDLSyntaxException(
-          `Field '${
-            field.name
-          }' should be marked with @relation or @extRelation directive`,
+          `Field '${field.name}' should be marked with @relation or @extRelation directive`,
           UNMARKED_OBJECT_FIELD,
           [field]
         );
@@ -332,10 +334,6 @@ class InputTypesClass {
   _type = typeName => {
     if (!this.SchemaTypes[typeName]) throw `Type ${typeName} not found`;
     return this.SchemaTypes[typeName];
-  };
-
-  _inputTypeName = (typeName, kind) => {
-    return `${typeName}${kind.charAt(0).toUpperCase() + kind.slice(1)}Input`;
   };
 
   _paginationTypeName = typeName => {
@@ -727,7 +725,7 @@ class InputTypesClass {
     if (typeof type === 'string') {
       type = this._type(type);
     }
-    let typeName = this._inputTypeName(type.name, kind);
+    let typeName = getInputTypeName(kind, type.name);
     try {
       return this._type(typeName);
     } catch (err) {

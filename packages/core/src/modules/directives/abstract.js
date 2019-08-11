@@ -1,3 +1,4 @@
+import gql from 'graphql-tag';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
 import { getDirective } from '../../utils';
 import SDLSyntaxException from '../../sdlSyntaxException';
@@ -6,7 +7,9 @@ export const SHOULD_BE_MODEL = 'shouldBeModel';
 export const ABSTRACT_WITH_MODEL = 'abstractWithModel';
 export const ABSTRACT_WITH_EMBEDDED = 'abstractWithEmbedded';
 
-export const typeDef = `directive @abstract(from:String = null) on INTERFACE`;
+export const typeDef = gql`
+  directive @abstract(from: String = null) on INTERFACE
+`;
 
 class Abstract extends SchemaDirectiveVisitor {
   visitInterface(iface) {
@@ -61,9 +64,7 @@ class Abstract extends SchemaDirectiveVisitor {
         if (!getDirective(type, 'model')) {
           throw new SDLSyntaxException(
             `
-            Type '${type.name}' is inherited from abstract interface '${
-              iface.name
-            }' and should be marked with @model directive
+            Type '${type.name}' is inherited from abstract interface '${iface.name}' and should be marked with @model directive
           `,
             SHOULD_BE_MODEL,
             [type, iface]
@@ -75,22 +76,14 @@ class Abstract extends SchemaDirectiveVisitor {
           .forEach(i => {
             if (getDirective(i, 'model')) {
               throw new SDLSyntaxException(
-                `Type '${type.name}' can not inherit both '${
-                  iface.name
-                }' and '${
-                  i.name
-                }' because they marked with @abstract and @model directives`,
+                `Type '${type.name}' can not inherit both '${iface.name}' and '${i.name}' because they marked with @abstract and @model directives`,
                 ABSTRACT_WITH_MODEL,
                 [i, iface]
               );
             }
             if (getDirective(i, 'embedded')) {
               throw new SDLSyntaxException(
-                `Type '${type.name}' can not inherit both '${
-                  iface.name
-                }' and '${
-                  i.name
-                }' because they marked with @abstract and @embedded directives`,
+                `Type '${type.name}' can not inherit both '${iface.name}' and '${i.name}' because they marked with @abstract and @embedded directives`,
                 ABSTRACT_WITH_EMBEDDED,
                 [i, iface]
               );

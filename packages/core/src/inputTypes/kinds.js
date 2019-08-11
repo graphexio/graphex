@@ -20,3 +20,7 @@ export const UPDATE_ONE_REQUIRED_NESTED = 'updateOneRequiredNested';
 export const UPDATE_MANY_REQUIRED_NESTED = 'updateManyRequiredNested';
 
 export const UPDATE_WITH_WHERE_NESTED = 'updateWithWhereNested';
+
+export const getInputTypeName = (typeName, kind) => {
+  return `${typeName}${uppercaseFirstLetter(kind)}Input`;
+};

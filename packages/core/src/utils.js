@@ -10,7 +10,11 @@ import { combineResolvers as CombineResolvers } from 'graphql-resolvers';
 
 import _ from 'lodash';
 import pluralize from 'pluralize';
-import { DELETE_ONE, INSERT_ONE, UPDATE_ONE } from './queryExecutor';
+import {
+  DELETE_ONE,
+  INSERT_ONE,
+  UPDATE_ONE,
+} from '@apollo-model/mongodb-executor';
 
 export function getLastType(fieldType) {
   if (fieldType.ofType) {
@@ -47,6 +51,13 @@ function camelize(str) {
 export function lowercaseFirstLetter(string) {
   if (typeof string === 'string') {
     return string.charAt(0).toLowerCase() + string.slice(1);
+  }
+  return string;
+}
+
+export function uppercaseFirstLetter(string) {
+  if (typeof string === 'string') {
+    return string.charAt(0).toUpperCase() + string.slice(1);
   }
   return string;
 }

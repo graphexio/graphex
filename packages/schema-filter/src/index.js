@@ -164,7 +164,7 @@ export default (filterFields, defaultFields) => {
     },
 
     transformSchema(schema) {
-      const newSchema = visitSchema(schema, {
+      let newSchema = visitSchema(schema, {
         [VisitSchemaKind.OBJECT_TYPE]: type => {
           const groupedFields = groupFields(
             field => filterFields(type, field),
@@ -174,6 +174,7 @@ export default (filterFields, defaultFields) => {
           if (!groupedFields[false]) {
             return undefined;
           }
+          if (!groupedFields[true]) return null;
 
           const interfaces = type.getInterfaces();
 
@@ -212,6 +213,8 @@ export default (filterFields, defaultFields) => {
             });
           }
 
+          if (!groupedFields[true]) return null;
+
           return new GraphQLInputObjectType({
             name: type.name,
             description: type.description,
@@ -223,7 +226,70 @@ export default (filterFields, defaultFields) => {
 
           return undefined;
         },
+        [VisitSchemaKind.INTERFACE_TYPE]: type => {
+          const groupedFields = groupFields(
+            field => filterFields(type, field),
+            type.getFields()
+          );
+
+          if (!groupedFields[false]) {
+            return undefined;
+          }
+          // else {
+          //   Object.values(groupedFields[false]).forEach(field => {
+          //     let defaultFn = defaultFields(type, field);
+          //     if (defaultFn) {
+          //       defaults.add(type, field, defaultFn);
+          //     } else {
+          //       if (new TypeWrap(field.type).isRequired()) {
+          //         throw new Error(
+          //           `Default value for required field "${field.name}" in type "${type.name}" was not provided`
+          //         );
+          //       }
+          //     }
+          //   });
+          //
+
+          if (!groupedFields[true]) return null;
+
+          return new GraphQLInterfaceType({
+            name: type.name,
+            // description: type.description,
+            astNode: type.astNode,
+            // isTypeOf: type.isTypeOf,
+            fields: () =>
+              fieldMapToFieldConfigMap(groupedFields[true], resolveType),
+          });
+
+          return undefined;
+        },
       });
+
+      //remove null from interfaces after first transformation
+      newSchema = visitSchema(newSchema, {
+        [VisitSchemaKind.OBJECT_TYPE]: type => {
+          const interfaces = type.getInterfaces();
+          let filteredInterfaces = interfaces.filter(iface => iface);
+
+          if (filteredInterfaces.length === interfaces.length) {
+            return undefined;
+          }
+
+          const fields = type.getFields();
+
+          return new GraphQLObjectType({
+            name: type.name,
+            description: type.description,
+            astNode: type.astNode,
+            isTypeOf: type.isTypeOf,
+            fields: () => fieldMapToFieldConfigMap(fields, resolveType, true),
+            interfaces: () => filteredInterfaces,
+          });
+
+          return undefined;
+        },
+      });
+
       typeMap = newSchema.getTypeMap();
       return newSchema;
     },

@@ -223,6 +223,72 @@ Object {
 }
 `;
 
+exports[`QueryCategoriesExtRelation 2`] = `
+Object {
+  "createCategory": Object {
+    "title": "root",
+  },
+}
+`;
+
+exports[`QueryCategoriesExtRelation 3`] = `
+Object {
+  "categories": Array [
+    Object {
+      "title": "root",
+    },
+  ],
+}
+`;
+
+exports[`QueryCategoriesExtRelation 4`] = `
+Object {
+  "createCategory": null,
+}
+`;
+
+exports[`QueryCategoriesExtRelation 5`] = `
+Object {
+  "createCategory": Object {
+    "parentCategory": Object {
+      "title": "root",
+    },
+    "title": "JS",
+  },
+}
+`;
+
+exports[`QueryCategoriesExtRelation 6`] = `
+Object {
+  "createCategory": Object {
+    "parentCategory": Object {
+      "title": "root",
+    },
+    "title": "MongoDB",
+  },
+}
+`;
+
+exports[`QueryCategoriesExtRelation 7`] = `
+Object {
+  "categories": Array [
+    Object {
+      "subcategories": Array [
+        Object {
+          "subcategories": Array [],
+          "title": "JS",
+        },
+        Object {
+          "subcategories": Array [],
+          "title": "MongoDB",
+        },
+      ],
+      "title": "root",
+    },
+  ],
+}
+`;
+
 exports[`QueryHotels 1`] = `
 Object {
   "hotels": Array [

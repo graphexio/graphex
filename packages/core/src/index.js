@@ -1,4 +1,6 @@
 import { makeExecutableSchema as makeGraphQLSchema } from 'graphql-tools';
+const { buildFederatedSchema } = require('@apollo/federation');
+
 import {
   GraphQLInt,
   GraphQLList,
@@ -8,7 +10,6 @@ import {
 import _ from 'lodash';
 import pluralize from 'pluralize';
 
-export { default as QueryExecutor } from './queryExecutor';
 import {
   COUNT,
   DELETE_MANY,
@@ -17,7 +18,7 @@ import {
   FIND_ONE,
   INSERT_ONE,
   UPDATE_ONE,
-} from './queryExecutor';
+} from '@apollo-model/mongodb-executor';
 
 import {
   allQueryArgs,
@@ -39,7 +40,20 @@ import Modules from './modules';
 
 import InputTypes, { EmptyTypeException } from './inputTypes';
 import { applyInputTransform } from './inputTypes/utils';
+
 import * as KIND from './inputTypes/kinds';
+
+import {
+  SINGLE_QUERY,
+  MULTIPLE_QUERY,
+  CONNECTION_QUERY,
+  MULTIPLE_PAGINATION_QUERY,
+  CREATE_MUTATION,
+  DELETE_MUTATION,
+  DELETE_MANY_MUTATION,
+  UPDATE_MUTATION,
+  getMethodName,
+} from './methodKinds.js';
 
 export default class ModelMongo {
   constructor({ queryExecutor, options = {}, modules = [] }) {
@@ -66,7 +80,7 @@ export default class ModelMongo {
       } else throw e;
     }
 
-    const name = lowercaseFirstLetter(pluralize(modelType.name));
+    const name = getMethodName(MULTIPLE_QUERY)(modelType.name);
     this.Query._fields[name] = {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(modelType))),
       args: allQueryArgs({ whereType, orderByType }),
@@ -117,7 +131,7 @@ export default class ModelMongo {
 
     const returnFieldName = lowercaseFirstLetter(pluralize(modelType.name));
 
-    const name = `${returnFieldName}Paged`;
+    const name = getMethodName(MULTIPLE_PAGINATION_QUERY)(modelType.name);
     this.Query._fields[name] = {
       type: new GraphQLNonNull(paginationType),
       args: allQueryArgs({ whereType, orderByType }),
@@ -271,7 +285,7 @@ export default class ModelMongo {
       },
     ];
 
-    const name = lowercaseFirstLetter(modelType.name);
+    const name = getMethodName(SINGLE_QUERY)(modelType.name);
     this.Query._fields[name] = {
       type: modelType,
       description: undefined,
@@ -328,7 +342,7 @@ export default class ModelMongo {
       }
     }
 
-    const name = `create${modelType.name}`;
+    const name = getMethodName(CREATE_MUTATION)(modelType.name);
     this.Mutation._fields[name] = {
       type: modelType,
       args: args,
@@ -384,7 +398,7 @@ export default class ModelMongo {
       },
     ];
 
-    const name = `delete${modelType.name}`;
+    const name = getMethodName(DELETE_MUTATION)(modelType.name);
     this.Mutation._fields[name] = {
       type: modelType,
       args,
@@ -434,7 +448,7 @@ export default class ModelMongo {
       },
     ];
 
-    const name = `deleteMany${pluralize(modelType.name)}`;
+    const name = getMethodName(DELETE_MANY_MUTATION)(modelType.name);
     this.Mutation._fields[name] = {
       type: new GraphQLNonNull(GraphQLInt),
       args,
@@ -490,7 +504,7 @@ export default class ModelMongo {
     ];
     // }
 
-    const name = `update${modelType.name}`;
+    const name = getMethodName(UPDATE_MUTATION)(modelType.name);
     this.Mutation._fields[name] = {
       type: modelType,
       args,
@@ -625,6 +639,23 @@ export default class ModelMongo {
       resolvers = {},
       typeDefs = [],
     } = params;
+
+    // let modules = [
+    //   ...this.Modules.map(item => ({
+    //     typeDefs: item.typeDef,
+    //     resolvers: item.resolvers,
+    //     directiveResolvers: item.directiveResolvers,
+    //     schemaDirectives: item.schemaDirectives,
+    //   })),
+    //   { typeDefs: InitialScheme },
+    //   // {
+    //   //   typeDefs,
+    //   //   resolvers,
+    //   //   directiveResolvers,
+    //   //   schemaDirectives,
+    //   // },
+    // ];
+
     if (!Array.isArray(typeDefs)) typeDefs = [typeDefs];
 
     typeDefs = [InitialScheme, ...typeDefs];
@@ -658,6 +689,7 @@ export default class ModelMongo {
     };
 
     let schema = makeGraphQLSchema(modelParams);
+    // let schema = buildFederatedSchema(modules);
 
     let { _typeMap: SchemaTypes } = schema;
     let { Query, Mutation } = SchemaTypes;

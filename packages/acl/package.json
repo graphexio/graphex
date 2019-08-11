@@ -1,13 +1,14 @@
 {
-  "name": "@apollo-model/schema-filter",
-  "version": "1.0.0",
+  "name": "@apollo-model/acl",
+  "version": "0.4.5",
   "description": "",
-  "main": "lib/index.js",
+  "main": "index.js",
   "scripts": {
     "dev": "nodemon --exec babel-node dev-server/index.js",
     "test": "jest",
     "prepare": "rimraf ./lib && babel ./src --out-dir ./lib"
   },
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -18,13 +19,8 @@
     "ramda": "^0.26.1"
   },
   "devDependencies": {
-    "@babel/node": "^7.5.5",
-    "@babel/core": "^7.5.5",
-    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@apollo/gateway": "^0.8.1",
     "@babel/plugin-proposal-pipeline-operator": "^7.5.0",
-    "@babel/preset-env": "^7.5.5",
-    "jest": "^24.8.0",
-    "nodemon": "^1.19.1",
-    "rimraf": "^2.6.3"
+    "apollo-server": "^2.8.1"
   }
 }

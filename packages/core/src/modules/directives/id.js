@@ -1,10 +1,13 @@
+import gql from 'graphql-tag';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
 
 import { appendTransform } from '../../inputTypes/utils';
 import * as HANDLER from '../../inputTypes/handlers';
 import * as KIND from '../../inputTypes/kinds';
 
-export const typeDef = `directive @id on FIELD_DEFINITION`;
+export const typeDef = gql`
+  directive @id on FIELD_DEFINITION
+`;
 
 class ID extends SchemaDirectiveVisitor {
   visitFieldDefinition(field) {

@@ -1,3 +1,4 @@
+import gql from 'graphql-tag';
 import {
   GraphQLBoolean,
   GraphQLInputObjectType,
@@ -17,7 +18,7 @@ import {
   FIND_IDS,
   INSERT_MANY,
   INSERT_ONE,
-} from '../../queryExecutor';
+} from '@apollo-model/mongodb-executor';
 
 import InputTypes from '../../inputTypes';
 import TypeWrap from '@apollo-model/type-wrap';
@@ -44,7 +45,12 @@ export const INPUT_UPDATE_MANY_REQUIRED_RELATION_UPDATE =
 let queryExecutor = null;
 export const setQueryExecutor = q => (queryExecutor = q);
 
-export const typeDef = `directive @relation(field:String="_id", storeField:String=null ) on FIELD_DEFINITION`;
+export const typeDef = gql`
+  directive @relation(
+    field: String = "_id"
+    storeField: String = null
+  ) on FIELD_DEFINITION
+`;
 
 const dbRef = dbRef => dbRef.toJSON();
 

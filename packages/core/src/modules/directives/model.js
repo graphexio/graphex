@@ -1,3 +1,4 @@
+import gql from 'graphql-tag';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
 import pluralize from 'pluralize';
 
@@ -7,7 +8,9 @@ import { getDirective, lowercaseFirstLetter } from '../../utils';
 export const MULTIPLE_MODEL = 'multipleModel';
 export const MODEL_WITH_EMBEDDED = 'modelWithEmbedded';
 
-export const typeDef = `directive @model(collection:String=null) on OBJECT | INTERFACE`;
+export const typeDef = gql`
+  directive @model(collection: String = null) on OBJECT | INTERFACE
+`;
 
 class Model extends SchemaDirectiveVisitor {
   visitObject(object) {
@@ -19,22 +22,14 @@ class Model extends SchemaDirectiveVisitor {
     object._interfaces.forEach(iface => {
       if (getDirective(iface, 'model')) {
         throw new SDLSyntaxException(
-          `Type '${
-            object.name
-          }' can not be marked with @model directive because it's interface ${
-            iface.name
-          } marked with @model directive`,
+          `Type '${object.name}' can not be marked with @model directive because it's interface ${iface.name} marked with @model directive`,
           MULTIPLE_MODEL,
           [object, iface]
         );
       }
       if (getDirective(iface, 'embedded')) {
         throw new SDLSyntaxException(
-          `Type '${
-            object.name
-          }' can not be marked with @model directive because it's interface ${
-            iface.name
-          } marked with @embedded directive`,
+          `Type '${object.name}' can not be marked with @model directive because it's interface ${iface.name} marked with @embedded directive`,
           MODEL_WITH_EMBEDDED,
           [object, iface]
         );
@@ -60,20 +55,14 @@ class Model extends SchemaDirectiveVisitor {
           .forEach(i => {
             if (getDirective(i, 'model')) {
               throw new SDLSyntaxException(
-                `Type '${type.name}' can not inherit both '${
-                  iface.name
-                }' and '${i.name}' because they marked with @model directive`,
+                `Type '${type.name}' can not inherit both '${iface.name}' and '${i.name}' because they marked with @model directive`,
                 MULTIPLE_MODEL,
                 [i, iface]
               );
             }
             if (getDirective(i, 'embedded')) {
               throw new SDLSyntaxException(
-                `Type '${type.name}' can not inherit both '${
-                  iface.name
-                }' and '${
-                  i.name
-                }' because they marked with @model and @embedded directives`,
+                `Type '${type.name}' can not inherit both '${iface.name}' and '${i.name}' because they marked with @model and @embedded directives`,
                 MODEL_WITH_EMBEDDED,
                 [i, iface]
               );

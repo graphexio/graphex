@@ -1,8 +1,11 @@
+import gql from 'graphql-tag';
 import _ from 'lodash';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
 import { lowercaseFirstLetter } from '../../utils';
 
-export const typeDef = `directive @embedded on OBJECT | INTERFACE`;
+export const typeDef = gql`
+  directive @embedded on OBJECT | INTERFACE
+`;
 
 class EmbeddedDirective extends SchemaDirectiveVisitor {
   visitObject(object) {

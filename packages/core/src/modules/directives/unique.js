@@ -1,3 +1,4 @@
+import gql from 'graphql-tag';
 import { defaultFieldResolver } from 'graphql';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
 
@@ -7,7 +8,9 @@ import * as HANDLER from '../../inputTypes/handlers';
 import * as KIND from '../../inputTypes/kinds';
 import * as Transforms from '../../inputTypes/transforms';
 
-export const typeDef = `directive @unique on FIELD_DEFINITION`;
+export const typeDef = gql`
+  directive @unique on FIELD_DEFINITION
+`;
 
 class Unique extends SchemaDirectiveVisitor {
   visitFieldDefinition(field) {

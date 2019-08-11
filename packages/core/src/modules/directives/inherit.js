@@ -1,7 +1,10 @@
+import gql from 'graphql-tag';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
 import { lowercaseFirstLetter } from '../../utils';
 
-export const typeDef = `directive @inherit on INTERFACE`;
+export const typeDef = gql`
+  directive @inherit on INTERFACE
+`;
 
 class Inherit extends SchemaDirectiveVisitor {
   visitInterface(iface) {

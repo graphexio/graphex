@@ -14,7 +14,7 @@ import {
   INSERT_MANY,
   INSERT_ONE,
   UPDATE_ONE,
-} from '../../queryExecutor';
+} from '@apollo-model/mongodb-executor';
 
 import InputTypes from '../../inputTypes';
 import TypeWrap from '@apollo-model/type-wrap';

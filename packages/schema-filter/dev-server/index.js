@@ -13,11 +13,20 @@ const typeDefs = gql`
     me: User
   }
 
-  type User {
+  interface Node {
+    id: ID!
+  }
+
+  interface Timestamp {
+    updatedAt: Int!
+  }
+
+  type User implements Node & Timestamp {
     id: ID!
     name: String
     username: String
     nextUser: User
+    updatedAt: Int!
   }
 
   input CreateUser {
@@ -36,6 +45,7 @@ const typeDefs = gql`
 
   input Test2 {
     id: ID!
+    test: String
   }
 
   extend type Mutation {
@@ -71,13 +81,11 @@ let schema = buildFederatedSchema([
 
 let filterFields = FilterFields(
   (type, field) => {
-    return !/Test\.test/.test(`${type.name}.${field.name}`);
+    return !/^.*\.id$/.test(`${type.name}.${field.name}`);
   },
   (type, field) => {
-    if (/Test\.test/.test(`${type.name}.${field.name}`)) {
-      return () => ({
-        id: '123',
-      });
+    if (/.*\.id/.test(`${type.name}.${field.name}`)) {
+      return () => null;
     }
   }
 );
@@ -88,7 +96,7 @@ const server = new ApolloServer({
   schema,
 });
 
-server.listen({ port: 4001 }).then(({ url }) => {
+server.listen({ port: 4005 }).then(({ url }) => {
   console.log(`🚀 Server ready at ${url}`);
 });
 

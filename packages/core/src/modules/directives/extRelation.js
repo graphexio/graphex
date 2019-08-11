@@ -1,3 +1,4 @@
+import gql from 'graphql-tag';
 import * as _ from 'lodash';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
 
@@ -9,7 +10,7 @@ import {
   reduceTransforms,
 } from '../../inputTypes/utils';
 
-import { FIND, FIND_IDS, FIND_ONE } from '../../queryExecutor';
+import { FIND, FIND_IDS, FIND_ONE } from '@apollo-model/mongodb-executor';
 
 import InputTypes from '../../inputTypes';
 import TypeWrap from '@apollo-model/type-wrap';
@@ -28,7 +29,13 @@ import {
 let queryExecutor = null;
 export const setQueryExecutor = q => (queryExecutor = q);
 
-export const typeDef = `directive @extRelation(field:String="_id", storeField:String=null, many:Boolean=false ) on FIELD_DEFINITION`;
+export const typeDef = gql`
+  directive @extRelation(
+    field: String = "_id"
+    storeField: String = null
+    many: Boolean = false
+  ) on FIELD_DEFINITION
+`;
 
 class ExtRelationDirective extends SchemaDirectiveVisitor {
   visitFieldDefinition(field, { objectType }) {
