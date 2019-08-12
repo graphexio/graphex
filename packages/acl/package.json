@@ -21,6 +21,7 @@
   "devDependencies": {
     "@apollo/gateway": "^0.8.1",
     "@babel/plugin-proposal-pipeline-operator": "^7.5.0",
-    "apollo-server": "^2.8.1"
+    "apollo-server": "^2.8.1",
+    "rimraf": "^2.6.3"
   }
 }
