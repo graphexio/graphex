@@ -2,7 +2,7 @@
   "name": "@apollo-model/acl",
   "version": "0.5.2-alpha.0",
   "description": "",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
     "dev": "MONGO_URL='mongodb+srv://public:public@cluster0-c6p6b.mongodb.net/admin' MONGO_DB='db1' nodemon --exec babel-node dev-server/index.js",
     "test": "jest",
@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@apollo-model/schema-filter": "^0.5.0-alpha.0",
     "@apollo/federation": "^0.7.0",
     "apollo-server": "^2.7.0",
     "graphql": "^14.4.2",
