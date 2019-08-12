@@ -89,6 +89,13 @@ export const groupFields = (predicate, object) => {
   return result;
 };
 
+export const reduceValues = values => {
+  return values.reduce((state, item) => {
+    state[item.name] = R.omit(['deprecationReason', 'isDeprecated'], item);
+    return state;
+  }, {});
+};
+
 const resolveType = createResolveType((typeName, type) => {
   return type;
 });
@@ -97,7 +104,7 @@ export default (filterFields, defaultFields) => {
   let typeMap = {};
   const getType = typeName => typeMap[typeName];
 
-  const defaults = DefaultFields();
+  let defaults = DefaultFields();
 
   return {
     transformRequest(request) {
@@ -164,6 +171,8 @@ export default (filterFields, defaultFields) => {
     },
 
     transformSchema(schema) {
+      defaults = DefaultFields();
+
       let newSchema = visitSchema(schema, {
         [VisitSchemaKind.OBJECT_TYPE]: type => {
           const groupedFields = groupFields(
@@ -222,6 +231,26 @@ export default (filterFields, defaultFields) => {
             isTypeOf: type.isTypeOf,
             fields: () =>
               inputFieldMapToFieldConfigMap(groupedFields[true], resolveType),
+          });
+
+          return undefined;
+        },
+        [VisitSchemaKind.ENUM_TYPE]: type => {
+          const groupedFields = groupFields(
+            field => filterFields(type, field),
+            reduceValues(type.getValues())
+          );
+
+          if (!groupedFields[false]) {
+            return undefined;
+          }
+          if (!groupedFields[true]) return null;
+
+          return new GraphQLEnumType({
+            name: type.name,
+            description: type.description,
+            astNode: type.astNode,
+            values: groupedFields[true],
           });
 
           return undefined;

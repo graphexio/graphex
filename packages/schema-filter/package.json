@@ -18,11 +18,13 @@
     "ramda": "^0.26.1"
   },
   "devDependencies": {
-    "@babel/node": "^7.5.5",
     "@babel/core": "^7.5.5",
+    "@babel/node": "^7.5.5",
     "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/plugin-proposal-pipeline-operator": "^7.5.0",
     "@babel/preset-env": "^7.5.5",
+    "apollo-server": "^2.8.1",
+    "apollo-server-testing": "^2.8.1",
     "jest": "^24.8.0",
     "nodemon": "^1.19.1",
     "rimraf": "^2.6.3"
