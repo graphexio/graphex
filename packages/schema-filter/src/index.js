@@ -71,7 +71,7 @@ const getNameValue = node => node.name.value;
 const mapTypeForTypeStack = type => ({ type });
 
 export const mapFieldForTypeStack = field => ({
-  type: field.type,
+  type: new TypeWrap(field.type).realType(),
   args: field.args.reduce(reduceArgs, {}),
 });
 

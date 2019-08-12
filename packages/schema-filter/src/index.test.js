@@ -121,7 +121,7 @@ describe('SchemaFilter', () => {
   describe('GraphQLObject', () => {
     const typeDefs = gql`
       type Query {
-        getMethod: Test
+        getMethod: Test!
       }
 
       type Test {
