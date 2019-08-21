@@ -33,6 +33,11 @@ export default gql`
     pois: [Poi] @relation
   }
 
+  type Session implements Node & Timestamp @model {
+    token: ID! @unique
+    user: User! @relation
+  }
+
   interface User @inherit @model {
     username: String! @unique
   }

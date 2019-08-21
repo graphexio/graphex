@@ -1,5 +1,6 @@
 import { ApolloServer } from 'apollo-server';
-import ApolloModelMongo, { QueryExecutor } from '@apollo-model/core';
+import ApolloModelMongo from '@apollo-model/core';
+import QueryExecutor from '@apollo-model/mongodb-executor';
 import { MongoClient, ObjectID } from 'mongodb';
 import typeDefs from './model.js';
 

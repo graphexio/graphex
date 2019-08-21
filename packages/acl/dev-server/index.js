@@ -27,6 +27,6 @@ export const server = new ApolloServer({
   playground: true,
 });
 
-server.listen({ port: 4000 }).then(({ url }) => {
+server.listen({ port: 4001 }).then(({ url }) => {
   console.log(`🚀  Server ready at ${url}`);
 });
