@@ -20,7 +20,7 @@ export const connectToDatabase = () => {
 
 const schema = new AMM({
   queryExecutor: QueryExecutor(connectToDatabase),
-}).makeExecutableSchema({
+}).buildFederatedSchema({
   typeDefs,
 });
 

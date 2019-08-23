@@ -1,11 +1,12 @@
 import { makeExecutableSchema as makeGraphQLSchema } from 'graphql-tools';
-const { buildFederatedSchema } = require('@apollo/federation');
+const { printSchema } = require('@apollo/federation');
 
 import {
   GraphQLInt,
   GraphQLList,
   GraphQLNonNull,
   GraphQLObjectType,
+  GraphQLString,
 } from 'graphql';
 import _ from 'lodash';
 import pluralize from 'pluralize';
@@ -630,6 +631,34 @@ export default class ModelMongo {
         init({ field, inputTypes: InputTypes });
       }
     });
+  };
+
+  buildFederatedSchema = params => {
+    const schema = this.makeExecutableSchema(params);
+    const sdl = printSchema(schema);
+
+    const _Service = new GraphQLObjectType({
+      name: '_Service',
+      fields: {
+        sdl: {
+          name: 'sdl',
+          type: GraphQLString,
+        },
+      },
+    });
+
+    this.SchemaTypes._Service = _Service;
+    this.Query._fields._service = {
+      name: '_service',
+      args: [],
+      isDeprecated: false,
+      type: _Service,
+      resolve: () => ({
+        sdl,
+      }),
+    };
+
+    return schema;
   };
 
   makeExecutableSchema = params => {
