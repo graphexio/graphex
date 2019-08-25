@@ -9,6 +9,7 @@
     "now": "now --regions sfo1 -e MONGO_URL='mongodb+srv://public:public@cluster0-c6p6b.mongodb.net/admin' -e MONGO_DB='db1'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "private": true,
   "keywords": [],
   "author": "",
   "license": "ISC",

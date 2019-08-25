@@ -73,5 +73,6 @@
     "nodemon": "^1.18.9",
     "prettier": "^1.16.4",
     "rimraf": "^2.6.3"
-  }
+  },
+  "gitHead": "cb7d6ecaf5c45b659c2467e60d47a3f20fadbc3a"
 }
