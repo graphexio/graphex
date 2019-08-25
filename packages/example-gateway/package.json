@@ -1,5 +1,5 @@
 {
-  "name": "@apollo-model/gateway",
+  "name": "@apollo-model/example-gateway",
   "version": "0.5.4-alpha.0",
   "description": "",
   "main": "index.js",
@@ -9,6 +9,7 @@
     "test": "jest",
     "prepare": "rimraf ./lib && babel ./src --out-dir ./lib"
   },
+  "private": true,
   "devDependencies": {
     "@babel/cli": "^7.1.2",
     "@babel/core": "^7.1.2",
