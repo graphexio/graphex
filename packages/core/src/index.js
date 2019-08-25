@@ -1,5 +1,6 @@
 import { makeExecutableSchema as makeGraphQLSchema } from 'graphql-tools';
 const { printSchema } = require('@apollo/federation');
+import federationDirectives from '@apollo/federation/dist/directives';
 
 import {
   GraphQLInt,
@@ -7,6 +8,8 @@ import {
   GraphQLNonNull,
   GraphQLObjectType,
   GraphQLString,
+  GraphQLUnionType,
+  GraphQLScalarType,
 } from 'graphql';
 import _ from 'lodash';
 import pluralize from 'pluralize';
@@ -287,6 +290,36 @@ export default class ModelMongo {
     ];
 
     const name = getMethodName(SINGLE_QUERY)(modelType.name);
+
+    const resolve = async (parent, args, context) => {
+      let selector = await applyInputTransform({ parent, context })(
+        args.where,
+        whereUniqueType
+      );
+      // let entries = Object.entries(selector);
+      // let [selectorField, id] = entries.length ? Object.entries(selector)[0]: ["_id"];
+      if (
+        typeWrap.interfaceWithDirective('model') &&
+        typeWrap.interfaceWithDirective('model').mmDiscriminatorField
+        // && !new TypeWrap(typeWrap.interfaceType()).isAbstract()
+      ) {
+        selector[
+          typeWrap.interfaceWithDirective('model').mmDiscriminatorField
+        ] = typeWrap.realType().mmDiscriminator;
+      }
+      return this.QueryExecutor({
+        type: FIND_ONE,
+        modelType,
+        collection: modelType.mmCollectionName,
+        selector,
+        options: {
+          // selectorField,
+          // id,
+        },
+        context,
+      });
+    };
+
     this.Query._fields[name] = {
       type: modelType,
       description: undefined,
@@ -294,34 +327,8 @@ export default class ModelMongo {
       deprecationReason: undefined,
       isDeprecated: false,
       name,
-      resolve: async (parent, args, context) => {
-        let selector = await applyInputTransform({ parent, context })(
-          args.where,
-          whereUniqueType
-        );
-        // let entries = Object.entries(selector);
-        // let [selectorField, id] = entries.length ? Object.entries(selector)[0]: ["_id"];
-        if (
-          typeWrap.interfaceWithDirective('model') &&
-          typeWrap.interfaceWithDirective('model').mmDiscriminatorField
-          // && !new TypeWrap(typeWrap.interfaceType()).isAbstract()
-        ) {
-          selector[
-            typeWrap.interfaceWithDirective('model').mmDiscriminatorField
-          ] = typeWrap.realType().mmDiscriminator;
-        }
-        return this.QueryExecutor({
-          type: FIND_ONE,
-          modelType,
-          collection: modelType.mmCollectionName,
-          selector,
-          options: {
-            // selectorField,
-            // id,
-          },
-          context,
-        });
-      },
+      resolve,
+      __ammResolve: resolve,
     };
   };
 
@@ -633,8 +640,52 @@ export default class ModelMongo {
     });
   };
 
+  generateKeyDirective = fields => {
+    return {
+      kind: 'Directive',
+      name: { kind: 'Name', value: 'key' },
+      arguments: [
+        {
+          kind: 'Argument',
+          name: { kind: 'Name', value: 'fields' },
+          value: {
+            kind: 'StringValue',
+            value: fields,
+            block: false,
+          },
+        },
+      ],
+    };
+  };
+
   buildFederatedSchema = params => {
     const schema = this.makeExecutableSchema(params);
+    let keyTypes = [];
+    // schema._directives = [...schema._directives, ...federationDirectives];
+
+    Object.values(this.SchemaTypes).forEach(type => {
+      this._onSchemaInit(type);
+
+      let typeWrap = new TypeWrap(type);
+      if (
+        getDirective(type, 'model') ||
+        typeWrap.interfaceWithDirective('model')
+      ) {
+        if (!typeWrap.isAbstract()) {
+          Object.values(type.getFields()).map(field => {
+            if (getDirective(field, 'unique')) {
+              type.astNode.directives.push(
+                this.generateKeyDirective(field.name)
+              );
+            }
+          });
+          if (!typeWrap.isInterface()) {
+            keyTypes.push(type);
+          }
+        }
+      }
+    });
+
     const sdl = printSchema(schema);
 
     const _Service = new GraphQLObjectType({
@@ -646,7 +697,6 @@ export default class ModelMongo {
         },
       },
     });
-
     this.SchemaTypes._Service = _Service;
     this.Query._fields._service = {
       name: '_service',
@@ -657,6 +707,52 @@ export default class ModelMongo {
         sdl,
       }),
     };
+
+    if (keyTypes.length > 0) {
+      const _Any = new GraphQLScalarType({
+        name: '_Any',
+      });
+
+      const _Entity = new GraphQLUnionType({
+        name: '_Entity',
+        types: keyTypes,
+      });
+
+      this.SchemaTypes._Any = _Any;
+      this.SchemaTypes._Entity = _Entity;
+      this.Query._fields._entities = {
+        name: '_entities',
+        args: [
+          {
+            name: 'representations',
+            type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(_Any))),
+          },
+        ],
+        isDeprecated: false,
+        type: new GraphQLNonNull(new GraphQLList(_Entity)),
+        resolve: (obj, { representations }, context) => {
+          return Promise.all(
+            representations.map(async representation => {
+              try {
+                const { __typename, params } = representation;
+
+                //Now it just calls FIND_ONE. We should replace it with FIND_IDS.
+                const name = getMethodName(SINGLE_QUERY)(__typename);
+                let res = await this.Query._fields[name].__ammResolve(
+                  null,
+                  { where: params },
+                  context
+                );
+                res = { ...res, __typename };
+                return res;
+              } catch (err) {
+                console.log(err);
+              }
+            })
+          );
+        },
+      };
+    }
 
     return schema;
   };
