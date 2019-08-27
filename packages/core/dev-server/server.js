@@ -4,6 +4,8 @@ import QueryExecutor from '@apollo-model/mongodb-executor';
 import { MongoClient, ObjectID } from 'mongodb';
 import typeDefs from './model.js';
 
+import * as DirectiveImplements from '@apollo-model/directive-implements';
+
 let DB = null;
 
 export const connectToDatabase = () => {
@@ -21,7 +23,10 @@ export const connectToDatabase = () => {
 const schema = new AMM({
   queryExecutor: QueryExecutor(connectToDatabase),
 }).buildFederatedSchema({
-  typeDefs,
+  typeDefs: [typeDefs, DirectiveImplements.typeDefs],
+  schemaDirectives: {
+    ...DirectiveImplements.schemaDirectives,
+  },
 });
 
 export const server = new ApolloServer({

@@ -33,7 +33,10 @@ export default gql`
     pois: [Poi] @relation
   }
 
-  interface User @inherit @model {
+  scalar _FieldSet
+  directive @key(fields: _FieldSet!) on OBJECT | INTERFACE
+
+  interface User @implements(name: "Node & Timestamp") @inherit @model {
     username: String! @unique
   }
 
@@ -42,7 +45,7 @@ export default gql`
     moderator
   }
 
-  type Admin implements Node & Timestamp & User {
+  type Admin implements User {
     role: AdminRole
   }
 
@@ -57,7 +60,7 @@ export default gql`
     lastName: String!
   }
 
-  type Subscriber implements Node & Timestamp & User {
+  type Subscriber implements User {
     role: SubscriberRole
     profile: SubscriberProfile!
   }
@@ -66,8 +69,8 @@ export default gql`
     title: String
   }
 
-  type Shop implements Node & Timestamp & Poi @model
-  type Hotel implements Node & Timestamp & Poi @model {
+  type Shop implements Poi @model
+  type Hotel implements Poi @model {
     stars: Int
   }
 `;
