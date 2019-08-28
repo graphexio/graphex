@@ -1,6 +1,6 @@
 {
   "name": "@apollo-model/example-server",
-  "version": "0.5.4-alpha.4",
+  "version": "0.5.4-alpha.5",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@apollo-model/core": "^0.5.4-alpha.4",
+    "@apollo-model/core": "^0.5.4-alpha.5",
     "apollo-server": "^2.2.6",
     "graphql": "^14.0.2",
     "mongodb": "^3.1.10"
