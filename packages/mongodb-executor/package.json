@@ -1,6 +1,6 @@
 {
   "name": "@apollo-model/mongodb-executor",
-  "version": "0.5.2-alpha.0",
+  "version": "0.5.4-alpha.6",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
