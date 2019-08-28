@@ -67,6 +67,7 @@ const getFields = stackItem => stackItem.type.getFields();
 const getArgs = stackItem => stackItem.args;
 
 const getNameValue = node => node.name.value;
+const getFragmentTypeName = node => node.typeCondition.name.value;
 
 const mapTypeForTypeStack = type => ({ type });
 
@@ -125,12 +126,26 @@ export default (filterFields, defaultFields) => {
         },
         [Kind.FIELD]: {
           enter: node => {
+            let name = getNameValue(node);
+
+            if (name == '__typename') return;
             typeStack
               |> R.last
               |> getFields
-              |> R.prop(getNameValue(node))
+              |> R.prop(name)
               |> mapFieldForTypeStack
               |> typeStack.push;
+          },
+          leave: node => {
+            let name = getNameValue(node);
+            if (name == '__typename') return;
+            typeStack.pop();
+          },
+        },
+        [Kind.INLINE_FRAGMENT]: {
+          enter: node => {
+            let name = getFragmentTypeName(node);
+            name |> getType |> mapTypeForTypeStack |> typeStack.push;
           },
           leave: node => {
             typeStack.pop();
