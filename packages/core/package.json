@@ -76,5 +76,8 @@
     "prettier": "^1.16.4",
     "rimraf": "^2.6.3"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "gitHead": "cb7d6ecaf5c45b659c2467e60d47a3f20fadbc3a"
 }

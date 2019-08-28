@@ -29,5 +29,8 @@
     "jest": "^24.8.0",
     "nodemon": "^1.19.1",
     "rimraf": "^2.6.3"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
