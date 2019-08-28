@@ -787,6 +787,8 @@ export default class ModelMongo {
 
     this.Modules.forEach(module => {
       if (module.typeDef) typeDefs.push(module.typeDef);
+      if (module.typeDefs) typeDefs.push(module.typeDefs);
+
       if (module.resolvers) resolvers = _.merge(resolvers, module.resolvers);
       if (module.schemaDirectives)
         schemaDirectives = _.merge(schemaDirectives, module.schemaDirectives);

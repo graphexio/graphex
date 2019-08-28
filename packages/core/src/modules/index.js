@@ -10,7 +10,8 @@ import * as DB from './directives/db';
 import * as Relation from './directives/relation';
 import * as ExtRelation from './directives/extRelation';
 import * as ID from './directives/id';
-import * as Inherit from './directives/inherit';
+// import * as Inherit from './directives/inherit';
+import * as Inherit from '@apollo-model/directive-inherit';
 import * as Unique from './directives/unique';
 import * as Embedded from './directives/embedded';
 
