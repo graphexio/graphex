@@ -20,6 +20,10 @@ class Implements extends SchemaDirectiveVisitor {
       .filter(type => type._interfaces && type._interfaces.includes(iface))
       .forEach(type => {
         type._interfaces.push(...implementIFaces);
+
+        names.forEach(ifaceName => {
+          this.schema._implementations[ifaceName].push(type);
+        });
       });
   }
 }
