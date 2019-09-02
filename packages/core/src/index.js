@@ -734,7 +734,7 @@ export default class ModelMongo {
           return Promise.all(
             representations.map(async representation => {
               try {
-                const { __typename, params } = representation;
+                const { __typename, ...params } = representation;
 
                 //Now it just calls FIND_ONE. We should replace it with FIND_IDS.
                 const name = getMethodName(SINGLE_QUERY)(__typename);
