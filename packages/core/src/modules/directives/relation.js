@@ -152,8 +152,9 @@ class RelationDirective extends SchemaDirectiveVisitor {
       }
     } else {
       if (
-        (input.disconnect || input.delete) &&
-        _.difference(Object.keys(input), ['delete', 'disconnect']).length > 0
+        (input.disconnect || input.delete || input.reconnect) &&
+        _.difference(Object.keys(input), ['delete', 'disconnect', 'reconnect'])
+          .length > 0
       ) {
         throw new UserInputError(`Wrong input in ${type.name} type`);
       }
@@ -274,6 +275,7 @@ class RelationDirective extends SchemaDirectiveVisitor {
     let delete_ids = [];
     let connect_ids = [];
     let create_ids = [];
+    let reconnect_ids = [];
 
     if (input.disconnect || input.delete) {
       if (input.disconnect) {
@@ -361,6 +363,27 @@ class RelationDirective extends SchemaDirectiveVisitor {
         //   );
         // }
       }
+      if (input.reconnect) {
+        ////Connect
+        if (this.isAbstract) {
+          reconnect_ids = Promise.all(
+            _.toPairs(this._groupByCollection(input.reconnect)).map(
+              ([collection, connects]) =>
+                this._distinctQuery({
+                  selector: { $or: connects },
+                  collection,
+                  context,
+                }).then(ids => ids.map(id => new DBRef(collection, id)))
+            )
+          ).then(res => _.flatten(res));
+        } else {
+          let selector = { $or: input.reconnect };
+          reconnect_ids = this._distinctQuery({
+            selector,
+            context,
+          });
+        }
+      }
       if (input.create) {
         ////Create
         let docs = input.create;
@@ -392,7 +415,12 @@ class RelationDirective extends SchemaDirectiveVisitor {
       }
       connect_ids = await connect_ids;
       create_ids = await create_ids;
+      reconnect_ids = await reconnect_ids;
       let ids = [...connect_ids, ...create_ids];
+
+      if (input.reconnect) {
+        return { [storeField]: reconnect_ids };
+      }
 
       if (isCreate) {
         return { [storeField]: ids };
@@ -750,6 +778,14 @@ const createInput = ({ name, initialType, kind, inputTypes }) => {
       name: 'updateMany',
       type: updateManyType,
       mmTransform: createInputTransform(updateManyType, typeWrap.isInterface()),
+    };
+    fields.reconnect = {
+      name: 'reconnect',
+      type: whereUniqueType,
+      mmTransform: createInputTransform(
+        whereUniqueType,
+        typeWrap.isInterface()
+      ),
     };
   } else if (
     [INPUT_UPDATE_ONE_RELATION, INPUT_UPDATE_ONE_REQUIRED_RELATION].includes(

@@ -548,6 +548,20 @@ class InputTypesClass {
             : null,
         ]),
       };
+
+      if (
+        [KIND.UPDATE_MANY_NESTED, KIND.UPDATE_MANY_REQUIRED_NESTED].includes(
+          kind
+        )
+      ) {
+        fields.recreate = {
+          name: 'recreate',
+          type,
+          mmTransform: reduceTransforms([
+            Transforms.applyNestedTransform(type),
+          ]),
+        };
+      }
     }
 
     if (

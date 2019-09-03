@@ -4,6 +4,7 @@ import QueryExecutor from '@apollo-model/mongodb-executor';
 import { MongoClient, ObjectID } from 'mongodb';
 import typeDefs from '../dev-server/model.js';
 import MongoMemoryServer from 'mongodb-memory-server';
+import * as DirectiveImplements from '@apollo-model/directive-implements';
 
 export const mongod = new MongoMemoryServer();
 const uri = mongod.getConnectionString();
@@ -29,7 +30,10 @@ const schema = new AMM({
   resolverValidationOptions: {
     requireResolversForResolveType: false,
   },
-  typeDefs,
+  typeDefs: [typeDefs, DirectiveImplements.typeDefs],
+  schemaDirectives: {
+    ...DirectiveImplements.schemaDirectives,
+  },
 });
 
 export const server = new ApolloServer({
