@@ -813,6 +813,9 @@ export default class ModelMongo {
       schemaDirectives,
       directiveResolvers,
       resolvers,
+      resolverValidationOptions: {
+        requireResolversForResolveType: false,
+      },
     };
 
     let schema = makeGraphQLSchema(modelParams);
@@ -875,7 +878,7 @@ export default class ModelMongo {
     });
 
     //Remove system directives
-    schema.__directives = [];
+    schema._directives = [];
 
     return schema;
   };
