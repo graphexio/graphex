@@ -874,6 +874,9 @@ export default class ModelMongo {
       }
     });
 
+    //Remove system directives
+    schema.__directives = [];
+
     return schema;
   };
 }

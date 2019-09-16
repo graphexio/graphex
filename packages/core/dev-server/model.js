@@ -65,7 +65,7 @@ export default gql`
     profile: SubscriberProfile!
   }
 
-  interface Poi @inherit @abstract {
+  interface Poi @implements(name: "Node & Timestamp") @inherit @abstract {
     title: String
   }
 
