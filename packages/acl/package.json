@@ -18,8 +18,6 @@
     "@apollo-model/type-wrap": "^0.5.4-alpha.6",
     "@apollo/federation": "^0.7.0",
     "apollo-server": "^2.7.0",
-    "graphql": "^14.4.2",
-    "graphql-tools": "^4.0.5",
     "ramda": "^0.26.1"
   },
   "devDependencies": {

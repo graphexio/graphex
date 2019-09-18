@@ -1,6 +1,7 @@
 import { makeExecutableSchema, transformSchema } from 'graphql-tools';
 const { ApolloServer, gql } = require('apollo-server');
 const { createTestClient } = require('apollo-server-testing');
+import { printSchema } from 'graphql';
 
 import SchemaFilter, {
   mapFieldForTypeStack,

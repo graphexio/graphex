@@ -14,15 +14,21 @@ import {
 import * as INPUT_KINDS from '@apollo-model/core/lib/inputTypes/kinds.js';
 import { getInputTypeName } from '@apollo-model/core/lib/inputTypes/';
 
+import { isInterfaceType } from 'graphql';
+
 import SchemaFilter from '@apollo-model/schema-filter';
 const { transformSchema } = require('graphql-tools');
 import R from 'ramda';
+import pluralize from 'pluralize';
 
-export const applyRules = (schema, allowRules = [], denyRules = []) => {
+export const applyRules = (
+  schema,
+  { allow: allowRules = [], deny: denyRules = [] }
+) => {
   let filterFields = SchemaFilter(
     (type, field) => {
-      let allow = [type, field] |> R.anyPass(allowRules);
-      let deny = [type, field] |> R.anyPass(denyRules);
+      let allow = { type, field, schema } |> R.anyPass(allowRules);
+      let deny = { type, field, schema } |> R.anyPass(denyRules);
 
       return allow && !deny;
     },
@@ -54,16 +60,32 @@ const kindToMethodRegExp = R.curry((modelName, kind) => {
   return new RegExp(`${operation}\\.${method}`);
 });
 
-export const modelAccessRule = (modelName, access) => {
-  let enableFields =
+export const modelDefaultActions = (modelName, access) => {
+  const typeNameToRegExp = typeName =>
     access
     |> R.split('')
-    |> R.map(transformAccessToMethodKinds)
-    |> R.unnest
-    |> R.map(kindToMethodRegExp(modelName))
+    |> R.chain(transformAccessToMethodKinds)
+    |> R.map(kindToMethodRegExp(typeName))
     |> R.map(R.test);
 
-  return ([type, field]) => {
+  let possibleTypeNames = [modelName];
+
+  return ({ type, field, schema }) => {
+    if (schema) {
+      let modelType = schema.getTypeMap()[modelName];
+      if (!modelType) {
+        return false;
+      }
+      if (isInterfaceType(modelType)) {
+        let possibleTypes = schema.getPossibleTypes(modelType);
+        possibleTypeNames = [
+          modelName,
+          ...possibleTypes.map(type => type.name),
+        ];
+      }
+    }
+    const enableFields = possibleTypeNames |> R.chain(typeNameToRegExp);
+
     return `${type.name}.${field.name}` |> R.anyPass(enableFields);
   };
 };
@@ -105,40 +127,18 @@ const kindToInputRegExp = R.curry((modelName, fieldName, inputKind) => {
   );
 });
 
-export const fieldAccessRule = (modelName, fieldName, access) => {
-  // export const CREATE = 'create';
-  // export const WHERE = 'where';
-  // export const WHERE_UNIQUE = 'whereUnique';
-  // export const UPDATE = 'update';
-  // export const ORDER_BY = 'orderBy';
-  // export const CREATE_INTERFACE = 'interfaceCreate';
-  // export const WHERE_INTERFACE = 'interfaceWhere';
-  // export const UPDATE_INTERFACE = 'interfaceUpdate';
-  // export const WHERE_UNIQUE_INTERFACE = 'interfaceWhereUnique';
-  // export const CREATE_ONE_NESTED = 'createOneNested';
-  // export const CREATE_MANY_NESTED = 'createManyNested';
-  // export const CREATE_ONE_REQUIRED_NESTED = 'createOneRequiredNested';
-  // export const CREATE_MANY_REQUIRED_NESTED = 'createManyRequiredNested';
-  //
-  // export const UPDATE_ONE_NESTED = 'updateOneNested';
-  // export const UPDATE_MANY_NESTED = 'updateManyNested';
-  // export const UPDATE_ONE_REQUIRED_NESTED = 'updateOneRequiredNested';
-  // export const UPDATE_MANY_REQUIRED_NESTED = 'updateManyRequiredNested';
-  //
-  // export const UPDATE_WITH_WHERE_NESTED = 'updateWithWhereNested';
-
+export const modelField = (modelName, fieldName, access) => {
   let enableFields =
     access
     |> R.split('')
-    |> R.map(transformAccessToInputKinds)
-    |> R.unnest
+    |> R.chain(transformAccessToInputKinds)
     |> R.map(kindToInputRegExp(modelName, fieldName))
     |> R.append(
       new RegExp(`^(?!Query|Mutation|Subscription)${modelName}\\.${fieldName}$`)
     )
     |> R.map(R.test);
 
-  return ([type, field]) => {
+  return ({ type, field }) => {
     let title = `${type.name}.${field.name}`;
     return title |> R.anyPass(enableFields);
   };
@@ -146,5 +146,35 @@ export const fieldAccessRule = (modelName, fieldName, access) => {
 
 export const operationAccessRule = regex => () => {};
 
-export const regexAccessRule = regex => ([type, field]) =>
+export const regexFields = regex => ({ type, field }) =>
   regex.test(`${type.name}.${field.name}`);
+
+export const anyField = ({ type, field }) => {
+  return !['Query', 'Mutation', 'Subscription'].includes(type.name);
+};
+
+export const allQueries = ({ type, field }) => {
+  return type.name === 'Query';
+};
+
+export const allMutations = ({ type, field }) => {
+  return type.name === 'Mutation';
+};
+
+export const modelCustomActions = (modelName, actions) => {
+  const modelNames = [modelName, pluralize(modelName)];
+  const enableFields =
+    modelNames
+    |> R.chain(model =>
+      actions.map(action => new RegExp(`^Mutation\\.${action}${model}$`))
+    )
+    |> R.map(R.test);
+
+  return ({ type, field }) => {
+    return `${type.name}.${field.name}` |> R.anyPass(enableFields);
+  };
+};
+
+export const modelDefault = () => {
+  return null;
+};
