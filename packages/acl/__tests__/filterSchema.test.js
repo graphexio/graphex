@@ -151,12 +151,8 @@ describe('accessRules', () => {
     `);
 
     let aclSchema = applyRules(schema, {
-      allow: [
-        allQueries,
-        allMutations,
-        modelField('Post', 'id', 'CRUD'),
-        modelField('Post', 'meta', 'CRUD'),
-      ],
+      allow: [allQueries, allMutations, anyField],
+      deny: [modelField('PostMeta', 'keywords', 'CRUD')],
     });
 
     //we should remove meta field from Post because Meta's fields doesn't match allow rules

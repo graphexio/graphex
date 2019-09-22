@@ -23,7 +23,7 @@ import pluralize from 'pluralize';
 
 export const applyRules = (
   schema,
-  { allow: allowRules = [], deny: denyRules = [] }
+  { allow: allowRules = [], deny: denyRules = [], defaults = [] }
 ) => {
   let filterFields = SchemaFilter(
     (type, field) => {
@@ -33,7 +33,11 @@ export const applyRules = (
       return allow && !deny;
     },
     (type, field) => {
-      return () => null;
+      let defaultFn = defaults.find(item => item.cond({ type, field }));
+      if (!defaultFn) {
+        return undefined;
+      }
+      return defaultFn.fn;
     }
   );
 
@@ -93,6 +97,7 @@ export const modelDefaultActions = (modelName, access) => {
 const transformAccessToInputKinds = access => {
   return {
     R: [
+      null, //base type
       INPUT_KINDS.WHERE,
       INPUT_KINDS.WHERE_UNIQUE,
       INPUT_KINDS.ORDER_BY,
@@ -121,7 +126,9 @@ const transformAccessToInputKinds = access => {
 };
 
 const kindToInputRegExp = R.curry((modelName, fieldName, inputKind) => {
-  let inputName = getInputTypeName(inputKind, modelName);
+  let inputName = inputKind
+    ? getInputTypeName(inputKind, modelName)
+    : modelName;
   return new RegExp(
     `^(?!Query|Mutation|Subscription)${inputName}\\.${fieldName}$`
   );
@@ -133,9 +140,6 @@ export const modelField = (modelName, fieldName, access) => {
     |> R.split('')
     |> R.chain(transformAccessToInputKinds)
     |> R.map(kindToInputRegExp(modelName, fieldName))
-    |> R.append(
-      new RegExp(`^(?!Query|Mutation|Subscription)${modelName}\\.${fieldName}$`)
-    )
     |> R.map(R.test);
 
   return ({ type, field }) => {
@@ -146,8 +150,9 @@ export const modelField = (modelName, fieldName, access) => {
 
 export const operationAccessRule = regex => () => {};
 
-export const regexFields = regex => ({ type, field }) =>
-  regex.test(`${type.name}.${field.name}`);
+export const regexFields = regex => ({ type, field }) => {
+  return regex.test(`${type.name}.${field.name}`);
+};
 
 export const anyField = ({ type, field }) => {
   return !['Query', 'Mutation', 'Subscription'].includes(type.name);
@@ -175,6 +180,9 @@ export const modelCustomActions = (modelName, actions) => {
   };
 };
 
-export const modelDefault = () => {
-  return null;
+export const modelDefault = (modelName, fieldName, access, fn) => {
+  return {
+    cond: modelField(modelName, fieldName, access),
+    fn,
+  };
 };

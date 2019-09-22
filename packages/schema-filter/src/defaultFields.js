@@ -1,18 +1,7 @@
-import makeASTfromValue from './makeASTfromValue';
+import { valueFromAST, astFromValue } from 'graphql';
 
 const reduceDefaults = (state, item) => {
   return { ...state, [item.field.name]: item.valueFn() };
-};
-
-export const appendFields = (argument, newFields) => {
-  let { fields } = argument.value;
-  return {
-    ...argument,
-    value: {
-      ...argument.value,
-      fields: [...fields, ...newFields],
-    },
-  };
 };
 
 export default () => {
@@ -30,14 +19,28 @@ export default () => {
 
   const get = type => {
     if (!defaults[type.name]) return undefined;
-    let result = {};
     return defaults[type.name].reduce(reduceDefaults, {});
   };
 
   const applyDefaults = node => ({ type }) => {
-    let defaultValues = get(type);
+    let defaultValues = defaults[type.name];
+    // let defaultValues = get(type);
+
     if (defaultValues) {
-      return appendFields(node, makeASTfromValue(defaultValues).fields);
+      const input = valueFromAST(node.value, type) || {};
+
+      defaultValues.forEach(item => {
+        input[item.field.name] = item.valueFn({
+          input: input[item.field.name],
+        });
+      });
+
+      let newNode = {
+        ...node,
+        value: astFromValue(input, type),
+      };
+
+      return newNode;
     }
     return undefined;
   };

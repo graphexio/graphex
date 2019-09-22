@@ -1,32 +1,8 @@
-import DefaultFields, { appendFields } from './defaultFields';
+import DefaultFields from './defaultFields';
 
 let kind = 'Argument';
 let name = { kind: 'Name', value: 'data' };
 let fields = ['field'];
-
-test('appendFields', () => {
-  let input = {
-    kind,
-    name,
-    value: {
-      kind: 'ObjectValue',
-      fields,
-    },
-  };
-
-  let newFields = ['newField'];
-
-  let output = {
-    kind,
-    name,
-    value: {
-      kind: 'ObjectValue',
-      fields: [...fields, ...newFields],
-    },
-  };
-
-  expect(appendFields(input, newFields)).toEqual(output);
-});
 
 test('defaultFields', () => {
   const defaults = DefaultFields();

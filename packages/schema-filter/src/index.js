@@ -211,8 +211,6 @@ export default (filterFields, defaultFields) => {
               fieldMapToFieldConfigMap(groupedFields[true], resolveType, true),
             interfaces: () => interfaces,
           });
-
-          return undefined;
         },
         [VisitSchemaKind.INPUT_OBJECT_TYPE]: type => {
           const groupedFields = groupFields(
@@ -222,19 +220,6 @@ export default (filterFields, defaultFields) => {
 
           if (!groupedFields[false]) {
             return undefined;
-          } else {
-            Object.values(groupedFields[false]).forEach(field => {
-              let defaultFn = defaultFields(type, field);
-              if (defaultFn) {
-                defaults.add(type, field, defaultFn);
-              } else {
-                if (new TypeWrap(field.type).isRequired()) {
-                  throw new Error(
-                    `Default value for required field "${field.name}" in type "${type.name}" was not provided`
-                  );
-                }
-              }
-            });
           }
 
           if (!groupedFields[true]) return null;
@@ -247,8 +232,6 @@ export default (filterFields, defaultFields) => {
             fields: () =>
               inputFieldMapToFieldConfigMap(groupedFields[true], resolveType),
           });
-
-          return undefined;
         },
         [VisitSchemaKind.ENUM_TYPE]: type => {
           const groupedFields = groupFields(
@@ -334,7 +317,64 @@ export default (filterFields, defaultFields) => {
         },
       });
 
-      typeMap = newSchema.getTypeMap();
+      // visitSchema remove type if every field has been removed. But is doesn't remove types recursively
+      let smthRemoved;
+      do {
+        smthRemoved = false;
+
+        newSchema = visitSchema(newSchema, {
+          [VisitSchemaKind.OBJECT_TYPE]: type => {
+            if (Object.keys(type.getFields()).length === 0) {
+              smthRemoved = true;
+              return null;
+            }
+            return undefined;
+          },
+          [VisitSchemaKind.INPUT_OBJECT_TYPE]: type => {
+            if (Object.keys(type.getFields()).length === 0) {
+              smthRemoved = true;
+              return null;
+            }
+            return undefined;
+          },
+          [VisitSchemaKind.INTERFACE_TYPE]: type => {
+            if (Object.keys(type.getFields()).length === 0) {
+              smthRemoved = true;
+              return null;
+            }
+            return undefined;
+          },
+        });
+      } while (smthRemoved);
+
+      Object.values(schema.getTypeMap()).forEach(type => {
+        if (type.name.startsWith('__')) return;
+        if (type instanceof GraphQLInputObjectType) {
+          Object.values(type.getFields()).forEach(field => {
+            // if (
+            //   !newSchema.getTypeMap()[type.name] ||
+            //   !newSchema.getTypeMap()[type.name].getFields()[field.name]
+            // ) {
+            let defaultFn = defaultFields(type, field);
+            if (defaultFn) {
+              defaults.add(type, field, defaultFn);
+            }
+            if (
+              new TypeWrap(field.type).isRequired() &&
+              !defaultFn &&
+              (!newSchema.getTypeMap()[type.name] ||
+                !newSchema.getTypeMap()[type.name].getFields()[field.name])
+            ) {
+              throw new Error(
+                `Default value for required field "${field.name}" in type "${type.name}" was not provided`
+              );
+            }
+            // }
+          });
+        }
+      });
+
+      typeMap = schema.getTypeMap();
       return newSchema;
     },
   };

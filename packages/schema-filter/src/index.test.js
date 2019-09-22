@@ -56,8 +56,14 @@ describe('SchemaFilter', () => {
       return !/^.*\.removeField$/.test(`${type.name}.${field.name}`);
     },
     (type, field) => {
-      if (/.*\.removeField/.test(`${type.name}.${field.name}`)) {
+      if (/.*\.(removeField)/.test(`${type.name}.${field.name}`)) {
         return () => 'Test';
+      }
+      if (/.*\.(defaultField)/.test(`${type.name}.${field.name}`)) {
+        return () => 'DefaultValue';
+      }
+      if (/.*\.(defaultCreateField)/.test(`${type.name}.${field.name}`)) {
+        return () => ({ create: { removeField: '123' } });
       }
     }
   );
@@ -279,7 +285,7 @@ describe('SchemaFilter', () => {
 
       input Test {
         field: ID
-        enumInput: TestEnum!
+        defaultField: TestEnum!
       }
 
       enum TestEnum {
@@ -322,11 +328,11 @@ describe('SchemaFilter', () => {
 
       input Test {
         field: ID
-        enumInput: TestEnum!
+        defaultField: TestEnum!
       }
 
       enum TestEnum {
-        field
+        DefaultValue
         removeField
       }
     `;
@@ -348,7 +354,7 @@ describe('SchemaFilter', () => {
       const { data, errors } = await mutate({
         query: gql`
           mutation {
-            updateMethod(data: { enumInput: removeField })
+            updateMethod(data: { defaultField: removeField })
           }
         `,
       });
@@ -364,7 +370,92 @@ describe('SchemaFilter', () => {
       const { data, errors } = await mutate({
         query: gql`
           mutation {
-            updateMethod(data: { enumInput: field })
+            updateMethod(data: { defaultField: DefaultValue })
+          }
+        `,
+      });
+
+      expect(errors).toBeUndefined();
+    });
+  });
+
+  describe('remove empty type', () => {
+    const typeDefs = gql`
+      type Query {
+        post: Post
+      }
+
+      type Post {
+        id: ID
+        title: String
+        meta: Meta
+      }
+
+      type Meta {
+        keywords: [Keyword]
+      }
+
+      type Keyword {
+        removeField: String
+      }
+    `;
+
+    test('schema', async () => {
+      let schema = makeSchema({ typeDefs });
+
+      expect(schema.getTypeMap().Meta).toBeUndefined();
+    });
+  });
+
+  describe('remove empty input', () => {
+    const typeDefs = gql`
+      type Query {
+        post: Post
+      }
+
+      type Mutation {
+        createPost(data: PostCreateInput!): Post
+      }
+
+      type Post {
+        id: ID
+        title: String
+        meta: Meta!
+      }
+
+      type Meta {
+        slug: String!
+      }
+
+      input PostCreateInput {
+        title: String
+        defaultCreateField: MetaCreateOneNestedInput!
+      }
+
+      input MetaCreateOneNestedInput {
+        create: MetaCreateInput
+      }
+
+      input MetaCreateInput {
+        removeField: String!
+      }
+    `;
+
+    test('schema', async () => {
+      let schema = makeSchema({ typeDefs });
+
+      expect(schema.getTypeMap().MetaCreateOneNestedInput).toBeUndefined();
+    });
+
+    test('right request', async () => {
+      let schema = makeSchema({ typeDefs });
+      const { mutate } = testClient({ schema });
+      const { data, errors } = await mutate({
+        query: gql`
+          mutation {
+            createPost(data: { title: "123" }) {
+              id
+            }
           }
         `,
       });

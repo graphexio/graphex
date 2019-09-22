@@ -7,6 +7,8 @@ import {
   allMutations,
   anyField,
   modelDefault,
+  modelField,
+  regexFields,
 } from '../src';
 
 import AMM from '@apollo-model/core';
@@ -37,9 +39,14 @@ export const connectToDatabase = () => {
   );
 };
 
+const QE = QueryExecutor(connectToDatabase);
+
 const createSchema = typeDefs => {
   const schema = new AMM({
-    queryExecutor: QueryExecutor(connectToDatabase),
+    queryExecutor: params => {
+      // console.log(params);
+      return QE(params);
+    },
   }).makeExecutableSchema({
     typeDefs,
   });
@@ -92,10 +99,11 @@ describe('accessRules', () => {
       }
     `);
 
-    const DEFAULT_BODY = 'DEFAULT BODY';
+    const DEFAULT_BODY = 'TEST DEFAULT BODY';
     let aclSchema = applyRules(schema, {
       allow: [allQueries, allMutations, anyField],
-      defaults: [modelDefault('Post', 'C', () => DEFAULT_BODY)],
+      deny: [modelField('Post', 'body', 'C')],
+      defaults: [modelDefault('Post', 'body', 'C', () => DEFAULT_BODY)],
     });
 
     let createResult = await execute(
@@ -109,7 +117,8 @@ describe('accessRules', () => {
         }
       `
     );
-    const aclPost = createResult.data.createPost;
+
+    const createdPost = createResult.data.createPost;
 
     let readResult = await execute(
       aclSchema,
@@ -124,11 +133,163 @@ describe('accessRules', () => {
       `,
       null,
       null,
-      { id: aclPost.id }
+      { id: createdPost.id }
     );
 
-    const realPost = readResult.data.post;
+    const readedPost = readResult.data.post;
 
-    expect(realPost.body).toEqual(DEFAULT_BODY);
+    expect(readedPost.body).toEqual(DEFAULT_BODY);
+  });
+
+  it('relation default', async () => {
+    const schema = createSchema(gql`
+      type Post @model {
+        id: ObjectID @id @unique @db(name: "_id")
+        title: String
+        body: String
+        user: User @relation
+      }
+
+      type User @model {
+        id: ObjectID @id @unique @db(name: "_id")
+        username: String
+      }
+    `);
+
+    const USERNAME = 'admin';
+
+    const createUserResult = await execute(
+      schema,
+      gql`
+        mutation createUser($username: String) {
+          createUser(data: { username: $username }) {
+            id
+            username
+          }
+        }
+      `,
+      null,
+      null,
+      { username: USERNAME }
+    );
+    const createdUser = createUserResult.data.createUser;
+
+    let aclSchema = applyRules(schema, {
+      allow: [allQueries, allMutations, anyField],
+      deny: [modelField('Post', 'user', 'C')],
+      defaults: [
+        modelDefault('Post', 'user', 'C', () => ({
+          connect: { id: createdUser.id },
+        })),
+      ],
+    });
+
+    let createResult = await execute(
+      aclSchema,
+      gql`
+        mutation {
+          createPost(data: { title: "TEST TITLE" }) {
+            id
+            title
+            user {
+              id
+              username
+            }
+          }
+        }
+      `
+    );
+    const createdPost = createResult.data.createPost;
+
+    let readResult = await execute(
+      aclSchema,
+      gql`
+        query read($id: ObjectID) {
+          post(where: { id: $id }) {
+            id
+            title
+            user {
+              username
+            }
+          }
+        }
+      `,
+      null,
+      null,
+      { id: createdPost.id }
+    );
+
+    const readedPost = readResult.data.post;
+
+    expect(readedPost.user).toBeTruthy();
+    expect(readedPost.user.username).toEqual(USERNAME);
+  });
+
+  it('default inside removed type', async () => {
+    const schema = createSchema(gql`
+      type Post @model {
+        id: ObjectID @id @unique @db(name: "_id")
+        title: String
+        meta: Meta!
+      }
+
+      type Meta @embedded {
+        slug: String!
+        keywords: [String]
+      }
+    `);
+
+    const SLUG = 'test_slug';
+
+    let aclSchema = applyRules(schema, {
+      allow: [allQueries, allMutations, anyField],
+      deny: [
+        modelField('Meta', 'slug', 'CRUD'),
+        modelField('Meta', 'keywords', 'CRUD'),
+      ],
+      defaults: [
+        modelDefault('Meta', 'slug', 'C', () => SLUG),
+        modelDefault('Post', 'meta', 'C', () => ({ create: { slug: SLUG } })),
+      ],
+    });
+    // console.log(printSchema(schema));
+
+    let createResult = await execute(
+      aclSchema,
+      gql`
+        mutation {
+          createPost(data: { title: "TEST TITLE" }) {
+            id
+            title
+          }
+        }
+      `
+    );
+
+    const createdPost = createResult.data.createPost;
+
+    let readResult = await execute(
+      schema,
+      gql`
+        query read($id: ObjectID) {
+          post(where: { id: $id }) {
+            id
+            title
+            meta {
+              slug
+              keywords
+            }
+          }
+        }
+      `,
+      null,
+      null,
+      { id: createdPost.id }
+    );
+
+    const readedPost = readResult.data.post;
+
+    expect(readedPost.meta).toBeTruthy();
+    expect(readedPost.meta.slug).toEqual(SLUG);
   });
 });
