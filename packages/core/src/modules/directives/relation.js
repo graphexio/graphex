@@ -140,14 +140,16 @@ class RelationDirective extends SchemaDirectiveVisitor {
 
   _validateInput = (type, isMany) => params => {
     let input = _.head(Object.values(params));
+    if (Object.keys(input).length === 0) {
+      throw new UserInputError(
+        `You should fill any field in ${type.name} type`
+      );
+    }
+
     if (!isMany) {
-      if (Object.keys(input) > 1) {
+      if (Object.keys(input).length > 1) {
         throw new UserInputError(
           `You should not fill multiple fields in ${type.name} type`
-        );
-      } else if (Object.keys(input) === 0) {
-        throw new UserInputError(
-          `You should fill any field in ${type.name} type`
         );
       }
     } else {

@@ -41,8 +41,8 @@ export const server = new ApolloServer({
   introspection: true,
   playground: true,
   formatError: error => {
-    console.log(error);
-    console.dir(error.extensions);
+    // console.log(error);
+    // console.dir(error.extensions);
     return error;
   },
 });

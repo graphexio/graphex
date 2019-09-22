@@ -2,6 +2,7 @@ jest.setTimeout(20000);
 
 const { query, mutate, mongod, connectToDatabase } = require('./apolloTest');
 const _ = require('lodash');
+import gql from 'graphql-tag';
 
 import QueryCategories from './queries/queryCategories.graphql';
 import CreateCategory from './queries/createCategory.graphql';
@@ -268,6 +269,25 @@ test('QueryShopById', async () => {
     variables: { shopId },
   });
   expect(data).toMatchSnapshot();
+});
+
+test('test empty object instead array', async () => {
+  let { data, errors } = await query({
+    query: gql`
+      mutation {
+        createPost(
+          data: { title: "123", body: "123", comments: { create: [] } }
+        ) {
+          id
+          comments {
+            body
+          }
+        }
+      }
+    `,
+    variables: { shopId },
+  });
+  expect(errors).toBeUndefined();
 });
 
 beforeAll(async () => {
