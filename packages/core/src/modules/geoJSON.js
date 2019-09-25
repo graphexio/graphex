@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 
 import { appendTransform } from '../inputTypes/utils';
 import * as HANDLER from '../inputTypes/handlers';
-import * as KIND from '../inputTypes/kinds';
+import { INPUT_TYPE_KIND } from '../inputTypes/kinds';
 
 const toRadians = num => {
   return (num * Math.PI) / 180;
@@ -68,22 +68,22 @@ export const typeDef = gql`
 
 function initGeoJSONPoint({ field, inputTypes }) {
   appendTransform(field, HANDLER.TRANSFORM_TO_INPUT, {
-    [KIND.ORDER_BY]: ({ field }) => [],
-    [KIND.CREATE]: ({ field }) => [
+    [INPUT_TYPE_KIND.ORDER_BY]: ({ field }) => [],
+    [INPUT_TYPE_KIND.CREATE]: ({ field }) => [
       {
         name: field.name,
         type: inputTypes.exist('GeoJSONPointInput'),
         mmTransform: params => params,
       },
     ],
-    [KIND.UPDATE]: ({ field }) => [
+    [INPUT_TYPE_KIND.UPDATE]: ({ field }) => [
       {
         name: field.name,
         type: inputTypes.exist('GeoJSONPointInput'),
         mmTransform: params => params,
       },
     ],
-    [KIND.WHERE]: ({ field }) => [
+    [INPUT_TYPE_KIND.WHERE]: ({ field }) => [
       {
         name: `${field.name}_near`,
         type: inputTypes.exist('GeoJSONPointNearInput'),
@@ -104,9 +104,11 @@ function initGeoJSONPoint({ field, inputTypes }) {
           };
           if (
             field[HANDLER.TRANSFORM_INPUT] &&
-            field[HANDLER.TRANSFORM_INPUT][KIND.WHERE]
+            field[HANDLER.TRANSFORM_INPUT][INPUT_TYPE_KIND.WHERE]
           ) {
-            params = field[HANDLER.TRANSFORM_INPUT][KIND.WHERE](params);
+            params = field[HANDLER.TRANSFORM_INPUT][INPUT_TYPE_KIND.WHERE](
+              params
+            );
           }
           return params;
         },

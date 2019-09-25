@@ -14,10 +14,12 @@ import { applyInputTransform, reduceTransforms } from './utils';
 import { getDirective } from '../utils';
 import SDLSyntaxException from '../sdlSyntaxException';
 import TypeWrap from '@apollo-model/type-wrap';
-import * as KIND from './kinds';
+import { INPUT_TYPE_KIND } from './kinds';
 import * as Transforms from './transforms';
 import { lowercaseFirstLetter, uppercaseFirstLetter } from '../utils';
 import pluralize from 'pluralize';
+
+import transformToInputWhere from './transformToInputWhere';
 
 export const UNMARKED_OBJECT_FIELD = 'unmarkedObjectField';
 
@@ -109,44 +111,49 @@ class InputTypesClass {
     this.SchemaTypes = SchemaTypes;
 
     this._defaultTransformToInput = {
-      [KIND.ORDER_BY]: this._defaultTransformToInputOrderBy,
-      [KIND.WHERE]: this._defaultTransformToInputWhere,
-      [KIND.WHERE_UNIQUE]: () => [],
-      [KIND.CREATE]: this._defaultTransformToInputCreateUpdate,
-      [KIND.UPDATE]: this._defaultTransformToInputCreateUpdate,
+      [INPUT_TYPE_KIND.ORDER_BY]: this._defaultTransformToInputOrderBy,
+      [INPUT_TYPE_KIND.WHERE]: this._defaultTransformToInputWhere,
+      [INPUT_TYPE_KIND.WHERE_UNIQUE]: () => [],
+      [INPUT_TYPE_KIND.CREATE]: this._defaultTransformToInputCreateUpdate,
+      [INPUT_TYPE_KIND.UPDATE]: this._defaultTransformToInputCreateUpdate,
     };
 
     this.registerKind(
-      [KIND.CREATE, KIND.WHERE, KIND.WHERE_UNIQUE, KIND.UPDATE],
+      [
+        INPUT_TYPE_KIND.CREATE,
+        INPUT_TYPE_KIND.WHERE,
+        INPUT_TYPE_KIND.WHERE_UNIQUE,
+        INPUT_TYPE_KIND.UPDATE,
+      ],
       this._createInputObject,
       this._fillInputObject
     );
 
-    this.registerKind(KIND.ORDER_BY, this._createInputEnum);
+    this.registerKind(INPUT_TYPE_KIND.ORDER_BY, this._createInputEnum);
     this.registerKind(
       [
-        KIND.CREATE_INTERFACE,
-        KIND.WHERE_INTERFACE,
-        KIND.UPDATE_INTERFACE,
-        KIND.WHERE_UNIQUE_INTERFACE,
+        INPUT_TYPE_KIND.CREATE_INTERFACE,
+        INPUT_TYPE_KIND.WHERE_INTERFACE,
+        INPUT_TYPE_KIND.UPDATE_INTERFACE,
+        INPUT_TYPE_KIND.WHERE_UNIQUE_INTERFACE,
       ],
       this._createInputObject,
       this._fillInputObjectInterface
     );
     this.registerKind(
       [
-        KIND.CREATE_ONE_NESTED,
-        KIND.CREATE_MANY_NESTED,
-        KIND.CREATE_ONE_REQUIRED_NESTED,
-        KIND.CREATE_MANY_REQUIRED_NESTED,
-        KIND.UPDATE_ONE_NESTED,
-        KIND.UPDATE_MANY_NESTED,
+        INPUT_TYPE_KIND.CREATE_ONE_NESTED,
+        INPUT_TYPE_KIND.CREATE_MANY_NESTED,
+        INPUT_TYPE_KIND.CREATE_ONE_REQUIRED_NESTED,
+        INPUT_TYPE_KIND.CREATE_MANY_REQUIRED_NESTED,
+        INPUT_TYPE_KIND.UPDATE_ONE_NESTED,
+        INPUT_TYPE_KIND.UPDATE_MANY_NESTED,
       ],
       this._createInputNestedObject
     );
 
     this.registerKind(
-      KIND.UPDATE_WITH_WHERE_NESTED,
+      INPUT_TYPE_KIND.UPDATE_WITH_WHERE_NESTED,
       this._createInputWithWhereNested
     );
   }
@@ -191,7 +198,7 @@ class InputTypesClass {
   };
 
   _defaultTransformToInputCreateUpdate = ({ field, kind }) => {
-    let isCreate = kind === KIND.CREATE;
+    let isCreate = kind === INPUT_TYPE_KIND.CREATE;
     let fieldTypeWrap = new TypeWrap(field.type);
     let typeWrap = fieldTypeWrap.clone();
 
@@ -203,11 +210,11 @@ class InputTypesClass {
           fieldTypeWrap.realType(),
           fieldTypeWrap.isMany()
             ? isCreate
-              ? KIND.CREATE_MANY_NESTED
-              : KIND.UPDATE_MANY_NESTED
+              ? INPUT_TYPE_KIND.CREATE_MANY_NESTED
+              : INPUT_TYPE_KIND.UPDATE_MANY_NESTED
             : isCreate
-            ? KIND.CREATE_ONE_NESTED
-            : KIND.UPDATE_ONE_NESTED
+            ? INPUT_TYPE_KIND.CREATE_ONE_NESTED
+            : INPUT_TYPE_KIND.UPDATE_ONE_NESTED
         )
       );
       typeWrap.setMany(false);
@@ -261,13 +268,15 @@ class InputTypesClass {
     if (fieldTypeWrap.isNested()) {
       let type = this._inputType(
         fieldTypeWrap.realType(),
-        fieldTypeWrap.isInterface() ? KIND.WHERE_INTERFACE : KIND.WHERE
+        fieldTypeWrap.isInterface()
+          ? INPUT_TYPE_KIND.WHERE_INTERFACE
+          : INPUT_TYPE_KIND.WHERE
       );
       fields.push({
         type,
         name: field.name,
         mmTransform: reduceTransforms([
-          Transforms.fieldInputTransform(field, KIND.WHERE),
+          Transforms.fieldInputTransform(field, INPUT_TYPE_KIND.WHERE),
           Transforms.applyNestedTransform(type),
           // Transforms.validateAndTransformNestedInput(type),
           fieldTypeWrap.isInterface()
@@ -277,13 +286,14 @@ class InputTypesClass {
         ]),
       });
     }
+
     if (fieldTypeWrap.isMany()) {
       [
         { modifier: '', type: GraphQLString },
-        { modifier: 'size', type: GraphQLInt },
-        { modifier: 'not_size', type: GraphQLInt },
-        { modifier: 'exists', type: GraphQLBoolean },
-        { modifier: 'all', type: new GraphQLList(GraphQLString) },
+        // { modifier: 'size', type: GraphQLInt },
+        // { modifier: 'not_size', type: GraphQLInt },
+        // { modifier: 'exists', type: GraphQLBoolean },
+        // { modifier: 'all', type: new GraphQLList(GraphQLString) },
         { modifier: 'exact', type: new GraphQLList(GraphQLString) },
         { modifier: 'in', type: new GraphQLList(GraphQLString) },
         { modifier: 'nin', type: new GraphQLList(GraphQLString) },
@@ -292,7 +302,7 @@ class InputTypesClass {
           type,
           name: this._fieldNameWithModifier(field.name, modifier),
           mmTransform: reduceTransforms([
-            Transforms.fieldInputTransform(field, KIND.WHERE),
+            Transforms.fieldInputTransform(field, INPUT_TYPE_KIND.WHERE),
             Transforms.transformModifier(modifier),
             // this._applyNestedTransform(type),
             // this._validateAndTransformNestedInput(type),
@@ -315,12 +325,15 @@ class InputTypesClass {
           name: this._fieldNameWithModifier(field.name, modifier),
           mmTransform: reduceTransforms([
             Transforms.transformModifier(modifier),
-            Transforms.fieldInputTransform(field, KIND.WHERE),
+            Transforms.fieldInputTransform(field, INPUT_TYPE_KIND.WHERE),
           ]),
         });
       });
     }
-    return fields;
+    return [
+      ...fields,
+      ...transformToInputWhere({ field, getInputType: this._inputType }),
+    ];
   };
 
   _fieldNameWithModifier = (name, modifier) => {
@@ -374,13 +387,15 @@ class InputTypesClass {
       fields: {
         where: {
           name: 'where',
-          type: this._inputType(initialType, KIND.WHERE),
+          type: this._inputType(initialType, INPUT_TYPE_KIND.WHERE),
         },
         data: {
           name: 'data',
           type: this._inputType(
             initialType,
-            typeWrap.isInterface() ? KIND.UPDATE_INTERFACE : KIND.UPDATE
+            typeWrap.isInterface()
+              ? INPUT_TYPE_KIND.UPDATE_INTERFACE
+              : INPUT_TYPE_KIND.UPDATE
           ),
         },
       },
@@ -412,7 +427,7 @@ class InputTypesClass {
   _fillInputObject = ({ type, initialType, kind }) => {
     let defaultTransformFunc = this._defaultTransformToInput[kind];
     let fields = {};
-    if (kind === KIND.WHERE) {
+    if (kind === INPUT_TYPE_KIND.WHERE) {
       this._addAndOr(fields, type);
     }
 
@@ -420,7 +435,7 @@ class InputTypesClass {
       let { mmTransformToInput = {} } = field;
       let transformFunc = mmTransformToInput[kind] || defaultTransformFunc;
       if (
-        kind === KIND.WHERE &&
+        kind === INPUT_TYPE_KIND.WHERE &&
         transformFunc !== this._defaultTransformToInputWhere
       ) {
         fields = {
@@ -442,10 +457,10 @@ class InputTypesClass {
 
   _fillInputObjectInterface = ({ type, initialType, kind }) => {
     kind = {
-      [KIND.WHERE_INTERFACE]: KIND.WHERE,
-      [KIND.WHERE_UNIQUE_INTERFACE]: KIND.WHERE_UNIQUE,
-      [KIND.CREATE_INTERFACE]: KIND.CREATE,
-      [KIND.UPDATE_INTERFACE]: KIND.UPDATE,
+      [INPUT_TYPE_KIND.WHERE_INTERFACE]: INPUT_TYPE_KIND.WHERE,
+      [INPUT_TYPE_KIND.WHERE_UNIQUE_INTERFACE]: INPUT_TYPE_KIND.WHERE_UNIQUE,
+      [INPUT_TYPE_KIND.CREATE_INTERFACE]: INPUT_TYPE_KIND.CREATE,
+      [INPUT_TYPE_KIND.UPDATE_INTERFACE]: INPUT_TYPE_KIND.UPDATE,
     }[kind];
 
     let fieldsArr = Object.values(this.SchemaTypes).filter(itype => {
@@ -458,7 +473,11 @@ class InputTypesClass {
       );
     });
     if (
-      [KIND.WHERE, KIND.UPDATE, KIND.WHERE_UNIQUE].includes(kind) &&
+      [
+        INPUT_TYPE_KIND.WHERE,
+        INPUT_TYPE_KIND.UPDATE,
+        INPUT_TYPE_KIND.WHERE_UNIQUE,
+      ].includes(kind) &&
       !initialType.mmAbstract
     ) {
       fieldsArr.push(initialType);
@@ -477,14 +496,17 @@ class InputTypesClass {
         }
       }
       if (
-        [KIND.CREATE, KIND.WHERE, KIND.UPDATE, KIND.WHERE_UNIQUE].includes(
-          kind
-        ) &&
+        [
+          INPUT_TYPE_KIND.CREATE,
+          INPUT_TYPE_KIND.WHERE,
+          INPUT_TYPE_KIND.UPDATE,
+          INPUT_TYPE_KIND.WHERE_UNIQUE,
+        ].includes(kind) &&
         fieldType !== initialType
       ) {
         mmTransform = reduceTransforms([
           Transforms.applyNestedTransform(inputType),
-          kind === KIND.UPDATE
+          kind === INPUT_TYPE_KIND.UPDATE
             ? params =>
                 _.mapValues(params, val => ({
                   ...val,
@@ -510,28 +532,28 @@ class InputTypesClass {
   _createInputNestedObject = ({ name, initialType, kind }) => {
     let isInterface = initialType instanceof GraphQLInterfaceType;
     let isMany = [
-      KIND.CREATE_MANY_NESTED,
-      KIND.CREATE_MANY_REQUIRED_NESTED,
-      KIND.UPDATE_MANY_NESTED,
-      KIND.UPDATE_MANY_REQUIRED_NESTED,
+      INPUT_TYPE_KIND.CREATE_MANY_NESTED,
+      INPUT_TYPE_KIND.CREATE_MANY_REQUIRED_NESTED,
+      INPUT_TYPE_KIND.UPDATE_MANY_NESTED,
+      INPUT_TYPE_KIND.UPDATE_MANY_REQUIRED_NESTED,
     ].includes(kind);
 
     let fields = {};
     if (
       [
-        KIND.CREATE_ONE_NESTED,
-        KIND.CREATE_ONE_REQUIRED_NESTED,
-        KIND.CREATE_MANY_NESTED,
-        KIND.CREATE_MANY_REQUIRED_NESTED,
-        KIND.UPDATE_ONE_NESTED,
-        KIND.UPDATE_ONE_REQUIRED_NESTED,
-        KIND.UPDATE_MANY_NESTED,
-        KIND.UPDATE_MANY_REQUIRED_NESTED,
+        INPUT_TYPE_KIND.CREATE_ONE_NESTED,
+        INPUT_TYPE_KIND.CREATE_ONE_REQUIRED_NESTED,
+        INPUT_TYPE_KIND.CREATE_MANY_NESTED,
+        INPUT_TYPE_KIND.CREATE_MANY_REQUIRED_NESTED,
+        INPUT_TYPE_KIND.UPDATE_ONE_NESTED,
+        INPUT_TYPE_KIND.UPDATE_ONE_REQUIRED_NESTED,
+        INPUT_TYPE_KIND.UPDATE_MANY_NESTED,
+        INPUT_TYPE_KIND.UPDATE_MANY_REQUIRED_NESTED,
       ].includes(kind)
     ) {
       let type = this._inputType(
         initialType,
-        isInterface ? KIND.CREATE_INTERFACE : KIND.CREATE
+        isInterface ? INPUT_TYPE_KIND.CREATE_INTERFACE : INPUT_TYPE_KIND.CREATE
       );
       if (isMany) {
         type = new GraphQLList(type);
@@ -541,18 +563,20 @@ class InputTypesClass {
         type,
         mmTransform: reduceTransforms([
           Transforms.applyNestedTransform(type),
-          [KIND.UPDATE_MANY_NESTED, KIND.UPDATE_MANY_REQUIRED_NESTED].includes(
-            kind
-          )
+          [
+            INPUT_TYPE_KIND.UPDATE_MANY_NESTED,
+            INPUT_TYPE_KIND.UPDATE_MANY_REQUIRED_NESTED,
+          ].includes(kind)
             ? params => _.mapValues(params, val => ({ $mmPushAll: val }))
             : null,
         ]),
       };
 
       if (
-        [KIND.UPDATE_MANY_NESTED, KIND.UPDATE_MANY_REQUIRED_NESTED].includes(
-          kind
-        )
+        [
+          INPUT_TYPE_KIND.UPDATE_MANY_NESTED,
+          INPUT_TYPE_KIND.UPDATE_MANY_REQUIRED_NESTED,
+        ].includes(kind)
       ) {
         fields.recreate = {
           name: 'recreate',
@@ -565,11 +589,14 @@ class InputTypesClass {
     }
 
     if (
-      [KIND.UPDATE_ONE_NESTED, KIND.UPDATE_ONE_REQUIRED_NESTED].includes(kind)
+      [
+        INPUT_TYPE_KIND.UPDATE_ONE_NESTED,
+        INPUT_TYPE_KIND.UPDATE_ONE_REQUIRED_NESTED,
+      ].includes(kind)
     ) {
       let type = this._inputType(
         initialType,
-        isInterface ? KIND.UPDATE_INTERFACE : KIND.UPDATE
+        isInterface ? INPUT_TYPE_KIND.UPDATE_INTERFACE : INPUT_TYPE_KIND.UPDATE
       );
       fields.update = {
         name: 'update',
@@ -585,7 +612,7 @@ class InputTypesClass {
       };
     }
 
-    if ([KIND.UPDATE_ONE_NESTED].includes(kind)) {
+    if ([INPUT_TYPE_KIND.UPDATE_ONE_NESTED].includes(kind)) {
       fields.delete = {
         name: 'delete',
         type: GraphQLBoolean,
@@ -594,10 +621,13 @@ class InputTypesClass {
     }
 
     if (
-      [KIND.UPDATE_MANY_NESTED, KIND.UPDATE_MANY_REQUIRED_NESTED].includes(kind)
+      [
+        INPUT_TYPE_KIND.UPDATE_MANY_NESTED,
+        INPUT_TYPE_KIND.UPDATE_MANY_REQUIRED_NESTED,
+      ].includes(kind)
     ) {
       let updateType = new GraphQLList(
-        this._inputType(initialType, KIND.UPDATE_WITH_WHERE_NESTED)
+        this._inputType(initialType, INPUT_TYPE_KIND.UPDATE_WITH_WHERE_NESTED)
       );
 
       fields.updateMany = {
@@ -623,7 +653,7 @@ class InputTypesClass {
       let whereType = new GraphQLList(
         this._inputType(
           initialType,
-          isInterface ? KIND.WHERE_INTERFACE : KIND.WHERE
+          isInterface ? INPUT_TYPE_KIND.WHERE_INTERFACE : INPUT_TYPE_KIND.WHERE
         )
       );
       fields.deleteMany = {

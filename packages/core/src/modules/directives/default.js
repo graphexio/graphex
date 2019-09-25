@@ -4,7 +4,7 @@ import { SchemaDirectiveVisitor } from 'graphql-tools';
 import { appendTransform, reduceTransforms } from '../../inputTypes/utils';
 import { fieldInputTransform } from '../../inputTypes/transforms';
 import { TRANSFORM_TO_INPUT } from '../../inputTypes/handlers';
-import { CREATE } from '../../inputTypes/kinds';
+import { INPUT_TYPE_KIND } from '../../inputTypes/kinds';
 
 export const typeDef = gql`
   directive @default(value: String!) on FIELD_DEFINITION
@@ -20,13 +20,13 @@ class DefaultDirective extends SchemaDirectiveVisitor {
     }
 
     appendTransform(field, TRANSFORM_TO_INPUT, {
-      [CREATE]: ({ field }) => [
+      [INPUT_TYPE_KIND.CREATE]: ({ field }) => [
         {
           name: field.name,
           type: field.type,
           mmTransformAlways: reduceTransforms([
             this._setDefaultValue(field.name, value),
-            fieldInputTransform(field, CREATE),
+            fieldInputTransform(field, INPUT_TYPE_KIND.CREATE),
           ]),
         },
       ],

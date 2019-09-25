@@ -28,7 +28,7 @@ import {
   reduceTransforms,
 } from '../../inputTypes/utils';
 import * as HANDLER from '../../inputTypes/handlers';
-import * as KIND from '../../inputTypes/kinds';
+import { INPUT_TYPE_KIND } from '../../inputTypes/kinds';
 import * as Transforms from '../../inputTypes/transforms';
 import { DBRef } from 'mongodb';
 
@@ -86,10 +86,10 @@ class RelationDirective extends SchemaDirectiveVisitor {
       );
 
     appendTransform(field, HANDLER.TRANSFORM_TO_INPUT, {
-      [KIND.ORDER_BY]: field => [],
-      [KIND.CREATE]: this._transformToInputCreateUpdate,
-      [KIND.UPDATE]: this._transformToInputCreateUpdate,
-      [KIND.WHERE]: this._transformToInputWhere,
+      [INPUT_TYPE_KIND.ORDER_BY]: field => [],
+      [INPUT_TYPE_KIND.CREATE]: this._transformToInputCreateUpdate,
+      [INPUT_TYPE_KIND.UPDATE]: this._transformToInputCreateUpdate,
+      [INPUT_TYPE_KIND.WHERE]: this._transformToInputWhere,
     });
     field.mmOnSchemaInit = this._onSchemaInit;
     field.mmOnSchemaBuild = this._onSchemaBuild;
@@ -106,7 +106,10 @@ class RelationDirective extends SchemaDirectiveVisitor {
       mmCollectionName: collection,
       mmStoreField: storeField,
     } = this;
-    let inputType = InputTypes.get(fieldTypeWrap.realType(), KIND.WHERE);
+    let inputType = InputTypes.get(
+      fieldTypeWrap.realType(),
+      INPUT_TYPE_KIND.WHERE
+    );
     let modifiers = fieldTypeWrap.isMany() ? ['some', 'none'] : [''];
     let fields = [];
     modifiers.forEach(modifier => {
@@ -183,7 +186,7 @@ class RelationDirective extends SchemaDirectiveVisitor {
 
   _transformToInputCreateUpdate = ({ field, kind, inputTypes }) => {
     let fieldTypeWrap = new TypeWrap(field.type);
-    let isCreate = kind === KIND.CREATE;
+    let isCreate = kind === INPUT_TYPE_KIND.CREATE;
 
     let type = inputTypes.get(
       fieldTypeWrap.realType(),
@@ -456,9 +459,14 @@ class RelationDirective extends SchemaDirectiveVisitor {
     if (fieldTypeWrap.isMany()) {
       let whereType = InputTypes.get(
         fieldTypeWrap.realType(),
-        fieldTypeWrap.isInterface() ? KIND.WHERE_INTERFACE : KIND.WHERE
+        fieldTypeWrap.isInterface()
+          ? INPUT_TYPE_KIND.WHERE_INTERFACE
+          : INPUT_TYPE_KIND.WHERE
       );
-      let orderByType = InputTypes.get(fieldTypeWrap.realType(), KIND.ORDER_BY);
+      let orderByType = InputTypes.get(
+        fieldTypeWrap.realType(),
+        INPUT_TYPE_KIND.ORDER_BY
+      );
 
       field.args = allQueryArgs({
         whereType,
@@ -520,7 +528,9 @@ class RelationDirective extends SchemaDirectiveVisitor {
 
     let whereType = InputTypes.get(
       fieldTypeWrap.realType(),
-      fieldTypeWrap.isInterface() ? KIND.WHERE_INTERFACE : KIND.WHERE
+      fieldTypeWrap.isInterface()
+        ? INPUT_TYPE_KIND.WHERE_INTERFACE
+        : INPUT_TYPE_KIND.WHERE
     );
 
     let value = parent[storeField];
@@ -625,10 +635,10 @@ class RelationDirective extends SchemaDirectiveVisitor {
         };
       },
       [HANDLER.TRANSFORM_TO_INPUT]: {
-        [KIND.CREATE]: () => [],
-        [KIND.WHERE]: () => [],
-        [KIND.UPDATE]: () => [],
-        [KIND.ORDER_BY]: () => [],
+        [INPUT_TYPE_KIND.CREATE]: () => [],
+        [INPUT_TYPE_KIND.WHERE]: () => [],
+        [INPUT_TYPE_KIND.UPDATE]: () => [],
+        [INPUT_TYPE_KIND.ORDER_BY]: () => [],
       },
     };
   };
@@ -728,21 +738,29 @@ const createInput = ({ name, initialType, kind, inputTypes }) => {
 
   let createType = inputTypes.get(
     initialType,
-    typeWrap.isInterface() ? KIND.CREATE_INTERFACE : KIND.CREATE
+    typeWrap.isInterface()
+      ? INPUT_TYPE_KIND.CREATE_INTERFACE
+      : INPUT_TYPE_KIND.CREATE
   );
   let whereType = inputTypes.get(
     initialType,
-    typeWrap.isInterface() ? KIND.WHERE_INTERFACE : KIND.WHERE
+    typeWrap.isInterface()
+      ? INPUT_TYPE_KIND.WHERE_INTERFACE
+      : INPUT_TYPE_KIND.WHERE
   );
 
   let updateType = inputTypes.get(
     initialType,
-    typeWrap.isInterface() ? KIND.UPDATE_INTERFACE : KIND.UPDATE
+    typeWrap.isInterface()
+      ? INPUT_TYPE_KIND.UPDATE_INTERFACE
+      : INPUT_TYPE_KIND.UPDATE
   );
 
   let whereUniqueType = inputTypes.get(
     initialType,
-    typeWrap.isInterface() ? KIND.WHERE_UNIQUE_INTERFACE : KIND.WHERE_UNIQUE
+    typeWrap.isInterface()
+      ? INPUT_TYPE_KIND.WHERE_UNIQUE_INTERFACE
+      : INPUT_TYPE_KIND.WHERE_UNIQUE
   );
 
   if (
@@ -850,12 +868,16 @@ const createUpdateManyInput = ({ name, initialType, kind, inputTypes }) => {
 
   let updateType = inputTypes.get(
     initialType,
-    typeWrap.isInterface() ? KIND.UPDATE_INTERFACE : KIND.UPDATE
+    typeWrap.isInterface()
+      ? INPUT_TYPE_KIND.UPDATE_INTERFACE
+      : INPUT_TYPE_KIND.UPDATE
   );
 
   let whereUniqueType = inputTypes.get(
     initialType,
-    typeWrap.isInterface() ? KIND.WHERE_UNIQUE_INTERFACE : KIND.WHERE_UNIQUE
+    typeWrap.isInterface()
+      ? INPUT_TYPE_KIND.WHERE_UNIQUE_INTERFACE
+      : INPUT_TYPE_KIND.WHERE_UNIQUE
   );
   fields.where = {
     name: 'where',

@@ -3,7 +3,7 @@ import { SchemaDirectiveVisitor } from 'graphql-tools';
 
 import { appendTransform } from '../../inputTypes/utils';
 import * as HANDLER from '../../inputTypes/handlers';
-import * as KIND from '../../inputTypes/kinds';
+import { INPUT_TYPE_KIND } from '../../inputTypes/kinds';
 
 export const typeDef = gql`
   directive @id on FIELD_DEFINITION
@@ -12,8 +12,8 @@ export const typeDef = gql`
 class ID extends SchemaDirectiveVisitor {
   visitFieldDefinition(field) {
     appendTransform(field, HANDLER.TRANSFORM_TO_INPUT, {
-      [KIND.CREATE]: field => [],
-      [KIND.UPDATE]: field => [],
+      [INPUT_TYPE_KIND.CREATE]: field => [],
+      [INPUT_TYPE_KIND.UPDATE]: field => [],
     });
   }
 }

@@ -4,7 +4,7 @@ import { SchemaDirectiveVisitor } from 'graphql-tools';
 
 import { appendTransform } from '../../inputTypes/utils';
 import * as HANDLER from '../../inputTypes/handlers';
-import * as KIND from '../../inputTypes/kinds';
+import { INPUT_TYPE_KIND } from '../../inputTypes/kinds';
 import { combineResolvers } from '../../utils';
 
 export const typeDef = gql`
@@ -15,13 +15,13 @@ class DirectiveDB extends SchemaDirectiveVisitor {
   visitFieldDefinition(field) {
     const { name } = this.args;
     appendTransform(field, HANDLER.TRANSFORM_INPUT, {
-      [KIND.CREATE]: this._renameTransform(field.name, name),
-      [KIND.UPDATE]: this._renameTransform(field.name, name),
-      [KIND.WHERE]: this._renameTransform(field.name, name),
+      [INPUT_TYPE_KIND.CREATE]: this._renameTransform(field.name, name),
+      [INPUT_TYPE_KIND.UPDATE]: this._renameTransform(field.name, name),
+      [INPUT_TYPE_KIND.WHERE]: this._renameTransform(field.name, name),
     });
 
     appendTransform(field, HANDLER.TRANSFORM_TO_INPUT, {
-      [KIND.ORDER_BY]: ({ field }) => [
+      [INPUT_TYPE_KIND.ORDER_BY]: ({ field }) => [
         {
           name: `${field.name}_ASC`,
           value: { [name]: 1 },

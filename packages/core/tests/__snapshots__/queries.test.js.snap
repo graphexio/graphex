@@ -45,6 +45,56 @@ Object {
 }
 `;
 
+exports[`CategoriesRelationFilter 2`] = `
+Object {
+  "createCategory": Object {
+    "title": "root",
+  },
+}
+`;
+
+exports[`CategoriesRelationFilter 3`] = `
+Object {
+  "categories": Array [
+    Object {
+      "title": "root",
+    },
+  ],
+}
+`;
+
+exports[`CategoriesRelationFilter 4`] = `
+Object {
+  "createCategory": null,
+}
+`;
+
+exports[`CategoriesRelationFilter 5`] = `
+Object {
+  "categories": Array [
+    Object {
+      "title": "root",
+    },
+  ],
+}
+`;
+
+exports[`CategoriesRelationFilter 6`] = `
+Object {
+  "categories": Array [
+    Object {
+      "title": "root",
+    },
+  ],
+}
+`;
+
+exports[`CategoriesRelationFilter 7`] = `
+Object {
+  "categories": Array [],
+}
+`;
+
 exports[`CategoriesSameFieldFilter 1`] = `
 Object {
   "categories": Array [
@@ -64,6 +114,34 @@ Object {
 `;
 
 exports[`CreateAdmin 1`] = `
+Object {
+  "createAdmin": Object {
+    "username": "admin",
+  },
+}
+`;
+
+exports[`CreateAdmin 2`] = `
+Object {
+  "categories": Array [
+    Object {
+      "subcategories": Array [
+        Object {
+          "subcategories": Array [],
+          "title": "JS",
+        },
+        Object {
+          "subcategories": Array [],
+          "title": "MongoDB",
+        },
+      ],
+      "title": "root",
+    },
+  ],
+}
+`;
+
+exports[`CreateAdmin 3`] = `
 Object {
   "createAdmin": Object {
     "username": "admin",
@@ -129,6 +207,18 @@ Object {
 `;
 
 exports[`CreateSubscriberWithEmbeddedDocument 1`] = `
+Object {
+  "createSubscriber": Object {
+    "profile": Object {
+      "firstName": "Gwion",
+      "lastName": "Britt",
+    },
+    "username": "subscriber1",
+  },
+}
+`;
+
+exports[`CreateSubscriberWithEmbeddedDocument 2`] = `
 Object {
   "createSubscriber": Object {
     "profile": Object {

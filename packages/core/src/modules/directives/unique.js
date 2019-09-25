@@ -5,7 +5,7 @@ import { SchemaDirectiveVisitor } from 'graphql-tools';
 import TypeWrap from '@apollo-model/type-wrap';
 import { appendTransform, reduceTransforms } from '../../inputTypes/utils';
 import * as HANDLER from '../../inputTypes/handlers';
-import * as KIND from '../../inputTypes/kinds';
+import { INPUT_TYPE_KIND } from '../../inputTypes/kinds';
 import * as Transforms from '../../inputTypes/transforms';
 
 export const typeDef = gql`
@@ -18,12 +18,12 @@ class Unique extends SchemaDirectiveVisitor {
     const { field: relationField } = this.args;
 
     appendTransform(field, HANDLER.TRANSFORM_TO_INPUT, {
-      [KIND.WHERE_UNIQUE]: ({ field }) => [
+      [INPUT_TYPE_KIND.WHERE_UNIQUE]: ({ field }) => [
         {
           name: field.name,
           type: new TypeWrap(field.type).realType(),
           mmTransform: reduceTransforms([
-            Transforms.fieldInputTransform(field, KIND.WHERE),
+            Transforms.fieldInputTransform(field, INPUT_TYPE_KIND.WHERE),
             Transforms.transformModifier(''),
           ]),
         },

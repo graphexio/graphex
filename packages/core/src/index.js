@@ -45,7 +45,7 @@ import Modules from './modules';
 import InputTypes, { EmptyTypeException } from './inputTypes';
 import { applyInputTransform } from './inputTypes/utils';
 
-import * as KIND from './inputTypes/kinds';
+import { INPUT_TYPE_KIND } from './inputTypes/kinds';
 
 import {
   SINGLE_QUERY,
@@ -76,8 +76,8 @@ export default class ModelMongo {
     let typeWrap = new TypeWrap(modelType);
     let whereType, orderByType;
     try {
-      whereType = this._inputType(modelType, KIND.WHERE);
-      orderByType = this._inputType(modelType, KIND.ORDER_BY);
+      whereType = this._inputType(modelType, INPUT_TYPE_KIND.WHERE);
+      orderByType = this._inputType(modelType, INPUT_TYPE_KIND.ORDER_BY);
     } catch (e) {
       if (e instanceof EmptyTypeException) {
         return;
@@ -124,8 +124,8 @@ export default class ModelMongo {
     let typeWrap = new TypeWrap(modelType);
     let whereType, orderByType, paginationType;
     try {
-      whereType = this._inputType(modelType, KIND.WHERE);
-      orderByType = this._inputType(modelType, KIND.ORDER_BY);
+      whereType = this._inputType(modelType, INPUT_TYPE_KIND.WHERE);
+      orderByType = this._inputType(modelType, INPUT_TYPE_KIND.ORDER_BY);
       paginationType = this._paginationType(modelType);
     } catch (e) {
       if (e instanceof EmptyTypeException) {
@@ -243,8 +243,8 @@ export default class ModelMongo {
   _createConnectionQuery = modelType => {
     let whereType, orderByType;
     try {
-      whereType = this._inputType(modelType, KIND.WHERE);
-      orderByType = this._inputType(modelType, KIND.ORDER_BY);
+      whereType = this._inputType(modelType, INPUT_TYPE_KIND.WHERE);
+      orderByType = this._inputType(modelType, INPUT_TYPE_KIND.ORDER_BY);
     } catch (e) {
       if (e instanceof EmptyTypeException) {
         return;
@@ -275,7 +275,10 @@ export default class ModelMongo {
     let typeWrap = new TypeWrap(modelType);
     let whereUniqueType;
     try {
-      whereUniqueType = this._inputType(modelType, KIND.WHERE_UNIQUE);
+      whereUniqueType = this._inputType(
+        modelType,
+        INPUT_TYPE_KIND.WHERE_UNIQUE
+      );
     } catch (e) {
       if (e instanceof EmptyTypeException) {
         return;
@@ -337,7 +340,7 @@ export default class ModelMongo {
     let args = [];
     let inputType;
     try {
-      inputType = this._inputType(modelType, KIND.CREATE);
+      inputType = this._inputType(modelType, INPUT_TYPE_KIND.CREATE);
       args = [
         {
           type: new GraphQLNonNull(inputType),
@@ -360,7 +363,7 @@ export default class ModelMongo {
         // let data = await applyAlwaysInputTransform({ parent, context })(
         //   modelType,
         //   args.data,
-        //   KIND.CREATE_ALWAYS
+        //   INPUT_TYPE_KIND.CREATE_ALWAYS
         // );
         let doc = await applyInputTransform({ parent, context })(
           args.data,
@@ -392,7 +395,10 @@ export default class ModelMongo {
     let typeWrap = new TypeWrap(modelType);
     let whereUniqueType;
     try {
-      whereUniqueType = this._inputType(modelType, KIND.WHERE_UNIQUE);
+      whereUniqueType = this._inputType(
+        modelType,
+        INPUT_TYPE_KIND.WHERE_UNIQUE
+      );
     } catch (e) {
       if (e instanceof EmptyTypeException) {
         return;
@@ -442,7 +448,7 @@ export default class ModelMongo {
     let typeWrap = new TypeWrap(modelType);
     let whereType;
     try {
-      whereType = this._inputType(modelType, KIND.WHERE);
+      whereType = this._inputType(modelType, INPUT_TYPE_KIND.WHERE);
     } catch (e) {
       if (e instanceof EmptyTypeException) {
         return;
@@ -493,8 +499,8 @@ export default class ModelMongo {
     let args;
     let whereType, updateType;
     try {
-      whereType = this._inputType(modelType, KIND.WHERE_UNIQUE);
-      updateType = this._inputType(modelType, KIND.UPDATE);
+      whereType = this._inputType(modelType, INPUT_TYPE_KIND.WHERE_UNIQUE);
+      updateType = this._inputType(modelType, INPUT_TYPE_KIND.UPDATE);
     } catch (e) {
       if (e instanceof EmptyTypeException) {
         return;
@@ -522,7 +528,7 @@ export default class ModelMongo {
         // let data = await applyAlwaysInputTransform({ parent, context })(
         //   modelType,
         //   args.data,
-        //   KIND.UPDATE_ALWAYS
+        //   INPUT_TYPE_KIND.UPDATE_ALWAYS
         // );
         let data = await applyInputTransform({ parent, context })(
           args.data,

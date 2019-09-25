@@ -6,9 +6,9 @@ import {
   GraphQLList,
   GraphQLNonNull,
   GraphQLEnumType,
-  GraphQLBoolean
-} from "graphql";
-import _ from "lodash";
+  GraphQLBoolean,
+} from 'graphql';
+import _ from 'lodash';
 
 function getDirective(field, name) {
   if (field.astNode && field.astNode.directives) {
@@ -20,15 +20,16 @@ function getDirective(field, name) {
 }
 
 export default class TypeWrap {
-  _type = null;
-  _realType = null;
-  _required = false;
-  _many = false;
-  _requiredArrayItem = false;
-  _nested = false;
-  _interface = false;
-  _inherited = null; //deprecated
-  _interfaces = [];
+  private _type = null;
+  private _realType = null;
+  private _required = false;
+  private _many = false;
+  private _requiredArrayItem = false;
+  private _nested = false;
+  private _interface = false;
+  private _inherited = null; //deprecated
+  private _interfaces = [];
+  private _abstract = false;
 
   constructor(type) {
     if (type instanceof TypeWrap) {

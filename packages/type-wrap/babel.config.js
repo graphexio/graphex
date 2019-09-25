@@ -1,13 +1,14 @@
 module.exports = {
   presets: [
+    ['@babel/preset-typescript'],
     [
-      "@babel/preset-env",
+      '@babel/preset-env',
       {
         targets: {
-          node: "current"
-        }
-      }
-    ]
+          node: 'current',
+        },
+      },
+    ],
   ],
-  plugins: ["@babel/plugin-proposal-class-properties"]
+  plugins: ['@babel/plugin-proposal-class-properties'],
 };

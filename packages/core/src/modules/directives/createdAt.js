@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { appendTransform, reduceTransforms } from '../../inputTypes/utils';
 import { TRANSFORM_TO_INPUT } from '../../inputTypes/handlers';
-import { CREATE } from '../../inputTypes/kinds';
+import { INPUT_TYPE_KIND } from '../../inputTypes/kinds';
 import { fieldInputTransform } from '../../inputTypes/transforms';
 import { TimestampDirective } from './timestamps';
 
@@ -12,13 +12,13 @@ export const typeDef = gql`
 class CreatedAt extends TimestampDirective {
   visitFieldDefinition(field) {
     appendTransform(field, TRANSFORM_TO_INPUT, {
-      [CREATE]: ({ field }) => [
+      [INPUT_TYPE_KIND.CREATE]: ({ field }) => [
         {
           name: field.name,
           type: field.type,
           mmTransformAlways: reduceTransforms([
             this._setDate(field.name),
-            fieldInputTransform(field, CREATE),
+            fieldInputTransform(field, INPUT_TYPE_KIND.CREATE),
           ]),
         },
       ],

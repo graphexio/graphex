@@ -15,7 +15,7 @@ import { FIND, FIND_IDS, FIND_ONE } from '@apollo-model/mongodb-executor';
 import InputTypes from '../../inputTypes';
 import TypeWrap from '@apollo-model/type-wrap';
 import * as HANDLER from '../../inputTypes/handlers';
-import * as KIND from '../../inputTypes/kinds';
+import { INPUT_TYPE_KIND } from '../../inputTypes/kinds';
 import * as Transforms from '../../inputTypes/transforms';
 import {
   INPUT_CREATE_MANY_RELATION,
@@ -51,10 +51,10 @@ class ExtRelationDirective extends SchemaDirectiveVisitor {
       getRelationFieldName(this.mmObjectType.name, relationField, many);
 
     appendTransform(field, HANDLER.TRANSFORM_TO_INPUT, {
-      [KIND.ORDER_BY]: field => [],
-      [KIND.CREATE]: field => [],
-      [KIND.UPDATE]: field => [],
-      [KIND.WHERE]: field => [],
+      [INPUT_TYPE_KIND.ORDER_BY]: field => [],
+      [INPUT_TYPE_KIND.CREATE]: field => [],
+      [INPUT_TYPE_KIND.UPDATE]: field => [],
+      [INPUT_TYPE_KIND.WHERE]: field => [],
     });
 
     field.mmOnSchemaInit = this._onSchemaInit;
@@ -71,9 +71,14 @@ class ExtRelationDirective extends SchemaDirectiveVisitor {
     if (fieldTypeWrap.isMany()) {
       let whereType = InputTypes.get(
         fieldTypeWrap.realType(),
-        fieldTypeWrap.isInterface() ? KIND.WHERE_INTERFACE : KIND.WHERE
+        fieldTypeWrap.isInterface()
+          ? INPUT_TYPE_KIND.WHERE_INTERFACE
+          : INPUT_TYPE_KIND.WHERE
       );
-      let orderByType = InputTypes.get(fieldTypeWrap.realType(), KIND.ORDER_BY);
+      let orderByType = InputTypes.get(
+        fieldTypeWrap.realType(),
+        INPUT_TYPE_KIND.ORDER_BY
+      );
 
       field.args = allQueryArgs({
         whereType,
@@ -104,7 +109,7 @@ class ExtRelationDirective extends SchemaDirectiveVisitor {
 
   _transformToInputCreateUpdate = ({ field, kind, inputTypes }) => {
     let fieldTypeWrap = new TypeWrap(field.type);
-    let isCreate = kind === KIND.CREATE;
+    let isCreate = kind === INPUT_TYPE_KIND.CREATE;
 
     let type = inputTypes.get(
       fieldTypeWrap.realType(),
@@ -308,7 +313,9 @@ class ExtRelationDirective extends SchemaDirectiveVisitor {
 
     let whereType = InputTypes.get(
       fieldTypeWrap.realType(),
-      fieldTypeWrap.isInterface() ? KIND.WHERE_INTERFACE : KIND.WHERE
+      fieldTypeWrap.isInterface()
+        ? INPUT_TYPE_KIND.WHERE_INTERFACE
+        : INPUT_TYPE_KIND.WHERE
     );
 
     let value = parent[relationField];
@@ -366,8 +373,14 @@ class ExtRelationDirective extends SchemaDirectiveVisitor {
     let { mmFieldTypeWrap: fieldTypeWrap, mmStoreField: storeField } = this;
     const { _typeMap: SchemaTypes } = this.schema;
 
-    let whereType = InputTypes.get(fieldTypeWrap.realType(), KIND.WHERE);
-    let orderByType = InputTypes.get(fieldTypeWrap.realType(), KIND.ORDER_BY);
+    let whereType = InputTypes.get(
+      fieldTypeWrap.realType(),
+      INPUT_TYPE_KIND.WHERE
+    );
+    let orderByType = InputTypes.get(
+      fieldTypeWrap.realType(),
+      INPUT_TYPE_KIND.ORDER_BY
+    );
 
     let connectionName = `${field.name}Connection`;
     this.mmObjectType._fields[connectionName] = {
@@ -399,10 +412,10 @@ class ExtRelationDirective extends SchemaDirectiveVisitor {
         };
       },
       [HANDLER.TRANSFORM_TO_INPUT]: {
-        [KIND.CREATE]: () => [],
-        [KIND.WHERE]: () => [],
-        [KIND.UPDATE]: () => [],
-        [KIND.ORDER_BY]: () => [],
+        [INPUT_TYPE_KIND.CREATE]: () => [],
+        [INPUT_TYPE_KIND.WHERE]: () => [],
+        [INPUT_TYPE_KIND.UPDATE]: () => [],
+        [INPUT_TYPE_KIND.ORDER_BY]: () => [],
       },
     };
   };

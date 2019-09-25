@@ -13,9 +13,6 @@ import {
 
 import { modelDefaultActions, modelField } from './';
 
-import * as INPUT_KINDS from '@apollo-model/core/lib/inputTypes/kinds.js';
-import { getInputTypeName } from '@apollo-model/core/lib/inputTypes/';
-
 test.each([
   ['C', [false, false, false, false, true, false, false, false]],
   ['R', [true, true, true, true, false, false, false, false]],
