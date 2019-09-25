@@ -99,4 +99,17 @@ describe('array selectors', () => {
       tags: { $all: ['apollo-model'] },
     });
   });
+
+  test('all for embedded', async () => {
+    let selector = await applyInputTransform({})(
+      {
+        comments_all: { message: 'test message' },
+      },
+      schema.getTypeMap().PostWhereInput
+    );
+
+    expect(selector).toEqual({
+      comments: { $all: [{ message: 'test message' }] },
+    });
+  });
 });
