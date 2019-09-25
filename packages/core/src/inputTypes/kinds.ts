@@ -4,6 +4,7 @@ import { uppercaseFirstLetter } from './utils';
 export enum INPUT_TYPE_KIND {
   CREATE = 'create',
   WHERE = 'where',
+  WHERE_CLEAN = 'whereClean',
   WHERE_UNIQUE = 'whereUnique',
   UPDATE = 'update',
   ORDER_BY = 'orderBy',

@@ -20,6 +20,7 @@ import { lowercaseFirstLetter, uppercaseFirstLetter } from '../utils';
 import pluralize from 'pluralize';
 
 import transformToInputWhere from './transformToInputWhere';
+import transformToInputWhereClean from './transformToInputWhereClean';
 
 export const UNMARKED_OBJECT_FIELD = 'unmarkedObjectField';
 
@@ -113,6 +114,7 @@ class InputTypesClass {
     this._defaultTransformToInput = {
       [INPUT_TYPE_KIND.ORDER_BY]: this._defaultTransformToInputOrderBy,
       [INPUT_TYPE_KIND.WHERE]: this._defaultTransformToInputWhere,
+      [INPUT_TYPE_KIND.WHERE_CLEAN]: transformToInputWhereClean,
       [INPUT_TYPE_KIND.WHERE_UNIQUE]: () => [],
       [INPUT_TYPE_KIND.CREATE]: this._defaultTransformToInputCreateUpdate,
       [INPUT_TYPE_KIND.UPDATE]: this._defaultTransformToInputCreateUpdate,
@@ -122,6 +124,7 @@ class InputTypesClass {
       [
         INPUT_TYPE_KIND.CREATE,
         INPUT_TYPE_KIND.WHERE,
+        INPUT_TYPE_KIND.WHERE_CLEAN,
         INPUT_TYPE_KIND.WHERE_UNIQUE,
         INPUT_TYPE_KIND.UPDATE,
       ],
@@ -336,6 +339,10 @@ class InputTypesClass {
     ];
   };
 
+  _defaultTransformToInputWhereClean = ({ field }) => {
+    return transformToInputWhereClean({ field, getInputType: this._inputType });
+  };
+
   _fieldNameWithModifier = (name, modifier) => {
     if (modifier !== '') {
       return `${name}_${modifier}`;
@@ -359,7 +366,15 @@ class InputTypesClass {
     Object.values(initialType._fields).forEach(field => {
       let { mmTransformToInput = {} } = field;
       let transformFunc = mmTransformToInput[kind] || deafultTransformFunc;
-      values = [...values, ...transformFunc({ field, kind, inputTypes: this })];
+      values = [
+        ...values,
+        ...transformFunc({
+          field,
+          kind,
+          inputTypes: this,
+          getInputType: this._inputType,
+        }),
+      ];
     });
 
     return new GraphQLEnumType({
@@ -448,7 +463,12 @@ class InputTypesClass {
       fields = {
         ...fields,
         ...this._fieldsArrayToObject(
-          transformFunc({ field, kind, inputTypes: this })
+          transformFunc({
+            field,
+            kind,
+            inputTypes: this,
+            getInputType: this._inputType,
+          })
         ),
       };
     });

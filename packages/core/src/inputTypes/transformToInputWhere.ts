@@ -1,12 +1,8 @@
-import {
-  GraphQLField,
-  GraphQLInputField,
-  GraphQLOutputType,
-  GraphQLInputType,
-} from 'graphql';
+import { GraphQLField, GraphQLOutputType, GraphQLInputType } from 'graphql';
 import { Selectors, QuerySelector } from './querySelectors';
 import { mmGraphQLInputField } from '../types';
 import { INPUT_TYPE_KIND } from './kinds';
+import { TransformToInputInterface } from './transformToInputInterface';
 
 const applicableForField = (field: GraphQLField<any, any, any>) => (
   selector: QuerySelector
@@ -18,17 +14,13 @@ const selectorToField = (field, getInputType) => (selector: QuerySelector) => ({
   mmTransform: input => selector.transformInput(input, { field }),
 });
 
-export default ({
+const transformToInputWhere: TransformToInputInterface = ({
   field,
   getInputType,
-}: {
-  field: GraphQLField<any, any, any>;
-  getInputType: (
-    type: GraphQLOutputType,
-    kind: INPUT_TYPE_KIND
-  ) => GraphQLInputType;
-}): mmGraphQLInputField[] => {
+}) => {
   return Selectors.filter(applicableForField(field)).map(
     selectorToField(field, getInputType)
   );
 };
+
+export default transformToInputWhere;

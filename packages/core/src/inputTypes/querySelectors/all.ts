@@ -16,7 +16,7 @@ const AllSelector: QuerySelector = {
     if (isScalarType(realType)) {
       return new GraphQLList(realType);
     } else {
-      return getInputType(realType, INPUT_TYPE_KIND.WHERE);
+      return getInputType(realType, INPUT_TYPE_KIND.WHERE_CLEAN);
     }
   },
   transformInput: (input, { field }) => {

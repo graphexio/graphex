@@ -82,5 +82,8 @@
   "publishConfig": {
     "access": "public"
   },
+  "jest": {
+    "testEnvironment": "node"
+  },
   "gitHead": "cb7d6ecaf5c45b659c2467e60d47a3f20fadbc3a"
 }
