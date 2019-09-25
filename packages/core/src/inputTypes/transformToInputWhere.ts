@@ -1,18 +1,24 @@
-import { GraphQLField, GraphQLOutputType, GraphQLInputType } from 'graphql';
-import { Selectors, QuerySelector } from './querySelectors';
-import { mmGraphQLInputField } from '../types';
-import { INPUT_TYPE_KIND } from './kinds';
+import { GraphQLField, isCompositeType, isInputObjectType } from 'graphql';
+import { QuerySelector, Selectors } from './querySelectors';
+import * as Transforms from './transforms';
 import { TransformToInputInterface } from './transformToInputInterface';
+import { reduceTransforms } from './utils';
 
 const applicableForField = (field: GraphQLField<any, any, any>) => (
   selector: QuerySelector
 ) => selector.applicableForType(field.type);
 
-const selectorToField = (field, getInputType) => (selector: QuerySelector) => ({
-  type: selector.inputType(field.type, { getInputType }),
-  name: selector.inputFieldName(field.name),
-  mmTransform: input => selector.transformInput(input, { field }),
-});
+const selectorToField = (field, getInputType) => (selector: QuerySelector) => {
+  const type = selector.inputType(field.type, { getInputType });
+  return {
+    type,
+    name: selector.inputFieldName(field.name),
+    mmTransform: reduceTransforms([
+      isInputObjectType(type) ? Transforms.applyNestedTransform(type) : null,
+      input => selector.transformInput(input, { field }),
+    ]),
+  };
+};
 
 const transformToInputWhere: TransformToInputInterface = ({
   field,

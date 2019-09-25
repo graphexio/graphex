@@ -292,14 +292,14 @@ class InputTypesClass {
 
     if (fieldTypeWrap.isMany()) {
       [
-        { modifier: '', type: GraphQLString },
+        // { modifier: '', type: GraphQLString },
         // { modifier: 'size', type: GraphQLInt },
         // { modifier: 'not_size', type: GraphQLInt },
         // { modifier: 'exists', type: GraphQLBoolean },
         // { modifier: 'all', type: new GraphQLList(GraphQLString) },
-        { modifier: 'exact', type: new GraphQLList(GraphQLString) },
-        { modifier: 'in', type: new GraphQLList(GraphQLString) },
-        { modifier: 'nin', type: new GraphQLList(GraphQLString) },
+        // { modifier: 'exact', type: new GraphQLList(GraphQLString) },
+        // { modifier: 'in', type: new GraphQLList(GraphQLString) },
+        // { modifier: 'not_in', type: new GraphQLList(GraphQLString) },
       ].forEach(({ modifier, type }) => {
         fields.push({
           type,

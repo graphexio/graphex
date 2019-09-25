@@ -112,4 +112,69 @@ describe('array selectors', () => {
       comments: { $all: [{ message: 'test message' }] },
     });
   });
+
+  test('exact', async () => {
+    let selector = await applyInputTransform({})(
+      {
+        comments_exact: { message: 'test message' },
+      },
+      schema.getTypeMap().PostWhereInput
+    );
+
+    expect(selector).toEqual({
+      comments: { $eq: [{ message: 'test message' }] },
+    });
+  });
+
+  test('in', async () => {
+    let selector = await applyInputTransform({})(
+      {
+        comments_in: { message: 'test message' },
+      },
+      schema.getTypeMap().PostWhereInput
+    );
+
+    expect(selector).toEqual({
+      comments: { $in: [{ message: 'test message' }] },
+    });
+  });
+
+  test('not_in', async () => {
+    let selector = await applyInputTransform({})(
+      {
+        comments_not_in: { message: 'test message' },
+      },
+      schema.getTypeMap().PostWhereInput
+    );
+
+    expect(selector).toEqual({
+      comments: { $not: { $in: [{ message: 'test message' }] } },
+    });
+  });
+
+  test('some', async () => {
+    let selector = await applyInputTransform({})(
+      {
+        comments_some: { message: 'test message' },
+      },
+      schema.getTypeMap().PostWhereInput
+    );
+
+    expect(selector).toEqual({
+      comments: { $elemMatch: { message: 'test message' } },
+    });
+  });
+
+  test('some nested', async () => {
+    let selector = await applyInputTransform({})(
+      {
+        comments_some: { likes_some: { id: 'USERID' } },
+      },
+      schema.getTypeMap().PostWhereInput
+    );
+
+    expect(selector).toEqual({
+      comments: { $elemMatch: { likes: { $elemMatch: { id: 'USERID' } } } },
+    });
+  });
 });

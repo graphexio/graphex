@@ -4,7 +4,7 @@ import { INPUT_TYPE_KIND } from '../kinds';
 import { QuerySelector } from './interface.js';
 import { extractValue, makeArray } from './utils';
 
-const AllSelector: QuerySelector = {
+const NotInSelector: QuerySelector = {
   applicableForType(type) {
     const typeWrap = new TypeWrap(type);
     return typeWrap.isMany();
@@ -20,11 +20,11 @@ const AllSelector: QuerySelector = {
     }
   },
   transformInput: (input, { field }) => {
-    return { [field.name]: { $all: makeArray(extractValue(input)) } };
+    return { [field.name]: { $not: { $in: makeArray(extractValue(input)) } } };
   },
   inputFieldName(fieldName) {
-    return `${fieldName}_all`;
+    return `${fieldName}_not_in`;
   },
 };
 
-export default AllSelector;
+export default NotInSelector;

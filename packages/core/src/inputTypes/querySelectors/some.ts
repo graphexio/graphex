@@ -1,10 +1,10 @@
 import TypeWrap from '@apollo-model/type-wrap';
-import { GraphQLList, isCompositeType } from 'graphql';
+import { isCompositeType } from 'graphql';
 import { INPUT_TYPE_KIND } from '../kinds';
 import { QuerySelector } from './interface.js';
-import { extractValue, makeArray } from './utils';
+import { extractValue } from './utils';
 
-const AllSelector: QuerySelector = {
+const ExactSelector: QuerySelector = {
   applicableForType(type) {
     const typeWrap = new TypeWrap(type);
     return typeWrap.isMany();
@@ -14,17 +14,17 @@ const AllSelector: QuerySelector = {
     const realType = typeWrap.realType();
 
     if (!isCompositeType(realType)) {
-      return new GraphQLList(realType);
+      return realType;
     } else {
-      return getInputType(realType, INPUT_TYPE_KIND.WHERE_CLEAN);
+      return getInputType(realType, INPUT_TYPE_KIND.WHERE);
     }
   },
   transformInput: (input, { field }) => {
-    return { [field.name]: { $all: makeArray(extractValue(input)) } };
+    return { [field.name]: { $elemMatch: extractValue(input) } };
   },
   inputFieldName(fieldName) {
-    return `${fieldName}_all`;
+    return `${fieldName}_some`;
   },
 };
 
-export default AllSelector;
+export default ExactSelector;
