@@ -1,22 +1,22 @@
-import { QuerySelector } from './interface.js';
-import { GraphQLList, GraphQLInt } from 'graphql';
+import { GraphQLInt } from 'graphql';
+import QuerySelector from './interface';
 import { extractValue } from './utils';
-import TypeWrap from '@apollo-model/type-wrap';
 
-const NotSizeSelector: QuerySelector = {
-  applicableForType(type) {
-    const typeWrap = new TypeWrap(type);
-    return typeWrap.isMany();
-  },
-  inputType(type) {
+export default class NotSizeSelector extends QuerySelector {
+  _selectorName = 'not_size';
+
+  isApplicable() {
+    return this._typeWrap.isMany();
+  }
+
+  getInputFieldType() {
     return GraphQLInt;
-  },
-  transformInput: (input, { field }) => {
-    return { [field.name]: { $not: { $size: extractValue(input) } } };
-  },
-  inputFieldName(fieldName) {
-    return `${fieldName}_not_size`;
-  },
-};
+  }
 
-export default NotSizeSelector;
+  getTransformInput() {
+    const fieldName = this.getFieldName();
+    return input => ({
+      [fieldName]: { $not: { $size: extractValue(input) } },
+    });
+  }
+}

@@ -1,22 +1,22 @@
-import { QuerySelector } from './interface.js';
-import { GraphQLList, GraphQLInt } from 'graphql';
+import { GraphQLInt } from 'graphql';
+import QuerySelector from './interface';
 import { extractValue } from './utils';
-import TypeWrap from '@apollo-model/type-wrap';
 
-const SizeSelector: QuerySelector = {
-  applicableForType(type) {
-    const typeWrap = new TypeWrap(type);
-    return typeWrap.isMany();
-  },
-  inputType(type) {
+export default class SizeSelector extends QuerySelector {
+  _selectorName = 'size';
+
+  isApplicable() {
+    return this._typeWrap.isMany();
+  }
+
+  getInputFieldType() {
     return GraphQLInt;
-  },
-  transformInput: (input, { field }) => {
-    return { [field.name]: { $size: extractValue(input) } };
-  },
-  inputFieldName(fieldName) {
-    return `${fieldName}_size`;
-  },
-};
+  }
 
-export default SizeSelector;
+  getTransformInput() {
+    const fieldName = this.getFieldName();
+    return input => ({
+      [fieldName]: { $size: extractValue(input) },
+    });
+  }
+}

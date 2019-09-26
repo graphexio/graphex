@@ -1,21 +1,22 @@
-import { QuerySelector } from './interface.js';
-import { GraphQLList, GraphQLInt } from 'graphql';
-import { extractValue } from './utils';
-import TypeWrap from '@apollo-model/type-wrap';
+import { GraphQLBoolean } from 'graphql';
+import QuerySelector from './interface';
+import { extractValue, makeArray } from './utils';
 
-const ExistsSelector: QuerySelector = {
-  applicableForType(type) {
+export default class ExistsSelector extends QuerySelector {
+  _selectorName = 'exists';
+
+  isApplicable() {
     return true;
-  },
-  inputType(type) {
-    return GraphQLInt;
-  },
-  transformInput: (input, { field }) => {
-    return { [field.name]: { $exists: extractValue(input) } };
-  },
-  inputFieldName(fieldName) {
-    return `${fieldName}_exists`;
-  },
-};
+  }
 
-export default ExistsSelector;
+  getInputFieldType() {
+    return GraphQLBoolean;
+  }
+
+  getTransformInput() {
+    const fieldName = this.getFieldName();
+    return input => ({
+      [fieldName]: { $exists: extractValue(input) },
+    });
+  }
+}

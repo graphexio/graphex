@@ -3,19 +3,28 @@ import { QuerySelector, Selectors } from './querySelectors';
 import * as Transforms from './transforms';
 import { TransformToInputInterface } from './transformToInputInterface';
 import { reduceTransforms } from './utils';
+import TypeWrap from '@apollo-model/type-wrap';
 
-const applicableForField = (field: GraphQLField<any, any, any>) => (
-  selector: QuerySelector
-) => selector.applicableForType(field.type);
+const isApplicable = selector => selector.isApplicable();
 
-const selectorToField = (field, getInputType) => (selector: QuerySelector) => {
-  const type = selector.inputType(field.type, { getInputType });
+const applySelector = (params: {
+  field: GraphQLField<any, any, any>;
+  getInputType;
+}) => selector => new selector(params);
+
+const selectorToField = (selector: QuerySelector) => {
+  const type = selector.getInputFieldType();
+  const typeWrap = new TypeWrap(type);
+  const realType = typeWrap.realType();
+
   return {
     type,
-    name: selector.inputFieldName(field.name),
+    name: selector.getInputFieldName(),
     mmTransform: reduceTransforms([
-      isInputObjectType(type) ? Transforms.applyNestedTransform(type) : null,
-      input => selector.transformInput(input, { field }),
+      isInputObjectType(realType)
+        ? Transforms.applyNestedTransform(realType)
+        : null,
+      selector.getTransformInput(),
     ]),
   };
 };
@@ -24,9 +33,9 @@ const transformToInputWhere: TransformToInputInterface = ({
   field,
   getInputType,
 }) => {
-  return Selectors.filter(applicableForField(field)).map(
-    selectorToField(field, getInputType)
-  );
+  return Selectors.map(applySelector({ field, getInputType }))
+    .filter(isApplicable)
+    .map(selectorToField);
 };
 
 export default transformToInputWhere;
