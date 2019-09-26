@@ -9,6 +9,7 @@ import NotInSelector from './not_in';
 import NotSizeSelector from './not_size';
 import SizeSelector from './size';
 import SomeSelector from './some';
+import AsIsSelector from './asis';
 
 export const Selectors = [
   SizeSelector,
@@ -19,4 +20,5 @@ export const Selectors = [
   InSelector,
   NotInSelector,
   SomeSelector,
+  AsIsSelector,
 ];

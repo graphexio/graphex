@@ -19,28 +19,28 @@ const generateSchema = typeDefs => {
   });
 };
 
+const schema = generateSchema(gql`
+  type Post @model {
+    id: ID @id @unique
+    title: String
+    pinnedComment: Comment
+    comments: [Comment]!
+    tags: [String]!
+  }
+
+  type Comment @embedded {
+    message: String
+    user: User
+    likes: [User]
+  }
+
+  type User @embedded {
+    id: ID
+    username: String
+  }
+`);
+
 describe('array selectors', () => {
-  const schema = generateSchema(gql`
-    type Post @model {
-      id: ID @id @unique
-      title: String
-      pinnedComment: Comment
-      comments: [Comment]!
-      tags: [String]!
-    }
-
-    type Comment @embedded {
-      message: String
-      user: User
-      likes: [User]
-    }
-
-    type User @embedded {
-      id: ID
-      username: String
-    }
-  `);
-
   test('size', async () => {
     let selector = await applyInputTransform({})(
       {
@@ -164,7 +164,9 @@ describe('array selectors', () => {
       comments: { $elemMatch: { message: 'test message' } },
     });
   });
+});
 
+describe('nested selectors', () => {
   test('some nested', async () => {
     let selector = await applyInputTransform({})(
       {
@@ -176,5 +178,44 @@ describe('array selectors', () => {
     expect(selector).toEqual({
       comments: { $elemMatch: { likes: { $elemMatch: { id: 'USERID' } } } },
     });
+  });
+
+  test('asis nested', async () => {
+    let selector = await applyInputTransform({})(
+      {
+        pinnedComment: { user: { id: 'USERID' } },
+      },
+      schema.getTypeMap().PostWhereInput
+    );
+
+    expect(selector).toEqual({
+      'pinnedComment.user.id': 'USERID',
+    });
+  });
+});
+
+describe('scalar selectors', () => {
+  test('in', async () => {
+    let selector = await applyInputTransform({})(
+      {
+        title_in: ['title1', 'title2'],
+      },
+      schema.getTypeMap().PostWhereInput
+    );
+
+    expect(selector).toEqual({
+      title: { $in: ['title1', 'title2'] },
+    });
+  });
+
+  test('exists', async () => {
+    let selector = await applyInputTransform({})(
+      {
+        title_exists: true,
+      },
+      schema.getTypeMap().PostWhereInput
+    );
+
+    expect(selector).toEqual({ title: { $exists: true } });
   });
 });

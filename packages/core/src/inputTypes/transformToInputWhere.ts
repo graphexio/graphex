@@ -4,6 +4,7 @@ import * as Transforms from './transforms';
 import { TransformToInputInterface } from './transformToInputInterface';
 import { reduceTransforms } from './utils';
 import TypeWrap from '@apollo-model/type-wrap';
+import { INPUT_TYPE_KIND } from './kinds';
 
 const isApplicable = selector => selector.isApplicable();
 
@@ -21,8 +22,17 @@ const selectorToField = (selector: QuerySelector) => {
     type,
     name: selector.getInputFieldName(),
     mmTransform: reduceTransforms([
+      Transforms.fieldInputTransform(
+        selector._field,
+        selector._typeWrap.isInterface()
+          ? INPUT_TYPE_KIND.WHERE_INTERFACE
+          : INPUT_TYPE_KIND.WHERE
+      ),
       isInputObjectType(realType)
         ? Transforms.applyNestedTransform(realType)
+        : null,
+      selector._typeWrap.isInterface()
+        ? Transforms.validateAndTransformInterfaceInput(type)
         : null,
       selector.getTransformInput(),
     ]),

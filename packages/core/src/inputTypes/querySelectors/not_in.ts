@@ -7,7 +7,12 @@ export default class NotInSelector extends QuerySelector {
   _selectorName = 'not_in';
 
   isApplicable() {
-    return this._typeWrap.isMany();
+    return (
+      this._typeWrap.isMany() ||
+      ['ID', 'ObjectID', 'Int', 'Float', 'String'].includes(
+        this._typeWrap.realType().toString()
+      )
+    );
   }
 
   getInputFieldType() {

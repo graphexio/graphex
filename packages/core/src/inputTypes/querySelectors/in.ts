@@ -7,7 +7,12 @@ export default class InSelector extends QuerySelector {
   _selectorName = 'in';
 
   isApplicable() {
-    return this._typeWrap.isMany();
+    return (
+      this._typeWrap.isMany() ||
+      ['ID', 'ObjectID', 'Int', 'Float', 'String'].includes(
+        this._typeWrap.realType().toString()
+      )
+    );
   }
 
   getInputFieldType() {

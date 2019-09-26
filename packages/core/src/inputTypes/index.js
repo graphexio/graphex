@@ -35,17 +35,17 @@ const ModifierTypes = {
 };
 
 const Modifiers = {
-  Boolean: ['', 'not', 'exists'],
-  ID: ['', 'in', 'not_in', 'exists'],
-  ObjectID: ['', 'in', 'not', 'not_in', 'exists'],
-  Int: ['', 'in', 'not', 'not_in', 'lt', 'lte', 'gt', 'gte', 'exists'],
-  Float: ['', 'in', 'not', 'not_in', 'lt', 'lte', 'gt', 'gte', 'exists'],
-  Date: ['', 'not', 'lt', 'lte', 'gt', 'gte', 'exists'],
+  Boolean: ['', 'not'], //'exists'
+  ID: ['', , ,], //'in','not_in','exists'
+  ObjectID: ['', , 'not', ,], //'in','not_in','exists'
+  Int: ['', , 'not', , 'lt', 'lte', 'gt', 'gte'], //'in','not_in','exists'
+  Float: ['', , 'not', , 'lt', 'lte', 'gt', 'gte'], //'in', 'not_in','exists'
+  Date: ['', 'not', 'lt', 'lte', 'gt', 'gte'], //'exists'
   String: [
     '',
     'not',
-    'in',
-    'not_in',
+    ,
+    ,
     'lt',
     'lte',
     'gt',
@@ -62,8 +62,8 @@ const Modifiers = {
     'iends_with',
     'not_ends_with',
     'not_iends_with',
-    'exists',
-  ],
+    ,
+  ], //'in','not_in','exists'
 };
 
 export class EmptyTypeException extends Error {
@@ -268,27 +268,27 @@ class InputTypesClass {
     let fieldTypeWrap = new TypeWrap(field.type);
     let fields = [];
 
-    if (fieldTypeWrap.isNested()) {
-      let type = this._inputType(
-        fieldTypeWrap.realType(),
-        fieldTypeWrap.isInterface()
-          ? INPUT_TYPE_KIND.WHERE_INTERFACE
-          : INPUT_TYPE_KIND.WHERE
-      );
-      fields.push({
-        type,
-        name: field.name,
-        mmTransform: reduceTransforms([
-          Transforms.fieldInputTransform(field, INPUT_TYPE_KIND.WHERE),
-          Transforms.applyNestedTransform(type),
-          // Transforms.validateAndTransformNestedInput(type),
-          fieldTypeWrap.isInterface()
-            ? Transforms.validateAndTransformInterfaceInput(type)
-            : null,
-          Transforms.flattenNested,
-        ]),
-      });
-    }
+    // if (fieldTypeWrap.isNested()) {
+    //   let type = this._inputType(
+    //     fieldTypeWrap.realType(),
+    //     fieldTypeWrap.isInterface()
+    //       ? INPUT_TYPE_KIND.WHERE_INTERFACE
+    //       : INPUT_TYPE_KIND.WHERE
+    //   );
+    //   fields.push({
+    //     type,
+    //     name: field.name,
+    //     mmTransform: reduceTransforms([
+    //       Transforms.fieldInputTransform(field, INPUT_TYPE_KIND.WHERE),
+    //       Transforms.applyNestedTransform(type),
+    //       // Transforms.validateAndTransformNestedInput(type),
+    //       fieldTypeWrap.isInterface()
+    //         ? Transforms.validateAndTransformInterfaceInput(type)
+    //         : null,
+    //       Transforms.flattenNested,
+    //     ]),
+    //   });
+    // }
 
     if (fieldTypeWrap.isMany()) {
       [

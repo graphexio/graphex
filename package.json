@@ -7,6 +7,7 @@
     "url": "git+https://github.com/apollo-model/apollo-model.git"
   },
   "devDependencies": {
+    "@types/jest": "^24.0.18",
     "lerna": "^3.13.1"
   },
   "private": true,
