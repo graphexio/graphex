@@ -24,7 +24,7 @@ class Unique extends SchemaDirectiveVisitor {
           type: new TypeWrap(field.type).realType(),
           mmTransform: reduceTransforms([
             Transforms.fieldInputTransform(field, INPUT_TYPE_KIND.WHERE),
-            Transforms.transformModifier(''),
+            // Transforms.transformModifier(''),
           ]),
         },
       ],
