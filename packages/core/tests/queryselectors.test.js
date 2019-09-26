@@ -26,6 +26,7 @@ const schema = generateSchema(gql`
     pinnedComment: Comment
     comments: [Comment]!
     tags: [String]!
+    num: Int
   }
 
   type Comment @embedded {
@@ -217,5 +218,49 @@ describe('scalar selectors', () => {
     );
 
     expect(selector).toEqual({ title: { $exists: true } });
+  });
+
+  test('lt', async () => {
+    let selector = await applyInputTransform({})(
+      {
+        num_lt: 10,
+      },
+      schema.getTypeMap().PostWhereInput
+    );
+
+    expect(selector).toEqual({ num: { $lt: 10 } });
+  });
+
+  test('lte', async () => {
+    let selector = await applyInputTransform({})(
+      {
+        num_lte: 10,
+      },
+      schema.getTypeMap().PostWhereInput
+    );
+
+    expect(selector).toEqual({ num: { $lte: 10 } });
+  });
+
+  test('gt', async () => {
+    let selector = await applyInputTransform({})(
+      {
+        num_gt: 10,
+      },
+      schema.getTypeMap().PostWhereInput
+    );
+
+    expect(selector).toEqual({ num: { $gt: 10 } });
+  });
+
+  test('gte', async () => {
+    let selector = await applyInputTransform({})(
+      {
+        num_gte: 10,
+      },
+      schema.getTypeMap().PostWhereInput
+    );
+
+    expect(selector).toEqual({ num: { $gte: 10 } });
   });
 });

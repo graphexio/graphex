@@ -10,6 +10,10 @@ import NotSizeSelector from './not_size';
 import SizeSelector from './size';
 import SomeSelector from './some';
 import AsIsSelector from './asis';
+import LTSelector from './lt';
+import LTESelector from './lte';
+import GTSelector from './gt';
+import GTESelector from './gte';
 
 export const Selectors = [
   SizeSelector,
@@ -21,4 +25,8 @@ export const Selectors = [
   NotInSelector,
   SomeSelector,
   AsIsSelector,
+  LTSelector,
+  LTESelector,
+  GTSelector,
+  GTESelector,
 ];

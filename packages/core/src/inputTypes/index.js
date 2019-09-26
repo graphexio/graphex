@@ -38,18 +38,14 @@ const Modifiers = {
   Boolean: ['', 'not'], //'exists'
   ID: ['', , ,], //'in','not_in','exists'
   ObjectID: ['', , 'not', ,], //'in','not_in','exists'
-  Int: ['', , 'not', , 'lt', 'lte', 'gt', 'gte'], //'in','not_in','exists'
-  Float: ['', , 'not', , 'lt', 'lte', 'gt', 'gte'], //'in', 'not_in','exists'
-  Date: ['', 'not', 'lt', 'lte', 'gt', 'gte'], //'exists'
+  Int: ['', , 'not', , ,], //'in','not_in','exists','lt', 'lte','gt', 'gte'
+  Float: ['', , 'not', , ,], //'in', 'not_in','exists','lt', 'lte', 'gt', 'gte'
+  Date: ['', 'not', ,], //'exists','lt', 'lte','gt', 'gte'
   String: [
     '',
     'not',
     ,
     ,
-    'lt',
-    'lte',
-    'gt',
-    'gte',
     'contains',
     'icontains',
     'not_contains',
@@ -63,7 +59,7 @@ const Modifiers = {
     'not_ends_with',
     'not_iends_with',
     ,
-  ], //'in','not_in','exists'
+  ], //'in','not_in','exists''lt','lte','gt','gte',
 };
 
 export class EmptyTypeException extends Error {
