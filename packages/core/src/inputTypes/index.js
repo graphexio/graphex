@@ -26,40 +26,6 @@ export const UNMARKED_OBJECT_FIELD = 'unmarkedObjectField';
 
 const ObjectHash = require('object-hash');
 
-const ModifierTypes = {
-  in: type => new GraphQLList(type),
-  not_in: type => new GraphQLList(type),
-  not: null,
-  exists: GraphQLBoolean,
-  lt: null,
-};
-
-const Modifiers = {
-  Boolean: [,], //'','exists','not'
-  ID: [, , ,], //'','in','not_in','exists'
-  ObjectID: [, , , ,], //'','in','not_in','exists', 'not'
-  Int: [, , ,], //'in','not_in','exists','lt', 'lte','gt', 'gte','', , 'not'
-  Float: [, , ,], //'in', 'not_in','exists','lt', 'lte', 'gt', 'gte','', , 'not'
-  Date: [, ,], //'exists','lt', 'lte','gt', 'gte','', 'not'
-  String: [
-    ,
-    ,
-    'contains',
-    'icontains',
-    'not_contains',
-    'not_icontains',
-    'starts_with',
-    'istarts_with',
-    'not_starts_with',
-    'not_istarts_with',
-    'ends_with',
-    'iends_with',
-    'not_ends_with',
-    'not_iends_with',
-    ,
-  ], //'in','not_in','exists''lt','lte','gt','gte', '','not',
-};
-
 export class EmptyTypeException extends Error {
   constructor(type) {
     super();
@@ -107,7 +73,7 @@ class InputTypesClass {
 
     this._defaultTransformToInput = {
       [INPUT_TYPE_KIND.ORDER_BY]: this._defaultTransformToInputOrderBy,
-      [INPUT_TYPE_KIND.WHERE]: this._defaultTransformToInputWhere,
+      [INPUT_TYPE_KIND.WHERE]: transformToInputWhere,
       [INPUT_TYPE_KIND.WHERE_CLEAN]: transformToInputWhereClean,
       [INPUT_TYPE_KIND.WHERE_UNIQUE]: () => [],
       [INPUT_TYPE_KIND.CREATE]: this._defaultTransformToInputCreateUpdate,
@@ -258,85 +224,6 @@ class InputTypesClass {
     ];
   };
 
-  _defaultTransformToInputWhere = ({ field }) => {
-    let fieldTypeWrap = new TypeWrap(field.type);
-    let fields = [];
-
-    // if (fieldTypeWrap.isNested()) {
-    //   let type = this._inputType(
-    //     fieldTypeWrap.realType(),
-    //     fieldTypeWrap.isInterface()
-    //       ? INPUT_TYPE_KIND.WHERE_INTERFACE
-    //       : INPUT_TYPE_KIND.WHERE
-    //   );
-    //   fields.push({
-    //     type,
-    //     name: field.name,
-    //     mmTransform: reduceTransforms([
-    //       Transforms.fieldInputTransform(field, INPUT_TYPE_KIND.WHERE),
-    //       Transforms.applyNestedTransform(type),
-    //       // Transforms.validateAndTransformNestedInput(type),
-    //       fieldTypeWrap.isInterface()
-    //         ? Transforms.validateAndTransformInterfaceInput(type)
-    //         : null,
-    //       Transforms.flattenNested,
-    //     ]),
-    //   });
-    // }
-
-    if (fieldTypeWrap.isMany()) {
-      [
-        // { modifier: '', type: GraphQLString },
-        // { modifier: 'size', type: GraphQLInt },
-        // { modifier: 'not_size', type: GraphQLInt },
-        // { modifier: 'exists', type: GraphQLBoolean },
-        // { modifier: 'all', type: new GraphQLList(GraphQLString) },
-        // { modifier: 'exact', type: new GraphQLList(GraphQLString) },
-        // { modifier: 'in', type: new GraphQLList(GraphQLString) },
-        // { modifier: 'not_in', type: new GraphQLList(GraphQLString) },
-      ].forEach(({ modifier, type }) => {
-        fields.push({
-          type,
-          name: this._fieldNameWithModifier(field.name, modifier),
-          mmTransform: reduceTransforms([
-            Transforms.fieldInputTransform(field, INPUT_TYPE_KIND.WHERE),
-            Transforms.transformModifier(modifier),
-            // this._applyNestedTransform(type),
-            // this._validateAndTransformNestedInput(type),
-            // fieldTypeWrap.isInterface()
-            //   ? this._validateAndTransformInterfaceInput(type)
-            //   : null,
-            // this._flattenNested,
-          ]),
-        });
-      });
-    } else if (Modifiers[fieldTypeWrap.realType()]) {
-      ////Modifiers for scalars
-      Modifiers[fieldTypeWrap.realType()].forEach(modifier => {
-        let type = fieldTypeWrap.realType();
-        if (['in', 'not_in'].includes(modifier)) {
-          type = new GraphQLList(type);
-        }
-        fields.push({
-          type,
-          name: this._fieldNameWithModifier(field.name, modifier),
-          mmTransform: reduceTransforms([
-            Transforms.transformModifier(modifier),
-            Transforms.fieldInputTransform(field, INPUT_TYPE_KIND.WHERE),
-          ]),
-        });
-      });
-    }
-    return [
-      ...fields,
-      ...transformToInputWhere({ field, getInputType: this._inputType }),
-    ];
-  };
-
-  _defaultTransformToInputWhereClean = ({ field }) => {
-    return transformToInputWhereClean({ field, getInputType: this._inputType });
-  };
-
   _fieldNameWithModifier = (name, modifier) => {
     if (modifier !== '') {
       return `${name}_${modifier}`;
@@ -445,12 +332,12 @@ class InputTypesClass {
       let transformFunc = mmTransformToInput[kind] || defaultTransformFunc;
       if (
         kind === INPUT_TYPE_KIND.WHERE &&
-        transformFunc !== this._defaultTransformToInputWhere
+        transformFunc !== transformToInputWhere
       ) {
         fields = {
           ...fields,
           ...this._fieldsArrayToObject(
-            this._defaultTransformToInputWhere({ field })
+            transformToInputWhere({ field, getInputType: this._inputType })
           ),
         };
       }

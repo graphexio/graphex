@@ -274,4 +274,37 @@ describe('scalar selectors', () => {
 
     expect(selector).toEqual({ num: { $not: { $eq: 10 } } });
   });
+
+  test('contains', async () => {
+    let selector = await applyInputTransform({})(
+      {
+        title_contains: 'title',
+      },
+      schema.getTypeMap().PostWhereInput
+    );
+
+    expect(selector).toEqual({ title: { $regex: /title/ } });
+  });
+
+  test('starts_with', async () => {
+    let selector = await applyInputTransform({})(
+      {
+        title_starts_with: 'title',
+      },
+      schema.getTypeMap().PostWhereInput
+    );
+
+    expect(selector).toEqual({ title: { $regex: /^title/ } });
+  });
+
+  test('ends_with', async () => {
+    let selector = await applyInputTransform({})(
+      {
+        title_ends_with: 'title',
+      },
+      schema.getTypeMap().PostWhereInput
+    );
+
+    expect(selector).toEqual({ title: { $regex: /title$/ } });
+  });
 });
