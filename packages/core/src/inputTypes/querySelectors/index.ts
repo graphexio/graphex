@@ -14,6 +14,7 @@ import LTSelector from './lt';
 import LTESelector from './lte';
 import GTSelector from './gt';
 import GTESelector from './gte';
+import NotSelector from './not';
 
 export const Selectors = [
   SizeSelector,
@@ -29,4 +30,5 @@ export const Selectors = [
   LTESelector,
   GTSelector,
   GTESelector,
+  NotSelector,
 ];

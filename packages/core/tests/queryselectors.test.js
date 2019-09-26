@@ -263,4 +263,15 @@ describe('scalar selectors', () => {
 
     expect(selector).toEqual({ num: { $gte: 10 } });
   });
+
+  test('not', async () => {
+    let selector = await applyInputTransform({})(
+      {
+        num_not: 10,
+      },
+      schema.getTypeMap().PostWhereInput
+    );
+
+    expect(selector).toEqual({ num: { $not: { $eq: 10 } } });
+  });
 });
