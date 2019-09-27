@@ -740,7 +740,16 @@ export default class ModelMongo {
           return Promise.all(
             representations.map(async representation => {
               try {
-                const { __typename, ...params } = representation;
+                let { __typename, ...params } = representation;
+
+                //run parseValue for custom scalars
+                const fields = this.SchemaTypes[__typename].getFields();
+                params = Object.fromEntries(
+                  Object.entries(params).map(([k, v]) => {
+                    const typeWrap = new TypeWrap(fields[k].type);
+                    return [k, typeWrap.realType().parseValue(v)];
+                  })
+                );
 
                 //Now it just calls FIND_ONE. We should replace it with FIND_IDS.
                 const name = getMethodName(SINGLE_QUERY)(__typename);
