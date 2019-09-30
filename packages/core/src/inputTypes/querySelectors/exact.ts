@@ -1,31 +1,48 @@
-import { GraphQLList, isCompositeType } from 'graphql';
-import { INPUT_TYPE_KIND } from '../kinds';
-import QuerySelector from './interface';
-import { extractValue, makeArray } from './utils';
+import {
+  getNamedType,
+  GraphQLInputType,
+  isCompositeType,
+  GraphQLList,
+} from 'graphql';
+import { IAMQuerySelector } from '../../types';
+import TypeWrap from '@apollo-model/type-wrap';
+import { AMWhereCleanTypeFactory } from '../whereClean';
 
-export default class ExactSelector extends QuerySelector {
-  _selectorName = 'exact';
+export const ExactSelector: IAMQuerySelector = {
+  isApplicable(field) {
+    const typeWrap = new TypeWrap(field.type);
+    return typeWrap.isMany();
+  },
+  getFieldFactory() {
+    return {
+      getFieldName(field) {
+        return `${field.name}_exact`;
+      },
+      getField(field, schemaInfo) {
+        const namedType = getNamedType(field.type);
+        let type: GraphQLInputType;
 
-  isApplicable() {
-    return this._typeWrap.isMany();
-  }
+        if (!isCompositeType(namedType)) {
+          type = new GraphQLList(namedType);
+        } else {
+          type = new GraphQLList(
+            schemaInfo.resolveFactoryType(namedType, AMWhereCleanTypeFactory)
+          );
+        }
 
-  getInputFieldType() {
-    const realType = this._typeWrap.realType();
+        return {
+          name: this.getFieldName(field),
+          type,
+          mmTransform: params => params,
+        };
+      },
+    };
+  },
+};
 
-    if (!isCompositeType(realType)) {
-      return new GraphQLList(realType);
-    } else {
-      return new GraphQLList(
-        this._getInputType(realType, INPUT_TYPE_KIND.WHERE_CLEAN)
-      );
-    }
-  }
-
-  getTransformInput() {
-    const fieldName = this.getFieldName();
-    return input => ({
-      [fieldName]: { $eq: makeArray(extractValue(input)) },
-    });
-  }
-}
+// getTransformInput() {
+//     const fieldName = this.getFieldName();
+//     return input => ({
+//       [fieldName]: { $eq: makeArray(extractValue(input)) },
+//     });
+//   }

@@ -1,22 +1,20 @@
 import TypeWrap from '@apollo-model/type-wrap';
-import { isCompositeType } from 'graphql';
+import { isCompositeType, getNamedType } from 'graphql';
 import { INPUT_TYPE_KIND } from './kinds';
 import { TransformToInputInterface } from './transformToInputInterface';
+import { AMSchemaInfo } from '../types';
+import { AMWhereTypeFactory } from './where';
 
-const transformToInputWhereClean: TransformToInputInterface = ({
-  field,
-  getInputType,
-}) => {
+const transformToInputWhereClean: TransformToInputInterface = params => {
   const fields = [];
-  const typeWrap = new TypeWrap(field.type);
-  const realType = typeWrap.realType();
+  const namedType = getNamedType(params.field.type);
 
-  if (!isCompositeType(realType)) {
-    fields.push(field);
+  if (!isCompositeType(namedType)) {
+    fields.push(params.field);
   } else {
     fields.push({
-      ...field,
-      type: getInputType(realType, INPUT_TYPE_KIND.WHERE_CLEAN),
+      ...params.field,
+      type: params.schemaInfo.resolveFactoryType(namedType, AMWhereTypeFactory),
     });
   }
 

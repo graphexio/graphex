@@ -23,6 +23,7 @@ export const applyInputTransform = context => {
     }
 
     let fields = type._fields;
+
     if (!fields) return value;
     let result = {};
     await Promise.all(

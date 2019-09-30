@@ -45,6 +45,50 @@ Object {
 }
 `;
 
+exports[`CategoriesRelationFilter 2`] = `
+Object {
+  "createCategory": Object {
+    "parentCategory": Object {
+      "title": "root",
+    },
+    "title": "JS",
+  },
+}
+`;
+
+exports[`CategoriesRelationFilter 3`] = `
+Object {
+  "categories": Array [
+    Object {
+      "subcategories": Array [
+        Object {
+          "subcategories": Array [],
+          "title": "JS",
+        },
+        Object {
+          "subcategories": Array [],
+          "title": "MongoDB",
+        },
+      ],
+      "title": "root",
+    },
+  ],
+}
+`;
+
+exports[`CategoriesRelationFilter 4`] = `
+Object {
+  "categories": Array [
+    Object {
+      "title": "JS",
+    },
+    Object {
+      "title": "MongoDB",
+    },
+  ],
+}
+`;
+
 exports[`CategoriesSameFieldFilter 1`] = `
 Object {
   "categories": Array [
@@ -173,6 +217,40 @@ Object {
 `;
 
 exports[`QueryCategoriesByTitle 1`] = `
+Object {
+  "categories": Array [
+    Object {
+      "title": "root",
+    },
+  ],
+}
+`;
+
+exports[`QueryCategoriesByTitle 2`] = `
+Object {
+  "createCategory": Object {
+    "title": "root",
+  },
+}
+`;
+
+exports[`QueryCategoriesByTitle 3`] = `
+Object {
+  "categories": Array [
+    Object {
+      "title": "root",
+    },
+  ],
+}
+`;
+
+exports[`QueryCategoriesByTitle 4`] = `
+Object {
+  "createCategory": null,
+}
+`;
+
+exports[`QueryCategoriesByTitle 5`] = `
 Object {
   "categories": Array [
     Object {

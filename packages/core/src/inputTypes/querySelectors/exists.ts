@@ -1,22 +1,29 @@
 import { GraphQLBoolean } from 'graphql';
-import QuerySelector from './interface';
-import { extractValue, makeArray } from './utils';
+import { IAMQuerySelector } from '../../types';
 
-export default class ExistsSelector extends QuerySelector {
-  _selectorName = 'exists';
-
-  isApplicable() {
+export const ExistsSelector: IAMQuerySelector = {
+  isApplicable(field) {
     return true;
-  }
+  },
+  getFieldFactory() {
+    return {
+      getFieldName(field) {
+        return `${field.name}_exists`;
+      },
+      getField(field, schemaInfo) {
+        return {
+          name: this.getFieldName(field),
+          type: GraphQLBoolean,
+          mmTransform: params => params,
+        };
+      },
+    };
+  },
+};
 
-  getInputFieldType() {
-    return GraphQLBoolean;
-  }
-
-  getTransformInput() {
-    const fieldName = this.getFieldName();
-    return input => ({
-      [fieldName]: { $exists: extractValue(input) },
-    });
-  }
-}
+// getTransformInput() {
+//   const fieldName = this.getFieldName();
+//   return input => ({
+//     [fieldName]: { $exists: extractValue(input) },
+//   });
+// }

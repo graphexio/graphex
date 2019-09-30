@@ -1,34 +1,49 @@
-import { GraphQLList, isCompositeType } from 'graphql';
-import { INPUT_TYPE_KIND } from '../kinds';
-import QuerySelector from './interface';
-import { extractValue, makeArray } from './utils';
+import TypeWrap from '@apollo-model/type-wrap';
+import {
+  getNamedType,
+  GraphQLInputType,
+  GraphQLList,
+  isCompositeType,
+} from 'graphql';
+import { IAMQuerySelector } from '../../types';
+import { AMWhereCleanTypeFactory } from '../whereClean';
 
-export default class NotInSelector extends QuerySelector {
-  _selectorName = 'not_in';
-
-  isApplicable() {
-    return (
-      this._typeWrap.isMany() ||
-      ['ID', 'ObjectID', 'Int', 'Float', 'String'].includes(
-        this._typeWrap.realType().toString()
-      )
+export const NotInSelector: IAMQuerySelector = {
+  isApplicable(field) {
+    const namedType = getNamedType(field.type);
+    return ['ID', 'ObjectID', 'Int', 'Float', 'String'].includes(
+      namedType.toString()
     );
-  }
+  },
+  getFieldFactory() {
+    return {
+      getFieldName(field) {
+        return `${field.name}_not_in`;
+      },
+      getField(field, schemaInfo) {
+        const namedType = getNamedType(field.type);
+        let type: GraphQLInputType;
+        if (!isCompositeType(namedType)) {
+          type = new GraphQLList(namedType);
+        } else {
+          type = new GraphQLList(
+            schemaInfo.resolveFactoryType(namedType, AMWhereCleanTypeFactory)
+          );
+        }
+        return {
+          name: this.getFieldName(field),
+          type,
+          mmTransform: params => params,
+        };
+      },
+    };
+  },
+};
 
-  getInputFieldType() {
-    const realType = this._typeWrap.realType();
-
-    if (!isCompositeType(realType)) {
-      return new GraphQLList(realType);
-    } else {
-      return this._getInputType(realType, INPUT_TYPE_KIND.WHERE_CLEAN);
-    }
-  }
-
-  getTransformInput() {
-    const fieldName = this.getFieldName();
-    return input => ({
-      [fieldName]: { $not: { $in: makeArray(extractValue(input)) } },
-    });
-  }
-}
+//   getTransformInput() {
+//     const fieldName = this.getFieldName();
+//     return input => ({
+//       [fieldName]: { $not: { $in: makeArray(extractValue(input)) } },
+//     });
+//   }
+// }

@@ -1,23 +1,20 @@
-export { default as QuerySelector } from './interface';
-
-import QuerySelector from './interface';
-import AllSelector from './all';
-import ExactSelector from './exact';
-import ExistsSelector from './exists';
-import InSelector from './in';
-import NotInSelector from './not_in';
-import NotSizeSelector from './not_size';
-import SizeSelector from './size';
-import SomeSelector from './some';
-import AsIsSelector from './asis';
-import LTSelector from './lt';
-import LTESelector from './lte';
-import GTSelector from './gt';
-import GTESelector from './gte';
-import NotSelector from './not';
-import ContainsSelector from './contains';
-import StartsWithSelector from './starts_with';
-import EndsWithSelector from './ends_with';
+import { AllSelector } from './all';
+import { ExactSelector } from './exact';
+import { ExistsSelector } from './exists';
+import { InSelector } from './in';
+import { NotInSelector } from './not_in';
+import { NotSizeSelector } from './not_size';
+import { SizeSelector } from './size';
+import { SomeSelector } from './some';
+import { AsIsSelector } from './asis';
+import { LTSelector } from './lt';
+import { LTESelector } from './lte';
+import { GTSelector } from './gt';
+import { GTESelector } from './gte';
+import { NotSelector } from './not';
+import { ContainsSelector } from './contains';
+import { StartsWithSelector } from './starts_with';
+import { EndsWithSelector } from './ends_with';
 
 // We should add more selectors
 // 'icontains',

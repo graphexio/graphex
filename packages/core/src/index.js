@@ -39,6 +39,8 @@ import {
 } from './utils';
 import TypeWrap from '@apollo-model/type-wrap';
 
+import R from 'ramda';
+
 import InitialScheme from './initialScheme';
 import Modules from './modules';
 
@@ -59,6 +61,10 @@ import {
   getMethodName,
 } from './methodKinds.js';
 
+import appendField from './appendField';
+import { AMModelMultipleQieryFieldFactory } from './modelQueryFields/multipleQuery';
+import { AMSelectionSetAction } from './execution/actions/selectionSet';
+
 export default class ModelMongo {
   constructor({ queryExecutor, options = {}, modules = [] }) {
     this.QueryExecutor = queryExecutor;
@@ -73,47 +79,56 @@ export default class ModelMongo {
   };
 
   _createAllQuery = modelType => {
-    let typeWrap = new TypeWrap(modelType);
-    let whereType, orderByType;
-    try {
-      whereType = this._inputType(modelType, INPUT_TYPE_KIND.WHERE);
-      orderByType = this._inputType(modelType, INPUT_TYPE_KIND.ORDER_BY);
-    } catch (e) {
-      if (e instanceof EmptyTypeException) {
-        return;
-      } else throw e;
-    }
+    appendField(
+      this.Schema,
+      this.Schema.getQueryType(),
+      AMModelMultipleQieryFieldFactory,
+      modelType
+    );
 
-    const name = getMethodName(MULTIPLE_QUERY)(modelType.name);
-    this.Query._fields[name] = {
-      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(modelType))),
-      args: allQueryArgs({ whereType, orderByType }),
-      isDeprecated: false,
-      name,
-      resolve: async (parent, args, context) => {
-        let selector = await applyInputTransform({ parent, context })(
-          args.where,
-          whereType
-        );
-        if (
-          typeWrap.interfaceWithDirective('model') &&
-          typeWrap.interfaceWithDirective('model').mmDiscriminatorField
-          // && !new TypeWrap(typeWrap.interfaceType()).isAbstract()
-        ) {
-          selector[
-            typeWrap.interfaceWithDirective('model').mmDiscriminatorField
-          ] = typeWrap.realType().mmDiscriminator;
-        }
-        return this.QueryExecutor({
-          type: FIND,
-          modelType,
-          collection: modelType.mmCollectionName,
-          selector,
-          options: { skip: args.skip, limit: args.first, sort: args.orderBy },
-          context,
-        });
-      },
-    };
+    // let typeWrap = new TypeWrap(modelType);
+    // let whereType, orderByType;
+    // try {
+    //   whereType = this._inputType(modelType, INPUT_TYPE_KIND.WHERE);
+    //   orderByType = this._inputType(modelType, INPUT_TYPE_KIND.ORDER_BY);
+    // } catch (e) {
+    //   if (e instanceof EmptyTypeException) {
+    //     return;
+    //   } else throw e;
+    // }
+
+    // const name = getMethodName(MULTIPLE_QUERY)(modelType.name);
+
+    // this.Query._fields[name] = {
+    //   type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(modelType))),
+    //   args: allQueryArgs({ whereType, orderByType }),
+    //   isDeprecated: false,
+    //   name,
+    //   resolve: async (parent, args, context, info) => {
+    //     console.log(info.fieldNodes);
+    //     let selector = await applyInputTransform({ parent, context })(
+    //       args.where,
+    //       whereType
+    //     );
+    //     if (
+    //       typeWrap.interfaceWithDirective('model') &&
+    //       typeWrap.interfaceWithDirective('model').mmDiscriminatorField
+    //       // && !new TypeWrap(typeWrap.interfaceType()).isAbstract()
+    //     ) {
+    //       selector[
+    //         typeWrap.interfaceWithDirective('model').mmDiscriminatorField
+    //       ] = typeWrap.realType().mmDiscriminator;
+    //     }
+    //     return this.QueryExecutor({
+    //       type: FIND,
+    //       modelType,
+    //       collection: modelType.mmCollectionName,
+    //       selector,
+    //       options: { skip: args.skip, limit: args.first, sort: args.orderBy },
+    //       context,
+    //     });
+    //   },
+    // };
   };
 
   _paginationType = type => {
@@ -839,9 +854,40 @@ export default class ModelMongo {
     let { _typeMap: SchemaTypes } = schema;
     let { Query, Mutation } = SchemaTypes;
 
+    this.Schema = schema;
     this.SchemaTypes = SchemaTypes;
     this.Query = Query;
     this.Mutation = Mutation;
+
+    Object.values(SchemaTypes).forEach(type => {
+      if (type._fields) {
+        Object.values(type._fields).forEach(field => {
+          if (!field.dbName) field.dbName = field.name;
+        });
+      }
+    });
+
+    Object.values(SchemaTypes).forEach(type => {
+      let typeWrap = new TypeWrap(type);
+      if (
+        getDirective(type, 'model') ||
+        typeWrap.interfaceWithDirective('model')
+      ) {
+        Object.values(type.getFields()).forEach(field => {
+          field.amEnter = (node, transaction, stack) => {
+            console.log('entered');
+            const lastStackItem = R.last(stack);
+            if (lastStackItem instanceof AMSelectionSetAction) {
+              lastStackItem.addField(field.dbName);
+            }
+          };
+          // field.amLeave=(node, transaction, stack)=>{
+          //   console.log('leaved');
+          //   // stack.pop();
+          // },
+        });
+      }
+    });
 
     Object.values(SchemaTypes).forEach(type => {
       this._onSchemaBuild(type);
@@ -881,7 +927,6 @@ export default class ModelMongo {
           this._createAllPaginationQuery(type);
           this._createSingleQuery(type);
           this._createConnectionQuery(type);
-
           if (!typeWrap.isInterface()) {
             this._createCreateMutation(type);
           }
@@ -890,6 +935,10 @@ export default class ModelMongo {
           this._createUpdateMutation(type);
         }
       }
+    });
+
+    Object.values(SchemaTypes).forEach(type => {
+      if (type.getFields) type.getFields();
     });
 
     //Remove system directives

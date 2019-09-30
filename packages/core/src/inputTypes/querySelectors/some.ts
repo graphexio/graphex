@@ -1,29 +1,47 @@
-import { GraphQLList, isCompositeType } from 'graphql';
-import { INPUT_TYPE_KIND } from '../kinds';
-import QuerySelector from './interface';
-import { extractValue, makeArray } from './utils';
+import TypeWrap from '@apollo-model/type-wrap';
+import {
+  getNamedType,
+  GraphQLInputType,
+  GraphQLList,
+  isCompositeType,
+} from 'graphql';
+import { IAMQuerySelector } from '../../types';
+import { AMWhereCleanTypeFactory } from '../whereClean';
+import { AMWhereTypeFactory } from '../where';
 
-export default class SomeSelector extends QuerySelector {
-  _selectorName = 'some';
+export const SomeSelector: IAMQuerySelector = {
+  isApplicable(field) {
+    const typeWrap = new TypeWrap(field.type);
+    return typeWrap.isMany();
+  },
+  getFieldFactory() {
+    return {
+      getFieldName(field) {
+        return `${field.name}_some`;
+      },
+      getField(field, schemaInfo) {
+        const namedType = getNamedType(field.type);
+        let type: GraphQLInputType;
+        if (!isCompositeType(namedType)) {
+          type = new GraphQLList(namedType);
+        } else {
+          type = new GraphQLList(
+            schemaInfo.resolveFactoryType(namedType, AMWhereTypeFactory)
+          );
+        }
+        return {
+          name: this.getFieldName(field),
+          type,
+          mmTransform: params => params,
+        };
+      },
+    };
+  },
+};
 
-  isApplicable() {
-    return this._typeWrap.isMany();
-  }
-
-  getInputFieldType() {
-    const realType = this._typeWrap.realType();
-
-    if (!isCompositeType(realType)) {
-      return realType;
-    } else {
-      return this._getInputType(realType, INPUT_TYPE_KIND.WHERE);
-    }
-  }
-
-  getTransformInput() {
-    const fieldName = this.getFieldName();
-    return input => ({
-      [fieldName]: { $elemMatch: extractValue(input) },
-    });
-  }
-}
+// getTransformInput() {
+//   const fieldName = this.getFieldName();
+//   return input => ({
+//     [fieldName]: { $elemMatch: extractValue(input) },
+//   });
+// }

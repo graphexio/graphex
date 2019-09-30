@@ -1,29 +1,36 @@
-import { GraphQLList, isCompositeType } from 'graphql';
-import { INPUT_TYPE_KIND } from '../kinds';
-import QuerySelector from './interface';
-import { extractValue, makeArray } from './utils';
+import { GraphQLBoolean, getNamedType, isCompositeType } from 'graphql';
+import { IAMQuerySelector } from '../../types';
 
-export default class LTESelector extends QuerySelector {
-  _selectorName = 'lte';
+export const LTESelector: IAMQuerySelector = {
+  isApplicable(field) {
+    const namedType = getNamedType(field.type);
+    return ['Int', 'Float', 'Date', 'String'].includes(namedType.toString());
+  },
+  getFieldFactory() {
+    return {
+      getFieldName(field) {
+        return `${field.name}_lte`;
+      },
+      getField(field, schemaInfo) {
+        const namedType = getNamedType(field.type);
 
-  isApplicable() {
-    return ['Int', 'Float', 'Date', 'String'].includes(
-      this._typeWrap.realType().toString()
-    );
-  }
+        let type;
+        if (!isCompositeType(namedType)) {
+          type = namedType;
+        }
+        return {
+          name: this.getFieldName(field),
+          type,
+          mmTransform: params => params,
+        };
+      },
+    };
+  },
+};
 
-  getInputFieldType() {
-    const realType = this._typeWrap.realType();
-
-    if (!isCompositeType(realType)) {
-      return realType;
-    }
-  }
-
-  getTransformInput() {
-    const fieldName = this.getFieldName();
-    return input => ({
-      [fieldName]: { $lte: extractValue(input) },
-    });
-  }
-}
+// getTransformInput() {
+//   const fieldName = this.getFieldName();
+//   return input => ({
+//     [fieldName]: { $lte: extractValue(input) },
+//   });
+// }

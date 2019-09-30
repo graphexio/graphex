@@ -1,31 +1,46 @@
-import { GraphQLList, isCompositeType } from 'graphql';
-import { INPUT_TYPE_KIND } from '../kinds';
-import QuerySelector from './interface';
-import { extractValue, makeArray } from './utils';
+import TypeWrap from '@apollo-model/type-wrap';
+import {
+  getNamedType,
+  GraphQLInputType,
+  GraphQLList,
+  isCompositeType,
+} from 'graphql';
+import { IAMQuerySelector } from '../../types';
+import { AMWhereCleanTypeFactory } from '../whereClean';
 
-export default class AllSelector extends QuerySelector {
-  _selectorName = 'all';
+export const AllSelector: IAMQuerySelector = {
+  isApplicable(field) {
+    const typeWrap = new TypeWrap(field.type);
+    return typeWrap.isMany();
+  },
+  getFieldFactory() {
+    return {
+      getFieldName(field) {
+        return `${field.name}_all`;
+      },
+      getField(field, schemaInfo) {
+        const namedType = getNamedType(field.type);
+        let type: GraphQLInputType;
+        if (!isCompositeType(namedType)) {
+          type = new GraphQLList(namedType);
+        } else {
+          type = new GraphQLList(
+            schemaInfo.resolveFactoryType(namedType, AMWhereCleanTypeFactory)
+          );
+        }
+        return {
+          name: this.getFieldName(field),
+          type,
+          mmTransform: params => params,
+        };
+      },
+    };
+  },
 
-  isApplicable() {
-    return this._typeWrap.isMany();
-  }
-
-  getInputFieldType() {
-    const realType = this._typeWrap.realType();
-
-    if (!isCompositeType(realType)) {
-      return new GraphQLList(realType);
-    } else {
-      return new GraphQLList(
-        this._getInputType(realType, INPUT_TYPE_KIND.WHERE_CLEAN)
-      );
-    }
-  }
-
-  getTransformInput() {
-    const fieldName = this.getFieldName();
-    return input => ({
-      [fieldName]: { $all: makeArray(extractValue(input)) },
-    });
-  }
-}
+  // getTransformInput() {
+  //   const fieldName = this.getFieldName();
+  //   return input => ({
+  //     [fieldName]: { $all: makeArray(extractValue(input)) },
+  //   });
+  // }
+};

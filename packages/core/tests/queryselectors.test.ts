@@ -1,8 +1,6 @@
-import { ApolloServer } from 'apollo-server';
-import AMM from '../src/';
-import QueryExecutor from '@apollo-model/mongodb-executor';
-import gql from 'graphql-tag';
 import * as DirectiveImplements from '@apollo-model/directive-implements';
+import gql from 'graphql-tag';
+import AMM from '../src';
 import { applyInputTransform } from '../src/inputTypes/utils';
 
 const generateSchema = typeDefs => {

@@ -330,6 +330,20 @@ class InputTypesClass {
     Object.values(initialType._fields).forEach(field => {
       let { mmTransformToInput = {} } = field;
       let transformFunc = mmTransformToInput[kind] || defaultTransformFunc;
+
+      const schemaInfo = {
+        resolveType: typeName => this.SchemaTypes[typeName],
+        resolveFactoryType: (inputType, typeFactory) => {
+          const typeName = typeFactory.getTypeName(inputType);
+          let type = this.SchemaTypes[typeName];
+          if (!type) {
+            type = typeFactory.getType(inputType, schemaInfo);
+            this.SchemaTypes[typeName] = type;
+          }
+          return type;
+        },
+      };
+
       if (
         kind === INPUT_TYPE_KIND.WHERE &&
         transformFunc !== transformToInputWhere
@@ -337,7 +351,11 @@ class InputTypesClass {
         fields = {
           ...fields,
           ...this._fieldsArrayToObject(
-            transformToInputWhere({ field, getInputType: this._inputType })
+            transformToInputWhere({
+              field,
+              schemaInfo,
+              getInputType: this._inputType,
+            })
           ),
         };
       }
@@ -346,6 +364,7 @@ class InputTypesClass {
         ...this._fieldsArrayToObject(
           transformFunc({
             field,
+            schemaInfo,
             kind,
             inputTypes: this,
             getInputType: this._inputType,

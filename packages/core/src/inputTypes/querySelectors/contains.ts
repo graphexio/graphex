@@ -1,27 +1,36 @@
-import { GraphQLList, isCompositeType } from 'graphql';
-import { INPUT_TYPE_KIND } from '../kinds';
-import QuerySelector from './interface';
-import { extractValue, makeArray } from './utils';
+import { getNamedType, GraphQLInputType, isCompositeType } from 'graphql';
+import { IAMQuerySelector } from '../../types';
 
-export default class ContainsSelector extends QuerySelector {
-  _selectorName = 'contains';
+export const ContainsSelector: IAMQuerySelector = {
+  isApplicable(field) {
+    return getNamedType(field.type).toString() === 'String';
+  },
+  getFieldFactory() {
+    return {
+      getFieldName(field) {
+        return `${field.name}_contains`;
+      },
+      getField(field, schemaInfo) {
+        const namedType = getNamedType(field.type);
+        let type: GraphQLInputType;
 
-  isApplicable() {
-    return ['String'].includes(this._typeWrap.realType().toString());
-  }
+        if (!isCompositeType(namedType)) {
+          type = namedType;
+        }
 
-  getInputFieldType() {
-    const realType = this._typeWrap.realType();
+        return {
+          name: this.getFieldName(field),
+          type,
+          mmTransform: params => params,
+        };
+      },
+    };
+  },
+};
 
-    if (!isCompositeType(realType)) {
-      return realType;
-    }
-  }
-
-  getTransformInput() {
-    const fieldName = this.getFieldName();
-    return input => ({
-      [fieldName]: { $regex: new RegExp(extractValue(input)) },
-    });
-  }
-}
+// getTransformInput() {
+//     const fieldName = this.getFieldName();
+//     return input => ({
+//       [fieldName]: { $regex: new RegExp(extractValue(input)) },
+//     });
+//   }

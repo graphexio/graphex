@@ -14,6 +14,8 @@ export const typeDef = gql`
 class DirectiveDB extends SchemaDirectiveVisitor {
   visitFieldDefinition(field) {
     const { name } = this.args;
+    field.dbName = name;
+
     appendTransform(field, HANDLER.TRANSFORM_INPUT, {
       [INPUT_TYPE_KIND.CREATE]: this._renameTransform(field.name, name),
       [INPUT_TYPE_KIND.UPDATE]: this._renameTransform(field.name, name),
