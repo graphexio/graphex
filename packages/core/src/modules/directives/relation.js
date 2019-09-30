@@ -637,6 +637,7 @@ class RelationDirective extends SchemaDirectiveVisitor {
       [HANDLER.TRANSFORM_TO_INPUT]: {
         [INPUT_TYPE_KIND.CREATE]: () => [],
         [INPUT_TYPE_KIND.WHERE]: () => [],
+        [INPUT_TYPE_KIND.WHERE_CLEAN]: () => [],
         [INPUT_TYPE_KIND.UPDATE]: () => [],
         [INPUT_TYPE_KIND.ORDER_BY]: () => [],
       },
