@@ -1,8 +1,7 @@
-import { AMOperation } from './operation';
+import { AMOperation } from '../operation';
 
 export class AMReadOperation extends AMOperation {
-  constructor(collectionName: string) {
-    super();
-    this.collectionName = collectionName;
+  getName() {
+    return '123';
   }
 }

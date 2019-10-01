@@ -19,25 +19,86 @@ const generateSchema = typeDefs => {
   });
 };
 
-const schema = generateSchema(gql`
-  type Post @model {
-    id: ID @id @unique
-    title: String
-  }
-`);
-
-test('simple case', () => {
-  const rq = gql`
-    {
-      posts {
-        id
-        title
-      }
+describe('simple tests', () => {
+  const schema = generateSchema(gql`
+    type Post @model {
+      id: ID @id @unique @db(name: "_id")
+      title: String
     }
-  `;
+  `);
 
-  const transaction = new AMTransaction();
+  test('transaction', () => {
+    const rq = gql`
+      {
+        posts {
+          id
+          title
+        }
+      }
+    `;
 
-  AMVisitor.visit(schema, rq, transaction);
-  console.log(JSON.stringify(transaction));
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, transaction);
+    expect(transaction).toMatchInlineSnapshot(`
+            AMTransaction {
+              "operations": Array [
+                AMReadOperation {
+                  "collectionName": "posts",
+                  "fieldsSelection": AMFieldsSelectionContext {
+                    "fields": Array [
+                      "_id",
+                      "title",
+                    ],
+                  },
+                  "selector": undefined,
+                },
+              ],
+            }
+        `);
+  });
+
+  test('select fields', () => {
+    const rq = gql`
+      {
+        posts {
+          id
+          title
+        }
+      }
+    `;
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, transaction);
+    expect(transaction.operations[0].fieldsSelection).toMatchInlineSnapshot(`
+                  AMFieldsSelectionContext {
+                    "fields": Array [
+                      "_id",
+                      "title",
+                    ],
+                  }
+            `);
+  });
+
+  test('where', () => {
+    const rq = gql`
+      {
+        posts(where: { title: "test-title", id: "testIdentifier" }) {
+          id
+          title
+        }
+      }
+    `;
+
+    const transaction = new AMTransaction();
+
+    AMVisitor.visit(schema, rq, transaction);
+    expect(transaction.operations[0].selector).toMatchInlineSnapshot(`
+      AMSelectorContext {
+        "selector": Object {
+          "_id": "testIdentifier",
+          "title": "test-title",
+        },
+      }
+    `);
+  });
 });

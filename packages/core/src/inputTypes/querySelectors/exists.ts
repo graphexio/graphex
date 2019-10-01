@@ -1,29 +1,20 @@
 import { GraphQLBoolean } from 'graphql';
 import { IAMQuerySelector } from '../../types';
+import { AMQuerySelectorFieldFactory } from './fieldFactory';
 
 export const ExistsSelector: IAMQuerySelector = {
   isApplicable(field) {
     return true;
   },
   getFieldFactory() {
-    return {
-      getFieldName(field) {
-        return `${field.name}_exists`;
+    return new AMQuerySelectorFieldFactory(
+      field => `${field.name}_exists`,
+      (field, schemaInfo) => {
+        return GraphQLBoolean;
       },
-      getField(field, schemaInfo) {
-        return {
-          name: this.getFieldName(field),
-          type: GraphQLBoolean,
-          mmTransform: params => params,
-        };
-      },
-    };
+      value => ({
+        $exists: value,
+      })
+    );
   },
 };
-
-// getTransformInput() {
-//   const fieldName = this.getFieldName();
-//   return input => ({
-//     [fieldName]: { $exists: extractValue(input) },
-//   });
-// }

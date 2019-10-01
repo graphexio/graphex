@@ -1,36 +1,24 @@
 import { getNamedType, GraphQLInputType, isCompositeType } from 'graphql';
 import { IAMQuerySelector } from '../../types';
+import { AMQuerySelectorFieldFactory } from './fieldFactory';
 
 export const ContainsSelector: IAMQuerySelector = {
   isApplicable(field) {
     return getNamedType(field.type).toString() === 'String';
   },
   getFieldFactory() {
-    return {
-      getFieldName(field) {
-        return `${field.name}_contains`;
-      },
-      getField(field, schemaInfo) {
+    return new AMQuerySelectorFieldFactory(
+      field => `${field.name}_contains`,
+      (field, schemaInfo) => {
         const namedType = getNamedType(field.type);
-        let type: GraphQLInputType;
 
         if (!isCompositeType(namedType)) {
-          type = namedType;
+          return namedType;
         }
-
-        return {
-          name: this.getFieldName(field),
-          type,
-          mmTransform: params => params,
-        };
       },
-    };
+      value => ({
+        $regex: new RegExp(value),
+      })
+    );
   },
 };
-
-// getTransformInput() {
-//     const fieldName = this.getFieldName();
-//     return input => ({
-//       [fieldName]: { $regex: new RegExp(extractValue(input)) },
-//     });
-//   }

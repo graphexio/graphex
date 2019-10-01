@@ -1,0 +1,214 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CategoriesComplexFilterOr 1`] = `null`;
+
+exports[`CategoriesOrderByFieldWithDBDirective 1`] = `null`;
+
+exports[`CategoriesRelationFilter 1`] = `null`;
+
+exports[`CategoriesSameFieldFilter 1`] = `null`;
+
+exports[`CategoryDelete 1`] = `
+Object {
+  "deleteCategory": Object {
+    "title": "React",
+  },
+}
+`;
+
+exports[`CreateAdmin 1`] = `
+Object {
+  "createAdmin": Object {
+    "username": "admin",
+  },
+}
+`;
+
+exports[`CreateCategory 1`] = `
+Object {
+  "createCategory": Object {
+    "title": "root",
+  },
+}
+`;
+
+exports[`CreateChildCategory "JS" 1`] = `
+Object {
+  "createCategory": Object {
+    "title": "root",
+  },
+}
+`;
+
+exports[`CreateChildCategory "JS" 2`] = `
+Object {
+  "createCategory": Object {
+    "parentCategory": Object {
+      "title": "root",
+    },
+    "title": "JS",
+  },
+}
+`;
+
+exports[`CreateChildCategory "MongoDB" 1`] = `
+Object {
+  "createCategory": Object {
+    "parentCategory": Object {
+      "title": "root",
+    },
+    "title": "MongoDB",
+  },
+}
+`;
+
+exports[`CreateChildCategory "React" 1`] = `
+Object {
+  "createCategory": Object {
+    "parentCategory": Object {
+      "title": "JS",
+    },
+    "title": "React",
+  },
+}
+`;
+
+exports[`CreatePostWithInterfaceRelation 1`] = `
+Object {
+  "createPost": Object {
+    "title": "Build GraphQL API with Apollo",
+  },
+}
+`;
+
+exports[`CreateShop abstract interface 1`] = `
+Object {
+  "createShop": Object {
+    "title": "ifc mall",
+  },
+}
+`;
+
+exports[`CreateSubscriberWithEmbeddedDocument 1`] = `
+Object {
+  "createSubscriber": Object {
+    "profile": Object {
+      "firstName": "Gwion",
+      "lastName": "Britt",
+    },
+    "username": "subscriber1",
+  },
+}
+`;
+
+exports[`QueryCategories after create 1`] = `null`;
+
+exports[`QueryCategories after delete 1`] = `null`;
+
+exports[`QueryCategories empty 1`] = `null`;
+
+exports[`QueryCategoriesByTitle 1`] = `null`;
+
+exports[`QueryCategoriesExtRelation 1`] = `null`;
+
+exports[`QueryHotels 1`] = `null`;
+
+exports[`QueryPostsNearPoint 1`] = `undefined`;
+
+exports[`QueryShopById 1`] = `
+Object {
+  "shop": Object {
+    "title": "ifc mall",
+  },
+}
+`;
+
+exports[`QueryShopById 2`] = `
+Object {
+  "shop": Object {
+    "title": "ifc mall",
+  },
+}
+`;
+
+exports[`QueryShops 1`] = `null`;
+
+exports[`QueryUsersInterface 1`] = `null`;
+
+exports[`Update Post create abstract relation Hotel  1`] = `
+Object {
+  "updatePost": Object {
+    "pois": Array [
+      Object {
+        "title": "Marriott",
+      },
+    ],
+  },
+}
+`;
+
+exports[`UpdatePostConnectShop 1`] = `
+Object {
+  "updatePost": Object {
+    "pois": Array [
+      Object {
+        "title": "Marriott",
+      },
+      Object {
+        "title": "ifc mall",
+      },
+    ],
+  },
+}
+`;
+
+exports[`UpdatePostConnectShop 2`] = `
+Object {
+  "updatePost": Object {
+    "pois": Array [
+      Object {
+        "title": "Marriott",
+      },
+      Object {
+        "title": "ifc mall",
+      },
+      Object {
+        "title": "ifc mall",
+      },
+    ],
+  },
+}
+`;
+
+exports[`UpdatePostDeleteShop 1`] = `
+Object {
+  "updatePost": Object {
+    "pois": Array [
+      Object {
+        "title": "Marriott",
+      },
+      Object {
+        "title": "ifc mall",
+      },
+      Object {
+        "title": "ifc mall",
+      },
+    ],
+  },
+}
+`;
+
+exports[`UpdatePostDisconnectShop 1`] = `
+Object {
+  "updatePost": Object {
+    "pois": Array [
+      Object {
+        "title": "Marriott",
+      },
+      Object {
+        "title": "ifc mall",
+      },
+    ],
+  },
+}
+`;

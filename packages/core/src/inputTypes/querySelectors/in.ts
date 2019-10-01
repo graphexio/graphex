@@ -7,42 +7,35 @@ import {
 } from 'graphql';
 import { IAMQuerySelector } from '../../types';
 import { AMWhereCleanTypeFactory } from '../whereClean';
+import { makeArray } from './utils';
+import { AMQuerySelectorFieldFactory } from './fieldFactory';
 
 export const InSelector: IAMQuerySelector = {
   isApplicable(field) {
     const namedType = getNamedType(field.type);
-    return ['ID', 'ObjectID', 'Int', 'Float', 'String'].includes(
-      namedType.toString()
+    return (
+      isCompositeType(namedType) ||
+      ['ID', 'ObjectID', 'Int', 'Float', 'String'].includes(
+        namedType.toString()
+      )
     );
   },
   getFieldFactory() {
-    return {
-      getFieldName(field) {
-        return `${field.name}_in`;
-      },
-      getField(field, schemaInfo) {
+    return new AMQuerySelectorFieldFactory(
+      field => `${field.name}_in`,
+      (field, schemaInfo) => {
         const namedType = getNamedType(field.type);
-        let type: GraphQLInputType;
         if (!isCompositeType(namedType)) {
-          type = new GraphQLList(namedType);
+          return new GraphQLList(namedType);
         } else {
-          type = new GraphQLList(
+          return new GraphQLList(
             schemaInfo.resolveFactoryType(namedType, AMWhereCleanTypeFactory)
           );
         }
-        return {
-          name: this.getFieldName(field),
-          type,
-          mmTransform: params => params,
-        };
       },
-    };
+      value => ({
+        $in: makeArray(value),
+      })
+    );
   },
 };
-
-// getTransformInput() {
-//   const fieldName = this.getFieldName();
-//   return input => ({
-//     [fieldName]: { $in: makeArray(extractValue(input)) },
-//   });
-// }

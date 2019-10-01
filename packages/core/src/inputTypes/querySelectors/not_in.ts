@@ -7,43 +7,35 @@ import {
 } from 'graphql';
 import { IAMQuerySelector } from '../../types';
 import { AMWhereCleanTypeFactory } from '../whereClean';
+import { AMQuerySelectorFieldFactory } from './fieldFactory';
+import { makeArray } from './utils';
 
 export const NotInSelector: IAMQuerySelector = {
   isApplicable(field) {
     const namedType = getNamedType(field.type);
-    return ['ID', 'ObjectID', 'Int', 'Float', 'String'].includes(
-      namedType.toString()
+    return (
+      isCompositeType(namedType) ||
+      ['ID', 'ObjectID', 'Int', 'Float', 'String'].includes(
+        namedType.toString()
+      )
     );
   },
   getFieldFactory() {
-    return {
-      getFieldName(field) {
-        return `${field.name}_not_in`;
-      },
-      getField(field, schemaInfo) {
+    return new AMQuerySelectorFieldFactory(
+      field => `${field.name}_not_in`,
+      (field, schemaInfo) => {
         const namedType = getNamedType(field.type);
-        let type: GraphQLInputType;
         if (!isCompositeType(namedType)) {
-          type = new GraphQLList(namedType);
+          return new GraphQLList(namedType);
         } else {
-          type = new GraphQLList(
+          return new GraphQLList(
             schemaInfo.resolveFactoryType(namedType, AMWhereCleanTypeFactory)
           );
         }
-        return {
-          name: this.getFieldName(field),
-          type,
-          mmTransform: params => params,
-        };
       },
-    };
+      value => ({
+        $not: { $in: makeArray(value) },
+      })
+    );
   },
 };
-
-//   getTransformInput() {
-//     const fieldName = this.getFieldName();
-//     return input => ({
-//       [fieldName]: { $not: { $in: makeArray(extractValue(input)) } },
-//     });
-//   }
-// }

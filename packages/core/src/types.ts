@@ -9,37 +9,61 @@ import {
   GraphQLFieldMap,
   GraphQLSchema,
   ASTNode,
+  Thunk,
+  GraphQLInputFieldConfigMap,
+  InputObjectTypeDefinitionNode,
+  InputObjectTypeExtensionNode,
 } from 'graphql';
 import pipe from 'ramda/es/pipe';
 import Maybe from 'graphql/tsutils/Maybe';
 import { AMTransaction } from './execution/transaction';
-import { AMOperation } from './execution/operations/operation';
-import { AMAction } from './execution/actions/action';
+import { AMOperation } from './execution/operation';
+import { AMContext } from './execution/context';
 
 export type mmTransformType = (input: {
   [fieldName: string]: any;
 }) => { [fieldName: string]: any };
 
-export type AMVisitorStack = (AMOperation | AMAction)[];
+export type AMVisitorStack = AMContext[];
 
-export type AMVisitableField = {
+export type AMVisitable = {
   amEnter?(node: ASTNode, transaction: AMTransaction, stack: AMVisitorStack);
   amLeave?(node: ASTNode, transaction: AMTransaction, stack: AMVisitorStack);
 };
 
 export type AMInputField = GraphQLInputField & {
   mmTransform: mmTransformType;
-} & AMVisitableField;
+} & AMVisitable;
 
 export type AMInputFieldMap = {
   [key: string]: AMInputField;
 };
 
-export type AMInputObjectType = Omit<GraphQLInputObjectType, 'getFields'> & {
-  getFields(): AMInputFieldMap;
-};
+export class AMInputObjectType extends GraphQLInputObjectType
+  implements AMVisitable {
+  amEnter?(node: ASTNode, transaction: AMTransaction, stack: AMVisitorStack);
+  amLeave?(node: ASTNode, transaction: AMTransaction, stack: AMVisitorStack);
+  getFields(): AMInputFieldMap {
+    return super.getFields() as AMInputFieldMap;
+  }
+  constructor(config: AMInputObjectTypeConfig) {
+    super(config);
+    this.amEnter = config.amEnter;
+    this.amLeave = config.amLeave;
+  }
+}
 
-export type AMField = GraphQLField<any, any> & AMVisitableField;
+export interface AMInputObjectTypeConfig {
+  name: string;
+  fields: Thunk<GraphQLInputFieldConfigMap>;
+  description?: Maybe<string>;
+  astNode?: Maybe<InputObjectTypeDefinitionNode>;
+  extensionASTNodes?: Maybe<ReadonlyArray<InputObjectTypeExtensionNode>>;
+  amEnter?(node: ASTNode, transaction: AMTransaction, stack: AMVisitorStack);
+  amLeave?(node: ASTNode, transaction: AMTransaction, stack: AMVisitorStack);
+}
+
+export type AMField = GraphQLField<any, any> & AMVisitable;
 
 export type AMFieldMap = {
   [key: string]: AMField;
@@ -87,15 +111,12 @@ export interface IAMTypeFactory<T extends GraphQLNamedType> {
 
 export interface IAMModelTypeFactory<T extends GraphQLNamedType>
   extends IAMTypeFactory<T> {
-  getFieldFactories(field: GraphQLField<any, any>): IAMInputFieldFactory[];
+  getFieldFactories(field: AMField): IAMInputFieldFactory[];
 }
 
 export interface IAMInputFieldFactory {
-  getFieldName(field: GraphQLField<any, any>): string;
-  getField(
-    field: GraphQLField<any, any>,
-    schemaInfo: AMSchemaInfo
-  ): AMInputField;
+  getFieldName(field: AMModelField): string;
+  getField(field: AMModelField, schemaInfo: AMSchemaInfo): AMInputField;
 }
 
 export interface IAMModelQueryFieldFactory {
@@ -110,3 +131,9 @@ export interface IAMQuerySelector {
   isApplicable(field: GraphQLField<any, any, any>): boolean;
   getFieldFactory(): IAMInputFieldFactory;
 }
+
+export type AMObjectFieldValueType =
+  | boolean
+  | string
+  | number
+  | { [key: string]: any };

@@ -5,16 +5,14 @@ import { Selectors } from './querySelectors';
 import * as Transforms from './transforms';
 import { TransformToInputInterface } from './transformToInputInterface';
 import { reduceTransforms } from './utils';
-import { IAMQuerySelector, AMSchemaInfo } from '../types';
+import { IAMQuerySelector, AMSchemaInfo, AMModelField } from '../types';
 
-const isApplicable = (field: GraphQLField<any, any, any>) => (
+const isApplicable = (field: AMModelField) => (selector: IAMQuerySelector) =>
+  selector.isApplicable(field);
+
+const selectorToField = (field: AMModelField, schemaInfo: AMSchemaInfo) => (
   selector: IAMQuerySelector
-) => selector.isApplicable(field);
-
-const selectorToField = (
-  field: GraphQLField<any, any, any>,
-  schemaInfo: AMSchemaInfo
-) => (selector: IAMQuerySelector) => {
+) => {
   return selector.getFieldFactory().getField(field, schemaInfo);
 };
 

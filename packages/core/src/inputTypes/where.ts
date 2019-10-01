@@ -1,6 +1,13 @@
 import { GraphQLField, GraphQLInputObjectType, GraphQLList } from 'graphql';
-import { IAMModelTypeFactory, IAMQuerySelector } from '../types';
+import {
+  IAMModelTypeFactory,
+  IAMQuerySelector,
+  AMInputObjectType,
+} from '../types';
 import { Selectors } from './querySelectors';
+import { AMSelectorContext } from '../execution/contexts/selector';
+import R from 'ramda';
+import { AMOperation } from '../execution/operation';
 
 const isApplicable = (field: GraphQLField<any, any, any>) => (
   selector: IAMQuerySelector
@@ -10,13 +17,13 @@ const selectorToFieldFactory = (selector: IAMQuerySelector) => {
   return selector.getFieldFactory();
 };
 
-export const AMWhereTypeFactory: IAMModelTypeFactory<GraphQLInputObjectType> = {
+export const AMWhereTypeFactory: IAMModelTypeFactory<AMInputObjectType> = {
   getTypeName(modelType): string {
     return `${modelType.name}WhereInput`;
   },
   getType(modelType, schemaInfo) {
-    const self: IAMModelTypeFactory<GraphQLInputObjectType> = this;
-    return new GraphQLInputObjectType({
+    const self: IAMModelTypeFactory<AMInputObjectType> = this;
+    return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
         const fields = {
@@ -41,6 +48,17 @@ export const AMWhereTypeFactory: IAMModelTypeFactory<GraphQLInputObjectType> = {
         });
 
         return fields;
+      },
+      amEnter(node, transaction, stack) {
+        const selectorAction = new AMSelectorContext();
+        stack.push(selectorAction);
+      },
+      amLeave(node, transaction, stack) {
+        const selectorAction = stack.pop() as AMSelectorContext;
+        const lastInStack = R.last(stack);
+        if (lastInStack instanceof AMOperation) {
+          lastInStack.setSelector(selectorAction);
+        }
       },
     });
   },

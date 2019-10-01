@@ -11,6 +11,11 @@ import {
   GraphQLCompositeType,
   GraphQLInterfaceType,
   GraphQLObjectType,
+  ASTNode,
+  ValueNode,
+  StringValueNode,
+  BooleanValueNode,
+  GraphQLScalarType,
 } from 'graphql';
 import { AMTransaction } from './transaction';
 import { Visitor } from '@babel/core';
@@ -21,9 +26,11 @@ import {
   AMObjectType,
   AMInterfaceType,
 } from '../types';
-import { AMSelectionSetAction } from './actions/selectionSet';
+import { AMFieldsSelectionContext } from './contexts/fieldsSelection';
 import R from 'ramda';
-import { AMOperation } from './operations/operation';
+import { AMOperation } from './operation';
+import { AMObjectFieldContext } from './contexts/objectField';
+import { AMListValueContext } from './contexts/listValue';
 
 export class AMVisitor {
   static visit(
@@ -46,12 +53,24 @@ export class AMVisitor {
     //   selections: [],
     // });
 
+    const scalarVisitor = {
+      leave(node: ValueNode) {
+        const type = getNamedType(typeInfo.getInputType()) as GraphQLScalarType;
+
+        const lastInStack = R.last(stack);
+        if (lastInStack instanceof AMObjectFieldContext) {
+          lastInStack.setValue(type.parseLiteral(node, {}));
+        } else if (lastInStack instanceof AMListValueContext) {
+          lastInStack.addValue(type.parseLiteral(node, {}));
+        }
+      },
+    };
+
     var visitor = {
       enter(node) {
-        console.log('----');
-        console.log(node.kind, typeInfo.getType(), typeInfo.getInputType());
-
-        console.log('----');
+        // console.log('----');
+        // console.log(node.kind, typeInfo.getType(), typeInfo.getInputType());
+        // console.log('----');
       },
       leave(node) {},
       // [Kind.ARGUMENT]: {
@@ -68,47 +87,108 @@ export class AMVisitor {
       // },
       [Kind.SELECTION_SET]: {
         enter(node) {
-          const selectionSetAction = new AMSelectionSetAction();
+          const selectionSetAction = new AMFieldsSelectionContext();
           stack.push(selectionSetAction);
         },
         leave(node) {
-          const action = stack.pop();
+          const action = stack.pop() as AMFieldsSelectionContext;
           const stackLastItem = R.last(stack);
           if (stackLastItem && stackLastItem instanceof AMOperation) {
-            stackLastItem.addAction(action);
+            stackLastItem.setFieldsSelection(action);
           }
         },
       },
       [Kind.FIELD]: {
         enter(node) {
-          console.log('enter-field');
+          //   console.log('enter-field');
           const type = getNamedType(typeInfo.getType()) as
             | AMObjectType
-            | AMInterfaceType
-            | AMInputObjectType;
+            | AMInterfaceType;
           const fieldName = node.name.value;
           const field = type.getFields()[fieldName];
           if (field.amEnter) {
-            console.log('enter');
+            // console.log('enter');
             field.amEnter(node, transaction, stack);
           }
         },
         leave(node) {
-          console.log('leave-field');
+          //   console.log('leave-field');
 
           const type = getNamedType(typeInfo.getType()) as
             | AMObjectType
-            | AMInterfaceType
-            | AMInputObjectType;
+            | AMInterfaceType;
           const fieldName = node.name.value;
           const field = type.getFields()[fieldName];
-          console.log('leave-field');
+          //   console.log('leave-field');
           if (field.amLeave) {
-            console.log('leave');
+            // console.log('leave');
             field.amLeave(node, transaction, stack);
           }
         },
       },
+      [Kind.OBJECT]: {
+        enter(node) {
+          const type = getNamedType(
+            typeInfo.getInputType()
+          ) as AMInputObjectType;
+          if (type.amEnter) {
+            type.amEnter(node, transaction, stack);
+          }
+        },
+        leave(node) {
+          const type = getNamedType(
+            typeInfo.getInputType()
+          ) as AMInputObjectType;
+          if (type.amLeave) {
+            type.amLeave(node, transaction, stack);
+          }
+        },
+      },
+      [Kind.OBJECT_FIELD]: {
+        enter(node) {
+          //   console.log('enter-field');
+          const type = getNamedType(
+            typeInfo.getInputType()
+          ) as AMInputObjectType;
+          const fieldName = node.name.value;
+          const field = type.getFields()[fieldName];
+          if (field.amEnter) {
+            // console.log('enter');
+            field.amEnter(node, transaction, stack);
+          }
+        },
+        leave(node) {
+          const type = getNamedType(
+            typeInfo.getInputType()
+          ) as AMInputObjectType;
+          const fieldName = node.name.value;
+          const field = type.getFields()[fieldName];
+
+          //   console.log('leave-field');
+          if (field.amLeave) {
+            // console.log('leave');
+            field.amLeave(node, transaction, stack);
+          }
+        },
+      },
+      [Kind.LIST]: {
+        enter(node) {
+          const action = new AMListValueContext();
+          stack.push(action);
+        },
+        leave(node) {
+          const action = stack.pop() as AMListValueContext;
+          const lastInStack = R.last(stack);
+
+          if (lastInStack instanceof AMObjectFieldContext) {
+            lastInStack.setValue(action.values);
+          }
+        },
+      },
+      [Kind.STRING]: scalarVisitor,
+      [Kind.BOOLEAN]: scalarVisitor,
+      [Kind.INT]: scalarVisitor,
+      [Kind.FLOAT]: scalarVisitor,
     };
     visit(document, visitWithTypeInfo(typeInfo, visitor));
   }

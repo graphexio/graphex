@@ -1,4 +1,4 @@
-import { AMOperation } from './operations/operation';
+import { AMOperation } from './operation';
 
 export class AMTransaction {
   operations: AMOperation[] = [];

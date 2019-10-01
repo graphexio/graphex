@@ -7,6 +7,8 @@ import {
 } from 'graphql';
 import { IAMQuerySelector } from '../../types';
 import { AMWhereCleanTypeFactory } from '../whereClean';
+import { AMQuerySelectorFieldFactory } from './fieldFactory';
+import { makeArray } from './utils';
 
 export const AllSelector: IAMQuerySelector = {
   isApplicable(field) {
@@ -14,33 +16,22 @@ export const AllSelector: IAMQuerySelector = {
     return typeWrap.isMany();
   },
   getFieldFactory() {
-    return {
-      getFieldName(field) {
-        return `${field.name}_all`;
-      },
-      getField(field, schemaInfo) {
+    return new AMQuerySelectorFieldFactory(
+      field => `${field.name}_all`,
+      (field, schemaInfo) => {
         const namedType = getNamedType(field.type);
-        let type: GraphQLInputType;
+
         if (!isCompositeType(namedType)) {
-          type = new GraphQLList(namedType);
+          return new GraphQLList(namedType);
         } else {
-          type = new GraphQLList(
+          return new GraphQLList(
             schemaInfo.resolveFactoryType(namedType, AMWhereCleanTypeFactory)
           );
         }
-        return {
-          name: this.getFieldName(field),
-          type,
-          mmTransform: params => params,
-        };
       },
-    };
+      value => ({
+        $all: makeArray(value),
+      })
+    );
   },
-
-  // getTransformInput() {
-  //   const fieldName = this.getFieldName();
-  //   return input => ({
-  //     [fieldName]: { $all: makeArray(extractValue(input)) },
-  //   });
-  // }
 };

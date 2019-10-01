@@ -1,12 +1,11 @@
 import { GraphQLInt, GraphQLList, GraphQLNonNull } from 'graphql';
 import pluralize from 'pluralize';
 import R from 'ramda';
+import { AMReadOperation } from '../execution/operations/readOperation';
 import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
 import { AMWhereTypeFactory } from '../inputTypes/where';
 import { lowercaseFirstLetter } from '../tsutils';
-import { AMModelType, IAMModelQueryFieldFactory, AMField } from '../types';
-import { AMOperation } from '../execution/operations/operation';
-import { AMReadOperation } from '../execution/operations/readOperation';
+import { AMField, AMModelType, IAMModelQueryFieldFactory } from '../types';
 
 export const AMModelMultipleQieryFieldFactory: IAMModelQueryFieldFactory = {
   getFieldName(modelType: AMModelType): string {
@@ -42,13 +41,11 @@ export const AMModelMultipleQieryFieldFactory: IAMModelQueryFieldFactory = {
         },
       ],
       amEnter(node, transaction, stack) {
-        console.log('entered');
         const operation = new AMReadOperation(modelType.mmCollectionName);
         transaction.addOperation(operation);
         stack.push(operation);
       },
       amLeave(node, transaction, stack) {
-        console.log('leaved');
         stack.pop();
       },
     };

@@ -1,5 +1,6 @@
 import { GraphQLBoolean, getNamedType, isCompositeType } from 'graphql';
 import { IAMQuerySelector } from '../../types';
+import { AMQuerySelectorFieldFactory } from './fieldFactory';
 
 export const GTESelector: IAMQuerySelector = {
   isApplicable(field) {
@@ -7,30 +8,17 @@ export const GTESelector: IAMQuerySelector = {
     return ['Int', 'Float', 'Date', 'String'].includes(namedType.toString());
   },
   getFieldFactory() {
-    return {
-      getFieldName(field) {
-        return `${field.name}_gte`;
-      },
-      getField(field, schemaInfo) {
+    return new AMQuerySelectorFieldFactory(
+      field => `${field.name}_gte`,
+      (field, schemaInfo) => {
         const namedType = getNamedType(field.type);
-
-        let type;
         if (!isCompositeType(namedType)) {
-          type = namedType;
+          return namedType;
         }
-        return {
-          name: this.getFieldName(field),
-          type,
-          mmTransform: params => params,
-        };
       },
-    };
+      value => ({
+        $gte: value,
+      })
+    );
   },
 };
-
-// getTransformInput() {
-//   const fieldName = this.getFieldName();
-//   return input => ({
-//     [fieldName]: { $gte: extractValue(input) },
-//   });
-// }

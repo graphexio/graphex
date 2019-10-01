@@ -7,6 +7,8 @@ import {
 import { IAMQuerySelector } from '../../types';
 import TypeWrap from '@apollo-model/type-wrap';
 import { AMWhereCleanTypeFactory } from '../whereClean';
+import { AMQuerySelectorFieldFactory } from './fieldFactory';
+import { makeArray } from './utils';
 
 export const ExactSelector: IAMQuerySelector = {
   isApplicable(field) {
@@ -14,35 +16,22 @@ export const ExactSelector: IAMQuerySelector = {
     return typeWrap.isMany();
   },
   getFieldFactory() {
-    return {
-      getFieldName(field) {
-        return `${field.name}_exact`;
-      },
-      getField(field, schemaInfo) {
+    return new AMQuerySelectorFieldFactory(
+      field => `${field.name}_exact`,
+      (field, schemaInfo) => {
         const namedType = getNamedType(field.type);
-        let type: GraphQLInputType;
 
         if (!isCompositeType(namedType)) {
-          type = new GraphQLList(namedType);
+          return new GraphQLList(namedType);
         } else {
-          type = new GraphQLList(
+          return new GraphQLList(
             schemaInfo.resolveFactoryType(namedType, AMWhereCleanTypeFactory)
           );
         }
-
-        return {
-          name: this.getFieldName(field),
-          type,
-          mmTransform: params => params,
-        };
       },
-    };
+      value => ({
+        $eq: makeArray(value),
+      })
+    );
   },
 };
-
-// getTransformInput() {
-//     const fieldName = this.getFieldName();
-//     return input => ({
-//       [fieldName]: { $eq: makeArray(extractValue(input)) },
-//     });
-//   }

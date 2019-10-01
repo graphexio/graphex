@@ -1,6 +1,6 @@
-import { AMAction } from './action';
+import { AMContext } from '../context';
 
-export class AMSelectionSetAction extends AMAction {
+export class AMFieldsSelectionContext extends AMContext {
   fields: string[] = [];
 
   addField(fieldName: string) {

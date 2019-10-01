@@ -1,6 +1,7 @@
 import TypeWrap from '@apollo-model/type-wrap';
 import { GraphQLInt } from 'graphql';
 import { IAMQuerySelector } from '../../types';
+import { AMQuerySelectorFieldFactory } from './fieldFactory';
 
 export const NotSizeSelector: IAMQuerySelector = {
   isApplicable(field) {
@@ -8,18 +9,15 @@ export const NotSizeSelector: IAMQuerySelector = {
     return typeWrap.isMany();
   },
   getFieldFactory() {
-    return {
-      getFieldName(field) {
-        return `${field.name}_not_size`;
+    return new AMQuerySelectorFieldFactory(
+      field => `${field.name}_not_size`,
+      (field, schemaInfo) => {
+        return GraphQLInt;
       },
-      getField(field, schemaInfo) {
-        return {
-          name: this.getFieldName(field),
-          type: GraphQLInt,
-          mmTransform: params => params,
-        };
-      },
-    };
+      value => ({
+        $not: { $size: value },
+      })
+    );
   },
 };
 

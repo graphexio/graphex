@@ -63,7 +63,7 @@ import {
 
 import appendField from './appendField';
 import { AMModelMultipleQieryFieldFactory } from './modelQueryFields/multipleQuery';
-import { AMSelectionSetAction } from './execution/actions/selectionSet';
+import { AMFieldsSelectionContext } from './execution/contexts/fieldsSelection';
 
 export default class ModelMongo {
   constructor({ queryExecutor, options = {}, modules = [] }) {
@@ -875,9 +875,8 @@ export default class ModelMongo {
       ) {
         Object.values(type.getFields()).forEach(field => {
           field.amEnter = (node, transaction, stack) => {
-            console.log('entered');
             const lastStackItem = R.last(stack);
-            if (lastStackItem instanceof AMSelectionSetAction) {
+            if (lastStackItem instanceof AMFieldsSelectionContext) {
               lastStackItem.addField(field.dbName);
             }
           };

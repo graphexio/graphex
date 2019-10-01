@@ -1,8 +1,8 @@
 import { GraphQLField, GraphQLOutputType, GraphQLInputType } from 'graphql';
-import { AMInputField, AMSchemaInfo } from '../types';
+import { AMInputField, AMSchemaInfo, AMModelField } from '../types';
 import { INPUT_TYPE_KIND } from './kinds';
 
 export type TransformToInputInterface = (params: {
-  field: GraphQLField<any, any, any>;
+  field: AMModelField;
   schemaInfo: AMSchemaInfo;
 }) => AMInputField[];
