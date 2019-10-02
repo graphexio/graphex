@@ -41,9 +41,9 @@ const schema = generateSchema(gql`
   }
 `);
 
-const getSelector = rq => {
+const getSelector = (rq, variables = {}) => {
   const transaction = new AMTransaction();
-  AMVisitor.visit(schema, rq, transaction);
+  AMVisitor.visit(schema, rq, variables, transaction);
   return transaction.operations[0].selector.selector;
 };
 
@@ -392,5 +392,22 @@ describe('scalar selectors', () => {
     );
 
     expect(selector).toEqual({ title: { $regex: /title$/ } });
+  });
+});
+
+describe('variables', () => {
+  test('string', () => {
+    let selector = getSelector(
+      gql`
+        query GetPosts($title: String) {
+          posts(where: { title: $title }) {
+            id
+          }
+        }
+      `,
+      { title: 'search-title' }
+    );
+
+    expect(selector).toEqual({ title: 'search-title' });
   });
 });

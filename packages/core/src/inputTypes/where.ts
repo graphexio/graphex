@@ -56,6 +56,7 @@ export const AMWhereTypeFactory: IAMModelTypeFactory<AMInputObjectType> = {
       amLeave(node, transaction, stack) {
         const selectorAction = stack.pop() as AMSelectorContext;
         const lastInStack = R.last(stack);
+
         if (lastInStack instanceof AMOperation) {
           lastInStack.setSelector(selectorAction);
         }

@@ -137,3 +137,26 @@ export type AMObjectFieldValueType =
   | string
   | number
   | { [key: string]: any };
+
+export type AMDBExecutor = (params: AMDBExecutorParams) => Promise<any>;
+export type AMDBExecutorParams = {
+  type: AMDBExecutorOperationType;
+  collection: string;
+  doc?: { [key: string]: any };
+  docs?: [{ [key: string]: any }];
+  selector?: { [key: string]: any };
+};
+
+export enum AMDBExecutorOperationType {
+  FIND = 'find',
+  FIND_ONE = 'findOne',
+  FIND_IDS = 'findIds',
+  COUNT = 'count',
+  DISTINCT = 'distinct',
+  INSERT_ONE = 'insertOne',
+  INSERT_MANY = 'insertMany',
+  DELETE_ONE = 'deleteOne',
+  DELETE_MANY = 'deleteMany',
+  UPDATE_ONE = 'updateOne',
+  UPDATE_MANY = 'updateMany',
+}

@@ -1,6 +1,7 @@
 import { AMContext } from './context';
 import { AMFieldsSelectionContext } from './contexts/fieldsSelection';
 import { AMSelectorContext } from './contexts/selector';
+import { AMDBExecutor } from '../types';
 
 export class AMOperation extends AMContext {
   collectionName: string;
@@ -18,5 +19,9 @@ export class AMOperation extends AMContext {
 
   setSelector(selector: AMSelectorContext) {
     this.selector = selector;
+  }
+
+  execute(executor: AMDBExecutor): Promise<any> {
+    return null;
   }
 }

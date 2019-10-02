@@ -10,6 +10,7 @@ import {
   GraphQLString,
   GraphQLUnionType,
   GraphQLScalarType,
+  isCompositeType,
 } from 'graphql';
 import _ from 'lodash';
 import pluralize from 'pluralize';
@@ -870,11 +871,13 @@ export default class ModelMongo {
     Object.values(SchemaTypes).forEach(type => {
       let typeWrap = new TypeWrap(type);
       if (
-        getDirective(type, 'model') ||
-        typeWrap.interfaceWithDirective('model')
+        isCompositeType(type)
+        // getDirective(type, 'model') ||
+        // typeWrap.interfaceWithDirective('model')
       ) {
         Object.values(type.getFields()).forEach(field => {
           field.amEnter = (node, transaction, stack) => {
+
             const lastStackItem = R.last(stack);
             if (lastStackItem instanceof AMFieldsSelectionContext) {
               lastStackItem.addField(field.dbName);

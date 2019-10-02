@@ -24,8 +24,10 @@ export const connectToDatabase = () => {
   );
 };
 
+const QE = QueryExecutor(connectToDatabase);
+
 const schema = new AMM({
-  queryExecutor: QueryExecutor(connectToDatabase),
+  queryExecutor: QE,
 }).makeExecutableSchema({
   resolverValidationOptions: {
     requireResolversForResolveType: false,
@@ -38,6 +40,13 @@ const schema = new AMM({
 
 export const server = new ApolloServer({
   schema,
+  context: () => {
+    return {
+      queryExecutor: params => {
+        return QE(params);
+      },
+    };
+  },
   introspection: true,
   playground: true,
   formatError: error => {

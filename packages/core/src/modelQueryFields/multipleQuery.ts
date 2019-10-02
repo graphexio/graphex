@@ -6,6 +6,7 @@ import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
 import { AMWhereTypeFactory } from '../inputTypes/where';
 import { lowercaseFirstLetter } from '../tsutils';
 import { AMField, AMModelType, IAMModelQueryFieldFactory } from '../types';
+import { resolve } from '../resolve';
 
 export const AMModelMultipleQieryFieldFactory: IAMModelQueryFieldFactory = {
   getFieldName(modelType: AMModelType): string {
@@ -48,6 +49,7 @@ export const AMModelMultipleQieryFieldFactory: IAMModelQueryFieldFactory = {
       amLeave(node, transaction, stack) {
         stack.pop();
       },
+      resolve: resolve,
     };
   },
 };

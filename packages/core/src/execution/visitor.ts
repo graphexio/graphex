@@ -25,6 +25,8 @@ import {
   AMVisitorStack,
   AMObjectType,
   AMInterfaceType,
+  AMModelField,
+  AMField,
 } from '../types';
 import { AMFieldsSelectionContext } from './contexts/fieldsSelection';
 import R from 'ramda';
@@ -32,10 +34,17 @@ import { AMOperation } from './operation';
 import { AMObjectFieldContext } from './contexts/objectField';
 import { AMListValueContext } from './contexts/listValue';
 
+function isAMModelField(
+  object: AMField | AMModelField
+): object is AMModelField {
+  return 'dbName' in object;
+}
+
 export class AMVisitor {
   static visit(
     schema: GraphQLSchema,
     document: DocumentNode,
+    variableValues: { [key: string]: any } = {},
     transaction: AMTransaction
   ) {
     const typeInfo = new TypeInfo(schema);
@@ -58,10 +67,11 @@ export class AMVisitor {
         const type = getNamedType(typeInfo.getInputType()) as GraphQLScalarType;
 
         const lastInStack = R.last(stack);
+        const value = type.parseLiteral(node, variableValues);
         if (lastInStack instanceof AMObjectFieldContext) {
-          lastInStack.setValue(type.parseLiteral(node, {}));
+          lastInStack.setValue(value);
         } else if (lastInStack instanceof AMListValueContext) {
-          lastInStack.addValue(type.parseLiteral(node, {}));
+          lastInStack.addValue(value);
         }
       },
     };
@@ -93,35 +103,38 @@ export class AMVisitor {
         leave(node) {
           const action = stack.pop() as AMFieldsSelectionContext;
           const stackLastItem = R.last(stack);
-          if (stackLastItem && stackLastItem instanceof AMOperation) {
-            stackLastItem.setFieldsSelection(action);
+          if (stackLastItem) {
+            if (stackLastItem instanceof AMOperation) {
+              stackLastItem.setFieldsSelection(action);
+            } else if (stackLastItem instanceof AMFieldsSelectionContext) {
+              let lastField = stackLastItem.fields.pop();
+              action.fields.forEach(field => {
+                stackLastItem.fields.push(`${lastField}.${field}`);
+              });
+            }
           }
         },
       },
       [Kind.FIELD]: {
         enter(node) {
-          //   console.log('enter-field');
           const type = getNamedType(typeInfo.getType()) as
-            | AMObjectType
-            | AMInterfaceType;
-          const fieldName = node.name.value;
+            | AMModelType
+            | AMObjectType;
+          let fieldName = node.name.value;
           const field = type.getFields()[fieldName];
+
           if (field.amEnter) {
-            // console.log('enter');
             field.amEnter(node, transaction, stack);
           }
         },
         leave(node) {
-          //   console.log('leave-field');
-
           const type = getNamedType(typeInfo.getType()) as
-            | AMObjectType
-            | AMInterfaceType;
+            | AMModelType
+            | AMObjectType;
           const fieldName = node.name.value;
           const field = type.getFields()[fieldName];
-          //   console.log('leave-field');
+
           if (field.amLeave) {
-            // console.log('leave');
             field.amLeave(node, transaction, stack);
           }
         },
@@ -146,14 +159,12 @@ export class AMVisitor {
       },
       [Kind.OBJECT_FIELD]: {
         enter(node) {
-          //   console.log('enter-field');
           const type = getNamedType(
             typeInfo.getInputType()
           ) as AMInputObjectType;
           const fieldName = node.name.value;
           const field = type.getFields()[fieldName];
           if (field.amEnter) {
-            // console.log('enter');
             field.amEnter(node, transaction, stack);
           }
         },
@@ -164,9 +175,7 @@ export class AMVisitor {
           const fieldName = node.name.value;
           const field = type.getFields()[fieldName];
 
-          //   console.log('leave-field');
           if (field.amLeave) {
-            // console.log('leave');
             field.amLeave(node, transaction, stack);
           }
         },
@@ -189,6 +198,22 @@ export class AMVisitor {
       [Kind.BOOLEAN]: scalarVisitor,
       [Kind.INT]: scalarVisitor,
       [Kind.FLOAT]: scalarVisitor,
+      [Kind.VARIABLE]: {
+        leave(node) {
+          const type = getNamedType(
+            typeInfo.getInputType()
+          ) as GraphQLScalarType;
+
+          const lastInStack = R.last(stack);
+          const value = type.parseValue(variableValues[node.name.value]);
+
+          if (lastInStack instanceof AMObjectFieldContext) {
+            lastInStack.setValue(value);
+          } else if (lastInStack instanceof AMListValueContext) {
+            lastInStack.addValue(value);
+          }
+        },
+      },
     };
     visit(document, visitWithTypeInfo(typeInfo, visitor));
   }
