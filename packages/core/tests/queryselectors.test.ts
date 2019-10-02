@@ -410,4 +410,19 @@ describe('variables', () => {
 
     expect(selector).toEqual({ title: 'search-title' });
   });
+
+  test('object', () => {
+    let selector = getSelector(
+      gql`
+        query GetPosts($where: PostWhereInput) {
+          posts(where: $where) {
+            id
+          }
+        }
+      `,
+      { where: { title: 'search-title' } }
+    );
+
+    expect(selector).toEqual({ title: 'search-title' });
+  });
 });

@@ -1,9 +1,9 @@
 import { AMVisitor } from './execution/visitor';
 import { AMTransaction } from './execution/transaction';
-import { DocumentNode } from 'graphql';
+import { DocumentNode, GraphQLResolveInfo } from 'graphql';
 import gql from 'graphql-tag';
 
-export const resolve = (parent, args, context, info) => {
+export const resolve = (parent, args, context, info: GraphQLResolveInfo) => {
   const transaction = new AMTransaction();
 
   const rq: DocumentNode = {
@@ -17,7 +17,7 @@ export const resolve = (parent, args, context, info) => {
         directives: [],
         selectionSet: {
           kind: 'SelectionSet',
-          selections: [info.fieldNodes],
+          selections: info.fieldNodes,
         },
       },
     ],

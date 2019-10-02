@@ -16,6 +16,8 @@ import {
   StringValueNode,
   BooleanValueNode,
   GraphQLScalarType,
+  VariableNode,
+  astFromValue,
 } from 'graphql';
 import { AMTransaction } from './transaction';
 import { Visitor } from '@babel/core';
@@ -199,19 +201,14 @@ export class AMVisitor {
       [Kind.INT]: scalarVisitor,
       [Kind.FLOAT]: scalarVisitor,
       [Kind.VARIABLE]: {
-        leave(node) {
+        enter(node: VariableNode) {
+          //replace variable with astnode to visit that fields
           const type = getNamedType(
             typeInfo.getInputType()
           ) as GraphQLScalarType;
-
-          const lastInStack = R.last(stack);
-          const value = type.parseValue(variableValues[node.name.value]);
-
-          if (lastInStack instanceof AMObjectFieldContext) {
-            lastInStack.setValue(value);
-          } else if (lastInStack instanceof AMListValueContext) {
-            lastInStack.addValue(value);
-          }
+          const newNode = astFromValue(variableValues[node.name.value], type);
+          visitor[Kind.OBJECT].enter(newNode);
+          return newNode;
         },
       },
     };

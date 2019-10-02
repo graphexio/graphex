@@ -9,12 +9,6 @@ Object {
     Object {
       "title": "JS",
     },
-    Object {
-      "title": "MongoDB",
-    },
-    Object {
-      "title": "React",
-    },
   ],
 }
 `;
@@ -23,16 +17,16 @@ exports[`CategoriesOrderByFieldWithDBDirective 1`] = `
 Object {
   "categories": Array [
     Object {
-      "title": "root",
-    },
-    Object {
-      "title": "JS",
+      "title": "React",
     },
     Object {
       "title": "MongoDB",
     },
     Object {
-      "title": "React",
+      "title": "JS",
+    },
+    Object {
+      "title": "root",
     },
   ],
 }
@@ -42,16 +36,54 @@ exports[`CategoriesRelationFilter 1`] = `
 Object {
   "categories": Array [
     Object {
-      "title": "root",
-    },
-    Object {
       "title": "JS",
     },
     Object {
       "title": "MongoDB",
     },
+  ],
+}
+`;
+
+exports[`CategoriesRelationFilter 2`] = `
+Object {
+  "createCategory": Object {
+    "parentCategory": Object {
+      "title": "root",
+    },
+    "title": "JS",
+  },
+}
+`;
+
+exports[`CategoriesRelationFilter 3`] = `
+Object {
+  "categories": Array [
     Object {
-      "title": "React",
+      "subcategories": Array [
+        Object {
+          "subcategories": Array [],
+          "title": "JS",
+        },
+        Object {
+          "subcategories": Array [],
+          "title": "MongoDB",
+        },
+      ],
+      "title": "root",
+    },
+  ],
+}
+`;
+
+exports[`CategoriesRelationFilter 4`] = `
+Object {
+  "categories": Array [
+    Object {
+      "title": "JS",
+    },
+    Object {
+      "title": "MongoDB",
     },
   ],
 }
@@ -61,16 +93,7 @@ exports[`CategoriesSameFieldFilter 1`] = `
 Object {
   "categories": Array [
     Object {
-      "title": "root",
-    },
-    Object {
       "title": "JS",
-    },
-    Object {
-      "title": "MongoDB",
-    },
-    Object {
-      "title": "React",
     },
   ],
 }
@@ -85,6 +108,14 @@ Object {
 `;
 
 exports[`CreateAdmin 1`] = `
+Object {
+  "createAdmin": Object {
+    "username": "admin",
+  },
+}
+`;
+
+exports[`CreateAdmin 2`] = `
 Object {
   "createAdmin": Object {
     "username": "admin",
@@ -122,6 +153,28 @@ Object {
 }
 `;
 
+exports[`CreateChildCategory "MongoDB" 2`] = `
+Object {
+  "createCategory": Object {
+    "parentCategory": Object {
+      "title": "root",
+    },
+    "title": "JS",
+  },
+}
+`;
+
+exports[`CreateChildCategory "MongoDB" 3`] = `
+Object {
+  "createCategory": Object {
+    "parentCategory": Object {
+      "title": "root",
+    },
+    "title": "MongoDB",
+  },
+}
+`;
+
 exports[`CreateChildCategory "React" 1`] = `
 Object {
   "createCategory": Object {
@@ -134,6 +187,14 @@ Object {
 `;
 
 exports[`CreatePostWithInterfaceRelation 1`] = `
+Object {
+  "createPost": Object {
+    "title": "Build GraphQL API with Apollo",
+  },
+}
+`;
+
+exports[`CreatePostWithInterfaceRelation 2`] = `
 Object {
   "createPost": Object {
     "title": "Build GraphQL API with Apollo",
@@ -199,14 +260,39 @@ Object {
     Object {
       "title": "root",
     },
+  ],
+}
+`;
+
+exports[`QueryCategoriesByTitle 2`] = `
+Object {
+  "createCategory": Object {
+    "title": "root",
+  },
+}
+`;
+
+exports[`QueryCategoriesByTitle 3`] = `
+Object {
+  "categories": Array [
     Object {
-      "title": "JS",
+      "title": "root",
     },
+  ],
+}
+`;
+
+exports[`QueryCategoriesByTitle 4`] = `
+Object {
+  "createCategory": null,
+}
+`;
+
+exports[`QueryCategoriesByTitle 5`] = `
+Object {
+  "categories": Array [
     Object {
-      "title": "MongoDB",
-    },
-    Object {
-      "title": "React",
+      "title": "root",
     },
   ],
 }
@@ -264,7 +350,18 @@ Object {
 }
 `;
 
-exports[`QueryPostsNearPoint 1`] = `undefined`;
+exports[`QueryPostsNearPoint 1`] = `
+Object {
+  "posts": Array [
+    Object {
+      "place": Object {
+        "distance": 1111.9492664453662,
+      },
+      "title": "Build GraphQL API with Apollo",
+    },
+  ],
+}
+`;
 
 exports[`QueryShopById 1`] = `
 Object {
@@ -276,9 +373,7 @@ Object {
 
 exports[`QueryShopById 2`] = `
 Object {
-  "shop": Object {
-    "title": "ifc mall",
-  },
+  "shop": null,
 }
 `;
 
@@ -326,6 +421,34 @@ Object {
 }
 `;
 
+exports[`Update Post create abstract relation Hotel  2`] = `
+Object {
+  "deleteCategory": Object {
+    "title": "React",
+  },
+}
+`;
+
+exports[`Update Post create abstract relation Hotel  3`] = `
+Object {
+  "shop": Object {
+    "title": "ifc mall",
+  },
+}
+`;
+
+exports[`Update Post create abstract relation Hotel  4`] = `
+Object {
+  "updatePost": Object {
+    "pois": Array [
+      Object {
+        "title": "Marriott",
+      },
+    ],
+  },
+}
+`;
+
 exports[`UpdatePostConnectShop 1`] = `
 Object {
   "updatePost": Object {
@@ -351,9 +474,6 @@ Object {
       Object {
         "title": "ifc mall",
       },
-      Object {
-        "title": "ifc mall",
-      },
     ],
   },
 }
@@ -366,12 +486,6 @@ Object {
       Object {
         "title": "Marriott",
       },
-      Object {
-        "title": "ifc mall",
-      },
-      Object {
-        "title": "ifc mall",
-      },
     ],
   },
 }
@@ -383,9 +497,6 @@ Object {
     "pois": Array [
       Object {
         "title": "Marriott",
-      },
-      Object {
-        "title": "ifc mall",
       },
     ],
   },
