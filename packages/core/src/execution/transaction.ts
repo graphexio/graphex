@@ -9,8 +9,14 @@ export class AMTransaction {
 
   execute(executor: AMDBExecutor) {
     if (this.operations.length > 0) {
-      return this.operations[0].execute(executor);
+      this.operations.forEach(op => op.execute(executor));
+
+      return this.operations[0].getOutput();
     }
     throw new Error('Empty transaction');
+  }
+
+  toJSON() {
+    return { operations: this.operations.map(op => op.toJSON()) };
   }
 }

@@ -28,14 +28,12 @@ const QE = QueryExecutor(connectToDatabase);
 
 const schema = new AMM({
   queryExecutor: QE,
+  modules: [DirectiveImplements],
 }).makeExecutableSchema({
   resolverValidationOptions: {
     requireResolversForResolveType: false,
   },
-  typeDefs: [typeDefs, DirectiveImplements.typeDefs],
-  schemaDirectives: {
-    ...DirectiveImplements.schemaDirectives,
-  },
+  typeDefs,
 });
 
 export const server = new ApolloServer({

@@ -66,6 +66,8 @@ import appendField from './appendField';
 import { AMModelMultipleQieryFieldFactory } from './modelQueryFields/multipleQuery';
 import { AMFieldsSelectionContext } from './execution/contexts/fieldsSelection';
 
+import { prepare } from './prepare/prepare';
+
 export default class ModelMongo {
   constructor({ queryExecutor, options = {}, modules = [] }) {
     this.QueryExecutor = queryExecutor;
@@ -860,36 +862,37 @@ export default class ModelMongo {
     this.Query = Query;
     this.Mutation = Mutation;
 
-    Object.values(SchemaTypes).forEach(type => {
-      if (type._fields) {
-        Object.values(type._fields).forEach(field => {
-          if (!field.dbName) field.dbName = field.name;
-        });
-      }
-    });
+    prepare(schema);
 
-    Object.values(SchemaTypes).forEach(type => {
-      let typeWrap = new TypeWrap(type);
-      if (
-        isCompositeType(type)
-        // getDirective(type, 'model') ||
-        // typeWrap.interfaceWithDirective('model')
-      ) {
-        Object.values(type.getFields()).forEach(field => {
-          field.amEnter = (node, transaction, stack) => {
+    // Object.values(SchemaTypes).forEach(type => {
+    //   if (type._fields) {
+    //     Object.values(type._fields).forEach(field => {
+    //       if (!field.dbName) field.dbName = field.name;
+    //     });
+    //   }
+    // });
 
-            const lastStackItem = R.last(stack);
-            if (lastStackItem instanceof AMFieldsSelectionContext) {
-              lastStackItem.addField(field.dbName);
-            }
-          };
-          // field.amLeave=(node, transaction, stack)=>{
-          //   console.log('leaved');
-          //   // stack.pop();
-          // },
-        });
-      }
-    });
+    // Object.values(SchemaTypes).forEach(type => {
+    //   let typeWrap = new TypeWrap(type);
+    //   if (
+    //     isCompositeType(type)
+    //     // getDirective(type, 'model') ||
+    //     // typeWrap.interfaceWithDirective('model')
+    //   ) {
+    //     Object.values(type.getFields()).forEach(field => {
+    //       field.amEnter = (node, transaction, stack) => {
+    //         const lastStackItem = R.last(stack);
+    //         if (lastStackItem instanceof AMFieldsSelectionContext) {
+    //           lastStackItem.addField(field.dbName);
+    //         }
+    //       };
+    //       // field.amLeave=(node, transaction, stack)=>{
+    //       //   console.log('leaved');
+    //       //   // stack.pop();
+    //       // },
+    //     });
+    //   }
+    // });
 
     Object.values(SchemaTypes).forEach(type => {
       this._onSchemaBuild(type);

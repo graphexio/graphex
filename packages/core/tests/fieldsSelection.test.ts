@@ -40,7 +40,7 @@ describe('simple schema', () => {
     const transaction = new AMTransaction();
     AMVisitor.visit(schema, rq, {}, transaction);
     expect(transaction.operations[0].fieldsSelection).toMatchInlineSnapshot(`
-                  AMFieldsSelectionContext {
+                  Object {
                     "fields": Array [
                       "_id",
                       "title",
@@ -83,7 +83,7 @@ describe('nested objects', () => {
     const transaction = new AMTransaction();
     AMVisitor.visit(schema, rq, {}, transaction);
     expect(transaction.operations[0].fieldsSelection).toMatchInlineSnapshot(`
-                    AMFieldsSelectionContext {
+                    Object {
                       "fields": Array [
                         "_id",
                         "title",

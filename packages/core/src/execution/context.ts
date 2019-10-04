@@ -1,1 +1,5 @@
-export class AMContext {}
+export class AMContext {
+  toJSON() {
+    return {};
+  }
+}

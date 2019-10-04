@@ -79,6 +79,11 @@ export type AMInterfaceType = Omit<GraphQLInterfaceType, 'getFields'> & {
 
 export type AMModelField = AMField & {
   dbName: string;
+  relation: {
+    relationField: string;
+    storeField: string;
+    collection: string;
+  };
 };
 
 export type AMModelFieldMap = {
@@ -145,6 +150,7 @@ export type AMDBExecutorParams = {
   doc?: { [key: string]: any };
   docs?: [{ [key: string]: any }];
   selector?: { [key: string]: any };
+  fields?: string[];
 };
 
 export enum AMDBExecutorOperationType {

@@ -42,8 +42,9 @@ export const AMModelMultipleQieryFieldFactory: IAMModelQueryFieldFactory = {
         },
       ],
       amEnter(node, transaction, stack) {
-        const operation = new AMReadOperation(modelType.mmCollectionName);
-        transaction.addOperation(operation);
+        const operation = new AMReadOperation(transaction, {
+          collectionName: modelType.mmCollectionName,
+        });
         stack.push(operation);
       },
       amLeave(node, transaction, stack) {
