@@ -7,42 +7,28 @@ import { AMWhereTypeFactory } from '../inputTypes/where';
 import { lowercaseFirstLetter } from '../tsutils';
 import { AMField, AMModelType, IAMModelQueryFieldFactory } from '../types';
 import { resolve } from '../resolve';
+import { AMCreateTypeFactory } from '../inputTypes/create';
+import { AMCreateOperation } from '../execution/operations/createOperation';
 
-export const AMModelMultipleQueryFieldFactory: IAMModelQueryFieldFactory = {
+export const AMModelCreateMutationFieldFactory: IAMModelQueryFieldFactory = {
   getFieldName(modelType: AMModelType): string {
-    return R.pipe(
-      pluralize,
-      lowercaseFirstLetter
-    )(modelType.name);
+    return R.concat('create')(modelType.name);
   },
   getField(modelType: AMModelType, resolveTypes) {
     return <AMField>{
       name: this.getFieldName(modelType),
       description: '',
-      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(modelType))),
+      type: modelType,
       args: [
         {
-          name: 'where',
-          type: resolveTypes.resolveFactoryType(modelType, AMWhereTypeFactory),
-        },
-        {
-          name: 'orderBy',
-          type: resolveTypes.resolveFactoryType(
-            modelType,
-            AMOrderByTypeFactory
+          name: 'data',
+          type: new GraphQLNonNull(
+            resolveTypes.resolveFactoryType(modelType, AMCreateTypeFactory)
           ),
-        },
-        {
-          name: 'skip',
-          type: GraphQLInt,
-        },
-        {
-          name: 'first',
-          type: GraphQLInt,
         },
       ],
       amEnter(node, transaction, stack) {
-        const operation = new AMReadOperation(transaction, {
+        const operation = new AMCreateOperation(transaction, {
           collectionName: modelType.mmCollectionName,
         });
         stack.push(operation);

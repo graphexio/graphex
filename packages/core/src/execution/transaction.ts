@@ -10,7 +10,6 @@ export class AMTransaction {
   execute(executor: AMDBExecutor) {
     if (this.operations.length > 0) {
       this.operations.forEach(op => op.execute(executor));
-
       return this.operations[0].getOutput();
     }
     throw new Error('Empty transaction');

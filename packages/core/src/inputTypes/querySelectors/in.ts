@@ -8,7 +8,7 @@ import {
 import { IAMQuerySelector } from '../../types';
 import { AMWhereCleanTypeFactory } from '../whereClean';
 import { makeArray } from './utils';
-import { AMQuerySelectorFieldFactory } from './fieldFactory';
+import { AMQuerySelectorFieldFactory } from '../fieldFactories/querySelector';
 
 export const InSelector: IAMQuerySelector = {
   isApplicable(field) {
@@ -22,6 +22,7 @@ export const InSelector: IAMQuerySelector = {
   },
   getFieldFactory() {
     return new AMQuerySelectorFieldFactory(
+      this.isApplicable,
       field => `${field.name}_in`,
       (field, schemaInfo) => {
         const namedType = getNamedType(field.type);

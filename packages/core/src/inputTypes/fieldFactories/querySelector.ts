@@ -1,19 +1,13 @@
-import {
-  getNamedType,
-  GraphQLInputType,
-  isCompositeType,
-  ObjectFieldNode,
-} from 'graphql';
+import { getNamedType, GraphQLInputType, ObjectFieldNode } from 'graphql';
 import R from 'ramda';
 import { AMObjectFieldContext } from '../../execution/contexts/objectField';
 import { AMSelectorContext } from '../../execution/contexts/selector';
 import {
-  IAMInputFieldFactory,
+  AMInputField,
   AMModelField,
   AMSchemaInfo,
-  AMInputField,
+  IAMInputFieldFactory,
 } from '../../types';
-import { AMWhereTypeFactory } from '../where';
 
 export class AMQuerySelectorFieldFactory implements IAMInputFieldFactory {
   private _getFieldName: (field: AMModelField) => string;
@@ -22,8 +16,10 @@ export class AMQuerySelectorFieldFactory implements IAMInputFieldFactory {
     schemaInfo: AMSchemaInfo
   ) => GraphQLInputType;
   private _transformValue: (input: any) => any;
+  private _isApplicable: (field: AMModelField) => boolean;
 
   constructor(
+    isApplicable: (field: AMModelField) => boolean,
     getFieldName: (field: AMModelField) => string,
     getFieldType: (
       field: AMModelField,
@@ -31,9 +27,14 @@ export class AMQuerySelectorFieldFactory implements IAMInputFieldFactory {
     ) => GraphQLInputType,
     transformValue: (input: any) => any
   ) {
+    this._isApplicable = isApplicable;
     this._getFieldName = getFieldName;
     this._getFieldType = getFieldType;
     this._transformValue = transformValue;
+  }
+
+  isApplicable(field) {
+    return this._isApplicable(field);
   }
 
   getFieldName(field) {
@@ -47,21 +48,20 @@ export class AMQuerySelectorFieldFactory implements IAMInputFieldFactory {
     return <AMInputField>{
       name: this.getFieldName(field),
       type,
-      mmTransform: params => params,
       amEnter(node: ObjectFieldNode, transaction, stack) {
-        const action = new AMObjectFieldContext(field.dbName);
-        stack.push(action);
+        const context = new AMObjectFieldContext(field.dbName);
+        stack.push(context);
       },
       amLeave(node, transaction, stack) {
-        const action = stack.pop() as AMObjectFieldContext;
+        const context = stack.pop() as AMObjectFieldContext;
         const lastInStack = R.last(stack);
         if (
           lastInStack instanceof AMSelectorContext ||
           lastInStack instanceof AMObjectFieldContext
         ) {
           lastInStack.addValue(
-            action.fieldName,
-            self._transformValue(action.value)
+            context.fieldName,
+            self._transformValue(context.value)
           );
         }
       },

@@ -18,9 +18,11 @@ const selectorToFieldFactory = (selector: IAMQuerySelector) => {
   return selector.getFieldFactory();
 };
 
-export const AMWhereCleanTypeFactory: IAMTypeFactory<GraphQLInputObjectType> = {
+export const AMWhereUniqueTypeFactory: IAMTypeFactory<
+  GraphQLInputObjectType
+> = {
   getTypeName(modelType): string {
-    return `${modelType.name}WhereCleanInput`;
+    return `${modelType.name}WhereUniqueInput`;
   },
   getType(modelType, schemaInfo) {
     const self: IAMTypeFactory<AMInputObjectType> = this;
@@ -30,14 +32,16 @@ export const AMWhereCleanTypeFactory: IAMTypeFactory<GraphQLInputObjectType> = {
         const fields = {};
 
         Object.values(modelType.getFields()).forEach(field => {
-          const fieldFactories = [AsIsSelector]
-            .filter(isApplicable(field))
-            .map(selectorToFieldFactory);
+          if (field.isUnique) {
+            const fieldFactories = [AsIsSelector]
+              .filter(isApplicable(field))
+              .map(selectorToFieldFactory);
 
-          fieldFactories.forEach(factory => {
-            const fieldName = factory.getFieldName(field);
-            fields[fieldName] = factory.getField(field, schemaInfo);
-          });
+            fieldFactories.forEach(factory => {
+              const fieldName = factory.getFieldName(field);
+              fields[fieldName] = factory.getField(field, schemaInfo);
+            });
+          }
         });
 
         return fields;

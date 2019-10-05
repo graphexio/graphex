@@ -1,6 +1,6 @@
 import { GraphQLBoolean, getNamedType, isCompositeType } from 'graphql';
 import { IAMQuerySelector } from '../../types';
-import { AMQuerySelectorFieldFactory } from './fieldFactory';
+import { AMQuerySelectorFieldFactory } from '../fieldFactories/querySelector';
 
 export const GTESelector: IAMQuerySelector = {
   isApplicable(field) {
@@ -9,6 +9,7 @@ export const GTESelector: IAMQuerySelector = {
   },
   getFieldFactory() {
     return new AMQuerySelectorFieldFactory(
+      this.isApplicable,
       field => `${field.name}_gte`,
       (field, schemaInfo) => {
         const namedType = getNamedType(field.type);

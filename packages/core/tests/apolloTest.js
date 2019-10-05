@@ -17,7 +17,10 @@ export const connectToDatabase = () => {
     return Promise.resolve(DB);
   }
   return Promise.all([uri, dbName]).then(([uri, dbName]) =>
-    MongoClient.connect(uri, { useNewUrlParser: true }).then(client => {
+    MongoClient.connect(uri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }).then(client => {
       DB = client.db(dbName);
       return DB;
     })

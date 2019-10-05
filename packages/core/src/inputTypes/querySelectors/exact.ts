@@ -7,7 +7,7 @@ import {
 import { IAMQuerySelector } from '../../types';
 import TypeWrap from '@apollo-model/type-wrap';
 import { AMWhereCleanTypeFactory } from '../whereClean';
-import { AMQuerySelectorFieldFactory } from './fieldFactory';
+import { AMQuerySelectorFieldFactory } from '../fieldFactories/querySelector';
 import { makeArray } from './utils';
 
 export const ExactSelector: IAMQuerySelector = {
@@ -17,6 +17,7 @@ export const ExactSelector: IAMQuerySelector = {
   },
   getFieldFactory() {
     return new AMQuerySelectorFieldFactory(
+      this.isApplicable,
       field => `${field.name}_exact`,
       (field, schemaInfo) => {
         const namedType = getNamedType(field.type);

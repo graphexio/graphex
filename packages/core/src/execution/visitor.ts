@@ -18,6 +18,7 @@ import {
   GraphQLScalarType,
   VariableNode,
   astFromValue,
+  validate,
 } from 'graphql';
 import { AMTransaction } from './transaction';
 import { Visitor } from '@babel/core';
@@ -49,6 +50,11 @@ export class AMVisitor {
     variableValues: { [key: string]: any } = {},
     transaction: AMTransaction
   ) {
+    const errors = validate(schema, document);
+    if (errors.length > 0) {
+      throw errors;
+    }
+
     const typeInfo = new TypeInfo(schema);
     const stack: AMVisitorStack = [];
 
@@ -80,11 +86,11 @@ export class AMVisitor {
 
     var visitor = {
       enter(node) {
-        // console.log('----');
-        // console.log(node.kind, typeInfo.getType(), typeInfo.getInputType());
-        // console.log('----');
+        // console.log('enter', node, stack);
       },
-      leave(node) {},
+      leave(node) {
+        // console.log('leave', node, stack);
+      },
       // [Kind.ARGUMENT]: {
       //   enter(node) {
       //     // console.log(typeInfo.getArgument());
@@ -219,6 +225,7 @@ export class AMVisitor {
 function visitWithTypeInfo(typeInfo: any, visitor: any): any {
   return {
     enter(node) {
+      if (visitor.enter) visitor.enter.apply(visitor, arguments);
       const fn = getVisitFn(visitor, node.kind, /* isLeaving */ false);
       if (fn) {
         const result = fn.apply(visitor, arguments);
@@ -236,6 +243,7 @@ function visitWithTypeInfo(typeInfo: any, visitor: any): any {
     },
     leave(node) {
       typeInfo.leave(node);
+      if (visitor.leave) visitor.leave.apply(visitor, arguments);
       const fn = getVisitFn(visitor, node.kind, /* isLeaving */ true);
       let result;
       if (fn) {

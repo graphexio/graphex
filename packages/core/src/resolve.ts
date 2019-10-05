@@ -10,11 +10,7 @@ export const resolve = (parent, args, context, info: GraphQLResolveInfo) => {
     kind: 'Document',
     definitions: [
       {
-        kind: 'OperationDefinition',
-        operation: 'query',
-        name: undefined,
-        variableDefinitions: [],
-        directives: [],
+        ...info.operation,
         selectionSet: {
           kind: 'SelectionSet',
           selections: info.fieldNodes,
@@ -24,5 +20,6 @@ export const resolve = (parent, args, context, info: GraphQLResolveInfo) => {
   };
 
   AMVisitor.visit(info.schema, rq, info.variableValues, transaction);
+
   return transaction.execute(context.queryExecutor);
 };

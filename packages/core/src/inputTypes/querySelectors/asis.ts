@@ -7,8 +7,8 @@ import {
 } from 'graphql';
 import { IAMQuerySelector, AMVisitorStack } from '../../types';
 import { AMWhereTypeFactory } from '../where';
-import { AMQuerySelectorFieldFactory } from './fieldFactory';
-import { AMQuerySelectorComplexFieldFactory } from './complexFieldFactory';
+import { AMQuerySelectorFieldFactory } from '../fieldFactories/querySelector';
+import { AMQuerySelectorComplexFieldFactory } from '../fieldFactories/querySelectorComplex';
 import { AMObjectFieldContext } from '../../execution/contexts/objectField';
 import R from 'ramda';
 import { AMSelectorContext } from '../../execution/contexts/selector';
@@ -21,6 +21,7 @@ export const AsIsSelector: IAMQuerySelector = {
   },
   getFieldFactory() {
     return new AMQuerySelectorComplexFieldFactory(
+      this.isApplicable,
       field => `${field.name}`,
       (field, schemaInfo) => {
         const namedType = getNamedType(field.type);
@@ -35,8 +36,12 @@ export const AsIsSelector: IAMQuerySelector = {
           // );
         }
       },
-      (node: ASTNode, transaction: AMTransaction, stack: AMVisitorStack) => {
-        const action = stack.pop() as AMObjectFieldContext;
+      (
+        node: ASTNode,
+        transaction: AMTransaction,
+        stack: AMVisitorStack,
+        context: AMObjectFieldContext
+      ) => {
         const lastInStack = R.last(stack);
 
         if (
@@ -44,12 +49,12 @@ export const AsIsSelector: IAMQuerySelector = {
           lastInStack instanceof AMObjectFieldContext
         ) {
           //transform nested objects to mongodb dot notation
-          if (action.value instanceof Object) {
-            Object.entries(action.value).forEach(([key, value]) => {
-              lastInStack.addValue(`${action.fieldName}.${key}`, value);
+          if (context.value instanceof Object) {
+            Object.entries(context.value).forEach(([key, value]) => {
+              lastInStack.addValue(`${context.fieldName}.${key}`, value);
             });
           } else {
-            lastInStack.addValue(action.fieldName, action.value);
+            lastInStack.addValue(context.fieldName, context.value);
           }
         }
       }

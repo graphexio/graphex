@@ -63,7 +63,9 @@ import {
 } from './methodKinds.js';
 
 import appendField from './appendField';
-import { AMModelMultipleQieryFieldFactory } from './modelQueryFields/multipleQuery';
+
+import { AMModelCreateMutationFieldFactory } from './modelMutationFields/createMutation';
+import { AMModelMultipleQueryFieldFactory } from './modelQueryFields/multipleQuery';
 import { AMFieldsSelectionContext } from './execution/contexts/fieldsSelection';
 
 import { prepare } from './prepare/prepare';
@@ -85,7 +87,7 @@ export default class ModelMongo {
     appendField(
       this.Schema,
       this.Schema.getQueryType(),
-      AMModelMultipleQieryFieldFactory,
+      AMModelMultipleQueryFieldFactory,
       modelType
     );
 
@@ -354,59 +356,66 @@ export default class ModelMongo {
   };
 
   _createCreateMutation = modelType => {
-    let typeWrap = new TypeWrap(modelType);
-    let args = [];
-    let inputType;
-    try {
-      inputType = this._inputType(modelType, INPUT_TYPE_KIND.CREATE);
-      args = [
-        {
-          type: new GraphQLNonNull(inputType),
-          name: 'data',
-        },
-      ];
-    } catch (e) {
-      if (!(e instanceof EmptyTypeException)) {
-        throw e;
-      }
-    }
+    appendField(
+      this.Schema,
+      this.Schema.getMutationType(),
+      AMModelCreateMutationFieldFactory,
+      modelType
+    );
 
-    const name = getMethodName(CREATE_MUTATION)(modelType.name);
-    this.Mutation._fields[name] = {
-      type: modelType,
-      args: args,
-      isDeprecated: false,
-      name,
-      resolve: async (parent, args, context) => {
-        // let data = await applyAlwaysInputTransform({ parent, context })(
-        //   modelType,
-        //   args.data,
-        //   INPUT_TYPE_KIND.CREATE_ALWAYS
-        // );
-        let doc = await applyInputTransform({ parent, context })(
-          args.data,
-          inputType
-        );
+    // let typeWrap = new TypeWrap(modelType);
+    // let args = [];
+    // let inputType;
+    // try {
+    //   inputType = this._inputType(modelType, INPUT_TYPE_KIND.CREATE);
+    //   args = [
+    //     {
+    //       type: new GraphQLNonNull(inputType),
+    //       name: 'data',
+    //     },
+    //   ];
+    // } catch (e) {
+    //   if (!(e instanceof EmptyTypeException)) {
+    //     throw e;
+    //   }
+    // }
 
-        if (
-          typeWrap.interfaceWithDirective('model') &&
-          typeWrap.interfaceWithDirective('model').mmDiscriminatorField
-          // && !new TypeWrap(typeWrap.interfaceType()).isAbstract()
-        ) {
-          doc[
-            typeWrap.interfaceWithDirective('model').mmDiscriminatorField
-          ] = typeWrap.realType().mmDiscriminator;
-        }
+    // const name = getMethodName(CREATE_MUTATION)(modelType.name);
+    // this.Mutation._fields[name] = {
+    //   type: modelType,
+    //   args: args,
+    //   isDeprecated: false,
+    //   name,
+    //   resolve: async (parent, args, context) => {
+    //     // let data = await applyAlwaysInputTransform({ parent, context })(
+    //     //   modelType,
+    //     //   args.data,
+    //     //   INPUT_TYPE_KIND.CREATE_ALWAYS
+    //     // );
+    //     let doc = await applyInputTransform({ parent, context })(
+    //       args.data,
+    //       inputType
+    //     );
 
-        return this.QueryExecutor({
-          type: INSERT_ONE,
-          collection: modelType.mmCollectionName,
-          doc,
-          options: {},
-          context,
-        });
-      },
-    };
+    //     if (
+    //       typeWrap.interfaceWithDirective('model') &&
+    //       typeWrap.interfaceWithDirective('model').mmDiscriminatorField
+    //       // && !new TypeWrap(typeWrap.interfaceType()).isAbstract()
+    //     ) {
+    //       doc[
+    //         typeWrap.interfaceWithDirective('model').mmDiscriminatorField
+    //       ] = typeWrap.realType().mmDiscriminator;
+    //     }
+
+    //     return this.QueryExecutor({
+    //       type: INSERT_ONE,
+    //       collection: modelType.mmCollectionName,
+    //       doc,
+    //       options: {},
+    //       context,
+    //     });
+    //   },
+    // };
   };
 
   _createDeleteMutation = modelType => {
@@ -929,15 +938,15 @@ export default class ModelMongo {
         if (!typeWrap.isAbstract()) {
           // console.log(`Building queries for ${type.name}`);
           this._createAllQuery(type);
-          this._createAllPaginationQuery(type);
-          this._createSingleQuery(type);
-          this._createConnectionQuery(type);
+          // this._createAllPaginationQuery(type);
+          // this._createSingleQuery(type);
+          // this._createConnectionQuery(type);
           if (!typeWrap.isInterface()) {
             this._createCreateMutation(type);
           }
-          this._createDeleteMutation(type);
-          this._createDeleteManyMutation(type);
-          this._createUpdateMutation(type);
+          // this._createDeleteMutation(type);
+          // this._createDeleteManyMutation(type);
+          // this._createUpdateMutation(type);
         }
       }
     });

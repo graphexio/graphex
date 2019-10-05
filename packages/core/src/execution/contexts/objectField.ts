@@ -5,7 +5,7 @@ export class AMObjectFieldContext extends AMContext {
   fieldName: string;
   value: AMObjectFieldValueType;
 
-  constructor(fieldName: string) {
+  constructor(fieldName?: string) {
     super();
     this.fieldName = fieldName;
   }

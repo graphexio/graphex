@@ -28,10 +28,13 @@ export class AMQuerySelectorComplexFieldFactory
   private _applyValue: (
     node: ASTNode,
     transaction: AMTransaction,
-    stack: AMVisitorStack
+    stack: AMVisitorStack,
+    context: AMObjectFieldContext
   ) => void;
+  private _isApplicable: (field: AMModelField) => boolean;
 
   constructor(
+    isApplicable: (field: AMModelField) => boolean,
     getFieldName: (field: AMModelField) => string,
     getFieldType: (
       field: AMModelField,
@@ -40,12 +43,18 @@ export class AMQuerySelectorComplexFieldFactory
     applyValue: (
       node: ASTNode,
       transaction: AMTransaction,
-      stack: AMVisitorStack
+      stack: AMVisitorStack,
+      context: AMObjectFieldContext
     ) => void
   ) {
+    this._isApplicable = isApplicable;
     this._getFieldName = getFieldName;
     this._getFieldType = getFieldType;
     this._applyValue = applyValue;
+  }
+
+  isApplicable(field) {
+    return this._isApplicable(field);
   }
 
   getFieldName(field) {
@@ -61,11 +70,12 @@ export class AMQuerySelectorComplexFieldFactory
       type,
       mmTransform: params => params,
       amEnter(node: ObjectFieldNode, transaction, stack) {
-        const action = new AMObjectFieldContext(field.dbName);
-        stack.push(action);
+        const context = new AMObjectFieldContext(field.dbName);
+        stack.push(context);
       },
       amLeave(node, transaction, stack) {
-        self._applyValue(node, transaction, stack);
+        const context = stack.pop() as AMObjectFieldContext;
+        self._applyValue(node, transaction, stack, context);
       },
     };
   }

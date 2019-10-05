@@ -1,13 +1,12 @@
 import { GraphQLField, GraphQLInputObjectType, GraphQLList } from 'graphql';
-import {
-  IAMModelTypeFactory,
-  IAMQuerySelector,
-  AMInputObjectType,
-} from '../types';
+import { IAMQuerySelector, AMInputObjectType, IAMTypeFactory } from '../types';
 import { Selectors } from './querySelectors';
 import { AMSelectorContext } from '../execution/contexts/selector';
 import R from 'ramda';
 import { AMOperation } from '../execution/operation';
+import { AMListValueContext } from '../execution/contexts/listValue';
+import last from 'ramda/es/last';
+import { whereTypeVisitorHandler } from './visitorHandlers';
 
 const isApplicable = (field: GraphQLField<any, any, any>) => (
   selector: IAMQuerySelector
@@ -17,12 +16,12 @@ const selectorToFieldFactory = (selector: IAMQuerySelector) => {
   return selector.getFieldFactory();
 };
 
-export const AMWhereTypeFactory: IAMModelTypeFactory<AMInputObjectType> = {
+export const AMWhereTypeFactory: IAMTypeFactory<AMInputObjectType> = {
   getTypeName(modelType): string {
     return `${modelType.name}WhereInput`;
   },
   getType(modelType, schemaInfo) {
-    const self: IAMModelTypeFactory<AMInputObjectType> = this;
+    const self: IAMTypeFactory<AMInputObjectType> = this;
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
@@ -40,7 +39,10 @@ export const AMWhereTypeFactory: IAMModelTypeFactory<AMInputObjectType> = {
         };
 
         Object.values(modelType.getFields()).forEach(field => {
-          const fieldFactories = self.getFieldFactories(field);
+          const fieldFactories = Selectors.filter(isApplicable(field)).map(
+            selectorToFieldFactory
+          );
+
           fieldFactories.forEach(factory => {
             const fieldName = factory.getFieldName(field);
             fields[fieldName] = factory.getField(field, schemaInfo);
@@ -49,21 +51,7 @@ export const AMWhereTypeFactory: IAMModelTypeFactory<AMInputObjectType> = {
 
         return fields;
       },
-      amEnter(node, transaction, stack) {
-        const selectorAction = new AMSelectorContext();
-        stack.push(selectorAction);
-      },
-      amLeave(node, transaction, stack) {
-        const selectorAction = stack.pop() as AMSelectorContext;
-        const lastInStack = R.last(stack);
-
-        if (lastInStack instanceof AMOperation) {
-          lastInStack.setSelector(selectorAction);
-        }
-      },
+      ...whereTypeVisitorHandler,
     });
-  },
-  getFieldFactories(field) {
-    return Selectors.filter(isApplicable(field)).map(selectorToFieldFactory);
   },
 };

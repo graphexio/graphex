@@ -4,11 +4,14 @@ import { AMSelectorContext } from './contexts/selector';
 import { AMDBExecutor } from '../types';
 import { AMResultPromise } from './resultPromise';
 import { AMTransaction } from './transaction';
+import { AMDataContext } from './contexts/data';
 
 export class AMOperation extends AMContext {
   collectionName: string;
   fieldsSelection: AMFieldsSelectionContext;
   selector: AMSelectorContext;
+  data: AMDataContext;
+
   _result: AMResultPromise<any>;
   _transactionNumber: number;
   _output: AMResultPromise<any>;
@@ -19,12 +22,14 @@ export class AMOperation extends AMContext {
       collectionName: string;
       selector?: AMSelectorContext;
       fieldsSelection?: AMFieldsSelectionContext;
+      data?: AMDataContext;
     }
   ) {
     super();
     this.collectionName = config.collectionName;
     this.selector = config.selector;
     this.fieldsSelection = config.fieldsSelection;
+    this.data = config.data;
 
     this._result = new AMResultPromise(this);
     this._transactionNumber = transaction.operations.length;
@@ -41,6 +46,10 @@ export class AMOperation extends AMContext {
 
   setSelector(selector: AMSelectorContext) {
     this.selector = selector;
+  }
+
+  setData(data: AMDataContext) {
+    this.data = data;
   }
 
   execute(executor: AMDBExecutor) {}
@@ -66,11 +75,12 @@ export class AMOperation extends AMContext {
       identifier: this.getIdentifier(),
       kind: this.constructor.name,
       collectionName: this.collectionName,
-      fieldsSelection: this.fieldsSelection
-        ? this.fieldsSelection.toJSON()
-        : undefined,
-      selector: this.selector ? this.selector.toJSON() : undefined,
       output: this.getOutput(),
+      ...(this.fieldsSelection
+        ? { fieldsSelection: this.fieldsSelection.toJSON() }
+        : null),
+      ...(this.selector ? { selector: this.selector.toJSON() } : null),
+      ...(this.data ? { data: this.data.toJSON() } : null),
     };
   }
 }

@@ -8,6 +8,7 @@ import {
   GraphQLEnumType,
   GraphQLBoolean,
   GraphQLType,
+  GraphQLNamedType,
 } from 'graphql';
 import _ from 'lodash';
 
@@ -22,7 +23,7 @@ function getDirective(field, name) {
 
 export default class TypeWrap {
   private _type = null;
-  private _realType: GraphQLType = null;
+  private _realType: GraphQLNamedType = null;
   private _required = false;
   private _many = false;
   private _requiredArrayItem = false;
@@ -118,7 +119,7 @@ export default class TypeWrap {
     return new TypeWrap(this);
   };
   type = () => {
-    let type = this._realType;
+    let type: GraphQLType = this._realType;
     if (this._requiredArrayItem && this._many) {
       type = new GraphQLNonNull(type);
     }

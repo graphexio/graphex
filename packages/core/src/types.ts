@@ -1,24 +1,23 @@
 import {
-  GraphQLInputField,
-  GraphQLInterfaceType,
-  GraphQLObjectType,
-  GraphQLType,
-  GraphQLField,
-  GraphQLNamedType,
-  GraphQLInputObjectType,
-  GraphQLFieldMap,
-  GraphQLSchema,
   ASTNode,
-  Thunk,
-  GraphQLInputFieldConfigMap,
+  GraphQLField,
+  GraphQLInputField,
+  GraphQLInputObjectType,
+  GraphQLInputType,
+  GraphQLInterfaceType,
+  GraphQLNamedType,
+  GraphQLObjectType,
+  GraphQLSchema,
   InputObjectTypeDefinitionNode,
   InputObjectTypeExtensionNode,
+  InputValueDefinitionNode,
+  Thunk,
+  GraphQLFieldConfig,
+  GraphQLInputFieldConfig,
 } from 'graphql';
-import pipe from 'ramda/es/pipe';
 import Maybe from 'graphql/tsutils/Maybe';
-import { AMTransaction } from './execution/transaction';
-import { AMOperation } from './execution/operation';
 import { AMContext } from './execution/context';
+import { AMTransaction } from './execution/transaction';
 
 export type mmTransformType = (input: {
   [fieldName: string]: any;
@@ -32,7 +31,7 @@ export type AMVisitable = {
 };
 
 export type AMInputField = GraphQLInputField & {
-  mmTransform: mmTransformType;
+  // mmTransform: mmTransformType;
 } & AMVisitable;
 
 export type AMInputFieldMap = {
@@ -53,9 +52,15 @@ export class AMInputObjectType extends GraphQLInputObjectType
   }
 }
 
+export type AMInputFieldConfig = GraphQLInputFieldConfig & AMVisitable;
+
+export type AMInputFieldConfigMap = {
+  [key: string]: AMInputFieldConfig;
+};
+
 export interface AMInputObjectTypeConfig {
   name: string;
-  fields: Thunk<GraphQLInputFieldConfigMap>;
+  fields: Thunk<AMInputFieldConfigMap>;
   description?: Maybe<string>;
   astNode?: Maybe<InputObjectTypeDefinitionNode>;
   extensionASTNodes?: Maybe<ReadonlyArray<InputObjectTypeExtensionNode>>;
@@ -79,6 +84,8 @@ export type AMInterfaceType = Omit<GraphQLInterfaceType, 'getFields'> & {
 
 export type AMModelField = AMField & {
   dbName: string;
+  isID: boolean;
+  isUnique: boolean;
   relation: {
     relationField: string;
     storeField: string;
@@ -114,12 +121,13 @@ export interface IAMTypeFactory<T extends GraphQLNamedType> {
   getType(inputType: AMModelType, schemaInfo: AMSchemaInfo): T;
 }
 
-export interface IAMModelTypeFactory<T extends GraphQLNamedType>
-  extends IAMTypeFactory<T> {
-  getFieldFactories(field: AMField): IAMInputFieldFactory[];
-}
+// export interface IAMModelTypeFactory<T extends GraphQLNamedType>
+//   extends IAMTypeFactory<T> {
+//   getFieldFactories(field: AMField): IAMInputFieldFactory[];
+// }
 
 export interface IAMInputFieldFactory {
+  isApplicable(field: AMModelField): boolean;
   getFieldName(field: AMModelField): string;
   getField(field: AMModelField, schemaInfo: AMSchemaInfo): AMInputField;
 }

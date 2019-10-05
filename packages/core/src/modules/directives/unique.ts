@@ -7,14 +7,17 @@ import { appendTransform, reduceTransforms } from '../../inputTypes/utils';
 import * as HANDLER from '../../inputTypes/handlers';
 import { INPUT_TYPE_KIND } from '../../inputTypes/kinds';
 import * as Transforms from '../../inputTypes/transforms';
+import { AMModelField } from '../../types';
 
 export const typeDef = gql`
   directive @unique on FIELD_DEFINITION
 `;
 
 class Unique extends SchemaDirectiveVisitor {
-  visitFieldDefinition(field) {
-    const { _typeMap: SchemaTypes } = this.schema;
+  visitFieldDefinition(field: AMModelField) {
+    field.isUnique = true;
+
+    // const { _typeMap: SchemaTypes } = this.schema;
     const { field: relationField } = this.args;
 
     appendTransform(field, HANDLER.TRANSFORM_TO_INPUT, {

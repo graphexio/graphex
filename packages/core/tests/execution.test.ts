@@ -3,21 +3,23 @@ import { AMReadOperation } from '../src/execution/operations/readOperation';
 import { AMSelectorContext } from '../src/execution/contexts/selector';
 import { AMFieldsSelectionContext } from '../src/execution/contexts/fieldsSelection';
 import { AMDBExecutorParams } from '../src/types';
+import { AMCreateOperation } from '../src/execution/operations/createOperation';
+import { AMDataContext } from '../src/execution/contexts/data';
 
 test('read many', () => {
   const executor = (params: AMDBExecutorParams) => {
     expect(params).toMatchInlineSnapshot(`
-                  Object {
-                    "collection": "posts",
-                    "fields": Array [
-                      "title",
-                    ],
-                    "selector": Object {
-                      "title": "test-title",
-                    },
-                    "type": "find",
-                  }
-            `);
+                        Object {
+                          "collection": "posts",
+                          "fields": Array [
+                            "title",
+                          ],
+                          "selector": Object {
+                            "title": "test-title",
+                          },
+                          "type": "find",
+                        }
+                `);
     return Promise.resolve([]);
   };
 
@@ -46,22 +48,22 @@ test('read many relation', async () => {
       }
       case 2: {
         expect(params).toMatchInlineSnapshot(`
-          Object {
-            "collection": "comments",
-            "fields": undefined,
-            "selector": Object {
-              "_id": Object {
-                "$in": Array [
-                  "comment1",
-                  "comment2",
-                  "comment3",
-                  "comment4",
-                ],
-              },
-            },
-            "type": "find",
-          }
-        `);
+                    Object {
+                      "collection": "comments",
+                      "fields": undefined,
+                      "selector": Object {
+                        "_id": Object {
+                          "$in": Array [
+                            "comment1",
+                            "comment2",
+                            "comment3",
+                            "comment4",
+                          ],
+                        },
+                      },
+                      "type": "find",
+                    }
+                `);
         return Promise.resolve([
           {
             _id: 'comment1',
@@ -134,4 +136,32 @@ test('read many relation', async () => {
       ],
     },
   ]);
+});
+
+test('create', () => {
+  const executor = (params: AMDBExecutorParams) => {
+    expect(params).toMatchInlineSnapshot(`
+      Object {
+        "collection": "posts",
+        "doc": Object {
+          "title": "test-title",
+        },
+        "fields": Array [
+          "_id",
+          "title",
+        ],
+        "type": "insertOne",
+      }
+    `);
+    return Promise.resolve([]);
+  };
+
+  const transaction = new AMTransaction();
+  const operation = new AMCreateOperation(transaction, {
+    collectionName: 'posts',
+    fieldsSelection: new AMFieldsSelectionContext(['_id', 'title']),
+    data: new AMDataContext({ title: 'test-title' }),
+  });
+
+  return transaction.execute(executor);
 });
