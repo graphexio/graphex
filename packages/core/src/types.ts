@@ -142,7 +142,7 @@ export interface IAMModelQueryFieldFactory {
 }
 
 export interface IAMQuerySelector {
-  isApplicable(field: GraphQLField<any, any, any>): boolean;
+  isApplicable(field: AMModelField): boolean;
   getFieldFactory(): IAMInputFieldFactory;
 }
 

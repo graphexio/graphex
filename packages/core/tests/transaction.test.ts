@@ -40,23 +40,24 @@ describe('simple schema', () => {
     const transaction = new AMTransaction();
     AMVisitor.visit(schema, rq, {}, transaction);
     expect(transaction).toMatchInlineSnapshot(`
-                                                            Object {
-                                                              "operations": Array [
-                                                                Object {
-                                                                  "collectionName": "posts",
-                                                                  "fieldsSelection": Object {
-                                                                    "fields": Array [
-                                                                      "_id",
-                                                                      "title",
-                                                                    ],
-                                                                  },
-                                                                  "identifier": "Operation-0",
-                                                                  "kind": "AMReadOperation",
-                                                                  "output": "AMResultPromise { Operation-0 }",
-                                                                },
-                                                              ],
-                                                            }
-                                        `);
+                  Object {
+                    "operations": Array [
+                      Object {
+                        "collectionName": "posts",
+                        "fieldsSelection": Object {
+                          "fields": Array [
+                            "_id",
+                            "title",
+                          ],
+                        },
+                        "identifier": "Operation-0",
+                        "kind": "AMReadOperation",
+                        "many": true,
+                        "output": "AMResultPromise { Operation-0 }",
+                      },
+                    ],
+                  }
+            `);
   });
 
   test('create', () => {
@@ -72,26 +73,27 @@ describe('simple schema', () => {
     const transaction = new AMTransaction();
     AMVisitor.visit(schema, rq, {}, transaction);
     expect(transaction).toMatchInlineSnapshot(`
-                                                      Object {
-                                                        "operations": Array [
-                                                          Object {
-                                                            "collectionName": "posts",
-                                                            "data": Object {
-                                                              "title": "test-title",
-                                                            },
-                                                            "fieldsSelection": Object {
-                                                              "fields": Array [
-                                                                "_id",
-                                                                "title",
-                                                              ],
-                                                            },
-                                                            "identifier": "Operation-0",
-                                                            "kind": "AMCreateOperation",
-                                                            "output": "AMResultPromise { Operation-0 }",
-                                                          },
-                                                        ],
-                                                      }
-                                    `);
+                  Object {
+                    "operations": Array [
+                      Object {
+                        "collectionName": "posts",
+                        "data": Object {
+                          "title": "test-title",
+                        },
+                        "fieldsSelection": Object {
+                          "fields": Array [
+                            "_id",
+                            "title",
+                          ],
+                        },
+                        "identifier": "Operation-0",
+                        "kind": "AMCreateOperation",
+                        "many": false,
+                        "output": "AMResultPromise { Operation-0 }",
+                      },
+                    ],
+                  }
+            `);
   });
 });
 
@@ -101,6 +103,7 @@ describe('nested objects', () => {
       id: ID @id @unique @db(name: "_id")
       title: String
       comments: [Comment]!
+      pinnedComment: Comment
     }
 
     type Comment @embedded {
@@ -108,7 +111,51 @@ describe('nested objects', () => {
     }
   `);
 
-  test('create', () => {
+  test('create nested', () => {
+    const rq = gql`
+      mutation {
+        createPost(
+          data: {
+            title: "test-title"
+            pinnedComment: { create: { message: "comment-1" } }
+          }
+        ) {
+          id
+          title
+        }
+      }
+    `;
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, {}, transaction);
+    expect(transaction).toMatchInlineSnapshot(`
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "data": Object {
+              "pinnedComment": Object {
+                "message": "comment-1",
+              },
+              "title": "test-title",
+            },
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "title",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMCreateOperation",
+            "many": false,
+            "output": "AMResultPromise { Operation-0 }",
+          },
+        ],
+      }
+    `);
+  });
+
+  test('create nested list', () => {
     const rq = gql`
       mutation {
         createPost(
@@ -128,34 +175,35 @@ describe('nested objects', () => {
     const transaction = new AMTransaction();
     AMVisitor.visit(schema, rq, {}, transaction);
     expect(transaction).toMatchInlineSnapshot(`
-                                                Object {
-                                                  "operations": Array [
-                                                    Object {
-                                                      "collectionName": "posts",
-                                                      "data": Object {
-                                                        "comments": Array [
-                                                          Object {
-                                                            "message": "comment-1",
-                                                          },
-                                                          Object {
-                                                            "message": "comment-2",
-                                                          },
-                                                        ],
-                                                        "title": "test-title",
-                                                      },
-                                                      "fieldsSelection": Object {
-                                                        "fields": Array [
-                                                          "_id",
-                                                          "title",
-                                                        ],
-                                                      },
-                                                      "identifier": "Operation-0",
-                                                      "kind": "AMCreateOperation",
-                                                      "output": "AMResultPromise { Operation-0 }",
-                                                    },
-                                                  ],
-                                                }
-                                `);
+                  Object {
+                    "operations": Array [
+                      Object {
+                        "collectionName": "posts",
+                        "data": Object {
+                          "comments": Array [
+                            Object {
+                              "message": "comment-1",
+                            },
+                            Object {
+                              "message": "comment-2",
+                            },
+                          ],
+                          "title": "test-title",
+                        },
+                        "fieldsSelection": Object {
+                          "fields": Array [
+                            "_id",
+                            "title",
+                          ],
+                        },
+                        "identifier": "Operation-0",
+                        "kind": "AMCreateOperation",
+                        "many": false,
+                        "output": "AMResultPromise { Operation-0 }",
+                      },
+                    ],
+                  }
+            `);
   });
 });
 
@@ -195,39 +243,41 @@ describe('relation', () => {
     AMVisitor.visit(schema, rq, {}, transaction);
 
     expect(transaction).toMatchInlineSnapshot(`
-                                                            Object {
-                                                              "operations": Array [
-                                                                Object {
-                                                                  "collectionName": "comments",
-                                                                  "fieldsSelection": Object {
-                                                                    "fields": Array [
-                                                                      "_id",
-                                                                      "postId",
-                                                                    ],
-                                                                  },
-                                                                  "identifier": "Operation-0",
-                                                                  "kind": "AMReadOperation",
-                                                                  "output": "AMResultPromise { Operation-0 -> distinctReplace('postId', '_id', AMResultPromise { Operation-1 }) }",
-                                                                },
-                                                                Object {
-                                                                  "collectionName": "posts",
-                                                                  "fieldsSelection": Object {
-                                                                    "fields": Array [
-                                                                      "_id",
-                                                                    ],
-                                                                  },
-                                                                  "identifier": "Operation-1",
-                                                                  "kind": "AMReadOperation",
-                                                                  "output": "AMResultPromise { Operation-1 }",
-                                                                  "selector": Object {
-                                                                    "_id": Object {
-                                                                      "$in": "AMResultPromise { Operation-0 -> distinct('postId') }",
-                                                                    },
-                                                                  },
-                                                                },
-                                                              ],
-                                                            }
-                                        `);
+                  Object {
+                    "operations": Array [
+                      Object {
+                        "collectionName": "comments",
+                        "fieldsSelection": Object {
+                          "fields": Array [
+                            "_id",
+                            "postId",
+                          ],
+                        },
+                        "identifier": "Operation-0",
+                        "kind": "AMReadOperation",
+                        "many": true,
+                        "output": "AMResultPromise { Operation-0 -> distinctReplace('postId', '_id', AMResultPromise { Operation-1 }) }",
+                      },
+                      Object {
+                        "collectionName": "posts",
+                        "fieldsSelection": Object {
+                          "fields": Array [
+                            "_id",
+                          ],
+                        },
+                        "identifier": "Operation-1",
+                        "kind": "AMReadOperation",
+                        "many": true,
+                        "output": "AMResultPromise { Operation-1 }",
+                        "selector": Object {
+                          "_id": Object {
+                            "$in": "AMResultPromise { Operation-0 -> distinct('postId') }",
+                          },
+                        },
+                      },
+                    ],
+                  }
+            `);
   });
 
   test('create', () => {
@@ -267,12 +317,14 @@ describe('relation', () => {
                         },
                         "identifier": "Operation-0",
                         "kind": "AMCreateOperation",
+                        "many": false,
                         "output": "AMResultPromise { Operation-0 }",
                       },
                       Object {
                         "collectionName": "posts",
                         "identifier": "Operation-1",
                         "kind": "AMReadOperation",
+                        "many": false,
                         "output": "AMResultPromise { Operation-1 }",
                         "selector": Object {
                           "_id": "post-id",
@@ -282,6 +334,7 @@ describe('relation', () => {
                         "collectionName": "users",
                         "identifier": "Operation-2",
                         "kind": "AMReadOperation",
+                        "many": true,
                         "output": "AMResultPromise { Operation-2 }",
                         "selector": Object {
                           "$or": Array [
@@ -297,6 +350,55 @@ describe('relation', () => {
                     ],
                   }
             `);
+  });
+
+  test('where relation', () => {
+    const rq = gql`
+      {
+        comments(where: { post: { title: "search-title" } }) {
+          id
+          message
+        }
+      }
+    `;
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, {}, transaction);
+
+    expect(transaction).toMatchInlineSnapshot(`
+            Object {
+              "operations": Array [
+                Object {
+                  "collectionName": "comments",
+                  "fieldsSelection": Object {
+                    "fields": Array [
+                      "_id",
+                      "message",
+                    ],
+                  },
+                  "identifier": "Operation-0",
+                  "kind": "AMReadOperation",
+                  "many": true,
+                  "output": "AMResultPromise { Operation-0 }",
+                  "selector": Object {
+                    "postId": Object {
+                      "$in": "AMResultPromise { Operation-1 -> distinct('_id') }",
+                    },
+                  },
+                },
+                Object {
+                  "collectionName": "posts",
+                  "identifier": "Operation-1",
+                  "kind": "AMReadOperation",
+                  "many": true,
+                  "output": "AMResultPromise { Operation-1 }",
+                  "selector": Object {
+                    "title": "search-title",
+                  },
+                },
+              ],
+            }
+        `);
   });
 });
 
@@ -329,37 +431,39 @@ describe('extRelation', () => {
     const transaction = new AMTransaction();
     AMVisitor.visit(schema, rq, {}, transaction);
     expect(transaction).toMatchInlineSnapshot(`
-      Object {
-        "operations": Array [
-          Object {
-            "collectionName": "posts",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-              ],
-            },
-            "identifier": "Operation-0",
-            "kind": "AMReadOperation",
-            "output": "AMResultPromise { Operation-0 -> lookup('comments', '_id', 'postId', AMResultPromise { Operation-1 }) }",
-          },
-          Object {
-            "collectionName": "comments",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "message",
-              ],
-            },
-            "identifier": "Operation-1",
-            "kind": "AMReadOperation",
-            "output": "AMResultPromise { Operation-1 }",
-            "selector": Object {
-              "postId": Object {
-                "$in": "AMResultPromise { Operation-0 -> distinct('_id') }",
-              },
-            },
-          },
-        ],
-      }
-    `);
+                  Object {
+                    "operations": Array [
+                      Object {
+                        "collectionName": "posts",
+                        "fieldsSelection": Object {
+                          "fields": Array [
+                            "_id",
+                          ],
+                        },
+                        "identifier": "Operation-0",
+                        "kind": "AMReadOperation",
+                        "many": true,
+                        "output": "AMResultPromise { Operation-0 -> lookup('comments', '_id', 'postId', AMResultPromise { Operation-1 }) }",
+                      },
+                      Object {
+                        "collectionName": "comments",
+                        "fieldsSelection": Object {
+                          "fields": Array [
+                            "message",
+                          ],
+                        },
+                        "identifier": "Operation-1",
+                        "kind": "AMReadOperation",
+                        "many": true,
+                        "output": "AMResultPromise { Operation-1 }",
+                        "selector": Object {
+                          "postId": Object {
+                            "$in": "AMResultPromise { Operation-0 -> distinct('_id') }",
+                          },
+                        },
+                      },
+                    ],
+                  }
+            `);
   });
 });

@@ -17,7 +17,7 @@ import { AMTransaction } from '../../execution/transaction';
 export const AsIsSelector: IAMQuerySelector = {
   isApplicable(field) {
     const typeWrap = new TypeWrap(field.type);
-    return !typeWrap.isMany();
+    return !typeWrap.isMany() && !field.relation;
   },
   getFieldFactory() {
     return new AMQuerySelectorComplexFieldFactory(

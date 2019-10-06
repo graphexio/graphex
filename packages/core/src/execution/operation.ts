@@ -32,7 +32,7 @@ export class AMOperation extends AMContext {
     this.selector = config.selector;
     this.fieldsSelection = config.fieldsSelection;
     this.data = config.data;
-    this.many = config.many;
+    this.many = Boolean(config.many);
 
     this._result = new AMResultPromise(this);
     this._transactionNumber = transaction.operations.length;
@@ -79,6 +79,7 @@ export class AMOperation extends AMContext {
       kind: this.constructor.name,
       collectionName: this.collectionName,
       output: this.getOutput(),
+      many: this.many,
       ...(this.fieldsSelection
         ? { fieldsSelection: this.fieldsSelection.toJSON() }
         : null),

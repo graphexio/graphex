@@ -37,10 +37,10 @@ test('QueryCategories empty', async () => {
     variables: {},
   });
   expect(data).toMatchInlineSnapshot(`
-                            Object {
-                              "categories": Array [],
-                            }
-              `);
+                                Object {
+                                  "categories": Array [],
+                                }
+                `);
 });
 
 test('CreateCategory', async () => {
@@ -49,12 +49,12 @@ test('CreateCategory', async () => {
     variables: { title: 'root' },
   });
   expect(data).toMatchInlineSnapshot(`
-                        Object {
-                          "createCategory": Object {
-                            "title": "root",
-                          },
-                        }
-            `);
+                            Object {
+                              "createCategory": Object {
+                                "title": "root",
+                              },
+                            }
+              `);
 });
 
 test('QueryCategories after create', async () => {
@@ -63,14 +63,14 @@ test('QueryCategories after create', async () => {
     variables: {},
   });
   expect(data).toMatchInlineSnapshot(`
-                    Object {
-                      "categories": Array [
                         Object {
-                          "title": "root",
-                        },
-                      ],
-                    }
-          `);
+                          "categories": Array [
+                            Object {
+                              "title": "root",
+                            },
+                          ],
+                        }
+            `);
 });
 
 test('CreateChildCategory "JS"', async () => {
@@ -79,15 +79,15 @@ test('CreateChildCategory "JS"', async () => {
     variables: { title: 'JS', parentTitle: 'root' },
   });
   expect(data).toMatchInlineSnapshot(`
-                Object {
-                  "createCategory": Object {
-                    "parentCategory": Object {
-                      "title": "root",
-                    },
-                    "title": "JS",
-                  },
-                }
-        `);
+                    Object {
+                      "createCategory": Object {
+                        "parentCategory": Object {
+                          "title": "root",
+                        },
+                        "title": "JS",
+                      },
+                    }
+          `);
 });
 
 test('CreateChildCategory "MongoDB"', async () => {
@@ -96,15 +96,15 @@ test('CreateChildCategory "MongoDB"', async () => {
     variables: { title: 'MongoDB', parentTitle: 'root' },
   });
   expect(data).toMatchInlineSnapshot(`
-            Object {
-              "createCategory": Object {
-                "parentCategory": Object {
-                  "title": "root",
-                },
-                "title": "MongoDB",
-              },
-            }
-      `);
+                Object {
+                  "createCategory": Object {
+                    "parentCategory": Object {
+                      "title": "root",
+                    },
+                    "title": "MongoDB",
+                  },
+                }
+        `);
 });
 
 test('CreateChildCategory "React"', async () => {
@@ -113,15 +113,15 @@ test('CreateChildCategory "React"', async () => {
     variables: { title: 'React', parentTitle: 'JS' },
   });
   expect(data).toMatchInlineSnapshot(`
-            Object {
-              "createCategory": Object {
-                "parentCategory": Object {
-                  "title": "JS",
-                },
-                "title": "React",
-              },
-            }
-      `);
+                Object {
+                  "createCategory": Object {
+                    "parentCategory": Object {
+                      "title": "JS",
+                    },
+                    "title": "React",
+                  },
+                }
+        `);
 });
 
 test('QueryCategoriesExtRelation', async () => {
@@ -130,13 +130,29 @@ test('QueryCategoriesExtRelation', async () => {
     variables: {},
   });
   expect(data).toMatchInlineSnapshot(`
-        Object {
-          "categories": Array [
             Object {
-              "subcategories": Array [
+              "categories": Array [
                 Object {
                   "subcategories": Array [
                     Object {
+                      "subcategories": Array [
+                        Object {
+                          "title": "React",
+                        },
+                      ],
+                      "title": "JS",
+                    },
+                    Object {
+                      "subcategories": Array [],
+                      "title": "MongoDB",
+                    },
+                  ],
+                  "title": "root",
+                },
+                Object {
+                  "subcategories": Array [
+                    Object {
+                      "subcategories": Array [],
                       "title": "React",
                     },
                   ],
@@ -146,29 +162,13 @@ test('QueryCategoriesExtRelation', async () => {
                   "subcategories": Array [],
                   "title": "MongoDB",
                 },
-              ],
-              "title": "root",
-            },
-            Object {
-              "subcategories": Array [
                 Object {
                   "subcategories": Array [],
                   "title": "React",
                 },
               ],
-              "title": "JS",
-            },
-            Object {
-              "subcategories": Array [],
-              "title": "MongoDB",
-            },
-            Object {
-              "subcategories": Array [],
-              "title": "React",
-            },
-          ],
-        }
-    `);
+            }
+      `);
 });
 
 test('QueryCategoriesByTitle', async () => {
@@ -177,14 +177,14 @@ test('QueryCategoriesByTitle', async () => {
     variables: { title: 'root' },
   });
   expect(data).toMatchInlineSnapshot(`
-    Object {
-      "categories": Array [
         Object {
-          "title": "root",
-        },
-      ],
-    }
-  `);
+          "categories": Array [
+            Object {
+              "title": "root",
+            },
+          ],
+        }
+    `);
 });
 
 test('CategoriesComplexFilterOr', async () => {
@@ -192,7 +192,18 @@ test('CategoriesComplexFilterOr', async () => {
     query: CategoriesComplexFilterOr,
     variables: {},
   });
-  expect(data).toMatchSnapshot();
+  expect(data).toMatchInlineSnapshot(`
+    Object {
+      "categories": Array [
+        Object {
+          "title": "root",
+        },
+        Object {
+          "title": "JS",
+        },
+      ],
+    }
+  `);
 });
 
 test('CategoriesRelationFilter', async () => {

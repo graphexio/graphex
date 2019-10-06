@@ -14,10 +14,11 @@ export const InSelector: IAMQuerySelector = {
   isApplicable(field) {
     const namedType = getNamedType(field.type);
     return (
-      isCompositeType(namedType) ||
-      ['ID', 'ObjectID', 'Int', 'Float', 'String'].includes(
-        namedType.toString()
-      )
+      (isCompositeType(namedType) ||
+        ['ID', 'ObjectID', 'Int', 'Float', 'String'].includes(
+          namedType.toString()
+        )) &&
+      !field.relation
     );
   },
   getFieldFactory() {

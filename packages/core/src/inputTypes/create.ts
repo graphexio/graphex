@@ -11,6 +11,7 @@ import {
 import { AMCreateFieldFactory } from './fieldFactories/create';
 import { AMCreateNestedFieldFactory } from './fieldFactories/createNested';
 import { AMCreateRelationFieldFactory } from './fieldFactories/createRelation';
+import { AMObjectFieldContext } from '../execution/contexts/objectField';
 
 const isApplicable = (field: AMModelField) => (
   fieldFactory: IAMInputFieldFactory
@@ -53,7 +54,9 @@ export const AMCreateTypeFactory: IAMTypeFactory<AMInputObjectType> = {
         if (lastInStack instanceof AMOperation) {
           lastInStack.setData(context);
         } else if (lastInStack instanceof AMListValueContext) {
-          lastInStack.addValue(context);
+          lastInStack.addValue(context.data);
+        } else if (lastInStack instanceof AMObjectFieldContext) {
+          lastInStack.setValue(context.data);
         }
       },
     });

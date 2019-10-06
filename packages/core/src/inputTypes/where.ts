@@ -4,6 +4,7 @@ import {
   AMInputObjectType,
   IAMTypeFactory,
   AMInputFieldConfigMap,
+  AMModelField,
 } from '../types';
 import { Selectors } from './querySelectors';
 import { AMSelectorContext } from '../execution/contexts/selector';
@@ -16,9 +17,8 @@ import {
   defaultObjectFieldVisitorHandler,
 } from './visitorHandlers';
 
-const isApplicable = (field: GraphQLField<any, any, any>) => (
-  selector: IAMQuerySelector
-) => selector.isApplicable(field);
+const isApplicable = (field: AMModelField) => (selector: IAMQuerySelector) =>
+  selector.isApplicable(field);
 
 const selectorToFieldFactory = (selector: IAMQuerySelector) => {
   return selector.getFieldFactory();
