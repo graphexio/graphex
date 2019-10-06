@@ -5,7 +5,9 @@ import { completeAMResultPromise } from '../utils';
 export class AMReadOperation extends AMOperation {
   async execute(executor: AMDBExecutor) {
     executor({
-      type: AMDBExecutorOperationType.FIND,
+      type: this.many
+        ? AMDBExecutorOperationType.FIND
+        : AMDBExecutorOperationType.FIND_ONE,
       collection: this.collectionName,
       selector: await completeAMResultPromise(
         this.selector ? this.selector.selector : undefined

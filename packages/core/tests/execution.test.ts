@@ -25,6 +25,7 @@ test('read many', () => {
 
   const transaction = new AMTransaction();
   const operation = new AMReadOperation(transaction, {
+    many: true,
     collectionName: 'posts',
     selector: new AMSelectorContext({ title: 'test-title' }),
     fieldsSelection: new AMFieldsSelectionContext(['title']),
@@ -89,11 +90,13 @@ test('read many relation', async () => {
 
   const transaction = new AMTransaction();
   const operation = new AMReadOperation(transaction, {
+    many: true,
     collectionName: 'posts',
     fieldsSelection: new AMFieldsSelectionContext(['title', 'commentIds']),
   });
 
   const subOperation = new AMReadOperation(transaction, {
+    many: true,
     collectionName: 'comments',
     selector: new AMSelectorContext({
       _id: { $in: operation.getResult().distinct('commentIds') },
@@ -103,7 +106,7 @@ test('read many relation', async () => {
   operation.setOutput(
     operation
       .getOutput()
-      .distinctReplace('commentIds', '_id', subOperation.getOutput())
+      .distinctReplace('commentIds', '_id', () => subOperation.getOutput())
   );
 
   const result = await transaction.execute(executor);
@@ -158,6 +161,7 @@ test('create', () => {
 
   const transaction = new AMTransaction();
   const operation = new AMCreateOperation(transaction, {
+    many: false,
     collectionName: 'posts',
     fieldsSelection: new AMFieldsSelectionContext(['_id', 'title']),
     data: new AMDataContext({ title: 'test-title' }),

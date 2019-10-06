@@ -1,31 +1,26 @@
-import { SchemaDirectiveVisitor } from 'graphql-tools';
+import TypeWrap from '@apollo-model/type-wrap';
 import gql from 'graphql-tag';
-
+import { SchemaDirectiveVisitor } from 'graphql-tools';
 import * as HANDLER from '../../inputTypes/handlers';
 import { INPUT_TYPE_KIND } from '../../inputTypes/kinds';
-import * as Transforms from '../../inputTypes/transforms';
-import {
-  appendTransform,
-  applyInputTransform,
-  reduceTransforms,
-} from '../../inputTypes/utils';
+import { appendTransform } from '../../inputTypes/utils';
 import { AMModelField, AMModelType } from '../../types';
-import { getNamedType } from 'graphql';
-import TypeWrap from '@apollo-model/type-wrap';
-import { allQueryArgs, getDirective, getRelationFieldName } from '../../utils';
+import { getRelationFieldName } from '../../utils';
 
 export const typeDef = gql`
-  directive @relation(
+  directive @extRelation(
     field: String = "_id"
     storeField: String = null
+    many: Boolean = false
   ) on FIELD_DEFINITION
 `;
 
-export class RelationDirective extends SchemaDirectiveVisitor {
+export class ExtRelationDirective extends SchemaDirectiveVisitor {
   visitFieldDefinition(field: AMModelField, { objectType }) {
     // let { field: relationField, storeField } = this.args;
     // const typeWrap = new TypeWrap(field.type);
     // const type = typeWrap.realType() as AMModelType;
+    // console.log(type);
     // if (!storeField)
     //   storeField = getRelationFieldName(
     //     type.name,
@@ -33,7 +28,7 @@ export class RelationDirective extends SchemaDirectiveVisitor {
     //     typeWrap.isMany()
     //   );
     // field.relation = {
-    //   external: false,
+    //   external: true,
     //   relationField: relationField,
     //   storeField: storeField,
     //   collection: type.mmCollectionName,
@@ -47,16 +42,6 @@ export class RelationDirective extends SchemaDirectiveVisitor {
   }
 }
 
-const DirectiveRealationResolver = (next, source, args, ctx, info) => {
-  const { storeField } = args;
-  info.fieldName = storeField;
-  return next();
-};
-
 export const schemaDirectives = {
-  relation: RelationDirective,
-};
-
-export const directiveResolvers = {
-  relation: DirectiveRealationResolver,
+  extRelation: ExtRelationDirective,
 };

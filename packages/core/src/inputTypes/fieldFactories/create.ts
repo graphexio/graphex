@@ -13,7 +13,7 @@ export const AMCreateFieldFactory: IAMInputFieldFactory = {
     return <AMInputField>{
       name: this.getFieldName(field),
       type: field.type,
-      ...defaultObjectFieldVisitorHandler(field),
+      ...defaultObjectFieldVisitorHandler(field.dbName),
       // amEnter(node: ObjectFieldNode, transaction, stack) {
       //   const action = new AMObjectFieldContext(field.dbName);
       //   stack.push(action);

@@ -29,6 +29,7 @@ export const AMModelCreateMutationFieldFactory: IAMModelQueryFieldFactory = {
       ],
       amEnter(node, transaction, stack) {
         const operation = new AMCreateOperation(transaction, {
+          many: false,
           collectionName: modelType.mmCollectionName,
         });
         stack.push(operation);

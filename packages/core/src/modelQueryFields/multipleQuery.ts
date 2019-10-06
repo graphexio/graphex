@@ -43,6 +43,7 @@ export const AMModelMultipleQueryFieldFactory: IAMModelQueryFieldFactory = {
       ],
       amEnter(node, transaction, stack) {
         const operation = new AMReadOperation(transaction, {
+          many: true,
           collectionName: modelType.mmCollectionName,
         });
         stack.push(operation);

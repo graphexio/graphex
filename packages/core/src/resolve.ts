@@ -20,6 +20,6 @@ export const resolve = (parent, args, context, info: GraphQLResolveInfo) => {
   };
 
   AMVisitor.visit(info.schema, rq, info.variableValues, transaction);
-
+  // console.log(JSON.stringify(transaction, null, 2));
   return transaction.execute(context.queryExecutor);
 };

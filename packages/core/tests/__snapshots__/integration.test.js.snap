@@ -32,6 +32,25 @@ Object {
 }
 `;
 
+exports[`CategoriesOrderByFieldWithDBDirective 2`] = `
+Object {
+  "categories": Array [
+    Object {
+      "title": "root",
+    },
+    Object {
+      "title": "JS",
+    },
+    Object {
+      "title": "MongoDB",
+    },
+    Object {
+      "title": "React",
+    },
+  ],
+}
+`;
+
 exports[`CategoriesRelationFilter 1`] = `
 Object {
   "categories": Array [
@@ -99,6 +118,25 @@ Object {
 }
 `;
 
+exports[`CategoriesSameFieldFilter 2`] = `
+Object {
+  "categories": Array [
+    Object {
+      "title": "root",
+    },
+    Object {
+      "title": "JS",
+    },
+    Object {
+      "title": "MongoDB",
+    },
+    Object {
+      "title": "React",
+    },
+  ],
+}
+`;
+
 exports[`CategoryDelete 1`] = `
 Object {
   "deleteCategory": Object {
@@ -131,12 +169,29 @@ Object {
 }
 `;
 
+exports[`CreateCategory TST 1`] = `
+Object {
+  "createCategory": Object {
+    "title": "root",
+  },
+}
+`;
+
 exports[`CreateChildCategory "JS" 1`] = `
 Object {
   "createCategory": Object {
     "parentCategory": Object {
       "title": "root",
     },
+    "title": "JS",
+  },
+}
+`;
+
+exports[`CreateChildCategory "JS" TST 1`] = `
+Object {
+  "createCategory": Object {
+    "parentCategory": null,
     "title": "JS",
   },
 }
@@ -175,12 +230,30 @@ Object {
 }
 `;
 
+exports[`CreateChildCategory "MongoDB" TST 1`] = `
+Object {
+  "createCategory": Object {
+    "parentCategory": null,
+    "title": "MongoDB",
+  },
+}
+`;
+
 exports[`CreateChildCategory "React" 1`] = `
 Object {
   "createCategory": Object {
     "parentCategory": Object {
       "title": "JS",
     },
+    "title": "React",
+  },
+}
+`;
+
+exports[`CreateChildCategory "React" TST 1`] = `
+Object {
+  "createCategory": Object {
+    "parentCategory": null,
     "title": "React",
   },
 }
@@ -219,6 +292,60 @@ Object {
     },
     "username": "subscriber1",
   },
+}
+`;
+
+exports[`CreateSubscriberWithEmbeddedDocument 2`] = `
+Object {
+  "createCategory": Object {
+    "title": "root",
+  },
+}
+`;
+
+exports[`CreateSubscriberWithEmbeddedDocument 3`] = `
+Object {
+  "categories": Array [
+    Object {
+      "title": "root",
+    },
+  ],
+}
+`;
+
+exports[`CreateSubscriberWithEmbeddedDocument 4`] = `
+Object {
+  "categories": Array [
+    Object {
+      "title": "root",
+    },
+  ],
+}
+`;
+
+exports[`CreateSubscriberWithEmbeddedDocument 5`] = `
+Object {
+  "categories": Array [
+    Object {
+      "title": "root",
+    },
+  ],
+}
+`;
+
+exports[`CreateSubscriberWithEmbeddedDocument 6`] = `
+Object {
+  "categories": Array [
+    Object {
+      "title": "root",
+    },
+  ],
+}
+`;
+
+exports[`CreateSubscriberWithEmbeddedDocument 7`] = `
+Object {
+  "createSubscriber": null,
 }
 `;
 
@@ -408,6 +535,19 @@ Object {
   ],
 }
 `;
+
+exports[`QueryUsersInterface 2`] = `
+Object {
+  "categories": Array [
+    Object {
+      "subcategories": Array [],
+      "title": "root",
+    },
+  ],
+}
+`;
+
+exports[`QueryUsersInterface 3`] = `null`;
 
 exports[`Update Post create abstract relation Hotel  1`] = `
 Object {

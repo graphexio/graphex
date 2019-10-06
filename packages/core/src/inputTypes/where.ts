@@ -1,12 +1,20 @@
 import { GraphQLField, GraphQLInputObjectType, GraphQLList } from 'graphql';
-import { IAMQuerySelector, AMInputObjectType, IAMTypeFactory } from '../types';
+import {
+  IAMQuerySelector,
+  AMInputObjectType,
+  IAMTypeFactory,
+  AMInputFieldConfigMap,
+} from '../types';
 import { Selectors } from './querySelectors';
 import { AMSelectorContext } from '../execution/contexts/selector';
 import R from 'ramda';
 import { AMOperation } from '../execution/operation';
 import { AMListValueContext } from '../execution/contexts/listValue';
 import last from 'ramda/es/last';
-import { whereTypeVisitorHandler } from './visitorHandlers';
+import {
+  whereTypeVisitorHandler,
+  defaultObjectFieldVisitorHandler,
+} from './visitorHandlers';
 
 const isApplicable = (field: GraphQLField<any, any, any>) => (
   selector: IAMQuerySelector
@@ -25,16 +33,18 @@ export const AMWhereTypeFactory: IAMTypeFactory<AMInputObjectType> = {
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
-        const fields = {
+        const fields = <AMInputFieldConfigMap>{
           AND: {
             type: new GraphQLList(
               schemaInfo.resolveFactoryType(modelType, AMWhereTypeFactory)
             ),
+            ...defaultObjectFieldVisitorHandler('$and'),
           },
           OR: {
             type: new GraphQLList(
               schemaInfo.resolveFactoryType(modelType, AMWhereTypeFactory)
             ),
+            ...defaultObjectFieldVisitorHandler('$or'),
           },
         };
 

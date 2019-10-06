@@ -5,7 +5,9 @@ import { completeAMResultPromise } from '../utils';
 export class AMCreateOperation extends AMOperation {
   async execute(executor: AMDBExecutor) {
     executor({
-      type: AMDBExecutorOperationType.INSERT_ONE,
+      type: this.many
+        ? AMDBExecutorOperationType.INSERT_MANY
+        : AMDBExecutorOperationType.INSERT_ONE,
       collection: this.collectionName,
       doc: await completeAMResultPromise(
         this.data ? this.data.data : undefined

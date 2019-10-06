@@ -56,11 +56,29 @@ export class AMResultPromise<T> {
     return new AMDistinctResultPromise(this, this._promise, path);
   }
 
-  distinctReplace(path: string, field: string, data: AMResultPromise<any>) {
+  distinctReplace(
+    path: string,
+    field: string,
+    getData: () => AMResultPromise<any>
+  ) {
     return new AMDistinctReplaceResultPromise(this, this._promise, {
       path,
       field,
-      data,
+      getData,
+    });
+  }
+
+  lookup(
+    path: string,
+    relationField: string,
+    storeField: string,
+    getData: () => AMResultPromise<any>
+  ) {
+    return new AMLookupResultPromise(this, this._promise, {
+      path,
+      relationField,
+      storeField,
+      getData,
     });
   }
 }
@@ -70,6 +88,22 @@ export class AMResultPromise<T> {
 export class AMOperationResultPromise<T> extends AMResultPromise<T> {
   constructor(source: AMOperation) {
     super(source);
+  }
+}
+
+//////////////////////////////////////////////////
+
+export class AMDataResultPromise<T> extends AMResultPromise<T> {
+  _data: any;
+
+  constructor(data: any) {
+    super(data);
+    this._data = data;
+    this.resolve(data);
+  }
+
+  getValueSource() {
+    return 'Static Data';
   }
 }
 
@@ -139,12 +173,12 @@ const replaceDistinct = (
 };
 
 export class AMDistinctReplaceResultPromise<T> extends AMResultPromise<T> {
-  _params: { path: string; field: string; data: AMResultPromise<any> };
+  _params: { path: string; field: string; getData: () => AMResultPromise<any> };
 
   constructor(
     source: AMResultPromise<any>,
     promise: Promise<T>,
-    params: { path: string; field: string; data: AMResultPromise<any> }
+    params: { path: string; field: string; getData: () => AMResultPromise<any> }
   ) {
     super(source);
     this._params = params;
@@ -152,7 +186,7 @@ export class AMDistinctReplaceResultPromise<T> extends AMResultPromise<T> {
     promise.then(async value => {
       const dataMap = R.indexBy(
         R.prop(params.field),
-        await params.data.getPromise()
+        await params.getData().getPromise()
       );
       const newValue = replaceDistinct(pathArr, params.field, dataMap)(value);
       this.resolve(newValue);
@@ -164,7 +198,7 @@ export class AMDistinctReplaceResultPromise<T> extends AMResultPromise<T> {
     if (this._valueSource instanceof AMResultPromise) {
       return `${this._valueSource.getValueSource()} -> distinctReplace('${
         this._params.path
-      }', '${this._params.field}', ${this._params.data.toJSON()})`;
+      }', '${this._params.field}', ${this._params.getData().toJSON()})`;
     }
   }
 }
@@ -188,6 +222,103 @@ export class AMPathResultPromise<T> extends AMResultPromise<T> {
   getValueSource(): string {
     if (this._valueSource instanceof AMResultPromise) {
       return `${this._valueSource.getValueSource()} -> path('${this._path}')`;
+    }
+  }
+}
+
+//////////////////////////////////////////////////
+
+const groupForLookup = (storeField: string) => (
+  data: { [key: string]: any }[]
+) => {
+  const result = {};
+  const storeValue = (key: string, value: any) => {
+    if (!result[key]) {
+      result[key] = [];
+    }
+    result[key].push(value);
+  };
+
+  data.forEach(item => {
+    const relationValue = item[storeField];
+    if (relationValue) {
+      if (Array.isArray(relationValue)) {
+        relationValue.forEach(relationValueArrayItem => {
+          storeValue(relationValueArrayItem, item);
+        });
+      } else {
+        storeValue(relationValue, item);
+      }
+    }
+  });
+  return result;
+};
+
+const lookup = (
+  pathArr: string[],
+  relationField: string,
+  dataMap: { [key: string]: any[] }
+) => (value: any) => {
+  if (value instanceof Array) {
+    return value.map(lookup(pathArr, relationField, dataMap));
+  } else {
+    if (pathArr.length === 0) {
+      return {};
+    } else if (pathArr.length === 1) {
+      return {
+        ...value,
+        [pathArr[0]]: dataMap[value[relationField]] || [],
+      };
+    } else {
+      return {
+        ...value,
+        [pathArr[0]]: replaceDistinct(pathArr.slice(1), relationField, dataMap)(
+          value[pathArr[0]]
+        ),
+      };
+    }
+  }
+};
+
+export class AMLookupResultPromise<T> extends AMResultPromise<T> {
+  _params: {
+    path: string;
+    relationField: string;
+    storeField: string;
+    getData: () => AMResultPromise<any>;
+  };
+
+  constructor(
+    source: AMResultPromise<any>,
+    promise: Promise<T>,
+    params: {
+      path: string;
+      relationField: string;
+      storeField: string;
+      getData: () => AMResultPromise<any>;
+    }
+  ) {
+    super(source);
+    this._params = params;
+    const pathArr = params.path.split('.');
+    promise.then(async value => {
+      const dataMap = groupForLookup(params.storeField)(
+        await params.getData().getPromise()
+      );
+
+      const newValue = lookup(pathArr, params.relationField, dataMap)(value);
+      this.resolve(newValue);
+    });
+    promise.catch(this.reject);
+  }
+
+  getValueSource(): string {
+    if (this._valueSource instanceof AMResultPromise) {
+      return `${this._valueSource.getValueSource()} -> lookup('${
+        this._params.path
+      }', '${this._params.relationField}', '${
+        this._params.storeField
+      }', ${this._params.getData().toJSON()})`;
     }
   }
 }

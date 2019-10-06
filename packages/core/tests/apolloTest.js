@@ -43,8 +43,10 @@ export const server = new ApolloServer({
   schema,
   context: () => {
     return {
-      queryExecutor: params => {
-        return QE(params);
+      queryExecutor: async params => {
+        let result = await QE(params);
+        // console.log(params, result);
+        return result;
       },
     };
   },

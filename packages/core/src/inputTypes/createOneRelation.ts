@@ -39,6 +39,7 @@ export const AMCreateOneRelationTypeFactory: IAMTypeFactory<
             ),
             amEnter(node, transaction, stack) {
               const opContext = new AMReadOperation(transaction, {
+                many: false,
                 collectionName: modelType.mmCollectionName,
               });
               stack.push(opContext);

@@ -903,32 +903,32 @@ export default class ModelMongo {
     //   }
     // });
 
-    Object.values(SchemaTypes).forEach(type => {
-      this._onSchemaBuild(type);
-    });
+    // Object.values(SchemaTypes).forEach(type => {
+    //   this._onSchemaBuild(type);
+    // });
+
+    // Object.values(SchemaTypes).forEach(type => {
+    //   this._onTypeInit(type);
+    // });
+
+    // Object.values(SchemaTypes).forEach(type => {
+    //   this._onFieldsInit(type);
+    // });
+
+    // Object.values(SchemaTypes).forEach(type => {
+    //   let typeWrap = new TypeWrap(type);
+    //   if (
+    //     getDirective(type, 'model') ||
+    //     typeWrap.interfaceWithDirective('model')
+    //   ) {
+    //     if (!typeWrap.isAbstract()) {
+    //       this._createAggregateAndConnectionTypes(type);
+    //     }
+    //   }
+    // });
 
     Object.values(SchemaTypes).forEach(type => {
-      this._onTypeInit(type);
-    });
-
-    Object.values(SchemaTypes).forEach(type => {
-      this._onFieldsInit(type);
-    });
-
-    Object.values(SchemaTypes).forEach(type => {
-      let typeWrap = new TypeWrap(type);
-      if (
-        getDirective(type, 'model') ||
-        typeWrap.interfaceWithDirective('model')
-      ) {
-        if (!typeWrap.isAbstract()) {
-          this._createAggregateAndConnectionTypes(type);
-        }
-      }
-    });
-
-    Object.values(SchemaTypes).forEach(type => {
-      this._onSchemaInit(type);
+      // this._onSchemaInit(type);
 
       let typeWrap = new TypeWrap(type);
       if (

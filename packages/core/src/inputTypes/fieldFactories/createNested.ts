@@ -24,7 +24,7 @@ export const AMCreateNestedFieldFactory: IAMInputFieldFactory = {
     return <AMInputField>{
       name: this.getFieldName(field),
       type,
-      ...defaultObjectFieldVisitorHandler(field),
+      ...defaultObjectFieldVisitorHandler(field.dbName),
     };
   },
 };

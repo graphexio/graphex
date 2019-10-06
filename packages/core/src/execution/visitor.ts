@@ -152,6 +152,7 @@ export class AMVisitor {
           const type = getNamedType(
             typeInfo.getInputType()
           ) as AMInputObjectType;
+
           if (type.amEnter) {
             type.amEnter(node, transaction, stack);
           }

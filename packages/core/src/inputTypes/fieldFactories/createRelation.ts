@@ -26,7 +26,7 @@ export const AMCreateRelationFieldFactory: IAMInputFieldFactory = {
       name: this.getFieldName(field),
       type,
       amEnter(node, transaction, stack) {
-        const context = new AMObjectFieldContext(field.dbName);
+        const context = new AMObjectFieldContext(field.relation.storeField);
         stack.push(context);
       },
       amLeave(node, transaction, stack) {

@@ -36,7 +36,11 @@ test('QueryCategories empty', async () => {
     query: QueryCategories,
     variables: {},
   });
-  expect(data).toMatchSnapshot();
+  expect(data).toMatchInlineSnapshot(`
+                            Object {
+                              "categories": Array [],
+                            }
+              `);
 });
 
 test('CreateCategory', async () => {
@@ -44,7 +48,13 @@ test('CreateCategory', async () => {
     mutation: CreateCategory,
     variables: { title: 'root' },
   });
-  expect(data).toMatchSnapshot();
+  expect(data).toMatchInlineSnapshot(`
+                        Object {
+                          "createCategory": Object {
+                            "title": "root",
+                          },
+                        }
+            `);
 });
 
 test('QueryCategories after create', async () => {
@@ -52,7 +62,15 @@ test('QueryCategories after create', async () => {
     query: QueryCategories,
     variables: {},
   });
-  expect(data).toMatchSnapshot();
+  expect(data).toMatchInlineSnapshot(`
+                    Object {
+                      "categories": Array [
+                        Object {
+                          "title": "root",
+                        },
+                      ],
+                    }
+          `);
 });
 
 test('CreateChildCategory "JS"', async () => {
@@ -60,7 +78,16 @@ test('CreateChildCategory "JS"', async () => {
     mutation: CreateChildCategory,
     variables: { title: 'JS', parentTitle: 'root' },
   });
-  expect(data).toMatchSnapshot();
+  expect(data).toMatchInlineSnapshot(`
+                Object {
+                  "createCategory": Object {
+                    "parentCategory": Object {
+                      "title": "root",
+                    },
+                    "title": "JS",
+                  },
+                }
+        `);
 });
 
 test('CreateChildCategory "MongoDB"', async () => {
@@ -68,7 +95,16 @@ test('CreateChildCategory "MongoDB"', async () => {
     mutation: CreateChildCategory,
     variables: { title: 'MongoDB', parentTitle: 'root' },
   });
-  expect(data).toMatchSnapshot();
+  expect(data).toMatchInlineSnapshot(`
+            Object {
+              "createCategory": Object {
+                "parentCategory": Object {
+                  "title": "root",
+                },
+                "title": "MongoDB",
+              },
+            }
+      `);
 });
 
 test('CreateChildCategory "React"', async () => {
@@ -76,7 +112,16 @@ test('CreateChildCategory "React"', async () => {
     mutation: CreateChildCategory,
     variables: { title: 'React', parentTitle: 'JS' },
   });
-  expect(data).toMatchSnapshot();
+  expect(data).toMatchInlineSnapshot(`
+            Object {
+              "createCategory": Object {
+                "parentCategory": Object {
+                  "title": "JS",
+                },
+                "title": "React",
+              },
+            }
+      `);
 });
 
 test('QueryCategoriesExtRelation', async () => {
@@ -84,7 +129,46 @@ test('QueryCategoriesExtRelation', async () => {
     query: QueryCategoriesExtRelation,
     variables: {},
   });
-  expect(data).toMatchSnapshot();
+  expect(data).toMatchInlineSnapshot(`
+        Object {
+          "categories": Array [
+            Object {
+              "subcategories": Array [
+                Object {
+                  "subcategories": Array [
+                    Object {
+                      "title": "React",
+                    },
+                  ],
+                  "title": "JS",
+                },
+                Object {
+                  "subcategories": Array [],
+                  "title": "MongoDB",
+                },
+              ],
+              "title": "root",
+            },
+            Object {
+              "subcategories": Array [
+                Object {
+                  "subcategories": Array [],
+                  "title": "React",
+                },
+              ],
+              "title": "JS",
+            },
+            Object {
+              "subcategories": Array [],
+              "title": "MongoDB",
+            },
+            Object {
+              "subcategories": Array [],
+              "title": "React",
+            },
+          ],
+        }
+    `);
 });
 
 test('QueryCategoriesByTitle', async () => {
@@ -92,7 +176,15 @@ test('QueryCategoriesByTitle', async () => {
     query: CategoriesFilterByTitle,
     variables: { title: 'root' },
   });
-  expect(data).toMatchSnapshot();
+  expect(data).toMatchInlineSnapshot(`
+    Object {
+      "categories": Array [
+        Object {
+          "title": "root",
+        },
+      ],
+    }
+  `);
 });
 
 test('CategoriesComplexFilterOr', async () => {

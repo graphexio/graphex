@@ -11,6 +11,7 @@ export class AMOperation extends AMContext {
   fieldsSelection: AMFieldsSelectionContext;
   selector: AMSelectorContext;
   data: AMDataContext;
+  many: boolean;
 
   _result: AMResultPromise<any>;
   _transactionNumber: number;
@@ -23,6 +24,7 @@ export class AMOperation extends AMContext {
       selector?: AMSelectorContext;
       fieldsSelection?: AMFieldsSelectionContext;
       data?: AMDataContext;
+      many?: boolean;
     }
   ) {
     super();
@@ -30,6 +32,7 @@ export class AMOperation extends AMContext {
     this.selector = config.selector;
     this.fieldsSelection = config.fieldsSelection;
     this.data = config.data;
+    this.many = config.many;
 
     this._result = new AMResultPromise(this);
     this._transactionNumber = transaction.operations.length;

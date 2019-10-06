@@ -6,10 +6,10 @@ import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMOperation } from '../execution/operation';
 import { AMModelField, AMVisitable } from '../types';
 
-export const defaultObjectFieldVisitorHandler = (field: AMModelField) =>
+export const defaultObjectFieldVisitorHandler = (fieldName: string) =>
   <AMVisitable>{
     amEnter(node, transaction, stack) {
-      const action = new AMObjectFieldContext(field.dbName);
+      const action = new AMObjectFieldContext(fieldName);
       stack.push(action);
     },
     amLeave(node, transaction, stack) {
@@ -18,7 +18,8 @@ export const defaultObjectFieldVisitorHandler = (field: AMModelField) =>
       const lastInStack = R.last(stack);
       if (
         lastInStack instanceof AMDataContext ||
-        lastInStack instanceof AMObjectFieldContext
+        lastInStack instanceof AMObjectFieldContext ||
+        lastInStack instanceof AMSelectorContext
       ) {
         lastInStack.addValue(context.fieldName, context.value);
       }

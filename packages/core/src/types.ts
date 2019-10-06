@@ -87,6 +87,7 @@ export type AMModelField = AMField & {
   isID: boolean;
   isUnique: boolean;
   relation: {
+    external: boolean;
     relationField: string;
     storeField: string;
     collection: string;
