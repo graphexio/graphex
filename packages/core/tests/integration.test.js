@@ -244,10 +244,11 @@ test('CreateSubscriberWithEmbeddedDocument', async () => {
 });
 
 test('CreateAdmin', async () => {
-  let { data } = await query({
+  let { data, errors } = await query({
     query: CreateAdmin,
     variables: {},
   });
+  expect(errors).toBeUndefined();
   expect(data).toMatchInlineSnapshot(`
     Object {
       "createAdmin": Object {
@@ -263,7 +264,8 @@ test('CreatePostWithInterfaceRelation', async () => {
     query: CreatePostWithInterfaceRelation,
     variables: {},
   });
-  let { data } = res;
+  let { data, errors } = res;
+  expect(errors).toBeUndefined();
   postId = data.createPost.id;
   delete data.createPost.id;
   expect(data).toMatchSnapshot();

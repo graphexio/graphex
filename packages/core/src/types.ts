@@ -76,6 +76,7 @@ export type AMFieldMap = {
 
 export type AMObjectType = Omit<GraphQLObjectType, 'getFields'> & {
   getFields(): AMFieldMap;
+  mmDiscriminator: string;
 };
 
 export type AMInterfaceType = Omit<GraphQLInterfaceType, 'getFields'> & {
@@ -98,10 +99,11 @@ export type AMModelFieldMap = {
   [key: string]: AMModelField;
 };
 export type AMModelType = (
-  | Omit<GraphQLObjectType, 'getFields'>
-  | Omit<GraphQLInterfaceType, 'getFields'>) & {
+  | Omit<AMObjectType, 'getFields'>
+  | Omit<AMInterfaceType, 'getFields'>) & {
   getFields(): AMModelFieldMap;
   mmCollectionName: string;
+  mmDiscriminatorField: string;
 };
 
 export interface AMResolveFactoryType {

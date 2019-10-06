@@ -12,6 +12,9 @@ import { AMWhereUniqueTypeFactory } from './whereUnique';
 import { AMDataContext } from '../execution/contexts/data';
 import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
+import { isInterfaceType } from 'graphql';
+import { AMInterfaceCreateTypeFactory } from './interfaceCreate';
+import { AMCreateOperation } from '../execution/operations/createOperation';
 
 const isApplicable = (field: AMModelField) => (
   fieldFactory: IAMInputFieldFactory
@@ -25,12 +28,31 @@ export const AMCreateOneRelationTypeFactory: IAMTypeFactory<
   },
   getType(modelType, schemaInfo) {
     const self: IAMTypeFactory<AMInputObjectType> = this;
+    const typeFactory = !isInterfaceType(modelType)
+      ? AMCreateTypeFactory
+      : AMInterfaceCreateTypeFactory;
+
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
         const fields = <AMInputFieldConfigMap>{
           create: {
-            type: schemaInfo.resolveFactoryType(modelType, AMCreateTypeFactory),
+            type: schemaInfo.resolveFactoryType(modelType, typeFactory),
+            amEnter(node, transaction, stack) {
+              const opContext = new AMCreateOperation(transaction, {
+                many: false,
+                collectionName: modelType.mmCollectionName,
+              });
+              stack.push(opContext);
+            },
+            amLeave(node, transaction, stack) {
+              const opContext = stack.pop() as AMReadOperation;
+
+              const lastInStack = R.last(stack);
+              if (lastInStack instanceof AMObjectFieldContext) {
+                lastInStack.setValue(opContext.getOutput());
+              }
+            },
           },
           connect: {
             type: schemaInfo.resolveFactoryType(
