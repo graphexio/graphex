@@ -9,17 +9,20 @@ import { AMDataContext } from '../src/execution/contexts/data';
 test('read many', () => {
   const executor = (params: AMDBExecutorParams) => {
     expect(params).toMatchInlineSnapshot(`
-                        Object {
-                          "collection": "posts",
-                          "fields": Array [
-                            "title",
-                          ],
-                          "selector": Object {
-                            "title": "test-title",
-                          },
-                          "type": "find",
-                        }
-                `);
+      Object {
+        "collection": "posts",
+        "fields": Array [
+          "title",
+        ],
+        "options": Object {
+          "sort": undefined,
+        },
+        "selector": Object {
+          "title": "test-title",
+        },
+        "type": "find",
+      }
+    `);
     return Promise.resolve([]);
   };
 
@@ -49,22 +52,25 @@ test('read many relation', async () => {
       }
       case 2: {
         expect(params).toMatchInlineSnapshot(`
-                    Object {
-                      "collection": "comments",
-                      "fields": undefined,
-                      "selector": Object {
-                        "_id": Object {
-                          "$in": Array [
-                            "comment1",
-                            "comment2",
-                            "comment3",
-                            "comment4",
-                          ],
-                        },
-                      },
-                      "type": "find",
-                    }
-                `);
+          Object {
+            "collection": "comments",
+            "fields": undefined,
+            "options": Object {
+              "sort": undefined,
+            },
+            "selector": Object {
+              "_id": Object {
+                "$in": Array [
+                  "comment1",
+                  "comment2",
+                  "comment3",
+                  "comment4",
+                ],
+              },
+            },
+            "type": "find",
+          }
+        `);
         return Promise.resolve([
           {
             _id: 'comment1',
@@ -144,18 +150,18 @@ test('read many relation', async () => {
 test('create', () => {
   const executor = (params: AMDBExecutorParams) => {
     expect(params).toMatchInlineSnapshot(`
-      Object {
-        "collection": "posts",
-        "doc": Object {
-          "title": "test-title",
-        },
-        "fields": Array [
-          "_id",
-          "title",
-        ],
-        "type": "insertOne",
-      }
-    `);
+            Object {
+              "collection": "posts",
+              "doc": Object {
+                "title": "test-title",
+              },
+              "fields": Array [
+                "_id",
+                "title",
+              ],
+              "type": "insertOne",
+            }
+        `);
     return Promise.resolve([]);
   };
 

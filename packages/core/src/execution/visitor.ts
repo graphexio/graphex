@@ -30,6 +30,7 @@ import {
   AMInterfaceType,
   AMModelField,
   AMField,
+  AMEnumType,
 } from '../types';
 import { AMFieldsSelectionContext } from './contexts/fieldsSelection';
 import R from 'ramda';
@@ -200,6 +201,21 @@ export class AMVisitor {
 
           if (lastInStack instanceof AMObjectFieldContext) {
             lastInStack.setValue(action.values);
+          }
+        },
+      },
+      [Kind.ENUM]: {
+        enter(node) {
+          const type = getNamedType(typeInfo.getInputType()) as AMEnumType;
+
+          if (type.amEnter) {
+            type.amEnter(node, transaction, stack);
+          }
+        },
+        leave(node) {
+          const type = getNamedType(typeInfo.getInputType()) as AMEnumType;
+          if (type.amLeave) {
+            type.amLeave(node, transaction, stack);
           }
         },
       },

@@ -1,7 +1,14 @@
-import { getNamedType, GraphQLEnumType, isCompositeType } from 'graphql';
-import { AMModelType, IAMTypeFactory } from '../types';
+import {
+  getNamedType,
+  GraphQLEnumType,
+  isCompositeType,
+  EnumValueNode,
+} from 'graphql';
+import { AMModelType, IAMTypeFactory, AMEnumType } from '../types';
+import R from 'ramda';
+import { AMOperation } from '../execution/operation';
 
-export const AMOrderByTypeFactory: IAMTypeFactory<GraphQLEnumType> = {
+export const AMOrderByTypeFactory: IAMTypeFactory<AMEnumType> = {
   getTypeName(modelType: AMModelType): string {
     return `${modelType.name}OrderByInput`;
   },
@@ -14,9 +21,16 @@ export const AMOrderByTypeFactory: IAMTypeFactory<GraphQLEnumType> = {
       }
     });
 
-    return new GraphQLEnumType({
+    return new AMEnumType({
       name: this.getTypeName(modelType),
       values,
+      amLeave(node: EnumValueNode, transaction, stack) {
+        const lastInStack = R.last(stack);
+
+        if (lastInStack instanceof AMOperation) {
+          lastInStack.setOrderBy(values[node.value].value);
+        }
+      },
     });
   },
 };

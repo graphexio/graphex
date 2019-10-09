@@ -14,6 +14,10 @@ import {
   Thunk,
   GraphQLFieldConfig,
   GraphQLInputFieldConfig,
+  GraphQLEnumType,
+  GraphQLEnumValueConfigMap,
+  EnumTypeDefinitionNode,
+  EnumTypeExtensionNode,
 } from 'graphql';
 import Maybe from 'graphql/tsutils/Maybe';
 import { AMContext } from './execution/context';
@@ -37,6 +41,26 @@ export type AMInputField = GraphQLInputField & {
 export type AMInputFieldMap = {
   [key: string]: AMInputField;
 };
+
+export class AMEnumType extends GraphQLEnumType {
+  amEnter?(node: ASTNode, transaction: AMTransaction, stack: AMVisitorStack);
+  amLeave?(node: ASTNode, transaction: AMTransaction, stack: AMVisitorStack);
+  constructor(config: AMEnumTypeConfig) {
+    super(config);
+    this.amEnter = config.amEnter;
+    this.amLeave = config.amLeave;
+  }
+}
+
+export interface AMEnumTypeConfig {
+  name: string;
+  values: GraphQLEnumValueConfigMap;
+  description?: Maybe<string>;
+  astNode?: Maybe<EnumTypeDefinitionNode>;
+  extensionASTNodes?: Maybe<ReadonlyArray<EnumTypeExtensionNode>>;
+  amEnter?(node: ASTNode, transaction: AMTransaction, stack: AMVisitorStack);
+  amLeave?(node: ASTNode, transaction: AMTransaction, stack: AMVisitorStack);
+}
 
 export class AMInputObjectType extends GraphQLInputObjectType
   implements AMVisitable {
@@ -103,6 +127,7 @@ export type AMModelType = (
   | Omit<AMInterfaceType, 'getFields'>) & {
   getFields(): AMModelFieldMap;
   mmCollectionName: string;
+  mmDiscriminator: string;
   mmDiscriminatorField: string;
 };
 
@@ -162,6 +187,9 @@ export type AMDBExecutorParams = {
   docs?: [{ [key: string]: any }];
   selector?: { [key: string]: any };
   fields?: string[];
+  options?: {
+    sort: { [key: string]: number };
+  };
 };
 
 export enum AMDBExecutorOperationType {

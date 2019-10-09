@@ -46,6 +46,16 @@ export const AMCreateTypeFactory: IAMTypeFactory<AMInputObjectType> = {
       amEnter(node, transaction, stack) {
         const context = new AMDataContext();
         stack.push(context);
+
+        if (modelType.mmDiscriminatorField) {
+          context.addValue(
+            modelType.mmDiscriminatorField,
+            modelType.mmDiscriminator
+          );
+        }
+
+        //fix created at directive
+        // context.addValue('created_at', new Date().toISOString());
       },
       amLeave(node, transaction, stack) {
         const context = stack.pop() as AMDataContext;

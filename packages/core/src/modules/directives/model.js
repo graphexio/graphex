@@ -75,26 +75,28 @@ class Model extends SchemaDirectiveVisitor {
       iface.mmDiscriminatorField = '_type';
     }
 
+    iface.mmDiscriminatorMap = iface.mmDiscriminatorMap || {};
     Object.values(SchemaTypes)
       .filter(type => type._interfaces && type._interfaces.includes(iface))
       .forEach(type => {
         if (!type.mmDiscriminator) {
           type.mmDiscriminator = lowercaseFirstLetter(type.name);
-        }
-      });
-    iface.mmDiscriminatorMap = iface.mmDiscriminatorMap || {};
-
-    iface.mmOnSchemaInit = () => {
-      Object.values(SchemaTypes)
-        .filter(
-          type =>
-            Array.isArray(type._interfaces) && type._interfaces.includes(iface)
-        )
-        .forEach(type => {
           type.mmDiscriminatorField = iface.mmDiscriminatorField;
           iface.mmDiscriminatorMap[type.mmDiscriminator] = type.name;
-        });
-    };
+        }
+      });
+
+    // iface.mmOnSchemaInit = () => {
+    //   Object.values(SchemaTypes)
+    //     .filter(
+    //       type =>
+    //         Array.isArray(type._interfaces) && type._interfaces.includes(iface)
+    //     )
+    //     .forEach(type => {
+    //       type.mmDiscriminatorField = iface.mmDiscriminatorField;
+    //       iface.mmDiscriminatorMap[type.mmDiscriminator] = type.name;
+    //     });
+    // };
 
     iface.resolveType = doc => {
       return iface.mmDiscriminatorMap[doc[iface.mmDiscriminatorField]];

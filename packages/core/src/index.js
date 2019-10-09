@@ -66,6 +66,8 @@ import appendField from './appendField';
 
 import { AMModelCreateMutationFieldFactory } from './modelMutationFields/createMutation';
 import { AMModelMultipleQueryFieldFactory } from './modelQueryFields/multipleQuery';
+import { AMModelDeleteMutationFieldFactory } from './modelMutationFields/deleteMutation';
+
 import { AMFieldsSelectionContext } from './execution/contexts/fieldsSelection';
 
 import { prepare } from './prepare/prepare';
@@ -419,56 +421,62 @@ export default class ModelMongo {
   };
 
   _createDeleteMutation = modelType => {
-    let typeWrap = new TypeWrap(modelType);
-    let whereUniqueType;
-    try {
-      whereUniqueType = this._inputType(
-        modelType,
-        INPUT_TYPE_KIND.WHERE_UNIQUE
-      );
-    } catch (e) {
-      if (e instanceof EmptyTypeException) {
-        return;
-      } else throw e;
-    }
+    appendField(
+      this.Schema,
+      this.Schema.getMutationType(),
+      AMModelDeleteMutationFieldFactory,
+      modelType
+    );
+    // let typeWrap = new TypeWrap(modelType);
+    // let whereUniqueType;
+    // try {
+    //   whereUniqueType = this._inputType(
+    //     modelType,
+    //     INPUT_TYPE_KIND.WHERE_UNIQUE
+    //   );
+    // } catch (e) {
+    //   if (e instanceof EmptyTypeException) {
+    //     return;
+    //   } else throw e;
+    // }
 
-    let args = [
-      {
-        type: new GraphQLNonNull(whereUniqueType),
-        name: 'where',
-      },
-    ];
+    // let args = [
+    //   {
+    //     type: new GraphQLNonNull(whereUniqueType),
+    //     name: 'where',
+    //   },
+    // ];
 
-    const name = getMethodName(DELETE_MUTATION)(modelType.name);
-    this.Mutation._fields[name] = {
-      type: modelType,
-      args,
-      isDeprecated: false,
-      name,
-      resolve: async (parent, args, context) => {
-        let selector = await applyInputTransform({ parent, context })(
-          args.where,
-          whereUniqueType
-        );
-        if (
-          typeWrap.interfaceWithDirective('model') &&
-          typeWrap.interfaceWithDirective('model').mmDiscriminatorField
-          // && !new TypeWrap(typeWrap.interfaceType()).isAbstract()
-        ) {
-          selector[
-            typeWrap.interfaceWithDirective('model').mmDiscriminatorField
-          ] = typeWrap.realType().mmDiscriminator;
-        }
+    // const name = getMethodName(DELETE_MUTATION)(modelType.name);
+    // this.Mutation._fields[name] = {
+    //   type: modelType,
+    //   args,
+    //   isDeprecated: false,
+    //   name,
+    //   resolve: async (parent, args, context) => {
+    //     let selector = await applyInputTransform({ parent, context })(
+    //       args.where,
+    //       whereUniqueType
+    //     );
+    //     if (
+    //       typeWrap.interfaceWithDirective('model') &&
+    //       typeWrap.interfaceWithDirective('model').mmDiscriminatorField
+    //       // && !new TypeWrap(typeWrap.interfaceType()).isAbstract()
+    //     ) {
+    //       selector[
+    //         typeWrap.interfaceWithDirective('model').mmDiscriminatorField
+    //       ] = typeWrap.realType().mmDiscriminator;
+    //     }
 
-        return this.QueryExecutor({
-          type: DELETE_ONE,
-          collection: modelType.mmCollectionName,
-          selector,
-          options: {},
-          context,
-        });
-      },
-    };
+    //     return this.QueryExecutor({
+    //       type: DELETE_ONE,
+    //       collection: modelType.mmCollectionName,
+    //       selector,
+    //       options: {},
+    //       context,
+    //     });
+    //   },
+    // };
   };
 
   _createDeleteManyMutation = modelType => {
@@ -944,7 +952,7 @@ export default class ModelMongo {
           if (!typeWrap.isInterface()) {
             this._createCreateMutation(type);
           }
-          // this._createDeleteMutation(type);
+          this._createDeleteMutation(type);
           // this._createDeleteManyMutation(type);
           // this._createUpdateMutation(type);
         }

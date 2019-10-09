@@ -12,6 +12,7 @@ export class AMOperation extends AMContext {
   selector: AMSelectorContext;
   data: AMDataContext;
   many: boolean;
+  orderBy: { [key: string]: number };
 
   _result: AMResultPromise<any>;
   _transactionNumber: number;
@@ -25,6 +26,7 @@ export class AMOperation extends AMContext {
       fieldsSelection?: AMFieldsSelectionContext;
       data?: AMDataContext;
       many?: boolean;
+      orderBy?: { [key: string]: number };
     }
   ) {
     super();
@@ -33,6 +35,7 @@ export class AMOperation extends AMContext {
     this.fieldsSelection = config.fieldsSelection;
     this.data = config.data;
     this.many = Boolean(config.many);
+    this.orderBy = config.orderBy;
 
     this._result = new AMResultPromise(this);
     this._transactionNumber = transaction.operations.length;
@@ -53,6 +56,10 @@ export class AMOperation extends AMContext {
 
   setData(data: AMDataContext) {
     this.data = data;
+  }
+
+  setOrderBy(order: { [key: string]: number }) {
+    this.orderBy = order;
   }
 
   execute(executor: AMDBExecutor) {}
@@ -85,6 +92,7 @@ export class AMOperation extends AMContext {
         : null),
       ...(this.selector ? { selector: this.selector.toJSON() } : null),
       ...(this.data ? { data: this.data.toJSON() } : null),
+      ...(this.orderBy ? { orderBy: this.orderBy } : null),
     };
   }
 }
