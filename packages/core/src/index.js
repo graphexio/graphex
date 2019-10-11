@@ -68,6 +68,8 @@ import { AMModelCreateMutationFieldFactory } from './modelMutationFields/createM
 import { AMModelMultipleQueryFieldFactory } from './modelQueryFields/multipleQuery';
 import { AMModelDeleteMutationFieldFactory } from './modelMutationFields/deleteMutation';
 
+import { AMModelSingleQueryFieldFactory } from './modelQueryFields/singleQuery';
+
 import { AMFieldsSelectionContext } from './execution/contexts/fieldsSelection';
 
 import { prepare } from './prepare/prepare';
@@ -137,6 +139,15 @@ export default class ModelMongo {
     //   },
     // };
   };
+
+  _createSingleQuery = modelType => {
+    appendField(
+      this.Schema,
+      this.Schema.getQueryType(),
+      AMModelSingleQueryFieldFactory,
+      modelType
+    );
+  }  
 
   _paginationType = type => {
     return InputTypes._paginationType(type);
@@ -293,69 +304,69 @@ export default class ModelMongo {
     };
   };
 
-  _createSingleQuery = modelType => {
-    let typeWrap = new TypeWrap(modelType);
-    let whereUniqueType;
-    try {
-      whereUniqueType = this._inputType(
-        modelType,
-        INPUT_TYPE_KIND.WHERE_UNIQUE
-      );
-    } catch (e) {
-      if (e instanceof EmptyTypeException) {
-        return;
-      } else throw e;
-    }
+  // _createSingleQuery = modelType => {
+  //   let typeWrap = new TypeWrap(modelType);
+  //   let whereUniqueType;
+  //   try {
+  //     whereUniqueType = this._inputType(
+  //       modelType,
+  //       INPUT_TYPE_KIND.WHERE_UNIQUE
+  //     );
+  //   } catch (e) {
+  //     if (e instanceof EmptyTypeException) {
+  //       return;
+  //     } else throw e;
+  //   }
 
-    let args = [
-      {
-        name: 'where',
-        type: whereUniqueType,
-      },
-    ];
+  //   let args = [
+  //     {
+  //       name: 'where',
+  //       type: whereUniqueType,
+  //     },
+  //   ];
 
-    const name = getMethodName(SINGLE_QUERY)(modelType.name);
+  //   const name = getMethodName(SINGLE_QUERY)(modelType.name);
 
-    const resolve = async (parent, args, context) => {
-      let selector = await applyInputTransform({ parent, context })(
-        args.where,
-        whereUniqueType
-      );
-      // let entries = Object.entries(selector);
-      // let [selectorField, id] = entries.length ? Object.entries(selector)[0]: ["_id"];
-      if (
-        typeWrap.interfaceWithDirective('model') &&
-        typeWrap.interfaceWithDirective('model').mmDiscriminatorField
-        // && !new TypeWrap(typeWrap.interfaceType()).isAbstract()
-      ) {
-        selector[
-          typeWrap.interfaceWithDirective('model').mmDiscriminatorField
-        ] = typeWrap.realType().mmDiscriminator;
-      }
-      return this.QueryExecutor({
-        type: FIND_ONE,
-        modelType,
-        collection: modelType.mmCollectionName,
-        selector,
-        options: {
-          // selectorField,
-          // id,
-        },
-        context,
-      });
-    };
+  //   const resolve = async (parent, args, context) => {
+  //     let selector = await applyInputTransform({ parent, context })(
+  //       args.where,
+  //       whereUniqueType
+  //     );
+  //     // let entries = Object.entries(selector);
+  //     // let [selectorField, id] = entries.length ? Object.entries(selector)[0]: ["_id"];
+  //     if (
+  //       typeWrap.interfaceWithDirective('model') &&
+  //       typeWrap.interfaceWithDirective('model').mmDiscriminatorField
+  //       // && !new TypeWrap(typeWrap.interfaceType()).isAbstract()
+  //     ) {
+  //       selector[
+  //         typeWrap.interfaceWithDirective('model').mmDiscriminatorField
+  //       ] = typeWrap.realType().mmDiscriminator;
+  //     }
+  //     return this.QueryExecutor({
+  //       type: FIND_ONE,
+  //       modelType,
+  //       collection: modelType.mmCollectionName,
+  //       selector,
+  //       options: {
+  //         // selectorField,
+  //         // id,
+  //       },
+  //       context,
+  //     });
+  //   };
 
-    this.Query._fields[name] = {
-      type: modelType,
-      description: undefined,
-      args,
-      deprecationReason: undefined,
-      isDeprecated: false,
-      name,
-      resolve,
-      __ammResolve: resolve,
-    };
-  };
+  //   this.Query._fields[name] = {
+  //     type: modelType,
+  //     description: undefined,
+  //     args,
+  //     deprecationReason: undefined,
+  //     isDeprecated: false,
+  //     name,
+  //     resolve,
+  //     __ammResolve: resolve,
+  //   };
+  // };
 
   _createCreateMutation = modelType => {
     appendField(
@@ -947,7 +958,7 @@ export default class ModelMongo {
           // console.log(`Building queries for ${type.name}`);
           this._createAllQuery(type);
           // this._createAllPaginationQuery(type);
-          // this._createSingleQuery(type);
+          this._createSingleQuery(type);
           // this._createConnectionQuery(type);
           if (!typeWrap.isInterface()) {
             this._createCreateMutation(type);

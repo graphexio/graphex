@@ -60,6 +60,42 @@ describe('simple schema', () => {
       `);
   });
 
+  test('single query', () => {
+    const rq = gql`
+      {
+        post (where: {id: ""} ) {
+          id
+          title
+        }
+      }
+    `;
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, {}, transaction);
+    expect(transaction).toMatchInlineSnapshot(`
+          Object {
+            "operations": Array [
+              Object {
+                "collectionName": "posts",
+                "fieldsSelection": Object {
+                  "fields": Array [
+                    "_id",
+                    "title",
+                  ],
+                },
+                "identifier": "Operation-0",
+                "kind": "AMReadOperation",
+                "many": false,
+                "output": "AMResultPromise { Operation-0 }",
+                "selector": Object {
+                  "_id": "",
+                },
+              },
+            ],
+          }
+      `);
+  });
+
   test('create', () => {
     const rq = gql`
       mutation {

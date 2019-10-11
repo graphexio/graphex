@@ -37,6 +37,37 @@ test('read many', () => {
   transaction.execute(executor);
 });
 
+test('read one', () => {
+  const executor = (params: AMDBExecutorParams) => {
+    expect(params).toMatchInlineSnapshot(`
+      Object {
+        "collection": "posts",
+        "fields": Array [
+          "title",
+        ],
+        "options": Object {
+          "sort": undefined,
+        },
+        "selector": Object {
+          "title": "test-title",
+        },
+        "type": "findOne",
+      }
+    `);
+    return Promise.resolve([]);
+  };
+
+  const transaction = new AMTransaction();
+  const operation = new AMReadOperation(transaction, {
+    many: false,
+    collectionName: 'posts',
+    selector: new AMSelectorContext({ title: 'test-title' }),
+    fieldsSelection: new AMFieldsSelectionContext(['title']),
+  });
+
+  transaction.execute(executor);
+});
+
 test('read many relation', async () => {
   let execN = 0;
   const executor = (params: AMDBExecutorParams) => {

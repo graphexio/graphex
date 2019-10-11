@@ -57,6 +57,25 @@ test('CreateCategory', async () => {
                 `);
 });
 
+test('QuerySingleCategory', async () => {
+  let { data } = await query({
+    query: gql`
+      {
+        category(where: { title: "root" }) {
+          title
+        }
+      }
+    `,
+  });
+  expect(data).toMatchInlineSnapshot(`
+                                Object {
+                                  "category": Object {
+                                    "title": "root",
+                                  },
+                                }
+                `);
+});
+
 test('QueryCategories after create', async () => {
   let { data } = await query({
     query: QueryCategories,
