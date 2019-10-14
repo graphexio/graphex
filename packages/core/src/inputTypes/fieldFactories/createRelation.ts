@@ -6,6 +6,7 @@ import { AMResultPromise } from '../../execution/resultPromise';
 import { AMInputField, IAMInputFieldFactory } from '../../types';
 import { AMCreateManyRelationTypeFactory } from '../createManyRelation';
 import { AMCreateOneRelationTypeFactory } from '../createOneRelation';
+import { AMCreateOneRequiredRelationTypeFactory } from '../createOneRequiredRelation';
 
 export const AMCreateRelationFieldFactory: IAMInputFieldFactory = {
   isApplicable(field) {
@@ -17,9 +18,14 @@ export const AMCreateRelationFieldFactory: IAMInputFieldFactory = {
   getField(field, schemaInfo) {
     const typeWrap = new TypeWrap(field.type);
     const isMany = typeWrap.isMany();
+    const isRequired = typeWrap.isRequired();
     let type = schemaInfo.resolveFactoryType(
       typeWrap.realType(),
-      isMany ? AMCreateManyRelationTypeFactory : AMCreateOneRelationTypeFactory
+      isMany
+        ? AMCreateManyRelationTypeFactory
+        : isRequired
+        ? AMCreateOneRequiredRelationTypeFactory
+        : AMCreateOneRelationTypeFactory
     );
 
     return <AMInputField>{

@@ -1,5 +1,6 @@
 import {
   ASTNode,
+  ObjectValueNode,
   GraphQLField,
   GraphQLInputField,
   GraphQLInputObjectType,
@@ -64,8 +65,16 @@ export interface AMEnumTypeConfig {
 
 export class AMInputObjectType extends GraphQLInputObjectType
   implements AMVisitable {
-  amEnter?(node: ASTNode, transaction: AMTransaction, stack: AMVisitorStack);
-  amLeave?(node: ASTNode, transaction: AMTransaction, stack: AMVisitorStack);
+  amEnter?(
+    node: ObjectValueNode,
+    transaction: AMTransaction,
+    stack: AMVisitorStack
+  );
+  amLeave?(
+    node: ObjectValueNode,
+    transaction: AMTransaction,
+    stack: AMVisitorStack
+  );
   getFields(): AMInputFieldMap {
     return super.getFields() as AMInputFieldMap;
   }
@@ -88,8 +97,16 @@ export interface AMInputObjectTypeConfig {
   description?: Maybe<string>;
   astNode?: Maybe<InputObjectTypeDefinitionNode>;
   extensionASTNodes?: Maybe<ReadonlyArray<InputObjectTypeExtensionNode>>;
-  amEnter?(node: ASTNode, transaction: AMTransaction, stack: AMVisitorStack);
-  amLeave?(node: ASTNode, transaction: AMTransaction, stack: AMVisitorStack);
+  amEnter?(
+    node: ObjectValueNode,
+    transaction: AMTransaction,
+    stack: AMVisitorStack
+  );
+  amLeave?(
+    node: ObjectValueNode,
+    transaction: AMTransaction,
+    stack: AMVisitorStack
+  );
 }
 
 export type AMField = GraphQLField<any, any> & AMVisitable;
