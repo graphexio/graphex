@@ -514,6 +514,16 @@ Object {
 }
 `;
 
+exports[`QueryShops 2`] = `
+Object {
+  "shops": Array [
+    Object {
+      "title": "ifc mall",
+    },
+  ],
+}
+`;
+
 exports[`QueryUsersInterface 1`] = `
 Object {
   "users": Array [

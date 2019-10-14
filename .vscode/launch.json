@@ -12,7 +12,8 @@
       "disableOptimisticBPs": true,
       "windows": {
         "program": "${workspaceFolder}/node_modules/jest/bin/jest"
-      }
+      },
+      "timeout": 30000
     },
     {
       "type": "node",
@@ -25,7 +26,8 @@
       "disableOptimisticBPs": true,
       "windows": {
         "program": "${workspaceFolder}/node_modules/jest/bin/jest"
-      }
+      },
+      "timeout": 30000
     }
   ]
 }
