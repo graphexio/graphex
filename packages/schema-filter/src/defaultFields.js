@@ -23,6 +23,9 @@ export default () => {
   };
 
   const applyDefaults = node => ({ type }) => {
+    if (!type) {
+      return undefined;
+    }
     let defaultValues = defaults[type.name];
     // let defaultValues = get(type);
 

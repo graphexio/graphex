@@ -63,7 +63,11 @@ const reduceArgs = (map, arg) => {
   return map;
 };
 
-const getFields = stackItem => stackItem.type.getFields();
+const getFields = stackItem => {
+  if (stackItem && stackItem.type && stackItem.type.getFields) {
+    return stackItem.type.getFields();
+  }
+};
 const getArgs = stackItem => stackItem.args;
 
 const getNameValue = node => node.name.value;
@@ -71,14 +75,24 @@ const getFragmentTypeName = node => node.typeCondition.name.value;
 
 const mapTypeForTypeStack = type => ({ type });
 
-export const mapFieldForTypeStack = field => ({
-  type: new TypeWrap(field.type).realType(),
-  args: field.args.reduce(reduceArgs, {}),
-});
+export const mapFieldForTypeStack = field => {
+  if (!field) {
+    return { type: undefined };
+  }
+  return {
+    type: new TypeWrap(field.type).realType(),
+    args: field.args.reduce(reduceArgs, {}),
+  };
+};
 
-const mapArgForTypeStack = arg => ({
-  type: new TypeWrap(arg.type).realType(),
-});
+const mapArgForTypeStack = arg => {
+  if (!arg) {
+    return { type: undefined };
+  }
+  return {
+    type: new TypeWrap(arg.type).realType(),
+  };
+};
 
 export const groupFields = (predicate, object) => {
   let result = {};
