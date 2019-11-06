@@ -230,7 +230,7 @@ export class AMVisitor {
             typeInfo.getInputType()
           ) as GraphQLScalarType;
           const newNode = astFromValue(variableValues[node.name.value], type);
-          visitor[Kind.OBJECT].enter(newNode);
+          visitor[Kind.OBJECT].enter(newNode); // TODO: test it! Kind.OBJECT?
           return newNode;
         },
       },

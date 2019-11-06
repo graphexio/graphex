@@ -4,6 +4,7 @@ import AMM from '../src';
 import { applyInputTransform } from '../src/inputTypes/utils';
 import { AMVisitor } from '../src/execution/visitor';
 import { AMTransaction } from '../src/execution/transaction';
+import { UserInputError } from 'apollo-server';
 
 const generateSchema = typeDefs => {
   return new AMM({
@@ -54,6 +55,42 @@ describe('simple schema', () => {
                 "kind": "AMReadOperation",
                 "many": true,
                 "output": "AMResultPromise { Operation-0 }",
+              },
+            ],
+          }
+      `);
+  });
+
+  test('single query', () => {
+    const rq = gql`
+      {
+        post(where: { id: "" }) {
+          id
+          title
+        }
+      }
+    `;
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, {}, transaction);
+    expect(transaction).toMatchInlineSnapshot(`
+          Object {
+            "operations": Array [
+              Object {
+                "collectionName": "posts",
+                "fieldsSelection": Object {
+                  "fields": Array [
+                    "_id",
+                    "title",
+                  ],
+                },
+                "identifier": "Operation-0",
+                "kind": "AMReadOperation",
+                "many": false,
+                "output": "AMResultPromise { Operation-0 }",
+                "selector": Object {
+                  "_id": "",
+                },
               },
             ],
           }
@@ -260,6 +297,11 @@ describe('relation', () => {
     type User @model {
       id: ID @id @unique @db(name: "_id")
       username: String
+    }
+
+    type Postbox @model {
+      id: ID @id @unique @db(name: "_id")
+      post: Post! @relation
     }
   `);
 
@@ -488,6 +530,24 @@ describe('relation', () => {
               ],
             }
       `);
+  });
+
+  test('required relation exceptions', () => {
+    const rq = gql`
+      mutation {
+        createPostbox(data: { post: {} }) {
+          id
+        }
+      }
+    `;
+
+    const code = () => {
+      const transaction = new AMTransaction();
+      AMVisitor.visit(schema, rq, {}, transaction);
+    };
+
+    expect(code).toThrow(UserInputError);
+    expect(code).toThrow(`'create' or 'connect' needed`);
   });
 });
 
