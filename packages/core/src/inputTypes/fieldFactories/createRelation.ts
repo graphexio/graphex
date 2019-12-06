@@ -7,6 +7,7 @@ import { AMInputField, IAMInputFieldFactory } from '../../types';
 import { AMCreateManyRelationTypeFactory } from '../createManyRelation';
 import { AMCreateOneRelationTypeFactory } from '../createOneRelation';
 import { AMCreateOneRequiredRelationTypeFactory } from '../createOneRequiredRelation';
+import { defaultObjectFieldVisitorHandler } from '../visitorHandlers';
 
 export const AMCreateRelationFieldFactory: IAMInputFieldFactory = {
   isApplicable(field) {
@@ -31,27 +32,7 @@ export const AMCreateRelationFieldFactory: IAMInputFieldFactory = {
     return <AMInputField>{
       name: this.getFieldName(field),
       type,
-      amEnter(node, transaction, stack) {
-        const context = new AMObjectFieldContext(field.relation.storeField);
-        stack.push(context);
-      },
-      amLeave(node, transaction, stack) {
-        const context = stack.pop() as AMObjectFieldContext;
-        const lastInStack = R.last(stack);
-        if (
-          lastInStack instanceof AMDataContext ||
-          lastInStack instanceof AMObjectFieldContext
-        ) {
-          if (context.value instanceof AMResultPromise) {
-            lastInStack.addValue(
-              context.fieldName,
-              isMany
-                ? context.value.distinct(field.relation.relationField)
-                : context.value.path(field.relation.relationField)
-            );
-          }
-        }
-      },
+      ...defaultObjectFieldVisitorHandler(field.relation.storeField, field),
     };
   },
 };

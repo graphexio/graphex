@@ -30,7 +30,7 @@ export default gql`
     place: GeoJSONPoint
     comments: [Comment!]
     poi: Poi @relation
-    pois: [Poi] @relation
+    pois: [Poi] @relation(storeField: "poiIds")
   }
 
   scalar _FieldSet

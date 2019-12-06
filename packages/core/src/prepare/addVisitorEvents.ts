@@ -8,6 +8,8 @@ import { AMSelectorContext } from '../execution/contexts/selector';
 import { getLastOperation, getFieldsSelectionPath } from '../execution/utils';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { start } from 'repl';
+import { Operation } from 'graphql-tools';
+import { AMReadDBRefOperation } from '../execution/operations/readDbRefOperation';
 
 export const addVisitorEvents = (schema: GraphQLSchema) => {
   Object.values(schema.getTypeMap()).forEach(type => {
@@ -34,28 +36,44 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
               path = pathArr.join('.');
             }
 
-            const relationOperation = new AMReadOperation(transaction, {
-              many: true,
-              collectionName: field.relation.collection,
-              selector: new AMSelectorContext(
-                !field.relation.external
-                  ? {
-                      [field.relation.relationField]: {
-                        $in: lastOperation.getResult().distinct(path),
-                      },
-                    }
-                  : {
-                      [field.relation.storeField]: {
-                        $in: lastOperation
-                          .getResult()
-                          .distinct(field.relation.relationField),
-                      },
-                    }
-              ),
-            });
+            let relationOperation: AMOperation;
+
+            if (!field.relation.abstract) {
+              relationOperation = new AMReadOperation(transaction, {
+                many: true,
+                collectionName: field.relation.collection,
+                selector: new AMSelectorContext(
+                  !field.relation.external
+                    ? {
+                        [field.relation.relationField]: {
+                          $in: lastOperation.getResult().distinct(path),
+                        },
+                      }
+                    : {
+                        [field.relation.storeField]: {
+                          $in: lastOperation
+                            .getResult()
+                            .distinct(field.relation.relationField),
+                        },
+                      }
+                ),
+              });
+            } else {
+              relationOperation = new AMReadDBRefOperation(transaction, {
+                many: true,
+                dbRefList: lastOperation.getResult().distinct(path),
+              });
+            }
+
             stack.push(relationOperation);
 
-            if (!field.relation.external) {
+            if (field.relation.abstract) {
+              lastOperation.setOutput(
+                lastOperation
+                  .getOutput()
+                  .dbRefReplace(path, () => relationOperation.getOutput())
+              );
+            } else if (!field.relation.external) {
               lastOperation.setOutput(
                 lastOperation
                   .getOutput()

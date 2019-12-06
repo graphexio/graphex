@@ -31,20 +31,7 @@ export const AMCreateManyNestedTypeFactory: IAMTypeFactory<
             type: new GraphQLList(
               schemaInfo.resolveFactoryType(modelType, AMCreateTypeFactory)
             ),
-            // we can keep this empty because child object will pass value to parent directly
-            // amEnter(node: ObjectFieldNode, transaction, stack) {
-            //   const action = new AMObjectFieldContext();
-            //   stack.push(action);
-            // },
-            // amLeave(node, transaction, stack) {
-            //   const context = stack.pop() as AMObjectFieldContext;
-            //   const lastInStack = R.last(stack);
-
-            //   //pass value without 'create' key
-            //   if (lastInStack instanceof AMObjectFieldContext) {
-            //     lastInStack.setValue(context.value);
-            //   }
-            // },
+            // we can keep amEnter and amLeave empty because child object will pass value to parent directly
           },
         };
 

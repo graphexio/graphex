@@ -5,6 +5,7 @@ import { MongoClient, ObjectID } from 'mongodb';
 import typeDefs from '../dev-server/model.js';
 import MongoMemoryServer from 'mongodb-memory-server';
 import * as DirectiveImplements from '@apollo-model/directive-implements';
+const util = require('util');
 
 export const mongod = new MongoMemoryServer();
 const uri = mongod.getConnectionString();
@@ -44,6 +45,8 @@ export const server = new ApolloServer({
   context: () => {
     return {
       queryExecutor: async params => {
+        // console.log(util.inspect(params, { showHidden: false, depth: null }));
+        // console.log(params);
         let result = await QE(params);
         // console.log(params, result);
         return result;

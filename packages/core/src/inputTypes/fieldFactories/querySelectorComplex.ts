@@ -29,7 +29,9 @@ export class AMQuerySelectorComplexFieldFactory
     node: ASTNode,
     transaction: AMTransaction,
     stack: AMVisitorStack,
-    context: AMObjectFieldContext
+    context: AMObjectFieldContext,
+    field: AMModelField,
+    schemaInfo: AMSchemaInfo
   ) => void;
   private _isApplicable: (field: AMModelField) => boolean;
 
@@ -44,7 +46,9 @@ export class AMQuerySelectorComplexFieldFactory
       node: ASTNode,
       transaction: AMTransaction,
       stack: AMVisitorStack,
-      context: AMObjectFieldContext
+      context: AMObjectFieldContext,
+      field: AMModelField,
+      schemaInfo: AMSchemaInfo
     ) => void
   ) {
     this._isApplicable = isApplicable;
@@ -75,7 +79,7 @@ export class AMQuerySelectorComplexFieldFactory
       },
       amLeave(node, transaction, stack) {
         const context = stack.pop() as AMObjectFieldContext;
-        self._applyValue(node, transaction, stack, context);
+        self._applyValue(node, transaction, stack, context, field, schemaInfo);
       },
     };
   }

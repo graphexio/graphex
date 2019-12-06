@@ -51,6 +51,61 @@ Object {
 }
 `;
 
+exports[`CategoriesOrderByFieldWithDBDirective 7`] = `
+Object {
+  "users": Array [
+    Object {
+      "profile": Object {
+        "firstName": "Gwion",
+        "lastName": "Britt",
+      },
+      "username": "subscriber1",
+    },
+    Object {
+      "role": null,
+      "username": "admin",
+    },
+    Object {
+      "role": null,
+      "username": "moderator",
+    },
+  ],
+}
+`;
+
+exports[`CategoriesOrderByFieldWithDBDirective 8`] = `
+Object {
+  "categories": Array [],
+}
+`;
+
+exports[`CategoriesOrderByFieldWithDBDirective 10`] = `
+Object {
+  "createPost": Object {
+    "title": "Build GraphQL API with Apollo",
+  },
+}
+`;
+
+exports[`CategoriesOrderByFieldWithDBDirective 11`] = `
+Object {
+  "categories": Array [
+    Object {
+      "title": "React",
+    },
+    Object {
+      "title": "MongoDB",
+    },
+    Object {
+      "title": "JS",
+    },
+    Object {
+      "title": "root",
+    },
+  ],
+}
+`;
+
 exports[`CategoriesRelationFilter 1`] = `
 Object {
   "categories": Array [
@@ -145,6 +200,14 @@ Object {
 }
 `;
 
+exports[`CategoryDelete 5`] = `
+Object {
+  "deleteCategory": Object {
+    "title": "React",
+  },
+}
+`;
+
 exports[`CreateAdmin 1`] = `
 Object {
   "createAdmin": Object {
@@ -169,29 +232,12 @@ Object {
 }
 `;
 
-exports[`CreateCategory TST 1`] = `
-Object {
-  "createCategory": Object {
-    "title": "root",
-  },
-}
-`;
-
 exports[`CreateChildCategory "JS" 1`] = `
 Object {
   "createCategory": Object {
     "parentCategory": Object {
       "title": "root",
     },
-    "title": "JS",
-  },
-}
-`;
-
-exports[`CreateChildCategory "JS" TST 1`] = `
-Object {
-  "createCategory": Object {
-    "parentCategory": null,
     "title": "JS",
   },
 }
@@ -230,30 +276,12 @@ Object {
 }
 `;
 
-exports[`CreateChildCategory "MongoDB" TST 1`] = `
-Object {
-  "createCategory": Object {
-    "parentCategory": null,
-    "title": "MongoDB",
-  },
-}
-`;
-
 exports[`CreateChildCategory "React" 1`] = `
 Object {
   "createCategory": Object {
     "parentCategory": Object {
       "title": "JS",
     },
-    "title": "React",
-  },
-}
-`;
-
-exports[`CreateChildCategory "React" TST 1`] = `
-Object {
-  "createCategory": Object {
-    "parentCategory": null,
     "title": "React",
   },
 }
@@ -490,6 +518,12 @@ Object {
 }
 `;
 
+exports[`QueryPostsNearPoint 2`] = `
+Object {
+  "posts": Array [],
+}
+`;
+
 exports[`QueryShopById 1`] = `
 Object {
   "shop": Object {
@@ -499,6 +533,12 @@ Object {
 `;
 
 exports[`QueryShopById 2`] = `
+Object {
+  "shop": null,
+}
+`;
+
+exports[`QueryShopById after updates 1`] = `
 Object {
   "shop": null,
 }
@@ -629,6 +669,8 @@ Object {
 }
 `;
 
+exports[`UpdatePostConnectShop 3`] = `undefined`;
+
 exports[`UpdatePostDeleteShop 1`] = `
 Object {
   "updatePost": Object {
@@ -642,6 +684,20 @@ Object {
 `;
 
 exports[`UpdatePostDisconnectShop 1`] = `
+Object {
+  "updatePost": Object {
+    "pois": Array [
+      Object {
+        "title": "Marriott",
+      },
+    ],
+  },
+}
+`;
+
+exports[`UpdatePostDisconnectShop 2`] = `undefined`;
+
+exports[`test empty object instead array 1`] = `
 Object {
   "updatePost": Object {
     "pois": Array [

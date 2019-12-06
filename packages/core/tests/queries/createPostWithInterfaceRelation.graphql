@@ -5,7 +5,7 @@ mutation {
       body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
       owner: { create: { Admin: { username: "moderator" } } }
       category: { connect: { title: "JS" } }
-      #place: { type: Point, coordinates: [0, 51] }
+      place: { type: Point, coordinates: [0, 51] }
     }
   ) {
     id

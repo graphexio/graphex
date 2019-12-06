@@ -1,5 +1,5 @@
 query {
-  categories(orderBy: createdAt_DESC) {
+  categories(orderBy: createdAt_ASC) {
     title
   }
 }

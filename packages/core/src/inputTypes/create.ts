@@ -29,11 +29,13 @@ export const AMCreateTypeFactory: IAMTypeFactory<AMInputObjectType> = {
         const fields = {};
 
         Object.values(modelType.getFields()).forEach(field => {
-          const fieldFactories = [
-            AMCreateFieldFactory,
-            AMCreateNestedFieldFactory,
-            AMCreateRelationFieldFactory,
-          ].filter(isApplicable(field));
+          const fieldFactories = field?.mmFieldFactories?.AMCreateTypeFactory
+            ? field.mmFieldFactories.AMCreateTypeFactory
+            : [
+                AMCreateFieldFactory,
+                AMCreateNestedFieldFactory,
+                AMCreateRelationFieldFactory,
+              ].filter(isApplicable(field));
 
           fieldFactories.forEach(fieldFactory => {
             const fieldName = fieldFactory.getFieldName(field);
@@ -54,8 +56,18 @@ export const AMCreateTypeFactory: IAMTypeFactory<AMInputObjectType> = {
           );
         }
 
-        //fix created at directive
-        // context.addValue('created_at', new Date().toISOString());
+        /* Begin filling createdAt, updatedAt */
+        if (modelType.mmCreatedAtFields) {
+          modelType.mmCreatedAtFields.forEach(createdAtField => {
+            context.addValue(createdAtField.dbName, new Date().toISOString());
+          });
+        }
+        if (modelType.mmUpdatedAtFields) {
+          modelType.mmUpdatedAtFields.forEach(updatedAtField => {
+            context.addValue(updatedAtField.dbName, new Date().toISOString());
+          });
+        }
+        /* End filling createdAt, updatedAt */
       },
       amLeave(node, transaction, stack) {
         const context = stack.pop() as AMDataContext;
@@ -67,6 +79,8 @@ export const AMCreateTypeFactory: IAMTypeFactory<AMInputObjectType> = {
           lastInStack.addValue(context.data);
         } else if (lastInStack instanceof AMObjectFieldContext) {
           lastInStack.setValue(context.data);
+        } else if (lastInStack instanceof AMDataContext) {
+          lastInStack.setData(context.data);
         }
       },
     });

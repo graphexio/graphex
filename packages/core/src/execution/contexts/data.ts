@@ -4,7 +4,7 @@ import { AMObjectFieldValueType } from '../../types';
 type Data = { [key: string]: AMObjectFieldValueType };
 
 export class AMDataContext extends AMContext {
-  data: Data = {};
+  data: Data;
 
   constructor(data?: Data) {
     super();
@@ -14,7 +14,12 @@ export class AMDataContext extends AMContext {
   }
 
   addValue(key: string, value: AMObjectFieldValueType) {
+    if (!this.data) this.data = {};
     this.data[key] = value;
+  }
+
+  setData(value: Data) {
+    this.data = value;
   }
 
   toJSON() {

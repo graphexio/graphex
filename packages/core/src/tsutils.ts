@@ -36,3 +36,11 @@ export function getArgValueFromDirectiveAST(
     return defaultValue;
   }
 }
+
+export function toArray(value) {
+  if (!Array.isArray(value)) {
+    return [value];
+  } else {
+    return value;
+  }
+}

@@ -5,7 +5,7 @@ import {
   isCompositeType,
   ASTNode,
 } from 'graphql';
-import { IAMQuerySelector, AMVisitorStack } from '../../types';
+import { IAMQuerySelector, AMVisitorStack, AMModelType } from '../../types';
 import { AMWhereTypeFactory } from '../where';
 import { AMQuerySelectorFieldFactory } from '../fieldFactories/querySelector';
 import { AMQuerySelectorComplexFieldFactory } from '../fieldFactories/querySelectorComplex';
@@ -40,16 +40,18 @@ export const AsIsSelector: IAMQuerySelector = {
         node: ASTNode,
         transaction: AMTransaction,
         stack: AMVisitorStack,
-        context: AMObjectFieldContext
+        context: AMObjectFieldContext,
+        field,
+        schemaInfo
       ) => {
         const lastInStack = R.last(stack);
-
         if (
           lastInStack instanceof AMSelectorContext ||
           lastInStack instanceof AMObjectFieldContext
         ) {
           //transform nested objects to mongodb dot notation
-          if (context.value instanceof Object) {
+          const namedType = getNamedType(field.type) as AMModelType;
+          if (namedType.mmEmbedded) {
             Object.entries(context.value).forEach(([key, value]) => {
               lastInStack.addValue(`${context.fieldName}.${key}`, value);
             });

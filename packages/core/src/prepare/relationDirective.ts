@@ -33,6 +33,7 @@ export const relationDirective = (schema: GraphQLSchema) => {
           );
         field.relation = {
           external: false,
+          abstract: type.mmAbstract,
           relationField: relationField,
           storeField: storeField,
           collection: type.mmCollectionName,

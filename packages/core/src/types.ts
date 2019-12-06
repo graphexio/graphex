@@ -130,10 +130,12 @@ export type AMModelField = AMField & {
   isUnique: boolean;
   relation: {
     external: boolean;
+    abstract: boolean;
     relationField: string;
     storeField: string;
     collection: string;
   };
+  mmFieldFactories?: { [typeFactoryName: string]: IAMInputFieldFactory[] };
 };
 
 export type AMModelFieldMap = {
@@ -146,6 +148,10 @@ export type AMModelType = (
   mmCollectionName: string;
   mmDiscriminator: string;
   mmDiscriminatorField: string;
+  mmAbstract: boolean;
+  mmEmbedded: boolean;
+  mmCreatedAtFields?: AMModelField[];
+  mmUpdatedAtFields?: AMModelField[];
 };
 
 export interface AMResolveFactoryType {
@@ -205,7 +211,8 @@ export type AMDBExecutorParams = {
   selector?: { [key: string]: any };
   fields?: string[];
   options?: {
-    sort: { [key: string]: number };
+    arrayFilters?: { [key: string]: any }[];
+    sort?: { [key: string]: number };
   };
 };
 

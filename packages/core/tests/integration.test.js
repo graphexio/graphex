@@ -28,6 +28,7 @@ import UpdatePostCreateHotel from './queries/updatePostCreateHotel.graphql';
 import UpdatePostConnectShop from './queries/updatePostConnectShop.graphql';
 import UpdatePostDisconnectShop from './queries/updatePostDisconnectShop.graphql';
 import UpdatePostDeleteShop from './queries/updatePostDeleteShop.graphql';
+import { ObjectId } from 'mongodb';
 
 jest.setTimeout(10000);
 
@@ -40,7 +41,7 @@ test('QueryCategories empty', async () => {
                                     Object {
                                       "categories": Array [],
                                     }
-                  `);
+                `);
 });
 
 test('CreateCategory', async () => {
@@ -49,11 +50,11 @@ test('CreateCategory', async () => {
     variables: { title: 'root' },
   });
   expect(data).toMatchInlineSnapshot(`
-                                Object {
-                                  "createCategory": Object {
-                                    "title": "root",
-                                  },
-                                }
+                                                Object {
+                                                  "createCategory": Object {
+                                                    "title": "root",
+                                                  },
+                                                }
                 `);
 });
 
@@ -68,12 +69,12 @@ test('QuerySingleCategory', async () => {
     `,
   });
   expect(data).toMatchInlineSnapshot(`
-                                Object {
-                                  "category": Object {
-                                    "title": "root",
-                                  },
-                                }
-                `);
+                                      Object {
+                                        "category": Object {
+                                          "title": "root",
+                                        },
+                                      }
+                  `);
 });
 
 test('QueryCategories after create', async () => {
@@ -82,14 +83,14 @@ test('QueryCategories after create', async () => {
     variables: {},
   });
   expect(data).toMatchInlineSnapshot(`
-                            Object {
-                              "categories": Array [
-                                Object {
-                                  "title": "root",
-                                },
-                              ],
-                            }
-              `);
+                                    Object {
+                                      "categories": Array [
+                                        Object {
+                                          "title": "root",
+                                        },
+                                      ],
+                                    }
+                  `);
 });
 
 test('CreateChildCategory "JS"', async () => {
@@ -98,15 +99,15 @@ test('CreateChildCategory "JS"', async () => {
     variables: { title: 'JS', parentTitle: 'root' },
   });
   expect(data).toMatchInlineSnapshot(`
-                        Object {
-                          "createCategory": Object {
-                            "parentCategory": Object {
-                              "title": "root",
-                            },
-                            "title": "JS",
-                          },
-                        }
-            `);
+                                    Object {
+                                      "createCategory": Object {
+                                        "parentCategory": Object {
+                                          "title": "root",
+                                        },
+                                        "title": "JS",
+                                      },
+                                    }
+                `);
 });
 
 test('CreateChildCategory "MongoDB"', async () => {
@@ -115,15 +116,15 @@ test('CreateChildCategory "MongoDB"', async () => {
     variables: { title: 'MongoDB', parentTitle: 'root' },
   });
   expect(data).toMatchInlineSnapshot(`
-                    Object {
-                      "createCategory": Object {
-                        "parentCategory": Object {
-                          "title": "root",
-                        },
-                        "title": "MongoDB",
-                      },
-                    }
-          `);
+                                    Object {
+                                      "createCategory": Object {
+                                        "parentCategory": Object {
+                                          "title": "root",
+                                        },
+                                        "title": "MongoDB",
+                                      },
+                                    }
+                  `);
 });
 
 test('CreateChildCategory "React"', async () => {
@@ -132,15 +133,118 @@ test('CreateChildCategory "React"', async () => {
     variables: { title: 'React', parentTitle: 'JS' },
   });
   expect(data).toMatchInlineSnapshot(`
+                                  Object {
+                                    "createCategory": Object {
+                                      "parentCategory": Object {
+                                        "title": "JS",
+                                      },
+                                      "title": "React",
+                                    },
+                                  }
+                `);
+});
+
+test('Update category', async () => {
+  let { data } = await mutate({
+    mutation: gql`
+      mutation update($oldTitle: String!, $newTitle: String!) {
+        updateCategory(
+          where: { title: $oldTitle }
+          data: { title: $newTitle }
+        ) {
+          title
+        }
+      }
+    `,
+    variables: { oldTitle: 'JS', newTitle: 'JavaScript' },
+  });
+  expect(data).toMatchInlineSnapshot(`
+                                          Object {
+                                            "updateCategory": Object {
+                                              "title": "JavaScript",
+                                            },
+                                          }
+                    `);
+});
+
+test('Query categories after renaming', async () => {
+  let { data } = await query({
+    query: gql`
+      {
+        categories {
+          title
+        }
+      }
+    `,
+  });
+  expect(data).toMatchInlineSnapshot(`
+                                Object {
+                                  "categories": Array [
+                                    Object {
+                                      "title": "root",
+                                    },
+                                    Object {
+                                      "title": "JavaScript",
+                                    },
+                                    Object {
+                                      "title": "MongoDB",
+                                    },
+                                    Object {
+                                      "title": "React",
+                                    },
+                                  ],
+                                }
+                `);
+});
+
+test('Rename category back', async () => {
+  let { data } = await mutate({
+    mutation: gql`
+      mutation update($oldTitle: String!, $newTitle: String!) {
+        updateCategory(
+          where: { title: $oldTitle }
+          data: { title: $newTitle }
+        ) {
+          title
+        }
+      }
+    `,
+    variables: { oldTitle: 'JavaScript', newTitle: 'JS' },
+  });
+  expect(data).toMatchInlineSnapshot(`
                     Object {
-                      "createCategory": Object {
-                        "parentCategory": Object {
-                          "title": "JS",
-                        },
-                        "title": "React",
+                      "updateCategory": Object {
+                        "title": "JS",
                       },
                     }
           `);
+});
+
+test('Query Category with parent relation', async () => {
+  let { errors, data } = await query({
+    query: gql`
+      {
+        category(where: { title: "JS" }) {
+          title
+          parentCategory {
+            title
+          }
+        }
+      }
+    `,
+    variables: {},
+  });
+  expect(errors).toBeUndefined();
+  expect(data).toMatchInlineSnapshot(`
+            Object {
+              "category": Object {
+                "parentCategory": Object {
+                  "title": "root",
+                },
+                "title": "JS",
+              },
+            }
+      `);
 });
 
 test('QueryCategoriesExtRelation', async () => {
@@ -149,45 +253,45 @@ test('QueryCategoriesExtRelation', async () => {
     variables: {},
   });
   expect(data).toMatchInlineSnapshot(`
-                Object {
-                  "categories": Array [
-                    Object {
-                      "subcategories": Array [
-                        Object {
-                          "subcategories": Array [
-                            Object {
-                              "title": "React",
-                            },
-                          ],
-                          "title": "JS",
-                        },
-                        Object {
-                          "subcategories": Array [],
-                          "title": "MongoDB",
-                        },
-                      ],
-                      "title": "root",
-                    },
-                    Object {
-                      "subcategories": Array [
-                        Object {
-                          "subcategories": Array [],
-                          "title": "React",
-                        },
-                      ],
-                      "title": "JS",
-                    },
-                    Object {
-                      "subcategories": Array [],
-                      "title": "MongoDB",
-                    },
-                    Object {
-                      "subcategories": Array [],
-                      "title": "React",
-                    },
-                  ],
-                }
-        `);
+                                    Object {
+                                      "categories": Array [
+                                        Object {
+                                          "subcategories": Array [
+                                            Object {
+                                              "subcategories": Array [
+                                                Object {
+                                                  "title": "React",
+                                                },
+                                              ],
+                                              "title": "JS",
+                                            },
+                                            Object {
+                                              "subcategories": Array [],
+                                              "title": "MongoDB",
+                                            },
+                                          ],
+                                          "title": "root",
+                                        },
+                                        Object {
+                                          "subcategories": Array [
+                                            Object {
+                                              "subcategories": Array [],
+                                              "title": "React",
+                                            },
+                                          ],
+                                          "title": "JS",
+                                        },
+                                        Object {
+                                          "subcategories": Array [],
+                                          "title": "MongoDB",
+                                        },
+                                        Object {
+                                          "subcategories": Array [],
+                                          "title": "React",
+                                        },
+                                      ],
+                                    }
+                `);
 });
 
 test('QueryCategoriesByTitle', async () => {
@@ -196,14 +300,14 @@ test('QueryCategoriesByTitle', async () => {
     variables: { title: 'root' },
   });
   expect(data).toMatchInlineSnapshot(`
-            Object {
-              "categories": Array [
-                Object {
-                  "title": "root",
-                },
-              ],
-            }
-      `);
+                                            Object {
+                                              "categories": Array [
+                                                Object {
+                                                  "title": "root",
+                                                },
+                                              ],
+                                            }
+                      `);
 });
 
 test('CategoriesComplexFilterOr', async () => {
@@ -212,17 +316,17 @@ test('CategoriesComplexFilterOr', async () => {
     variables: {},
   });
   expect(data).toMatchInlineSnapshot(`
-        Object {
-          "categories": Array [
-            Object {
-              "title": "root",
-            },
-            Object {
-              "title": "JS",
-            },
-          ],
-        }
-    `);
+                                        Object {
+                                          "categories": Array [
+                                            Object {
+                                              "title": "root",
+                                            },
+                                            Object {
+                                              "title": "JS",
+                                            },
+                                          ],
+                                        }
+                    `);
 });
 
 test('CategoriesRelationFilter', async () => {
@@ -231,17 +335,17 @@ test('CategoriesRelationFilter', async () => {
     variables: { title: 'root' },
   });
   expect(data).toMatchInlineSnapshot(`
-    Object {
-      "categories": Array [
-        Object {
-          "title": "JS",
-        },
-        Object {
-          "title": "MongoDB",
-        },
-      ],
-    }
-  `);
+                                    Object {
+                                      "categories": Array [
+                                        Object {
+                                          "title": "JS",
+                                        },
+                                        Object {
+                                          "title": "MongoDB",
+                                        },
+                                      ],
+                                    }
+                  `);
 });
 
 test('CreateSubscriberWithEmbeddedDocument', async () => {
@@ -250,16 +354,82 @@ test('CreateSubscriberWithEmbeddedDocument', async () => {
     variables: {},
   });
   expect(data).toMatchInlineSnapshot(`
-    Object {
-      "createSubscriber": Object {
-        "profile": Object {
-          "firstName": "Gwion",
-          "lastName": "Britt",
-        },
-        "username": "subscriber1",
-      },
-    }
-  `);
+                                    Object {
+                                      "createSubscriber": Object {
+                                        "profile": Object {
+                                          "firstName": "Gwion",
+                                          "lastName": "Britt",
+                                        },
+                                        "username": "subscriber1",
+                                      },
+                                    }
+                  `);
+});
+
+test('Update subscriber nested field', async () => {
+  let { data, errors } = await mutate({
+    mutation: gql`
+      mutation updateSubscribersName($username: String!, $firstName: String!) {
+        updateSubscriber(
+          data: { profile: { update: { firstName: $firstName } } }
+          where: { username: $username }
+        ) {
+          username
+          profile {
+            firstName
+          }
+        }
+      }
+    `,
+    variables: {
+      username: 'subscriber1',
+      firstName: 'New first name',
+    },
+  });
+  expect(errors).toBeUndefined();
+  expect(data).toMatchInlineSnapshot(`
+                                    Object {
+                                      "updateSubscriber": Object {
+                                        "profile": Object {
+                                          "firstName": "New first name",
+                                        },
+                                        "username": "subscriber1",
+                                      },
+                                    }
+                  `);
+});
+
+test('Rename subscriber back', async () => {
+  let { data, errors } = await mutate({
+    mutation: gql`
+      mutation updateSubscribersName($username: String!, $firstName: String!) {
+        updateSubscriber(
+          data: { profile: { update: { firstName: $firstName } } }
+          where: { username: $username }
+        ) {
+          username
+          profile {
+            firstName
+          }
+        }
+      }
+    `,
+    variables: {
+      username: 'subscriber1',
+      firstName: 'Gwion',
+    },
+  });
+  expect(errors).toBeUndefined();
+  expect(data).toMatchInlineSnapshot(`
+                                    Object {
+                                      "updateSubscriber": Object {
+                                        "profile": Object {
+                                          "firstName": "Gwion",
+                                        },
+                                        "username": "subscriber1",
+                                      },
+                                    }
+                  `);
 });
 
 test('CreateAdmin', async () => {
@@ -269,18 +439,33 @@ test('CreateAdmin', async () => {
   });
   expect(errors).toBeUndefined();
   expect(data).toMatchInlineSnapshot(`
-    Object {
-      "createAdmin": Object {
-        "username": "admin",
-      },
-    }
-  `);
+                                    Object {
+                                      "createAdmin": Object {
+                                        "username": "admin",
+                                      },
+                                    }
+                  `);
 });
 
 let postId = '';
 test('CreatePostWithInterfaceRelation', async () => {
   let res = await query({
-    query: CreatePostWithInterfaceRelation,
+    query: gql`
+      mutation {
+        createPost(
+          data: {
+            title: "Build GraphQL API with Apollo"
+            body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+            owner: { create: { Admin: { username: "moderator" } } }
+            category: { connect: { title: "JS" } }
+            place: { type: Point, coordinates: [0, 51] }
+          }
+        ) {
+          id
+          title
+        }
+      }
+    `,
     variables: {},
   });
   let { data, errors } = res;
@@ -299,10 +484,27 @@ test('QueryUsersInterface', async () => {
 });
 
 test('QueryPostsNearPoint', async () => {
-  let { data } = await query({
-    query: QueryPostsNearPoint,
+  let { errors, data } = await query({
+    query: gql`
+      query {
+        posts(
+          where: {
+            place_near: {
+              geometry: { type: Point, coordinates: [0, 51.01] }
+              maxDistance: 10000
+            }
+          }
+        ) {
+          title
+          place {
+            distance(toPoint: { type: Point, coordinates: [0, 51.01] })
+          }
+        }
+      }
+    `,
     variables: {},
   });
+  expect(errors).toBeUndefined();
   expect(data).toMatchSnapshot();
 });
 
@@ -316,7 +518,13 @@ test('CategoriesSameFieldFilter', async () => {
 
 test('CategoriesOrderByFieldWithDBDirective', async () => {
   let { data } = await query({
-    query: CategoriesOrderByFieldWithDBDirective,
+    query: gql`
+      query {
+        categories(orderBy: createdAt_DESC) {
+          title
+        }
+      }
+    `,
     variables: {},
   });
   expect(data).toMatchSnapshot();
@@ -352,26 +560,69 @@ test('CreateShop abstract interface', async () => {
 
 test('QueryShops', async () => {
   let { data } = await query({
-    query: QueryShops,
+    query: gql`
+      {
+        shops {
+          title
+        }
+      }
+    `,
     variables: {},
   });
-  expect(data).toMatchSnapshot();
+  expect(data).toMatchInlineSnapshot(`
+            Object {
+              "shops": Array [
+                Object {
+                  "title": "ifc mall",
+                },
+              ],
+            }
+      `);
 });
 
 test('QueryShopById', async () => {
-  let { data } = await query({
-    query: QueryShopById,
-    variables: { shopId },
+  let { data, errors } = await query({
+    query: gql`
+      query shop($id: ObjectID!) {
+        shop(where: { id: $id }) {
+          title
+        }
+      }
+    `,
+    variables: { id: shopId },
   });
+  expect(errors).toBeUndefined();
   expect(data).toMatchSnapshot();
 });
 
 test('Update Post create abstract relation Hotel ', async () => {
-  let { data } = await query({
-    query: UpdatePostCreateHotel,
+  let { data, errors } = await query({
+    query: gql`
+      mutation updatePost($postId: ObjectID) {
+        updatePost(
+          where: { id: $postId }
+          data: { pois: { create: { Hotel: { title: "Marriott", stars: 5 } } } }
+        ) {
+          pois {
+            title
+          }
+        }
+      }
+    `,
     variables: { postId },
   });
-  expect(data).toMatchSnapshot();
+  expect(errors).toBeUndefined();
+  expect(data).toMatchInlineSnapshot(`
+        Object {
+          "updatePost": Object {
+            "pois": Array [
+              Object {
+                "title": "Marriott",
+              },
+            ],
+          },
+        }
+    `);
 });
 
 test('QueryHotels', async () => {
@@ -379,22 +630,44 @@ test('QueryHotels', async () => {
     query: QueryHotels,
     variables: {},
   });
-  expect(data).toMatchSnapshot();
+  expect(data).toMatchInlineSnapshot(`
+                Object {
+                  "hotels": Array [
+                    Object {
+                      "stars": 5,
+                      "title": "Marriott",
+                    },
+                  ],
+                }
+      `);
 });
 
 test('UpdatePostConnectShop', async () => {
-  let { data } = await query({
-    query: UpdatePostConnectShop,
+  let { errors, data } = await query({
+    query: gql`
+      mutation updatePost($postId: ObjectID, $shopId: ObjectID) {
+        updatePost(
+          where: { id: $postId }
+          data: { pois: { connect: { Shop: { id: $shopId } } } }
+        ) {
+          pois {
+            title
+          }
+        }
+      }
+    `,
     variables: { postId, shopId },
   });
+  expect(errors).toBeUndefined();
   expect(data).toMatchSnapshot();
 });
 
 test('UpdatePostDisconnectShop', async () => {
-  let { data } = await query({
+  let { errors, data } = await query({
     query: UpdatePostDisconnectShop,
     variables: { postId, shopId },
   });
+  expect(errors).toBeUndefined();
   expect(data).toMatchSnapshot();
 });
 
@@ -414,12 +687,22 @@ test('UpdatePostDeleteShop', async () => {
   expect(data).toMatchSnapshot();
 });
 
-test('QueryShopById', async () => {
+test('QueryShopById after updates', async () => {
   let { data } = await query({
-    query: QueryShopById,
-    variables: { shopId },
+    query: gql`
+      query shop($id: ObjectID!) {
+        shop(where: { id: $id }) {
+          title
+        }
+      }
+    `,
+    variables: { id: shopId },
   });
-  expect(data).toMatchSnapshot();
+  expect(data).toMatchInlineSnapshot(`
+                        Object {
+                          "shop": null,
+                        }
+            `);
 });
 
 test('test empty object instead array', async () => {

@@ -1,13 +1,16 @@
 import { AMContext } from '../context';
-import { AMObjectFieldValueType } from '../../types';
+import { AMObjectFieldValueType, AMModelField } from '../../types';
 
 export class AMObjectFieldContext extends AMContext {
   fieldName: string;
+  field: AMModelField;
   value: AMObjectFieldValueType;
+  nested: boolean = false;
 
-  constructor(fieldName?: string) {
+  constructor(fieldName?: string, field?: AMModelField) {
     super();
     this.fieldName = fieldName;
+    this.field = field;
   }
 
   setValue(value: AMObjectFieldValueType) {
@@ -19,5 +22,13 @@ export class AMObjectFieldContext extends AMContext {
       this.value = {};
     }
     this.value[key] = value;
+  }
+
+  setNested(nested: boolean) {
+    this.nested = nested;
+  }
+
+  isNested() {
+    return this.nested;
   }
 }

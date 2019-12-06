@@ -1,37 +1,35 @@
-import { GraphQLInt, GraphQLList, GraphQLNonNull } from 'graphql';
+import { GraphQLNonNull, GraphQLInt } from 'graphql';
 import pluralize from 'pluralize';
 import R from 'ramda';
-import { AMReadOperation } from '../execution/operations/readOperation';
-import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
-import { AMWhereTypeFactory } from '../inputTypes/where';
-import { lowercaseFirstLetter } from '../tsutils';
-import { AMField, AMModelType, IAMModelQueryFieldFactory } from '../types';
-import { resolve } from '../resolve';
-import { AMCreateTypeFactory } from '../inputTypes/create';
-import { AMCreateOperation } from '../execution/operations/createOperation';
 import { AMDeleteOperation } from '../execution/operations/deleteOperation';
 import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
+import { resolve } from '../resolve';
+import { AMField, AMModelType, IAMModelQueryFieldFactory } from '../types';
+import { AMWhereTypeFactory } from '../inputTypes/where';
 
-export const AMModelDeleteMutationFieldFactory: IAMModelQueryFieldFactory = {
+export const AMModelDeleteManyMutationFieldFactory: IAMModelQueryFieldFactory = {
   getFieldName(modelType: AMModelType): string {
-    return R.concat('delete')(modelType.name);
+    return R.pipe(
+      pluralize,
+      R.concat('delete')
+    )(modelType.name);
   },
   getField(modelType: AMModelType, resolveTypes) {
     return <AMField>{
       name: this.getFieldName(modelType),
       description: '',
-      type: modelType,
+      type: new GraphQLNonNull(GraphQLInt),
       args: [
         {
           name: 'where',
           type: new GraphQLNonNull(
-            resolveTypes.resolveFactoryType(modelType, AMWhereUniqueTypeFactory)
+            resolveTypes.resolveFactoryType(modelType, AMWhereTypeFactory)
           ),
         },
       ],
       amEnter(node, transaction, stack) {
         const operation = new AMDeleteOperation(transaction, {
-          many: false,
+          many: true,
           collectionName: modelType.mmCollectionName,
         });
         stack.push(operation);

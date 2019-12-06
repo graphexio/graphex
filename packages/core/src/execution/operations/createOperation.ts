@@ -9,9 +9,12 @@ export class AMCreateOperation extends AMOperation {
         ? AMDBExecutorOperationType.INSERT_MANY
         : AMDBExecutorOperationType.INSERT_ONE,
       collection: this.collectionName,
-      doc: await completeAMResultPromise(
-        this.data ? this.data.data : undefined
-      ),
+      ...(this.data
+        ? { doc: await completeAMResultPromise(this.data.data) }
+        : undefined),
+      ...(this.dataList
+        ? { docs: await completeAMResultPromise(this.dataList.values) }
+        : undefined),
       fields: await completeAMResultPromise(
         this.fieldsSelection ? this.fieldsSelection.fields : undefined
       ),

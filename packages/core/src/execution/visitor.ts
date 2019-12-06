@@ -37,6 +37,7 @@ import R from 'ramda';
 import { AMOperation } from './operation';
 import { AMObjectFieldContext } from './contexts/objectField';
 import { AMListValueContext } from './contexts/listValue';
+import { AMDataContext } from './contexts/data';
 
 function isAMModelField(
   object: AMField | AMModelField
@@ -201,6 +202,8 @@ export class AMVisitor {
 
           if (lastInStack instanceof AMObjectFieldContext) {
             lastInStack.setValue(action.values);
+          } else if (lastInStack instanceof AMListValueContext) {
+            lastInStack.setValues(action.values);
           }
         },
       },
@@ -216,6 +219,11 @@ export class AMVisitor {
           const type = getNamedType(typeInfo.getInputType()) as AMEnumType;
           if (type.amLeave) {
             type.amLeave(node, transaction, stack);
+          } else {
+            const lastInStack = R.last(stack);
+            if (lastInStack instanceof AMObjectFieldContext) {
+              lastInStack.setValue(node.value);
+            }
           }
         },
       },

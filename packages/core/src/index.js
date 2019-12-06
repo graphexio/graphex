@@ -1,78 +1,42 @@
-import { makeExecutableSchema as makeGraphQLSchema } from 'graphql-tools';
-const { printSchema } = require('@apollo/federation');
-import federationDirectives from '@apollo/federation/dist/directives';
-
+import { COUNT, FIND } from '@apollo-model/mongodb-executor';
+import TypeWrap from '@apollo-model/type-wrap';
 import {
   GraphQLInt,
   GraphQLList,
   GraphQLNonNull,
   GraphQLObjectType,
+  GraphQLScalarType,
   GraphQLString,
   GraphQLUnionType,
-  GraphQLScalarType,
-  isCompositeType,
 } from 'graphql';
+import { makeExecutableSchema as makeGraphQLSchema } from 'graphql-tools';
 import _ from 'lodash';
 import pluralize from 'pluralize';
-
+import appendField from './appendField';
+import InitialScheme from './initialScheme';
+import InputTypes, { EmptyTypeException } from './inputTypes';
+import { INPUT_TYPE_KIND } from './inputTypes/kinds';
+import { applyInputTransform } from './inputTypes/utils';
 import {
-  COUNT,
-  DELETE_MANY,
-  DELETE_ONE,
-  FIND,
-  FIND_ONE,
-  INSERT_ONE,
-  UPDATE_ONE,
-} from '@apollo-model/mongodb-executor';
-
+  getMethodName,
+  MULTIPLE_PAGINATION_QUERY,
+  SINGLE_QUERY,
+} from './methodKinds.js';
+import { AMModelCreateMutationFieldFactory } from './modelMutationFields/createMutation';
+import { AMModelDeleteManyMutationFieldFactory } from './modelMutationFields/deleteManyMutation';
+import { AMModelDeleteOneMutationFieldFactory } from './modelMutationFields/deleteOneMutation';
+import { AMModelUpdateMutationFieldFactory } from './modelMutationFields/updateMutation';
+import { AMModelMultipleQueryFieldFactory } from './modelQueryFields/multipleQuery';
+import { AMModelSingleQueryFieldFactory } from './modelQueryFields/singleQuery';
+import Modules from './modules';
+import { prepare } from './prepare/prepare';
 import {
   allQueryArgs,
-  cloneSchema,
-  combineResolvers,
   getDirective,
-  getDirectiveArg,
   getLastType,
-  getRelationFieldName,
-  hasQLListType,
-  hasQLNonNullType,
   lowercaseFirstLetter,
-  prepareUpdateDoc,
 } from './utils';
-import TypeWrap from '@apollo-model/type-wrap';
-
-import R from 'ramda';
-
-import InitialScheme from './initialScheme';
-import Modules from './modules';
-
-import InputTypes, { EmptyTypeException } from './inputTypes';
-import { applyInputTransform } from './inputTypes/utils';
-
-import { INPUT_TYPE_KIND } from './inputTypes/kinds';
-
-import {
-  SINGLE_QUERY,
-  MULTIPLE_QUERY,
-  CONNECTION_QUERY,
-  MULTIPLE_PAGINATION_QUERY,
-  CREATE_MUTATION,
-  DELETE_MUTATION,
-  DELETE_MANY_MUTATION,
-  UPDATE_MUTATION,
-  getMethodName,
-} from './methodKinds.js';
-
-import appendField from './appendField';
-
-import { AMModelCreateMutationFieldFactory } from './modelMutationFields/createMutation';
-import { AMModelMultipleQueryFieldFactory } from './modelQueryFields/multipleQuery';
-import { AMModelDeleteMutationFieldFactory } from './modelMutationFields/deleteMutation';
-
-import { AMModelSingleQueryFieldFactory } from './modelQueryFields/singleQuery';
-
-import { AMFieldsSelectionContext } from './execution/contexts/fieldsSelection';
-
-import { prepare } from './prepare/prepare';
+const { printSchema } = require('@apollo/federation');
 
 export default class ModelMongo {
   constructor({ queryExecutor, options = {}, modules = [] }) {
@@ -94,50 +58,6 @@ export default class ModelMongo {
       AMModelMultipleQueryFieldFactory,
       modelType
     );
-
-    // let typeWrap = new TypeWrap(modelType);
-    // let whereType, orderByType;
-    // try {
-    //   whereType = this._inputType(modelType, INPUT_TYPE_KIND.WHERE);
-    //   orderByType = this._inputType(modelType, INPUT_TYPE_KIND.ORDER_BY);
-    // } catch (e) {
-    //   if (e instanceof EmptyTypeException) {
-    //     return;
-    //   } else throw e;
-    // }
-
-    // const name = getMethodName(MULTIPLE_QUERY)(modelType.name);
-
-    // this.Query._fields[name] = {
-    //   type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(modelType))),
-    //   args: allQueryArgs({ whereType, orderByType }),
-    //   isDeprecated: false,
-    //   name,
-    //   resolve: async (parent, args, context, info) => {
-    //     console.log(info.fieldNodes);
-    //     let selector = await applyInputTransform({ parent, context })(
-    //       args.where,
-    //       whereType
-    //     );
-    //     if (
-    //       typeWrap.interfaceWithDirective('model') &&
-    //       typeWrap.interfaceWithDirective('model').mmDiscriminatorField
-    //       // && !new TypeWrap(typeWrap.interfaceType()).isAbstract()
-    //     ) {
-    //       selector[
-    //         typeWrap.interfaceWithDirective('model').mmDiscriminatorField
-    //       ] = typeWrap.realType().mmDiscriminator;
-    //     }
-    //     return this.QueryExecutor({
-    //       type: FIND,
-    //       modelType,
-    //       collection: modelType.mmCollectionName,
-    //       selector,
-    //       options: { skip: args.skip, limit: args.first, sort: args.orderBy },
-    //       context,
-    //     });
-    //   },
-    // };
   };
 
   _createSingleQuery = modelType => {
@@ -147,7 +67,7 @@ export default class ModelMongo {
       AMModelSingleQueryFieldFactory,
       modelType
     );
-  }  
+  };
 
   _paginationType = type => {
     return InputTypes._paginationType(type);
@@ -304,70 +224,6 @@ export default class ModelMongo {
     };
   };
 
-  // _createSingleQuery = modelType => {
-  //   let typeWrap = new TypeWrap(modelType);
-  //   let whereUniqueType;
-  //   try {
-  //     whereUniqueType = this._inputType(
-  //       modelType,
-  //       INPUT_TYPE_KIND.WHERE_UNIQUE
-  //     );
-  //   } catch (e) {
-  //     if (e instanceof EmptyTypeException) {
-  //       return;
-  //     } else throw e;
-  //   }
-
-  //   let args = [
-  //     {
-  //       name: 'where',
-  //       type: whereUniqueType,
-  //     },
-  //   ];
-
-  //   const name = getMethodName(SINGLE_QUERY)(modelType.name);
-
-  //   const resolve = async (parent, args, context) => {
-  //     let selector = await applyInputTransform({ parent, context })(
-  //       args.where,
-  //       whereUniqueType
-  //     );
-  //     // let entries = Object.entries(selector);
-  //     // let [selectorField, id] = entries.length ? Object.entries(selector)[0]: ["_id"];
-  //     if (
-  //       typeWrap.interfaceWithDirective('model') &&
-  //       typeWrap.interfaceWithDirective('model').mmDiscriminatorField
-  //       // && !new TypeWrap(typeWrap.interfaceType()).isAbstract()
-  //     ) {
-  //       selector[
-  //         typeWrap.interfaceWithDirective('model').mmDiscriminatorField
-  //       ] = typeWrap.realType().mmDiscriminator;
-  //     }
-  //     return this.QueryExecutor({
-  //       type: FIND_ONE,
-  //       modelType,
-  //       collection: modelType.mmCollectionName,
-  //       selector,
-  //       options: {
-  //         // selectorField,
-  //         // id,
-  //       },
-  //       context,
-  //     });
-  //   };
-
-  //   this.Query._fields[name] = {
-  //     type: modelType,
-  //     description: undefined,
-  //     args,
-  //     deprecationReason: undefined,
-  //     isDeprecated: false,
-  //     name,
-  //     resolve,
-  //     __ammResolve: resolve,
-  //   };
-  // };
-
   _createCreateMutation = modelType => {
     appendField(
       this.Schema,
@@ -375,282 +231,33 @@ export default class ModelMongo {
       AMModelCreateMutationFieldFactory,
       modelType
     );
-
-    // let typeWrap = new TypeWrap(modelType);
-    // let args = [];
-    // let inputType;
-    // try {
-    //   inputType = this._inputType(modelType, INPUT_TYPE_KIND.CREATE);
-    //   args = [
-    //     {
-    //       type: new GraphQLNonNull(inputType),
-    //       name: 'data',
-    //     },
-    //   ];
-    // } catch (e) {
-    //   if (!(e instanceof EmptyTypeException)) {
-    //     throw e;
-    //   }
-    // }
-
-    // const name = getMethodName(CREATE_MUTATION)(modelType.name);
-    // this.Mutation._fields[name] = {
-    //   type: modelType,
-    //   args: args,
-    //   isDeprecated: false,
-    //   name,
-    //   resolve: async (parent, args, context) => {
-    //     // let data = await applyAlwaysInputTransform({ parent, context })(
-    //     //   modelType,
-    //     //   args.data,
-    //     //   INPUT_TYPE_KIND.CREATE_ALWAYS
-    //     // );
-    //     let doc = await applyInputTransform({ parent, context })(
-    //       args.data,
-    //       inputType
-    //     );
-
-    //     if (
-    //       typeWrap.interfaceWithDirective('model') &&
-    //       typeWrap.interfaceWithDirective('model').mmDiscriminatorField
-    //       // && !new TypeWrap(typeWrap.interfaceType()).isAbstract()
-    //     ) {
-    //       doc[
-    //         typeWrap.interfaceWithDirective('model').mmDiscriminatorField
-    //       ] = typeWrap.realType().mmDiscriminator;
-    //     }
-
-    //     return this.QueryExecutor({
-    //       type: INSERT_ONE,
-    //       collection: modelType.mmCollectionName,
-    //       doc,
-    //       options: {},
-    //       context,
-    //     });
-    //   },
-    // };
   };
 
-  _createDeleteMutation = modelType => {
+  _createDeleteOneMutation = modelType => {
     appendField(
       this.Schema,
       this.Schema.getMutationType(),
-      AMModelDeleteMutationFieldFactory,
+      AMModelDeleteOneMutationFieldFactory,
       modelType
     );
-    // let typeWrap = new TypeWrap(modelType);
-    // let whereUniqueType;
-    // try {
-    //   whereUniqueType = this._inputType(
-    //     modelType,
-    //     INPUT_TYPE_KIND.WHERE_UNIQUE
-    //   );
-    // } catch (e) {
-    //   if (e instanceof EmptyTypeException) {
-    //     return;
-    //   } else throw e;
-    // }
-
-    // let args = [
-    //   {
-    //     type: new GraphQLNonNull(whereUniqueType),
-    //     name: 'where',
-    //   },
-    // ];
-
-    // const name = getMethodName(DELETE_MUTATION)(modelType.name);
-    // this.Mutation._fields[name] = {
-    //   type: modelType,
-    //   args,
-    //   isDeprecated: false,
-    //   name,
-    //   resolve: async (parent, args, context) => {
-    //     let selector = await applyInputTransform({ parent, context })(
-    //       args.where,
-    //       whereUniqueType
-    //     );
-    //     if (
-    //       typeWrap.interfaceWithDirective('model') &&
-    //       typeWrap.interfaceWithDirective('model').mmDiscriminatorField
-    //       // && !new TypeWrap(typeWrap.interfaceType()).isAbstract()
-    //     ) {
-    //       selector[
-    //         typeWrap.interfaceWithDirective('model').mmDiscriminatorField
-    //       ] = typeWrap.realType().mmDiscriminator;
-    //     }
-
-    //     return this.QueryExecutor({
-    //       type: DELETE_ONE,
-    //       collection: modelType.mmCollectionName,
-    //       selector,
-    //       options: {},
-    //       context,
-    //     });
-    //   },
-    // };
   };
 
   _createDeleteManyMutation = modelType => {
-    let typeWrap = new TypeWrap(modelType);
-    let whereType;
-    try {
-      whereType = this._inputType(modelType, INPUT_TYPE_KIND.WHERE);
-    } catch (e) {
-      if (e instanceof EmptyTypeException) {
-        return;
-      } else throw e;
-    }
-
-    let args = [
-      {
-        type: new GraphQLNonNull(whereType),
-        name: 'where',
-      },
-    ];
-
-    const name = getMethodName(DELETE_MANY_MUTATION)(modelType.name);
-    this.Mutation._fields[name] = {
-      type: new GraphQLNonNull(GraphQLInt),
-      args,
-      isDeprecated: false,
-      name,
-      resolve: async (parent, args, context) => {
-        let selector = await applyInputTransform({ parent, context })(
-          args.where,
-          whereType
-        );
-        if (
-          typeWrap.interfaceWithDirective('model') &&
-          typeWrap.interfaceWithDirective('model').mmDiscriminatorField
-          // && !new TypeWrap(typeWrap.interfaceType()).isAbstract()
-        ) {
-          selector[
-            typeWrap.interfaceWithDirective('model').mmDiscriminatorField
-          ] = typeWrap.realType().mmDiscriminator;
-        }
-
-        return this.QueryExecutor({
-          type: DELETE_MANY,
-          collection: modelType.mmCollectionName,
-          selector,
-          options: {},
-          context,
-        });
-      },
-    };
+    appendField(
+      this.Schema,
+      this.Schema.getMutationType(),
+      AMModelDeleteManyMutationFieldFactory,
+      modelType
+    );
   };
 
   _createUpdateMutation = modelType => {
-    let typeWrap = new TypeWrap(modelType);
-    let args;
-    let whereType, updateType;
-    try {
-      whereType = this._inputType(modelType, INPUT_TYPE_KIND.WHERE_UNIQUE);
-      updateType = this._inputType(modelType, INPUT_TYPE_KIND.UPDATE);
-    } catch (e) {
-      if (e instanceof EmptyTypeException) {
-        return;
-      } else throw e;
-    }
-    args = [
-      {
-        type: new GraphQLNonNull(updateType),
-        name: 'data',
-      },
-      {
-        type: new GraphQLNonNull(whereType),
-        name: 'where',
-      },
-    ];
-    // }
-
-    const name = getMethodName(UPDATE_MUTATION)(modelType.name);
-    this.Mutation._fields[name] = {
-      type: modelType,
-      args,
-      isDeprecated: false,
-      name,
-      resolve: async (parent, args, context) => {
-        // let data = await applyAlwaysInputTransform({ parent, context })(
-        //   modelType,
-        //   args.data,
-        //   INPUT_TYPE_KIND.UPDATE_ALWAYS
-        // );
-        let data = await applyInputTransform({ parent, context })(
-          args.data,
-          updateType
-        );
-        let {
-          doc,
-          validations,
-          arrayFilters,
-          postResolvers,
-        } = prepareUpdateDoc(data);
-        // console.log(doc, validations, arrayFilters);
-        let selector = await applyInputTransform({ parent, context })(
-          args.where,
-          whereType
-        );
-        if (Object.keys(validations).length !== 0) {
-          selector = { $and: [selector, validations] };
-        }
-
-        if (
-          typeWrap.interfaceWithDirective('model') &&
-          typeWrap.interfaceWithDirective('model').mmDiscriminatorField
-          // && !new TypeWrap(typeWrap.interfaceType()).isAbstract()
-        ) {
-          selector[
-            typeWrap.interfaceWithDirective('model').mmDiscriminatorField
-          ] = typeWrap.realType().mmDiscriminator;
-        }
-
-        return this.QueryExecutor({
-          type: UPDATE_ONE,
-          collection: modelType.mmCollectionName,
-          selector,
-          doc,
-          options: { arrayFilters },
-          context,
-        }).then(response => {
-          if (Object.keys(postResolvers).length) {
-            let promises = [];
-            let update = {};
-            Object.entries(postResolvers).forEach(([type, resolvers]) => {
-              switch (type) {
-                case DELETE_ONE:
-                  promises = resolvers.map(r => {
-                    let { fieldName, collection, relationField } = r;
-                    let id = response[fieldName];
-                    let _s = { [relationField]: response[fieldName] };
-                    return this.QueryExecutor({
-                      type,
-                      collection,
-                      selector: _s,
-                    }).then(() => {
-                      let { $unset = {} } = update;
-                      $unset[fieldName] = 1;
-                      update.$unset = $unset;
-                    });
-                  });
-                  break;
-              }
-            });
-            return Promise.all(promises).then(() => {
-              return this.QueryExecutor({
-                type: UPDATE_ONE,
-                collection: modelType.mmCollectionName,
-                selector,
-                doc: update,
-                options: { arrayFilters },
-                context,
-              });
-            });
-          }
-          return response;
-        });
-      },
-    };
+    appendField(
+      this.Schema,
+      this.Schema.getMutationType(),
+      AMModelUpdateMutationFieldFactory,
+      modelType
+    );
   };
 
   _onSchemaInit = type => {
@@ -826,6 +433,9 @@ export default class ModelMongo {
       typeDefs = [],
     } = params;
 
+    let fieldFactoriesMap = {};
+    let fieldVisitorEventsMap = {};
+
     // let modules = [
     //   ...this.Modules.map(item => ({
     //     typeDefs: item.typeDef,
@@ -866,6 +476,19 @@ export default class ModelMongo {
       if (module.setQueryExecutor) {
         module.setQueryExecutor(this.QueryExecutor);
       }
+
+      if (module.fieldFactoriesMap) {
+        fieldFactoriesMap = _.merge(
+          fieldFactoriesMap,
+          module.fieldFactoriesMap
+        );
+      }
+      if (module.fieldVisitorEventsMap) {
+        fieldVisitorEventsMap = _.merge(
+          fieldVisitorEventsMap,
+          module.fieldVisitorEventsMap
+        );
+      }
     });
 
     let modelParams = {
@@ -890,7 +513,7 @@ export default class ModelMongo {
     this.Query = Query;
     this.Mutation = Mutation;
 
-    prepare(schema);
+    prepare(schema, { fieldFactoriesMap, fieldVisitorEventsMap });
 
     // Object.values(SchemaTypes).forEach(type => {
     //   if (type._fields) {
@@ -963,15 +586,20 @@ export default class ModelMongo {
           if (!typeWrap.isInterface()) {
             this._createCreateMutation(type);
           }
-          this._createDeleteMutation(type);
-          // this._createDeleteManyMutation(type);
-          // this._createUpdateMutation(type);
+          this._createDeleteOneMutation(type);
+          this._createDeleteManyMutation(type);
+          this._createUpdateMutation(type);
         }
       }
     });
 
-    Object.values(SchemaTypes).forEach(type => {
-      if (type.getFields) type.getFields();
+    Object.entries(SchemaTypes).forEach(([name, type]) => {
+      if (type.getFields) {
+        type.getFields();
+        if (Object.keys(type.getFields()).length == 0) {
+          delete SchemaTypes[name];
+        }
+      }
     });
 
     //Remove system directives

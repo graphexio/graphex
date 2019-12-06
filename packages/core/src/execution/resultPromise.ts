@@ -1,6 +1,7 @@
 import call from 'ramda/es/call';
 import { AMOperation } from './operation';
 import R from 'ramda';
+import { DBRef, ObjectID } from 'mongodb';
 
 enum AMResultPromiseMethod {
   map,
@@ -11,7 +12,7 @@ type AMValueSource = AMOperation | AMResultPromise<any>;
 export class AMResultPromise<T> {
   _promise: Promise<T>;
   resolve: (value: T) => void;
-  reject: (value: T) => void;
+  reject: (error: any) => void;
 
   _valueSource: AMValueSource;
 
@@ -78,6 +79,19 @@ export class AMResultPromise<T> {
       path,
       relationField,
       storeField,
+      getData,
+    });
+  }
+
+  dbRef(collectionName: string) {
+    return new AMDBRefResultPromise(this, this._promise, {
+      collectionName,
+    });
+  }
+
+  dbRefReplace(path: string, getData: () => AMResultPromise<any>) {
+    return new AMDBRefReplaceResultPromise(this, this._promise, {
+      path,
       getData,
     });
   }
@@ -319,6 +333,102 @@ export class AMLookupResultPromise<T> extends AMResultPromise<T> {
       }', '${this._params.relationField}', '${
         this._params.storeField
       }', ${this._params.getData().toJSON()})`;
+    }
+  }
+}
+
+//////////////////////////////////////////////////
+
+const replaceDBRef = (pathArr: string[], dataMap: { [key: string]: any }) => (
+  value: any
+) => {
+  if (value instanceof Array) {
+    return value.map(replaceDBRef(pathArr, dataMap));
+  } else {
+    if (pathArr.length == 0) {
+      return {
+        ...dataMap[value.namespace][value.oid],
+        mmCollectionName: value.namespace,
+      };
+    } else {
+      return {
+        ...value,
+        [pathArr[0]]: replaceDBRef(pathArr.slice(1), dataMap)(
+          value[pathArr[0]]
+        ),
+      };
+    }
+  }
+};
+
+export class AMDBRefReplaceResultPromise<T> extends AMResultPromise<T> {
+  _params: {
+    path: string;
+    getData: () => AMResultPromise<any>;
+  };
+
+  constructor(
+    source: AMResultPromise<any>,
+    promise: Promise<T>,
+    params: {
+      path: string;
+      getData: () => AMResultPromise<any>;
+    }
+  ) {
+    super(source);
+    this._params = params;
+    const pathArr = params.path.split('.');
+    promise.then(async value => {
+      const newValue = replaceDBRef(pathArr, await this._params.getData())(
+        value
+      );
+      this.resolve(newValue);
+    });
+    promise.catch(this.reject);
+  }
+
+  getValueSource(): string {
+    if (this._valueSource instanceof AMResultPromise) {
+      return `${this._valueSource.getValueSource()} -> dbRefReplace('${
+        this._params.path
+      }', ${this._params.getData().toJSON()})`;
+    }
+  }
+}
+
+//////////////////////////////////////////////////
+
+export class AMDBRefResultPromise<T> extends AMResultPromise<DBRef | DBRef[]> {
+  _params: {
+    collectionName: string;
+  };
+
+  constructor(
+    source: AMResultPromise<any>,
+    promise: Promise<T>,
+    params: {
+      collectionName: string;
+    }
+  ) {
+    super(source);
+    this._params = params;
+    promise.then(async value => {
+      if (Array.isArray(value)) {
+        this.resolve(
+          value.map(id => new DBRef(this._params.collectionName, id))
+        );
+      } else if (value instanceof ObjectID) {
+        this.resolve(new DBRef(this._params.collectionName, value));
+      }
+    });
+    promise.catch(this.reject);
+  }
+
+  getValueSource(): string {
+    if (this._valueSource instanceof AMResultPromise) {
+      return `${this._valueSource.getValueSource()} -> dbRef('${
+        this._params.collectionName
+      }')`;
     }
   }
 }

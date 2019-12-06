@@ -1,4 +1,4 @@
-import { GraphQLInputObjectType, GraphQLList } from 'graphql';
+import { GraphQLInputObjectType, GraphQLList, isInterfaceType } from 'graphql';
 import R from 'ramda';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMSelectorContext } from '../execution/contexts/selector';
@@ -12,6 +12,13 @@ import {
 } from '../types';
 import { AMCreateTypeFactory } from './create';
 import { AMWhereUniqueTypeFactory } from './whereUnique';
+import { AMInterfaceCreateTypeFactory } from './interfaceCreate';
+import { AMCreateOperation } from '../execution/operations/createOperation';
+import { AMDataContext } from '../execution/contexts/data';
+import { AMListValueContext } from '../execution/contexts/listValue';
+import { toArray } from '../tsutils';
+import { AMWhereTypeFactory } from './where';
+import { AMInterfaceWhereWhereUniqueTypeFactory } from './interfaceWhereUnique';
 
 const isApplicable = (field: AMModelField) => (
   fieldFactory: IAMInputFieldFactory
@@ -25,18 +32,69 @@ export const AMCreateManyRelationTypeFactory: IAMTypeFactory<
   },
   getType(modelType, schemaInfo) {
     const self: IAMTypeFactory<GraphQLInputObjectType> = this;
+
+    const createTypeFactory = !isInterfaceType(modelType)
+      ? AMCreateTypeFactory
+      : AMInterfaceCreateTypeFactory;
+
+    const whereTypeFactory = !isInterfaceType(modelType)
+      ? AMWhereUniqueTypeFactory
+      : AMInterfaceWhereWhereUniqueTypeFactory;
+
     return new GraphQLInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
         const fields = <AMInputFieldConfigMap>{
           create: {
             type: new GraphQLList(
-              schemaInfo.resolveFactoryType(modelType, AMCreateTypeFactory)
+              schemaInfo.resolveFactoryType(modelType, createTypeFactory)
             ),
+            /* For abstract interface we create operations inside AMInterfaceCreateTypeFactory */
+            ...(!modelType.mmAbstract
+              ? {
+                  amEnter(node, transaction, stack) {
+                    const opContext = new AMCreateOperation(transaction, {
+                      many: true,
+                      collectionName: modelType.mmCollectionName,
+                    });
+                    stack.push(opContext);
+
+                    /* Next context will be List and it hasn't default 
+                    instructions how to pass value into operation */
+
+                    const listContext = new AMListValueContext();
+                    stack.push(listContext);
+                  },
+                  amLeave(node, transaction, stack) {
+                    const listContext = stack.pop() as AMListValueContext;
+                    const opContext = stack.pop() as AMReadOperation;
+                    opContext.setDataList(listContext);
+
+                    const lastInStack = R.last(stack);
+                    if (lastInStack instanceof AMObjectFieldContext) {
+                      lastInStack.setValue(
+                        opContext.getOutput().path('insertedIds')
+                      );
+                    }
+                  },
+                }
+              : {
+                  amEnter(node, transaction, stack) {
+                    const fieldContext = new AMObjectFieldContext();
+                    stack.push(fieldContext);
+                  },
+                  amLeave(node, transaction, stack) {
+                    const fieldContext = stack.pop() as AMObjectFieldContext;
+                    const lastInStack = R.last(stack);
+                    if (lastInStack instanceof AMObjectFieldContext) {
+                      lastInStack.setValue(toArray(fieldContext.value));
+                    }
+                  },
+                }),
           },
           connect: {
             type: new GraphQLList(
-              schemaInfo.resolveFactoryType(modelType, AMWhereUniqueTypeFactory)
+              schemaInfo.resolveFactoryType(modelType, whereTypeFactory)
             ),
             amEnter(node, transaction, stack) {
               const opContext = new AMReadOperation(transaction, {
@@ -65,7 +123,11 @@ export const AMCreateManyRelationTypeFactory: IAMTypeFactory<
 
               const lastInStack = R.last(stack);
               if (lastInStack instanceof AMObjectFieldContext) {
-                lastInStack.setValue(opContext.getOutput());
+                lastInStack.setValue(
+                  opContext
+                    .getOutput()
+                    .distinct(lastInStack.field.relation.relationField)
+                );
               }
             },
           },

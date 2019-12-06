@@ -5,12 +5,17 @@ import { AMDBExecutor } from '../types';
 import { AMResultPromise } from './resultPromise';
 import { AMTransaction } from './transaction';
 import { AMDataContext } from './contexts/data';
+import { AMListValueContext } from './contexts/listValue';
+import { DBRef } from 'mongodb';
 
 export class AMOperation extends AMContext {
   collectionName: string;
   fieldsSelection: AMFieldsSelectionContext;
   selector: AMSelectorContext;
   data: AMDataContext;
+  dataList: AMListValueContext;
+  dbRef: DBRef | AMResultPromise<DBRef>;
+  dbRefList: DBRef[] | AMResultPromise<DBRef[]> | AMResultPromise<DBRef>[];
   many: boolean;
   orderBy: { [key: string]: number };
 
@@ -21,10 +26,13 @@ export class AMOperation extends AMContext {
   constructor(
     transaction: AMTransaction,
     config: {
-      collectionName: string;
+      collectionName?: string;
       selector?: AMSelectorContext;
       fieldsSelection?: AMFieldsSelectionContext;
       data?: AMDataContext;
+      dataList?: AMListValueContext;
+      dbRef?: DBRef | AMResultPromise<DBRef>;
+      dbRefList?: DBRef[] | AMResultPromise<DBRef[]> | AMResultPromise<DBRef>[];
       many?: boolean;
       orderBy?: { [key: string]: number };
     }
@@ -34,6 +42,9 @@ export class AMOperation extends AMContext {
     this.selector = config.selector;
     this.fieldsSelection = config.fieldsSelection;
     this.data = config.data;
+    this.dataList = config.dataList;
+    this.dbRef = config.dbRef;
+    this.dbRefList = config.dbRefList;
     this.many = Boolean(config.many);
     this.orderBy = config.orderBy;
 
@@ -56,6 +67,18 @@ export class AMOperation extends AMContext {
 
   setData(data: AMDataContext) {
     this.data = data;
+  }
+
+  setDataList(dataList: AMListValueContext) {
+    this.dataList = dataList;
+  }
+
+  setDbRef(dbRef: DBRef) {
+    this.dbRef = dbRef;
+  }
+
+  setDbRefList(dbRefList: DBRef[]) {
+    this.dbRefList = dbRefList;
   }
 
   setOrderBy(order: { [key: string]: number }) {
@@ -92,6 +115,9 @@ export class AMOperation extends AMContext {
         : null),
       ...(this.selector ? { selector: this.selector.toJSON() } : null),
       ...(this.data ? { data: this.data.toJSON() } : null),
+      ...(this.dataList ? { dataList: this.dataList.toJSON() } : null),
+      ...(this.dbRef ? { dbRef: this.dbRef } : null),
+      ...(this.dbRefList ? { dbRefList: this.dbRefList } : null),
       ...(this.orderBy ? { orderBy: this.orderBy } : null),
     };
   }

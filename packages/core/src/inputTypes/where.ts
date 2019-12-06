@@ -49,9 +49,9 @@ export const AMWhereTypeFactory: IAMTypeFactory<AMInputObjectType> = {
         };
 
         Object.values(modelType.getFields()).forEach(field => {
-          const fieldFactories = Selectors.filter(isApplicable(field)).map(
-            selectorToFieldFactory
-          );
+          const fieldFactories = field?.mmFieldFactories?.AMCreateTypeFactory
+            ? field.mmFieldFactories.AMWhereTypeFactory
+            : Selectors.filter(isApplicable(field)).map(selectorToFieldFactory);
 
           fieldFactories.forEach(factory => {
             const fieldName = factory.getFieldName(field);

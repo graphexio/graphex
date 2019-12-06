@@ -9,11 +9,11 @@ export const typeDef = gql`
 
 class EmbeddedDirective extends SchemaDirectiveVisitor {
   visitObject(object) {
-    // object.mmEmbedded = true;
+    object.mmEmbedded = true;
   }
   visitInterface(iface) {
     const { _typeMap: SchemaTypes } = this.schema;
-    // iface.mmEmbedded = true;
+    iface.mmEmbedded = true;
 
     //Set discriminator
     if (!iface.mmDiscriminatorField) {
