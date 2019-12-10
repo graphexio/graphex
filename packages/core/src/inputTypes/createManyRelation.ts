@@ -24,9 +24,7 @@ const isApplicable = (field: AMModelField) => (
   fieldFactory: IAMInputFieldFactory
 ) => fieldFactory.isApplicable(field);
 
-export const AMCreateManyRelationTypeFactory: IAMTypeFactory<
-  GraphQLInputObjectType
-> = {
+export const AMCreateManyRelationTypeFactory: IAMTypeFactory<GraphQLInputObjectType> = {
   getTypeName(modelType): string {
     return `${modelType.name}CreateManyRelationInput`;
   },
@@ -63,6 +61,7 @@ export const AMCreateManyRelationTypeFactory: IAMTypeFactory<
                     instructions how to pass value into operation */
 
                     const listContext = new AMListValueContext();
+                    listContext.setProxy(true);
                     stack.push(listContext);
                   },
                   amLeave(node, transaction, stack) {
@@ -80,14 +79,15 @@ export const AMCreateManyRelationTypeFactory: IAMTypeFactory<
                 }
               : {
                   amEnter(node, transaction, stack) {
-                    const fieldContext = new AMObjectFieldContext();
-                    stack.push(fieldContext);
+                    const listContext = new AMListValueContext();
+                    listContext.setProxy(true);
+                    stack.push(listContext);
                   },
                   amLeave(node, transaction, stack) {
-                    const fieldContext = stack.pop() as AMObjectFieldContext;
+                    const listContext = stack.pop() as AMListValueContext;
                     const lastInStack = R.last(stack);
                     if (lastInStack instanceof AMObjectFieldContext) {
-                      lastInStack.setValue(toArray(fieldContext.value));
+                      lastInStack.setValue(listContext.values);
                     }
                   },
                 }),

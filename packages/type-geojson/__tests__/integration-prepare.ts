@@ -1,10 +1,11 @@
 import { ApolloServer } from 'apollo-server';
-import AMM from '../src/';
+import AMM from '@apollo-model/core';
 import QueryExecutor from '@apollo-model/mongodb-executor';
 import { MongoClient, ObjectID } from 'mongodb';
-import typeDefs from '../dev-server/model.js';
+import typeDefs from './model';
 import MongoMemoryServer from 'mongodb-memory-server';
 import * as DirectiveImplements from '@apollo-model/directive-implements';
+import * as TypeGeoJSON from '../src';
 const util = require('util');
 
 export const mongod = new MongoMemoryServer();
@@ -32,7 +33,7 @@ const QE = QueryExecutor(connectToDatabase);
 
 const schema = new AMM({
   queryExecutor: QE,
-  modules: [DirectiveImplements],
+  modules: [DirectiveImplements, TypeGeoJSON],
 }).makeExecutableSchema({
   resolverValidationOptions: {
     requireResolversForResolveType: false,

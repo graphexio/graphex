@@ -32,9 +32,7 @@ const isApplicable = (field: AMModelField) => (
   fieldFactory: IAMInputFieldFactory
 ) => fieldFactory.isApplicable(field);
 
-export const AMUpdateManyRelationTypeFactory: IAMTypeFactory<
-  AMInputObjectType
-> = {
+export const AMUpdateManyRelationTypeFactory: IAMTypeFactory<AMInputObjectType> = {
   getTypeName(modelType): string {
     return `${modelType.name}UpdateManyRelationInput`;
   },
@@ -72,6 +70,7 @@ export const AMUpdateManyRelationTypeFactory: IAMTypeFactory<
                     instructions how to pass value into operation */
 
                     const listContext = new AMListValueContext();
+                    listContext.setProxy(true);
                     stack.push(listContext);
                   },
                   amLeave(node, transaction, stack) {
@@ -91,6 +90,7 @@ export const AMUpdateManyRelationTypeFactory: IAMTypeFactory<
               : {
                   amEnter(node, transaction, stack) {
                     const listContext = new AMListValueContext();
+                    listContext.setProxy(true);
                     stack.push(listContext);
                   },
                   amLeave(node, transaction, stack) {

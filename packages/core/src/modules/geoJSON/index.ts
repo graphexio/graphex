@@ -42,7 +42,7 @@ export const typeDef = gql`
   enum GeoJSONPointType {
     Point
   }
-  type GeoJSONPoint {
+  type GeoJSONPoint @embedded {
     type: GeoJSONPointType!
     coordinates: [Float!]!
     distance(toPoint: GeoJSONPointInput): Float

@@ -1,6 +1,11 @@
 jest.setTimeout(20000);
 
-const { query, mutate, mongod, connectToDatabase } = require('./apolloTest');
+const {
+  query,
+  mutate,
+  mongod,
+  connectToDatabase,
+} = require('./integration-prepare');
 const _ = require('lodash');
 import gql from 'graphql-tag';
 
@@ -558,7 +563,6 @@ test('CreatePostWithInterfaceRelation', async () => {
             body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
             owner: { create: { Admin: { username: "moderator" } } }
             category: { connect: { title: "JS" } }
-            place: { type: Point, coordinates: [0, 51] }
           }
         ) {
           id
@@ -619,42 +623,6 @@ test('QueryUsersInterface', async () => {
         Object {
           "role": null,
           "username": "moderator",
-        },
-      ],
-    }
-  `);
-});
-
-test('QueryPostsNearPoint', async () => {
-  let { errors, data } = await query({
-    query: gql`
-      query {
-        posts(
-          where: {
-            place_near: {
-              geometry: { type: Point, coordinates: [0, 51.01] }
-              maxDistance: 10000
-            }
-          }
-        ) {
-          title
-          place {
-            distance(toPoint: { type: Point, coordinates: [0, 51.01] })
-          }
-        }
-      }
-    `,
-    variables: {},
-  });
-  expect(errors).toBeUndefined();
-  expect(data).toMatchInlineSnapshot(`
-    Object {
-      "posts": Array [
-        Object {
-          "place": Object {
-            "distance": 1111.9492664453662,
-          },
-          "title": "Build GraphQL API with Apollo",
         },
       ],
     }

@@ -334,7 +334,9 @@ describe('modelFields', () => {
     expect(queryStr).toMatchInlineSnapshot(`
       "type Query {
         posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, first: Int): [Post!]!
+        postsPaged(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, first: Int): PostPagination!
         post(where: PostWhereUniqueInput): Post
+        postsConnection(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, first: Int): PostConnection
       }"
     `);
 

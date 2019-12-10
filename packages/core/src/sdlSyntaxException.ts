@@ -1,5 +1,10 @@
+export const UNMARKED_OBJECT_FIELD = 'unmarkedObjectField';
+
 export default class SDLSyntaxException extends Error {
-  constructor(description, code, relatedObjects) {
+  description: string;
+  code: string;
+  relatedObjects: any[];
+  constructor(description: string, code: string, relatedObjects: any[]) {
     super();
     this.description = description;
     this.code = code;

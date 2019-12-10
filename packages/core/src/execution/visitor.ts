@@ -203,7 +203,7 @@ export class AMVisitor {
           if (lastInStack instanceof AMObjectFieldContext) {
             lastInStack.setValue(action.values);
           } else if (lastInStack instanceof AMListValueContext) {
-            lastInStack.setValues(action.values);
+            lastInStack.addValue(action.values);
           }
         },
       },

@@ -27,7 +27,6 @@ export default gql`
     category: Category @relation
     keywords: [String!]
     owner: User! @relation
-    place: GeoJSONPoint
     comments: [Comment!]
     poi: Poi @relation
     pois: [Poi] @relation(storeField: "poiIds")

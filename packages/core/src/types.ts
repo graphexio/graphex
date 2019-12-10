@@ -19,6 +19,7 @@ import {
   GraphQLEnumValueConfigMap,
   EnumTypeDefinitionNode,
   EnumTypeExtensionNode,
+  GraphQLOutputType,
 } from 'graphql';
 import Maybe from 'graphql/tsutils/Maybe';
 import { AMContext } from './execution/context';
@@ -109,7 +110,12 @@ export interface AMInputObjectTypeConfig {
   );
 }
 
-export type AMField = GraphQLField<any, any> & AMVisitable;
+export type AMField = Omit<GraphQLField<any, any>, 'type'> &
+  AMVisitable & {
+    type:
+      | Exclude<GraphQLOutputType, GraphQLObjectType | GraphQLInterfaceType>
+      | AMModelType;
+  };
 
 export type AMFieldMap = {
   [key: string]: AMField;
@@ -143,13 +149,15 @@ export type AMModelFieldMap = {
 };
 export type AMModelType = (
   | Omit<AMObjectType, 'getFields'>
-  | Omit<AMInterfaceType, 'getFields'>) & {
+  | Omit<AMInterfaceType, 'getFields'>
+) & {
   getFields(): AMModelFieldMap;
   mmCollectionName: string;
   mmDiscriminator: string;
   mmDiscriminatorField: string;
   mmAbstract: boolean;
   mmEmbedded: boolean;
+  mmModel: boolean;
   mmCreatedAtFields?: AMModelField[];
   mmUpdatedAtFields?: AMModelField[];
 };

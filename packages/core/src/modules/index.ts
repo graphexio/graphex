@@ -1,5 +1,5 @@
 import * as Model from './directives/model';
-import * as GeoJSON from './geoJSON';
+
 import * as InitInputTypes from './directives/initInputTypes';
 import * as Discriminator from './directives/discriminator';
 import * as CreatedAt from './directives/createdAt';
@@ -22,7 +22,7 @@ import * as ObjectID from './scalars/objectID';
 export default [
   Model,
   InitInputTypes,
-  GeoJSON,
+
   Discriminator,
   CreatedAt,
   UpdatedAt,

@@ -15,6 +15,7 @@ export const typeDef = gql`
 class Model extends SchemaDirectiveVisitor {
   visitObject(object) {
     const { collection } = this.args;
+    object.mmModel = true;
     object.mmCollectionName =
       collection || lowercaseFirstLetter(pluralize(object.name));
 
@@ -39,6 +40,7 @@ class Model extends SchemaDirectiveVisitor {
 
   visitInterface(iface) {
     const { collection } = this.args;
+    iface.mmModel = true;
     iface.mmCollectionName =
       collection || lowercaseFirstLetter(pluralize(iface.name));
 
