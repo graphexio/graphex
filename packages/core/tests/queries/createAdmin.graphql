@@ -1,5 +1,0 @@
-mutation {
-  createAdmin(data: { username: "admin" }) {
-    username
-  }
-}

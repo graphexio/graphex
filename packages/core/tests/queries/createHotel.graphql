@@ -1,6 +1,0 @@
-mutation createHotel($title: String!, $start: Int) {
-  createHotel(data: { title: $title, stars: $stars }) {
-    id
-    title
-  }
-}

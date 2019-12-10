@@ -1,5 +1,0 @@
-query {
-  categories {
-    title
-  }
-}

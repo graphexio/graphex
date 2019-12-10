@@ -1,5 +1,0 @@
-query {
-  categories(orderBy: createdAt_ASC) {
-    title
-  }
-}

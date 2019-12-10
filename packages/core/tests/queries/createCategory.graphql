@@ -1,5 +1,0 @@
-mutation createCategory($title: String) {
-  createCategory(data: { title: $title }) {
-    title
-  }
-}

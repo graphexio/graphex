@@ -1,5 +1,0 @@
-mutation deleteCategory($title: String) {
-  deleteCategory(where: { title: $title }) {
-    title
-  }
-}
