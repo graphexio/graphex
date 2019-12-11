@@ -7,7 +7,7 @@ import {
   AMModelField,
   IAMInputFieldFactory,
   IAMTypeFactory,
-} from '../types';
+} from '../definitions';
 import { AMCreateFieldFactory } from './fieldFactories/create';
 import { AMCreateNestedFieldFactory } from './fieldFactories/createNested';
 import { AMCreateRelationFieldFactory } from './fieldFactories/createRelation';

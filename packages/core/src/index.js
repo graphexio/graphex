@@ -28,6 +28,7 @@ import { AMModelDeleteOneMutationFieldFactory } from './modelMutationFields/dele
 import { AMModelUpdateMutationFieldFactory } from './modelMutationFields/updateMutation';
 import { AMModelMultipleQueryFieldFactory } from './modelQueryFields/multipleQuery';
 import { AMModelSingleQueryFieldFactory } from './modelQueryFields/singleQuery';
+import { AMModelConnectionQueryFieldFactory } from './modelQueryFields/connectionQuery';
 import Modules from './modules';
 import { prepare } from './prepare/prepare';
 import { postInit } from './postInit/';
@@ -195,34 +196,40 @@ export default class ModelMongo {
   };
 
   _createConnectionQuery = modelType => {
-    let whereType, orderByType;
-    try {
-      whereType = this._inputType(modelType, INPUT_TYPE_KIND.WHERE);
-      orderByType = this._inputType(modelType, INPUT_TYPE_KIND.ORDER_BY);
-    } catch (e) {
-      if (e instanceof EmptyTypeException) {
-        return;
-      } else throw e;
-    }
+    appendField(
+      this.Schema,
+      this.Schema.getQueryType(),
+      AMModelConnectionQueryFieldFactory,
+      modelType
+    );
+    // let whereType, orderByType;
+    // try {
+    //   whereType = this._inputType(modelType, INPUT_TYPE_KIND.WHERE);
+    //   orderByType = this._inputType(modelType, INPUT_TYPE_KIND.ORDER_BY);
+    // } catch (e) {
+    //   if (e instanceof EmptyTypeException) {
+    //     return;
+    //   } else throw e;
+    // }
 
-    const connectionTypeName = `${modelType.name}Connection`;
-    const name = `${lowercaseFirstLetter(pluralize(modelType.name))}Connection`;
-    this.Query._fields[name] = {
-      type: this.SchemaTypes[connectionTypeName],
-      args: allQueryArgs({ whereType, orderByType }),
-      isDeprecated: false,
-      name,
-      resolve: async (parent, args, context) => {
-        return {
-          _selector: await applyInputTransform({ parent, context })(
-            args.where,
-            whereType
-          ),
-          _skip: args.skip,
-          _limit: args.first,
-        };
-      },
-    };
+    // const connectionTypeName = `${modelType.name}Connection`;
+    // const name = `${lowercaseFirstLetter(pluralize(modelType.name))}Connection`;
+    // this.Query._fields[name] = {
+    //   type: this.SchemaTypes[connectionTypeName],
+    //   args: allQueryArgs({ whereType, orderByType }),
+    //   isDeprecated: false,
+    //   name,
+    //   resolve: async (parent, args, context) => {
+    //     return {
+    //       _selector: await applyInputTransform({ parent, context })(
+    //         args.where,
+    //         whereType
+    //       ),
+    //       _skip: args.skip,
+    //       _limit: args.first,
+    //     };
+    //   },
+    // };
   };
 
   _createCreateMutation = modelType => {
@@ -583,7 +590,7 @@ export default class ModelMongo {
           this._createAllQuery(type);
           // this._createAllPaginationQuery(type);
           this._createSingleQuery(type);
-          // this._createConnectionQuery(type);
+          this._createConnectionQuery(type);
           if (!typeWrap.isInterface()) {
             this._createCreateMutation(type);
           }

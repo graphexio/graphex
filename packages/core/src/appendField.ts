@@ -4,7 +4,7 @@ import {
   AMResolveFactoryType,
   IAMModelQueryFieldFactory,
   IAMTypeFactory,
-} from './types';
+} from './definitions';
 
 export default function(
   schema: GraphQLSchema,

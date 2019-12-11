@@ -2,7 +2,7 @@ import TypeWrap from '@apollo-model/type-wrap';
 import { isCompositeType, getNamedType } from 'graphql';
 import { INPUT_TYPE_KIND } from './kinds';
 import { TransformToInputInterface } from './transformToInputInterface';
-import { AMSchemaInfo } from '../types';
+import { AMSchemaInfo } from '../definitions';
 import { AMWhereTypeFactory } from './where';
 
 const transformToInputWhereClean: TransformToInputInterface = params => {

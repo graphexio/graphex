@@ -5,7 +5,7 @@ import { Selectors } from './querySelectors';
 import * as Transforms from './transforms';
 import { TransformToInputInterface } from './transformToInputInterface';
 import { reduceTransforms } from './utils';
-import { IAMQuerySelector, AMSchemaInfo, AMModelField } from '../types';
+import { IAMQuerySelector, AMSchemaInfo, AMModelField } from '../definitions';
 
 const isApplicable = (field: AMModelField) => (selector: IAMQuerySelector) =>
   selector.isApplicable(field);

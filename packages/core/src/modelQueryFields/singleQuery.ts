@@ -5,7 +5,11 @@ import { AMReadOperation } from '../execution/operations/readOperation';
 import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
 import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
 import { lowercaseFirstLetter } from '../tsutils';
-import { AMField, AMModelType, IAMModelQueryFieldFactory } from '../types';
+import {
+  AMField,
+  AMModelType,
+  IAMModelQueryFieldFactory,
+} from '../definitions';
 import { resolve } from '../resolve';
 
 export const AMModelSingleQueryFieldFactory: IAMModelQueryFieldFactory = {
@@ -20,8 +24,11 @@ export const AMModelSingleQueryFieldFactory: IAMModelQueryFieldFactory = {
       args: [
         {
           name: 'where',
-          type: resolveTypes.resolveFactoryType(modelType, AMWhereUniqueTypeFactory),
-        }
+          type: resolveTypes.resolveFactoryType(
+            modelType,
+            AMWhereUniqueTypeFactory
+          ),
+        },
       ],
       amEnter(node, transaction, stack) {
         const operation = new AMReadOperation(transaction, {

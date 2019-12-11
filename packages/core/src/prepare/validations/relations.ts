@@ -1,5 +1,5 @@
 import { GraphQLSchema, isObjectType, isInterfaceType } from 'graphql';
-import { AMModelField, AMModelType } from '../../types';
+import { AMModelField, AMModelType } from '../../definitions';
 import SDLSyntaxException, {
   UNMARKED_OBJECT_FIELD,
 } from '../../sdlSyntaxException';

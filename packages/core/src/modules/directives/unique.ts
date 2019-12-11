@@ -7,7 +7,7 @@ import { appendTransform, reduceTransforms } from '../../inputTypes/utils';
 import * as HANDLER from '../../inputTypes/handlers';
 import { INPUT_TYPE_KIND } from '../../inputTypes/kinds';
 import * as Transforms from '../../inputTypes/transforms';
-import { AMModelField } from '../../types';
+import { AMModelField } from '../../definitions';
 
 export const typeDef = gql`
   directive @unique on FIELD_DEFINITION

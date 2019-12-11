@@ -14,15 +14,13 @@ import {
   AMObjectType,
   AMModelType,
   AMInterfaceType,
-} from '../types';
+} from '../definitions';
 import { AMCreateTypeFactory } from './create';
 import { AMDataContext } from '../execution/contexts/data';
 import { AMCreateOperation } from '../execution/operations/createOperation';
 import { AMListValueContext } from '../execution/contexts/listValue';
 
-export const AMInterfaceCreateTypeFactory: IAMTypeFactory<
-  GraphQLInputObjectType
-> = {
+export const AMInterfaceCreateTypeFactory: IAMTypeFactory<GraphQLInputObjectType> = {
   getTypeName(modelType): string {
     return `${modelType.name}InterfaceCreateInput`;
   },

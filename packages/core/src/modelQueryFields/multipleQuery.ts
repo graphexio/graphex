@@ -5,15 +5,16 @@ import { AMReadOperation } from '../execution/operations/readOperation';
 import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
 import { AMWhereTypeFactory } from '../inputTypes/where';
 import { lowercaseFirstLetter } from '../tsutils';
-import { AMField, AMModelType, IAMModelQueryFieldFactory } from '../types';
+import {
+  AMField,
+  AMModelType,
+  IAMModelQueryFieldFactory,
+} from '../definitions';
 import { resolve } from '../resolve';
 
 export const AMModelMultipleQueryFieldFactory: IAMModelQueryFieldFactory = {
   getFieldName(modelType: AMModelType): string {
-    return R.pipe(
-      pluralize,
-      lowercaseFirstLetter
-    )(modelType.name);
+    return R.pipe(pluralize, lowercaseFirstLetter)(modelType.name);
   },
   getField(modelType: AMModelType, resolveTypes) {
     return <AMField>{

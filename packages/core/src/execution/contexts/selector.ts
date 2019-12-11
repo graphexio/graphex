@@ -1,4 +1,4 @@
-import { AMObjectFieldValueType } from '../../types';
+import { AMObjectFieldValueType } from '../../definitions';
 import { AMContext } from '../context';
 
 type Selector = { [key: string]: AMObjectFieldValueType };

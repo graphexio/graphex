@@ -4,7 +4,7 @@ import { defaultObjectFieldVisitorHandler } from '@apollo-model/core/lib/inputTy
 import {
   AMInputField,
   IAMInputFieldFactory,
-} from '@apollo-model/core/src/types';
+} from '@apollo-model/core/src/definitions';
 import { AMObjectFieldContext } from '@apollo-model/core/lib/execution/contexts/objectField';
 import { AMDataContext } from '@apollo-model/core/lib/execution/contexts/data';
 import { AMSelectorContext } from '@apollo-model/core/lib/execution/contexts/selector';

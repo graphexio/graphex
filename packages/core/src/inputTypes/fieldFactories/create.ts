@@ -1,5 +1,5 @@
 import { getNamedType, isCompositeType } from 'graphql';
-import { AMInputField, IAMInputFieldFactory } from '../../types';
+import { AMInputField, IAMInputFieldFactory } from '../../definitions';
 import { defaultObjectFieldVisitorHandler } from '../visitorHandlers';
 
 export const AMCreateFieldFactory: IAMInputFieldFactory = {

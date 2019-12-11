@@ -1,5 +1,5 @@
 import { AMOperation } from './operation';
-import { AMDBExecutor } from '../types';
+import { AMDBExecutor } from '../definitions';
 
 export class AMTransaction {
   operations: AMOperation[] = [];

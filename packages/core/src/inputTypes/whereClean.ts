@@ -5,14 +5,18 @@ import {
   getNamedType,
   isCompositeType,
 } from 'graphql';
-import { IAMQuerySelector, IAMTypeFactory, AMInputObjectType } from '../types';
+import {
+  IAMQuerySelector,
+  IAMTypeFactory,
+  AMInputObjectType,
+  AMModelField,
+} from '../definitions';
 import { Selectors } from './querySelectors';
 import { AsIsSelector } from './querySelectors/asis';
 import { whereTypeVisitorHandler } from './visitorHandlers';
 
-const isApplicable = (field: GraphQLField<any, any, any>) => (
-  selector: IAMQuerySelector
-) => selector.isApplicable(field);
+const isApplicable = (field: AMModelField) => (selector: IAMQuerySelector) =>
+  selector.isApplicable(field);
 
 const selectorToFieldFactory = (selector: IAMQuerySelector) => {
   return selector.getFieldFactory();

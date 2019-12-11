@@ -4,7 +4,7 @@ import {
   isCompositeType,
   GraphQLList,
 } from 'graphql';
-import { IAMQuerySelector } from '../../types';
+import { IAMQuerySelector } from '../../definitions';
 import TypeWrap from '@apollo-model/type-wrap';
 import { AMWhereCleanTypeFactory } from '../whereClean';
 import { AMQuerySelectorFieldFactory } from '../fieldFactories/querySelector';

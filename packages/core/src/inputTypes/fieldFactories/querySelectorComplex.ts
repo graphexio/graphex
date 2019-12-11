@@ -14,7 +14,7 @@ import {
   AMSchemaInfo,
   AMInputField,
   AMVisitorStack,
-} from '../../types';
+} from '../../definitions';
 import { AMWhereTypeFactory } from '../where';
 import { AMTransaction } from '../../execution/transaction';
 

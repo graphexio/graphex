@@ -5,7 +5,7 @@ import {
   GraphQLList,
   isCompositeType,
 } from 'graphql';
-import { IAMQuerySelector } from '../../types';
+import { IAMQuerySelector } from '../../definitions';
 import { AMWhereCleanTypeFactory } from '../whereClean';
 import { AMQuerySelectorFieldFactory } from '../fieldFactories/querySelector';
 import { makeArray } from './utils';

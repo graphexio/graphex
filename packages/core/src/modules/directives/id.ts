@@ -4,7 +4,7 @@ import { SchemaDirectiveVisitor } from 'graphql-tools';
 import { appendTransform } from '../../inputTypes/utils';
 import * as HANDLER from '../../inputTypes/handlers';
 import { INPUT_TYPE_KIND } from '../../inputTypes/kinds';
-import { AMModelField } from '../../types';
+import { AMModelField } from '../../definitions';
 
 export const typeDef = gql`
   directive @id on FIELD_DEFINITION

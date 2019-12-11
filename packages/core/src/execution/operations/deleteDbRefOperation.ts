@@ -1,5 +1,5 @@
 import { AMOperation } from '../operation';
-import { AMDBExecutor, AMDBExecutorOperationType } from '../../types';
+import { AMDBExecutor, AMDBExecutorOperationType } from '../../definitions';
 import { completeAMResultPromise } from '../utils';
 import { AMTransaction } from '../transaction';
 import R from 'ramda';

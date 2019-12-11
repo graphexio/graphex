@@ -6,12 +6,10 @@ import {
   AMInputObjectType,
   AMModelType,
   IAMTypeFactory,
-} from '../types';
+} from '../definitions';
 import { AMWhereTypeFactory } from './where';
 
-export const AMInterfaceWhereTypeFactory: IAMTypeFactory<
-  GraphQLInputObjectType
-> = {
+export const AMInterfaceWhereTypeFactory: IAMTypeFactory<GraphQLInputObjectType> = {
   getTypeName(modelType): string {
     return `${modelType.name}InterfaceWhereInput`;
   },

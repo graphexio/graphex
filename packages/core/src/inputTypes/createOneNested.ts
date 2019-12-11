@@ -6,16 +6,14 @@ import {
   AMModelField,
   IAMInputFieldFactory,
   IAMTypeFactory,
-} from '../types';
+} from '../definitions';
 import { AMCreateTypeFactory } from './create';
 
 const isApplicable = (field: AMModelField) => (
   fieldFactory: IAMInputFieldFactory
 ) => fieldFactory.isApplicable(field);
 
-export const AMCreateOneNestedTypeFactory: IAMTypeFactory<
-  GraphQLInputObjectType
-> = {
+export const AMCreateOneNestedTypeFactory: IAMTypeFactory<GraphQLInputObjectType> = {
   getTypeName(modelType): string {
     return `${modelType.name}CreateOneNestedInput`;
   },

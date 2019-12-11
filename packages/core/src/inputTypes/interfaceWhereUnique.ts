@@ -6,15 +6,13 @@ import {
   AMInputObjectType,
   AMModelType,
   IAMTypeFactory,
-} from '../types';
+} from '../definitions';
 import { AMWhereUniqueTypeFactory } from './whereUnique';
 import { AMReadOperation } from '../execution/operations/readOperation';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMListValueContext } from '../execution/contexts/listValue';
 
-export const AMInterfaceWhereWhereUniqueTypeFactory: IAMTypeFactory<
-  GraphQLInputObjectType
-> = {
+export const AMInterfaceWhereWhereUniqueTypeFactory: IAMTypeFactory<GraphQLInputObjectType> = {
   getTypeName(modelType): string {
     return `${modelType.name}InterfaceWhereUniqueInput`;
   },

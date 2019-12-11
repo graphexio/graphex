@@ -12,7 +12,7 @@ import {
   AMModelType,
   AMResolveFactoryType,
   IAMTypeFactory,
-} from '../types';
+} from '../definitions';
 import TypeWrap from '@apollo-model/type-wrap';
 import { AMWhereTypeFactory } from '../inputTypes/where';
 import { AMOrderByTypeFactory } from '../inputTypes/orderBy';

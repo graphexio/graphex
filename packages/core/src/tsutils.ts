@@ -1,4 +1,4 @@
-import { AMModelField } from './types';
+import { AMModelField } from './definitions';
 import { DirectiveNode, GraphQLDirective, valueFromAST } from 'graphql';
 
 export function lowercaseFirstLetter(string: string) {

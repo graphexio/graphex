@@ -4,7 +4,7 @@ import { AMListValueContext } from '../execution/contexts/listValue';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMOperation } from '../execution/operation';
-import { AMModelField, AMVisitable } from '../types';
+import { AMModelField, AMVisitable } from '../definitions';
 import { getLastOperation, getFieldPath } from '../execution/utils';
 
 export const defaultObjectFieldVisitorHandler = (

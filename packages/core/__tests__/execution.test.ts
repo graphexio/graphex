@@ -2,7 +2,7 @@ import { AMTransaction } from '../src/execution/transaction';
 import { AMReadOperation } from '../src/execution/operations/readOperation';
 import { AMSelectorContext } from '../src/execution/contexts/selector';
 import { AMFieldsSelectionContext } from '../src/execution/contexts/fieldsSelection';
-import { AMDBExecutorParams } from '../src/types';
+import { AMDBExecutorParams } from '../src/definitions';
 import { AMCreateOperation } from '../src/execution/operations/createOperation';
 import { AMDataContext } from '../src/execution/contexts/data';
 import { AMUpdateOperation } from '../src/execution/operations/updateOperation';

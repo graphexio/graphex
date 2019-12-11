@@ -1,6 +1,6 @@
 import TypeWrap from '@apollo-model/type-wrap';
 import { GraphQLInt, getNamedType, isCompositeType } from 'graphql';
-import { IAMQuerySelector } from '../../types';
+import { IAMQuerySelector } from '../../definitions';
 import { AMQuerySelectorFieldFactory } from '../fieldFactories/querySelector';
 
 export const NotSelector: IAMQuerySelector = {

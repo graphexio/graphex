@@ -1,6 +1,6 @@
 import TypeWrap from '@apollo-model/type-wrap';
 import { getNamedType, isCompositeType } from 'graphql';
-import { AMInputField, IAMInputFieldFactory } from '../../types';
+import { AMInputField, IAMInputFieldFactory } from '../../definitions';
 import { AMUpdateManyNestedTypeFactory } from '../updateManyNested';
 import { AMUpdateOneNestedTypeFactory } from '../updateOneNested';
 import { updateObjectFieldVisitorHandler } from '../visitorHandlers';

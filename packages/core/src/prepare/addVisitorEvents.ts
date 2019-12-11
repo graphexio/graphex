@@ -1,6 +1,6 @@
 import { GraphQLSchema, isObjectType } from 'graphql';
 import R from 'ramda';
-import { AMField, AMModelField } from '../types';
+import { AMField, AMModelField } from '../definitions';
 import { AMFieldsSelectionContext } from '../execution/contexts/fieldsSelection';
 import { AMOperation } from '../execution/operation';
 import { AMReadOperation } from '../execution/operations/readOperation';

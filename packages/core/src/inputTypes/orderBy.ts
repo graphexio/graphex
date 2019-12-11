@@ -4,7 +4,7 @@ import {
   isCompositeType,
   EnumValueNode,
 } from 'graphql';
-import { AMModelType, IAMTypeFactory, AMEnumType } from '../types';
+import { AMModelType, IAMTypeFactory, AMEnumType } from '../definitions';
 import R from 'ramda';
 import { AMOperation } from '../execution/operation';
 

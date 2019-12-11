@@ -1,6 +1,6 @@
 import { GraphQLSchema, isObjectType, getNamedType } from 'graphql';
 import { getDirectiveAST } from '../tsutils';
-import { AMModelField, AMModelType } from '../types';
+import { AMModelField, AMModelType } from '../definitions';
 
 export const fieldFactories = (
   schema: GraphQLSchema,

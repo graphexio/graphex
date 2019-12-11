@@ -3,7 +3,7 @@ import R from 'ramda';
 import { AMDataContext } from '../../execution/contexts/data';
 import { AMObjectFieldContext } from '../../execution/contexts/objectField';
 import { AMResultPromise } from '../../execution/resultPromise';
-import { AMInputField, IAMInputFieldFactory } from '../../types';
+import { AMInputField, IAMInputFieldFactory } from '../../definitions';
 import { AMCreateManyRelationTypeFactory } from '../createManyRelation';
 import { AMCreateOneRelationTypeFactory } from '../createOneRelation';
 import { AMCreateOneRequiredRelationTypeFactory } from '../createOneRequiredRelation';

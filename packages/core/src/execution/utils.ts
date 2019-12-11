@@ -1,4 +1,4 @@
-import { AMVisitorStack } from '../types';
+import { AMVisitorStack } from '../definitions';
 import R from 'ramda';
 import { AMContext } from './context';
 import { AMOperation } from './operation';

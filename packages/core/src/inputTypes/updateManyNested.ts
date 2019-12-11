@@ -7,7 +7,7 @@ import {
   IAMInputFieldFactory,
   IAMTypeFactory,
   AMInputFieldConfigMap,
-} from '../types';
+} from '../definitions';
 import { AMCreateTypeFactory } from './create';
 import { AMUpdateTypeFactory } from './update';
 import { AMWhereTypeFactory } from './where';
@@ -26,9 +26,7 @@ const isApplicable = (field: AMModelField) => (
   fieldFactory: IAMInputFieldFactory
 ) => fieldFactory.isApplicable(field);
 
-export const AMUpdateManyNestedTypeFactory: IAMTypeFactory<
-  GraphQLInputObjectType
-> = {
+export const AMUpdateManyNestedTypeFactory: IAMTypeFactory<GraphQLInputObjectType> = {
   getTypeName(modelType): string {
     return `${modelType.name}UpdateManyNestedInput`;
   },

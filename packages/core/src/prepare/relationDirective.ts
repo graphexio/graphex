@@ -1,5 +1,5 @@
 import { GraphQLSchema, isCompositeType, isObjectType } from 'graphql';
-import { AMModelField, AMModelType } from '../types';
+import { AMModelField, AMModelType } from '../definitions';
 import { getDirectiveAST, getArgValueFromDirectiveAST } from '../tsutils';
 import TypeWrap from '@apollo-model/type-wrap';
 import { allQueryArgs, getDirective, getRelationFieldName } from '../utils';

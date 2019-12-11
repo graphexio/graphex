@@ -6,7 +6,7 @@ import {
   AMModelField,
   IAMInputFieldFactory,
   IAMTypeFactory,
-} from '../types';
+} from '../definitions';
 import { AMCreateTypeFactory } from './create';
 import { AMWhereUniqueTypeFactory } from './whereUnique';
 import { AMDataContext } from '../execution/contexts/data';
@@ -20,9 +20,7 @@ const isApplicable = (field: AMModelField) => (
   fieldFactory: IAMInputFieldFactory
 ) => fieldFactory.isApplicable(field);
 
-export const AMCreateOneRelationTypeFactory: IAMTypeFactory<
-  AMInputObjectType
-> = {
+export const AMCreateOneRelationTypeFactory: IAMTypeFactory<AMInputObjectType> = {
   getTypeName(modelType): string {
     return `${modelType.name}CreateOneRelationInput`;
   },

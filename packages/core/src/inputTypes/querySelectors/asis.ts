@@ -5,7 +5,11 @@ import {
   isCompositeType,
   ASTNode,
 } from 'graphql';
-import { IAMQuerySelector, AMVisitorStack, AMModelType } from '../../types';
+import {
+  IAMQuerySelector,
+  AMVisitorStack,
+  AMModelType,
+} from '../../definitions';
 import { AMWhereTypeFactory } from '../where';
 import { AMQuerySelectorFieldFactory } from '../fieldFactories/querySelector';
 import { AMQuerySelectorComplexFieldFactory } from '../fieldFactories/querySelectorComplex';

@@ -5,7 +5,7 @@ import {
   IAMTypeFactory,
   AMInputFieldConfigMap,
   AMModelField,
-} from '../types';
+} from '../definitions';
 import { Selectors } from './querySelectors';
 import { AMSelectorContext } from '../execution/contexts/selector';
 import R from 'ramda';

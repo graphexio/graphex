@@ -9,7 +9,7 @@ import {
   IAMTypeFactory,
   AMInputFieldMap,
   AMInputFieldConfigMap,
-} from '../types';
+} from '../definitions';
 import { AMCreateTypeFactory } from './create';
 import { AMWhereUniqueTypeFactory } from './whereUnique';
 import { AMInterfaceCreateTypeFactory } from './interfaceCreate';

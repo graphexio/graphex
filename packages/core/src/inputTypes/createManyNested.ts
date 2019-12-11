@@ -6,7 +6,7 @@ import {
   AMInputObjectType,
   AMInputField,
   AMInputFieldConfigMap,
-} from '../types';
+} from '../definitions';
 import { AMCreateTypeFactory } from './create';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import R from 'ramda';
@@ -15,9 +15,7 @@ const isApplicable = (field: AMModelField) => (
   fieldFactory: IAMInputFieldFactory
 ) => fieldFactory.isApplicable(field);
 
-export const AMCreateManyNestedTypeFactory: IAMTypeFactory<
-  AMInputObjectType
-> = {
+export const AMCreateManyNestedTypeFactory: IAMTypeFactory<AMInputObjectType> = {
   getTypeName(modelType): string {
     return `${modelType.name}CreateManyNestedInput`;
   },

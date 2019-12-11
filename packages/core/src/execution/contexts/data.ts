@@ -1,5 +1,5 @@
 import { AMContext } from '../context';
-import { AMObjectFieldValueType } from '../../types';
+import { AMObjectFieldValueType } from '../../definitions';
 
 type Data = { [key: string]: AMObjectFieldValueType };
 

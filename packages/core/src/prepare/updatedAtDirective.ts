@@ -1,6 +1,6 @@
 import { GraphQLSchema, isObjectType } from 'graphql';
 import { getDirectiveAST } from '../tsutils';
-import { AMModelField, AMModelType } from '../types';
+import { AMModelField, AMModelType } from '../definitions';
 
 export const updatedAtDirective = (schema: GraphQLSchema) => {
   Object.values(schema.getTypeMap()).forEach((type: AMModelType) => {

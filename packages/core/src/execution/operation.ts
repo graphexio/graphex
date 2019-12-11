@@ -1,7 +1,7 @@
 import { AMContext } from './context';
 import { AMFieldsSelectionContext } from './contexts/fieldsSelection';
 import { AMSelectorContext } from './contexts/selector';
-import { AMDBExecutor } from '../types';
+import { AMDBExecutor } from '../definitions';
 import { AMResultPromise } from './resultPromise';
 import { AMTransaction } from './transaction';
 import { AMDataContext } from './contexts/data';

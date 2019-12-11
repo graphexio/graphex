@@ -31,7 +31,7 @@ import {
   AMModelField,
   AMField,
   AMEnumType,
-} from '../types';
+} from '../definitions';
 import { AMFieldsSelectionContext } from './contexts/fieldsSelection';
 import R from 'ramda';
 import { AMOperation } from './operation';

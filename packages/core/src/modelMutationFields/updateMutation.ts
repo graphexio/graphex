@@ -4,7 +4,11 @@ import { AMUpdateOperation } from '../execution/operations/updateOperation';
 import { AMUpdateTypeFactory } from '../inputTypes/update';
 import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
 import { resolve } from '../resolve';
-import { AMField, AMModelType, IAMModelQueryFieldFactory } from '../types';
+import {
+  AMField,
+  AMModelType,
+  IAMModelQueryFieldFactory,
+} from '../definitions';
 
 export const AMModelUpdateMutationFieldFactory: IAMModelQueryFieldFactory = {
   getFieldName(modelType: AMModelType): string {

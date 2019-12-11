@@ -1,5 +1,5 @@
 import { getNamedType, GraphQLInputType, isCompositeType } from 'graphql';
-import { IAMQuerySelector } from '../../types';
+import { IAMQuerySelector } from '../../definitions';
 import { AMQuerySelectorFieldFactory } from '../fieldFactories/querySelector';
 
 export const ContainsSelector: IAMQuerySelector = {

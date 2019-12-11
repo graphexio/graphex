@@ -10,7 +10,7 @@ import {
   IAMTypeFactory,
   AMInputObjectType,
   AMModelField,
-} from '../types';
+} from '../definitions';
 import { Selectors } from './querySelectors';
 import { AsIsSelector } from './querySelectors/asis';
 import { whereTypeVisitorHandler } from './visitorHandlers';
@@ -22,9 +22,7 @@ const selectorToFieldFactory = (selector: IAMQuerySelector) => {
   return selector.getFieldFactory();
 };
 
-export const AMWhereUniqueTypeFactory: IAMTypeFactory<
-  GraphQLInputObjectType
-> = {
+export const AMWhereUniqueTypeFactory: IAMTypeFactory<GraphQLInputObjectType> = {
   getTypeName(modelType): string {
     return `${modelType.name}WhereUniqueInput`;
   },

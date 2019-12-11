@@ -7,7 +7,7 @@ import {
   AMModelField,
   AMSchemaInfo,
   IAMInputFieldFactory,
-} from '../../types';
+} from '../../definitions';
 
 export class AMQuerySelectorFieldFactory implements IAMInputFieldFactory {
   private _getFieldName: (field: AMModelField) => string;

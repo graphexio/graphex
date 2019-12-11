@@ -5,7 +5,7 @@ import {
   isInputObjectType,
 } from 'graphql';
 import { getDirectiveAST } from '../tsutils';
-import { AMModelField, AMModelType } from '../types';
+import { AMModelField, AMModelType } from '../definitions';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 
 export const fieldVisitorEvents = (

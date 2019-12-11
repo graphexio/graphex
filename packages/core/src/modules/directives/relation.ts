@@ -9,7 +9,7 @@ import {
   applyInputTransform,
   reduceTransforms,
 } from '../../inputTypes/utils';
-import { AMModelField, AMModelType } from '../../types';
+import { AMModelField, AMModelType } from '../../definitions';
 import { getNamedType } from 'graphql';
 import TypeWrap from '@apollo-model/type-wrap';
 import { allQueryArgs, getDirective, getRelationFieldName } from '../../utils';

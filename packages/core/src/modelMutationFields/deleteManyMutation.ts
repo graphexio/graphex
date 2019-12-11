@@ -4,15 +4,16 @@ import R from 'ramda';
 import { AMDeleteOperation } from '../execution/operations/deleteOperation';
 import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
 import { resolve } from '../resolve';
-import { AMField, AMModelType, IAMModelQueryFieldFactory } from '../types';
+import {
+  AMField,
+  AMModelType,
+  IAMModelQueryFieldFactory,
+} from '../definitions';
 import { AMWhereTypeFactory } from '../inputTypes/where';
 
 export const AMModelDeleteManyMutationFieldFactory: IAMModelQueryFieldFactory = {
   getFieldName(modelType: AMModelType): string {
-    return R.pipe(
-      pluralize,
-      R.concat('delete')
-    )(modelType.name);
+    return R.pipe(pluralize, R.concat('delete'))(modelType.name);
   },
   getField(modelType: AMModelType, resolveTypes) {
     return <AMField>{

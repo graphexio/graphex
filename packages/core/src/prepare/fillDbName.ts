@@ -1,5 +1,5 @@
 import { GraphQLSchema, isCompositeType, isObjectType } from 'graphql';
-import { AMModelField } from '../types';
+import { AMModelField } from '../definitions';
 
 export const fillDbName = (schema: GraphQLSchema) => {
   Object.values(schema.getTypeMap()).forEach(type => {

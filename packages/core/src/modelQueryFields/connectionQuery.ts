@@ -3,7 +3,7 @@ import pluralize from 'pluralize';
 import R from 'ramda';
 import { AMReadOperation } from '../execution/operations/readOperation';
 import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
-import { AMWhereTypeFactory } from '../inputTypes/where';
+import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
 import { lowercaseFirstLetter } from '../tsutils';
 import {
   AMField,
@@ -11,12 +11,12 @@ import {
   IAMModelQueryFieldFactory,
 } from '../definitions';
 import { resolve } from '../resolve';
-import { AMCreateTypeFactory } from '../inputTypes/create';
-import { AMCreateOperation } from '../execution/operations/createOperation';
 
-export const AMModelCreateMutationFieldFactory: IAMModelQueryFieldFactory = {
+export const AMModelConnectionQueryFieldFactory: IAMModelQueryFieldFactory = {
   getFieldName(modelType: AMModelType): string {
-    return R.concat('create')(modelType.name);
+    return R.pipe(pluralize, lowercaseFirstLetter, R.concat)(modelType.name)(
+      'Connection'
+    );
   },
   getField(modelType: AMModelType, resolveTypes) {
     return <AMField>{
@@ -25,14 +25,15 @@ export const AMModelCreateMutationFieldFactory: IAMModelQueryFieldFactory = {
       type: modelType,
       args: [
         {
-          name: 'data',
-          type: new GraphQLNonNull(
-            resolveTypes.resolveFactoryType(modelType, AMCreateTypeFactory)
+          name: 'where',
+          type: resolveTypes.resolveFactoryType(
+            modelType,
+            AMWhereUniqueTypeFactory
           ),
         },
       ],
       amEnter(node, transaction, stack) {
-        const operation = new AMCreateOperation(transaction, {
+        const operation = new AMReadOperation(transaction, {
           many: false,
           collectionName: modelType.mmCollectionName,
         });

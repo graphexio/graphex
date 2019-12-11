@@ -2,7 +2,7 @@ import { defaultObjectFieldVisitorHandler } from '@apollo-model/core/lib/inputTy
 import {
   AMInputField,
   IAMInputFieldFactory,
-} from '@apollo-model/core/src/types';
+} from '@apollo-model/core/src/definitions';
 
 export const AMGeoJSONCreateFieldFactory: IAMInputFieldFactory = {
   isApplicable(field) {

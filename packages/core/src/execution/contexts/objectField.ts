@@ -1,5 +1,5 @@
 import { AMContext } from '../context';
-import { AMObjectFieldValueType, AMModelField } from '../../types';
+import { AMObjectFieldValueType, AMModelField } from '../../definitions';
 
 export class AMObjectFieldContext extends AMContext {
   fieldName: string;
