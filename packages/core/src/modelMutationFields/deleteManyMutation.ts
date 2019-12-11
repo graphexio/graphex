@@ -15,7 +15,7 @@ export const AMModelDeleteManyMutationFieldFactory: IAMModelQueryFieldFactory = 
   getFieldName(modelType: AMModelType): string {
     return R.pipe(pluralize, R.concat('delete'))(modelType.name);
   },
-  getField(modelType: AMModelType, resolveTypes) {
+  getField(modelType: AMModelType, schemaInfo) {
     return <AMField>{
       name: this.getFieldName(modelType),
       description: '',
@@ -24,7 +24,7 @@ export const AMModelDeleteManyMutationFieldFactory: IAMModelQueryFieldFactory = 
         {
           name: 'where',
           type: new GraphQLNonNull(
-            resolveTypes.resolveFactoryType(modelType, AMWhereTypeFactory)
+            schemaInfo.resolveFactoryType(modelType, AMWhereTypeFactory)
           ),
         },
       ],

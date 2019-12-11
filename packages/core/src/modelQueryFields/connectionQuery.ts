@@ -11,6 +11,8 @@ import {
   IAMModelQueryFieldFactory,
 } from '../definitions';
 import { resolve } from '../resolve';
+import { AMConnectionTypeFactory } from '../types/connection';
+import { AMWhereTypeFactory } from '../inputTypes/where';
 
 export const AMModelConnectionQueryFieldFactory: IAMModelQueryFieldFactory = {
   getFieldName(modelType: AMModelType): string {
@@ -18,18 +20,27 @@ export const AMModelConnectionQueryFieldFactory: IAMModelQueryFieldFactory = {
       'Connection'
     );
   },
-  getField(modelType: AMModelType, resolveTypes) {
+  getField(modelType: AMModelType, schemaInfo) {
     return <AMField>{
       name: this.getFieldName(modelType),
       description: '',
-      type: modelType,
+      type: schemaInfo.resolveFactoryType(modelType, AMConnectionTypeFactory),
       args: [
         {
           name: 'where',
-          type: resolveTypes.resolveFactoryType(
-            modelType,
-            AMWhereUniqueTypeFactory
-          ),
+          type: schemaInfo.resolveFactoryType(modelType, AMWhereTypeFactory),
+        },
+        {
+          name: 'orderBy',
+          type: schemaInfo.resolveFactoryType(modelType, AMOrderByTypeFactory),
+        },
+        {
+          name: 'skip',
+          type: GraphQLInt,
+        },
+        {
+          name: 'first',
+          type: GraphQLInt,
         },
       ],
       amEnter(node, transaction, stack) {

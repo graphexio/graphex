@@ -14,7 +14,7 @@ export const AMModelUpdateMutationFieldFactory: IAMModelQueryFieldFactory = {
   getFieldName(modelType: AMModelType): string {
     return R.concat('update')(modelType.name);
   },
-  getField(modelType: AMModelType, resolveTypes) {
+  getField(modelType: AMModelType, schemaInfo) {
     return <AMField>{
       name: this.getFieldName(modelType),
       description: '',
@@ -23,13 +23,13 @@ export const AMModelUpdateMutationFieldFactory: IAMModelQueryFieldFactory = {
         {
           name: 'data',
           type: new GraphQLNonNull(
-            resolveTypes.resolveFactoryType(modelType, AMUpdateTypeFactory)
+            schemaInfo.resolveFactoryType(modelType, AMUpdateTypeFactory)
           ),
         },
         {
           name: 'where',
           type: new GraphQLNonNull(
-            resolveTypes.resolveFactoryType(modelType, AMWhereUniqueTypeFactory)
+            schemaInfo.resolveFactoryType(modelType, AMWhereUniqueTypeFactory)
           ),
         },
       ],

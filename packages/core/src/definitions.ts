@@ -20,6 +20,7 @@ import {
   EnumTypeDefinitionNode,
   EnumTypeExtensionNode,
   GraphQLOutputType,
+  GraphQLObjectTypeConfig,
 } from 'graphql';
 import Maybe from 'graphql/tsutils/Maybe';
 import { AMContext } from './execution/context';
@@ -121,10 +122,31 @@ export type AMFieldMap = {
   [key: string]: AMField;
 };
 
-export type AMObjectType = Omit<GraphQLObjectType, 'getFields'> & {
-  getFields(): AMFieldMap;
+export class AMObjectType extends GraphQLObjectType implements AMVisitable {
   mmDiscriminator: string;
-};
+  amEnter?(
+    node: ObjectValueNode,
+    transaction: AMTransaction,
+    stack: AMVisitorStack
+  );
+  amLeave?(
+    node: ObjectValueNode,
+    transaction: AMTransaction,
+    stack: AMVisitorStack
+  );
+
+  constructor(config: AMObjectTypeConfig) {
+    super(config);
+    this.amEnter = config.amEnter;
+    this.amLeave = config.amLeave;
+  }
+
+  getFields(): AMFieldMap {
+    return super.getFields() as AMFieldMap;
+  }
+}
+export type AMObjectTypeConfig = GraphQLObjectTypeConfig<any, any, any> &
+  AMVisitable;
 
 export type AMInterfaceType = Omit<GraphQLInterfaceType, 'getFields'> & {
   getFields(): AMFieldMap;

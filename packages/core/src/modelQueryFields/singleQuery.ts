@@ -16,7 +16,7 @@ export const AMModelSingleQueryFieldFactory: IAMModelQueryFieldFactory = {
   getFieldName(modelType: AMModelType): string {
     return lowercaseFirstLetter(modelType.name);
   },
-  getField(modelType: AMModelType, resolveTypes) {
+  getField(modelType: AMModelType, schemaInfo) {
     return <AMField>{
       name: this.getFieldName(modelType),
       description: '',
@@ -24,7 +24,7 @@ export const AMModelSingleQueryFieldFactory: IAMModelQueryFieldFactory = {
       args: [
         {
           name: 'where',
-          type: resolveTypes.resolveFactoryType(
+          type: schemaInfo.resolveFactoryType(
             modelType,
             AMWhereUniqueTypeFactory
           ),

@@ -16,7 +16,7 @@ export const AMModelMultipleQueryFieldFactory: IAMModelQueryFieldFactory = {
   getFieldName(modelType: AMModelType): string {
     return R.pipe(pluralize, lowercaseFirstLetter)(modelType.name);
   },
-  getField(modelType: AMModelType, resolveTypes) {
+  getField(modelType: AMModelType, schemaInfo) {
     return <AMField>{
       name: this.getFieldName(modelType),
       description: '',
@@ -24,14 +24,11 @@ export const AMModelMultipleQueryFieldFactory: IAMModelQueryFieldFactory = {
       args: [
         {
           name: 'where',
-          type: resolveTypes.resolveFactoryType(modelType, AMWhereTypeFactory),
+          type: schemaInfo.resolveFactoryType(modelType, AMWhereTypeFactory),
         },
         {
           name: 'orderBy',
-          type: resolveTypes.resolveFactoryType(
-            modelType,
-            AMOrderByTypeFactory
-          ),
+          type: schemaInfo.resolveFactoryType(modelType, AMOrderByTypeFactory),
         },
         {
           name: 'skip',

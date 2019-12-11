@@ -331,10 +331,10 @@ describe('modelFields', () => {
     const queryStr = printType(schema.getQueryType());
     const mutationStr = printType(schema.getMutationType());
 
+    //TODO: add pagination postsPaged(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, first: Int): PostPagination!
     expect(queryStr).toMatchInlineSnapshot(`
       "type Query {
         posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, first: Int): [Post!]!
-        postsPaged(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, first: Int): PostPagination!
         post(where: PostWhereUniqueInput): Post
         postsConnection(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, first: Int): PostConnection
       }"
@@ -348,6 +348,18 @@ describe('modelFields', () => {
               updatePost(data: PostUpdateInput!, where: PostWhereUniqueInput!): Post
             }"
         `);
+
+    expect(printType(schema.getType('PostConnection'))).toMatchInlineSnapshot(`
+        "type PostConnection {
+          aggregation: AggregatePost
+        }"
+      `);
+
+    expect(printType(schema.getType('AggregatePost'))).toMatchInlineSnapshot(`
+      "type AggregatePost {
+        count: Int!
+      }"
+    `);
   });
 });
 
