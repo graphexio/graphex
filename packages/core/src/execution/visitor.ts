@@ -31,6 +31,7 @@ import {
   AMModelField,
   AMField,
   AMEnumType,
+  AMArgumet,
 } from '../definitions';
 import { AMFieldsSelectionContext } from './contexts/fieldsSelection';
 import R from 'ramda';
@@ -93,13 +94,25 @@ export class AMVisitor {
       leave(node) {
         // console.log('leave', node, stack);
       },
-      // [Kind.ARGUMENT]: {
-      //   enter(node) {
-      //     // console.log(typeInfo.getArgument());
-      //     console.log('arg');
-      //   },
-      //   leave(node) {},
-      // },
+      [Kind.ARGUMENT]: {
+        enter(node) {
+          // console.log(typeInfo.getArgument());
+          const arg = typeInfo
+            .getFieldDef()
+            .args.find(arg => arg.name === node.name.value) as AMArgumet;
+          if (arg.amEnter) {
+            arg.amEnter(node, transaction, stack);
+          }
+        },
+        leave(node) {
+          const arg = typeInfo
+            .getFieldDef()
+            .args.find(arg => arg.name === node.name.value) as AMArgumet;
+          if (arg.amLeave) {
+            arg.amLeave(node, transaction, stack);
+          }
+        },
+      },
       // [Kind.OBJECT]: {
       //   enter(node) {
       //     console.log('obj');
@@ -130,6 +143,7 @@ export class AMVisitor {
           const type = getNamedType(typeInfo.getType()) as
             | AMModelType
             | AMObjectType;
+
           let fieldName = node.name.value;
           const field = type.getFields()[fieldName];
 

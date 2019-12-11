@@ -245,6 +245,39 @@ describe('simple schema', () => {
                   }
           `);
   });
+
+  test('connection', () => {
+    const rq = gql`
+      {
+        postsConnection(skip: 2, first: 1) {
+          aggregation {
+            count
+          }
+        }
+      }
+    `;
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, {}, transaction);
+    expect(transaction).toMatchInlineSnapshot(`
+                Object {
+                  "operations": Array [
+                    Object {
+                      "collectionName": "posts",
+                      "fieldsSelection": Object {
+                        "fields": Array [],
+                      },
+                      "first": 1,
+                      "identifier": "Operation-0",
+                      "kind": "AMAggregateOperation",
+                      "many": false,
+                      "output": "AMResultPromise { Operation-0 }",
+                      "skip": 2,
+                    },
+                  ],
+                }
+            `);
+  });
 });
 
 describe('nested objects', () => {

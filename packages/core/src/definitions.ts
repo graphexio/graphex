@@ -21,6 +21,7 @@ import {
   EnumTypeExtensionNode,
   GraphQLOutputType,
   GraphQLObjectTypeConfig,
+  GraphQLArgument,
 } from 'graphql';
 import Maybe from 'graphql/tsutils/Maybe';
 import { AMContext } from './execution/context';
@@ -111,11 +112,12 @@ export interface AMInputObjectTypeConfig {
   );
 }
 
-export type AMField = Omit<GraphQLField<any, any>, 'type'> &
+export type AMField = Omit<GraphQLField<any, any>, 'type' | 'args'> &
   AMVisitable & {
     type:
       | Exclude<GraphQLOutputType, GraphQLObjectType | GraphQLInterfaceType>
       | AMModelType;
+    args: AMArgumet[];
   };
 
 export type AMFieldMap = {
@@ -226,6 +228,8 @@ export interface IAMQuerySelector {
   getFieldFactory(): IAMInputFieldFactory;
 }
 
+export type AMArgumet = GraphQLArgument & AMVisitable;
+
 export type AMObjectFieldValueType =
   | boolean
   | string
@@ -243,6 +247,8 @@ export type AMDBExecutorParams = {
   options?: {
     arrayFilters?: { [key: string]: any }[];
     sort?: { [key: string]: number };
+    limit?: number;
+    skip?: number;
   };
 };
 

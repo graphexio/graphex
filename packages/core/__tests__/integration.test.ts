@@ -245,6 +245,28 @@ test('Query categories after renaming', async () => {
   `);
 });
 
+test('Query categories pagination', async () => {
+  let { errors, data } = await query({
+    query: gql`
+      {
+        categories(skip: 2, first: 1) {
+          title
+        }
+      }
+    `,
+  });
+  expect(errors).toBeUndefined();
+  expect(data).toMatchInlineSnapshot(`
+    Object {
+      "categories": Array [
+        Object {
+          "title": "MongoDB",
+        },
+      ],
+    }
+  `);
+});
+
 test('Rename category back', async () => {
   let { errors, data } = await mutate({
     mutation: gql`
@@ -352,6 +374,56 @@ test('QueryCategoriesExtRelation', async () => {
           "title": "React",
         },
       ],
+    }
+  `);
+});
+
+test('Categories aggregation count', async () => {
+  let { errors, data } = await query({
+    query: gql`
+      query {
+        categoriesConnection {
+          aggregation {
+            count
+          }
+        }
+      }
+    `,
+    variables: {},
+  });
+  expect(errors).toBeUndefined();
+  expect(data).toMatchInlineSnapshot(`
+    Object {
+      "categoriesConnection": Object {
+        "aggregation": Object {
+          "count": 4,
+        },
+      },
+    }
+  `);
+});
+
+test('Categories aggregation count with where', async () => {
+  let { errors, data } = await query({
+    query: gql`
+      query {
+        categoriesConnection(where: { title: "JS" }) {
+          aggregation {
+            count
+          }
+        }
+      }
+    `,
+    variables: {},
+  });
+  expect(errors).toBeUndefined();
+  expect(data).toMatchInlineSnapshot(`
+    Object {
+      "categoriesConnection": Object {
+        "aggregation": Object {
+          "count": 1,
+        },
+      },
     }
   `);
 });

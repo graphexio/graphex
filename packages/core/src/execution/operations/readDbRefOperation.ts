@@ -23,7 +23,11 @@ export class AMReadDBRefOperation extends AMOperation {
               fields: await completeAMResultPromise(
                 this.fieldsSelection ? this.fieldsSelection.fields : undefined
               ),
-              options: { sort: this.orderBy },
+              options: {
+                sort: this.orderBy,
+                limit: this.first,
+                skip: this.skip,
+              },
             });
 
             return [collectionName, R.indexBy(R.prop('_id'), data)];

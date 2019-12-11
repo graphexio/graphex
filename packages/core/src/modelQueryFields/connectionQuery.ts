@@ -1,18 +1,19 @@
-import { GraphQLInt, GraphQLList, GraphQLNonNull } from 'graphql';
+import { GraphQLInt } from 'graphql';
 import pluralize from 'pluralize';
 import R from 'ramda';
-import { AMReadOperation } from '../execution/operations/readOperation';
-import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
-import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
-import { lowercaseFirstLetter } from '../tsutils';
 import {
   AMField,
   AMModelType,
   IAMModelQueryFieldFactory,
 } from '../definitions';
-import { resolve } from '../resolve';
-import { AMConnectionTypeFactory } from '../types/connection';
+import { AMAggregateOperation } from '../execution/operations/aggregateOperation';
+import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
 import { AMWhereTypeFactory } from '../inputTypes/where';
+import { resolve } from '../resolve';
+import { lowercaseFirstLetter } from '../tsutils';
+import { AMConnectionTypeFactory } from '../types/connection';
+import { AMObjectFieldContext } from '../execution/contexts/objectField';
+import { AMOperation } from '../execution/operation';
 
 export const AMModelConnectionQueryFieldFactory: IAMModelQueryFieldFactory = {
   getFieldName(modelType: AMModelType): string {
@@ -37,14 +38,38 @@ export const AMModelConnectionQueryFieldFactory: IAMModelQueryFieldFactory = {
         {
           name: 'skip',
           type: GraphQLInt,
+          amEnter(node, transaction, stack) {
+            const context = new AMObjectFieldContext('arg');
+            stack.push(context);
+          },
+          amLeave(node, transaction, stack) {
+            const context = stack.pop() as AMObjectFieldContext;
+            const lastInStack = R.last(stack);
+
+            if (lastInStack instanceof AMOperation) {
+              lastInStack.setSkip(context.value as number);
+            }
+          },
         },
         {
           name: 'first',
           type: GraphQLInt,
+          amEnter(node, transaction, stack) {
+            const context = new AMObjectFieldContext('arg');
+            stack.push(context);
+          },
+          amLeave(node, transaction, stack) {
+            const context = stack.pop() as AMObjectFieldContext;
+            const lastInStack = R.last(stack);
+
+            if (lastInStack instanceof AMOperation) {
+              lastInStack.setFirst(context.value as number);
+            }
+          },
         },
       ],
       amEnter(node, transaction, stack) {
-        const operation = new AMReadOperation(transaction, {
+        const operation = new AMAggregateOperation(transaction, {
           many: false,
           collectionName: modelType.mmCollectionName,
         });

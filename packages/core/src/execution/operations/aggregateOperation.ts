@@ -2,12 +2,10 @@ import { AMOperation } from '../operation';
 import { AMDBExecutor, AMDBExecutorOperationType } from '../../definitions';
 import { completeAMResultPromise } from '../utils';
 
-export class AMReadOperation extends AMOperation {
+export class AMAggregateOperation extends AMOperation {
   async execute(executor: AMDBExecutor) {
     executor({
-      type: this.many
-        ? AMDBExecutorOperationType.FIND
-        : AMDBExecutorOperationType.FIND_ONE,
+      type: AMDBExecutorOperationType.COUNT,
       collection: this.collectionName,
       selector: await completeAMResultPromise(
         this.selector ? this.selector.selector : undefined
@@ -17,7 +15,13 @@ export class AMReadOperation extends AMOperation {
       ),
       options: { sort: this.orderBy, limit: this.first, skip: this.skip },
     })
-      .then(this._result.resolve)
+      .then(res => {
+        this._result.resolve({
+          aggregation: {
+            count: res,
+          },
+        });
+      })
       .catch(this._result.reject);
   }
 }

@@ -13,20 +13,22 @@ import { DBRef, ObjectID, ObjectId } from 'mongodb';
 test('read many', () => {
   const executor = (params: AMDBExecutorParams) => {
     expect(params).toMatchInlineSnapshot(`
-                                          Object {
-                                            "collection": "posts",
-                                            "fields": Array [
-                                              "title",
-                                            ],
-                                            "options": Object {
-                                              "sort": undefined,
-                                            },
-                                            "selector": Object {
-                                              "title": "test-title",
-                                            },
-                                            "type": "find",
-                                          }
-                            `);
+          Object {
+            "collection": "posts",
+            "fields": Array [
+              "title",
+            ],
+            "options": Object {
+              "limit": undefined,
+              "skip": undefined,
+              "sort": undefined,
+            },
+            "selector": Object {
+              "title": "test-title",
+            },
+            "type": "find",
+          }
+    `);
     return Promise.resolve([]);
   };
 
@@ -44,20 +46,22 @@ test('read many', () => {
 test('read one', () => {
   const executor = (params: AMDBExecutorParams) => {
     expect(params).toMatchInlineSnapshot(`
-                          Object {
-                            "collection": "posts",
-                            "fields": Array [
-                              "title",
-                            ],
-                            "options": Object {
-                              "sort": undefined,
-                            },
-                            "selector": Object {
-                              "title": "test-title",
-                            },
-                            "type": "findOne",
-                          }
-            `);
+          Object {
+            "collection": "posts",
+            "fields": Array [
+              "title",
+            ],
+            "options": Object {
+              "limit": undefined,
+              "skip": undefined,
+              "sort": undefined,
+            },
+            "selector": Object {
+              "title": "test-title",
+            },
+            "type": "findOne",
+          }
+    `);
     return Promise.resolve([]);
   };
 
@@ -75,20 +79,22 @@ test('read one', () => {
 test('read where', () => {
   const executor = (params: AMDBExecutorParams) => {
     expect(params).toMatchInlineSnapshot(`
-                  Object {
-                    "collection": "posts",
-                    "fields": Array [
-                      "title",
-                    ],
-                    "options": Object {
-                      "sort": undefined,
-                    },
-                    "selector": Object {
-                      "_id": "post-id",
-                    },
-                    "type": "findOne",
-                  }
-            `);
+            Object {
+              "collection": "posts",
+              "fields": Array [
+                "title",
+              ],
+              "options": Object {
+                "limit": undefined,
+                "skip": undefined,
+                "sort": undefined,
+              },
+              "selector": Object {
+                "_id": "post-id",
+              },
+              "type": "findOne",
+            }
+      `);
     return Promise.resolve([]);
   };
 
@@ -118,25 +124,27 @@ test('read many relation', async () => {
       }
       case 2: {
         expect(params).toMatchInlineSnapshot(`
-                                                Object {
-                                                  "collection": "comments",
-                                                  "fields": undefined,
-                                                  "options": Object {
-                                                    "sort": undefined,
-                                                  },
-                                                  "selector": Object {
-                                                    "_id": Object {
-                                                      "$in": Array [
-                                                        "comment1",
-                                                        "comment2",
-                                                        "comment3",
-                                                        "comment4",
-                                                      ],
-                                                    },
-                                                  },
-                                                  "type": "find",
-                                                }
-                                  `);
+              Object {
+                "collection": "comments",
+                "fields": undefined,
+                "options": Object {
+                  "limit": undefined,
+                  "skip": undefined,
+                  "sort": undefined,
+                },
+                "selector": Object {
+                  "_id": Object {
+                    "$in": Array [
+                      "comment1",
+                      "comment2",
+                      "comment3",
+                      "comment4",
+                    ],
+                  },
+                },
+                "type": "find",
+              }
+        `);
         return Promise.resolve([
           {
             _id: 'comment1',
@@ -216,18 +224,18 @@ test('read many relation', async () => {
 test('create', () => {
   const executor = (params: AMDBExecutorParams) => {
     expect(params).toMatchInlineSnapshot(`
-                            Object {
-                              "collection": "posts",
-                              "doc": Object {
-                                "title": "test-title",
-                              },
-                              "fields": Array [
-                                "_id",
-                                "title",
-                              ],
-                              "type": "insertOne",
-                            }
-            `);
+          Object {
+            "collection": "posts",
+            "doc": Object {
+              "title": "test-title",
+            },
+            "fields": Array [
+              "_id",
+              "title",
+            ],
+            "type": "insertOne",
+          }
+    `);
     return Promise.resolve([]);
   };
 
@@ -245,26 +253,26 @@ test('create', () => {
 test('update', () => {
   const executor = (params: AMDBExecutorParams) => {
     expect(params).toMatchInlineSnapshot(`
-                    Object {
-                      "collection": "posts",
-                      "doc": Object {
-                        "$set": Object {
-                          "title": "new title",
-                        },
-                      },
-                      "fields": Array [
-                        "_id",
-                        "title",
-                      ],
-                      "options": Object {
-                        "arrayFilters": undefined,
-                      },
-                      "selector": Object {
-                        "id": "PostID",
-                      },
-                      "type": "updateOne",
-                    }
-          `);
+          Object {
+            "collection": "posts",
+            "doc": Object {
+              "$set": Object {
+                "title": "new title",
+              },
+            },
+            "fields": Array [
+              "_id",
+              "title",
+            ],
+            "options": Object {
+              "arrayFilters": undefined,
+            },
+            "selector": Object {
+              "id": "PostID",
+            },
+            "type": "updateOne",
+          }
+    `);
     return Promise.resolve([]);
   };
 
@@ -283,32 +291,32 @@ test('update', () => {
 test('update with arrayfilter', () => {
   const executor = (params: AMDBExecutorParams) => {
     expect(params).toMatchInlineSnapshot(`
-                        Object {
-                          "collection": "posts",
-                          "doc": Object {
-                            "$set": Object {
-                              "title": "new title",
-                            },
-                          },
-                          "fields": Array [
-                            "_id",
-                            "title",
-                          ],
-                          "options": Object {
-                            "arrayFilters": Array [
-                              Object {
-                                "arrFltr0": Object {
-                                  "message": "test",
-                                },
-                              },
-                            ],
-                          },
-                          "selector": Object {
-                            "id": "PostID",
-                          },
-                          "type": "updateOne",
-                        }
-                `);
+          Object {
+            "collection": "posts",
+            "doc": Object {
+              "$set": Object {
+                "title": "new title",
+              },
+            },
+            "fields": Array [
+              "_id",
+              "title",
+            ],
+            "options": Object {
+              "arrayFilters": Array [
+                Object {
+                  "arrFltr0": Object {
+                    "message": "test",
+                  },
+                },
+              ],
+            },
+            "selector": Object {
+              "id": "PostID",
+            },
+            "type": "updateOne",
+          }
+    `);
     return Promise.resolve([]);
   };
 
@@ -328,17 +336,17 @@ test('update with arrayfilter', () => {
 test('create many', () => {
   const executor = (params: AMDBExecutorParams) => {
     expect(params).toMatchInlineSnapshot(`
-            Object {
-              "collection": "posts",
-              "docs": Array [
-                Object {
-                  "title": "new title",
-                },
-              ],
-              "fields": undefined,
-              "type": "insertMany",
-            }
-        `);
+          Object {
+            "collection": "posts",
+            "docs": Array [
+              Object {
+                "title": "new title",
+              },
+            ],
+            "fields": undefined,
+            "type": "insertMany",
+          }
+      `);
     return Promise.resolve([]);
   };
 
@@ -368,6 +376,8 @@ test('read dbref', async () => {
               "title",
             ],
             "options": Object {
+              "limit": undefined,
+              "skip": undefined,
               "sort": undefined,
             },
             "selector": Object {
@@ -391,6 +401,8 @@ test('read dbref', async () => {
               "title",
             ],
             "options": Object {
+              "limit": undefined,
+              "skip": undefined,
               "sort": undefined,
             },
             "selector": Object {
@@ -430,6 +442,8 @@ test('orderBy', () => {
         "collection": "posts",
         "fields": undefined,
         "options": Object {
+          "limit": undefined,
+          "skip": undefined,
           "sort": Object {
             "_id": 1,
           },

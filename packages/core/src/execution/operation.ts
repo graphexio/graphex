@@ -18,6 +18,8 @@ export class AMOperation extends AMContext {
   dbRefList: DBRef[] | AMResultPromise<DBRef[]> | AMResultPromise<DBRef>[];
   many: boolean;
   orderBy: { [key: string]: number };
+  skip: number;
+  first: number;
 
   _result: AMResultPromise<any>;
   _transactionNumber: number;
@@ -35,6 +37,8 @@ export class AMOperation extends AMContext {
       dbRefList?: DBRef[] | AMResultPromise<DBRef[]> | AMResultPromise<DBRef>[];
       many?: boolean;
       orderBy?: { [key: string]: number };
+      skip?: number;
+      first?: number;
     }
   ) {
     super();
@@ -47,6 +51,8 @@ export class AMOperation extends AMContext {
     this.dbRefList = config.dbRefList;
     this.many = Boolean(config.many);
     this.orderBy = config.orderBy;
+    this.skip = config.skip;
+    this.first = config.first;
 
     this._result = new AMResultPromise(this);
     this._transactionNumber = transaction.operations.length;
@@ -85,6 +91,14 @@ export class AMOperation extends AMContext {
     this.orderBy = order;
   }
 
+  setSkip(skip: number) {
+    this.skip = skip;
+  }
+
+  setFirst(first: number) {
+    this.first = first;
+  }
+
   execute(executor: AMDBExecutor) {}
 
   getResult() {
@@ -119,6 +133,8 @@ export class AMOperation extends AMContext {
       ...(this.dbRef ? { dbRef: this.dbRef } : null),
       ...(this.dbRefList ? { dbRefList: this.dbRefList } : null),
       ...(this.orderBy ? { orderBy: this.orderBy } : null),
+      ...(this.skip ? { skip: this.skip } : null),
+      ...(this.first ? { first: this.first } : null),
     };
   }
 }
