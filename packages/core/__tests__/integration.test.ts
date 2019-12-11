@@ -356,6 +356,75 @@ test('QueryCategoriesExtRelation', async () => {
   `);
 });
 
+test('ExtRelation OrderBy', async () => {
+  {
+    let { errors, data } = await query({
+      query: gql`
+        query {
+          categories(where: { title: "root" }) {
+            title
+            subcategories(orderBy: createdAt_ASC) {
+              title
+            }
+          }
+        }
+      `,
+      variables: {},
+    });
+    expect(errors).toBeUndefined();
+    expect(data).toMatchInlineSnapshot(`
+    Object {
+      "categories": Array [
+        Object {
+          "subcategories": Array [
+            Object {
+              "title": "JS",
+            },
+            Object {
+              "title": "MongoDB",
+            },
+          ],
+          "title": "root",
+        },
+      ],
+    }
+  `);
+  }
+  {
+    let { errors, data } = await query({
+      query: gql`
+        query {
+          categories(where: { title: "root" }) {
+            title
+            subcategories(orderBy: createdAt_DESC) {
+              title
+            }
+          }
+        }
+      `,
+      variables: {},
+    });
+    expect(errors).toBeUndefined();
+    expect(data).toMatchInlineSnapshot(`
+      Object {
+        "categories": Array [
+          Object {
+            "subcategories": Array [
+              Object {
+                "title": "MongoDB",
+              },
+              Object {
+                "title": "JS",
+              },
+            ],
+            "title": "root",
+          },
+        ],
+      }
+    `);
+  }
+});
+
 test('QueryCategoriesByTitle', async () => {
   let { errors, data } = await query({
     query: gql`

@@ -30,6 +30,7 @@ import { AMModelMultipleQueryFieldFactory } from './modelQueryFields/multipleQue
 import { AMModelSingleQueryFieldFactory } from './modelQueryFields/singleQuery';
 import Modules from './modules';
 import { prepare } from './prepare/prepare';
+import { postInit } from './postInit/';
 import {
   allQueryArgs,
   getDirective,
@@ -601,6 +602,8 @@ export default class ModelMongo {
         }
       }
     });
+
+    postInit(schema);
 
     //Remove system directives
     schema._directives = [];
