@@ -6,41 +6,29 @@ import {
   GraphQLInputField,
   GraphQLInputType,
   GraphQLNamedType,
+  isOutputType,
 } from 'graphql';
 import {
   AMModelField,
   AMModelType,
   AMResolveFactoryType,
   IAMTypeFactory,
+  AMField,
 } from '../definitions';
 import TypeWrap from '@apollo-model/type-wrap';
 import { AMWhereTypeFactory } from '../inputTypes/where';
 import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
+import { skipArg } from '../args/skip';
+import { firstArg } from '../args/first';
+import { AMAggregateOperation } from '../execution/operations/aggregateOperation';
+import { makeSchemaInfo } from '../schemaInfo';
+import { AMConnectionTypeFactory } from '../types/connection';
 
 export const relationDirective = (schema: GraphQLSchema) => {
-  const resolveType = (typeName: string) => {
-    return schema.getType(typeName);
-  };
-
-  const resolveFactoryType: AMResolveFactoryType = <T extends GraphQLNamedType>(
-    modelType: AMModelType,
-    typeFactory: IAMTypeFactory<T>
-  ) => {
-    const typeName = typeFactory.getTypeName(modelType);
-    let type = schema.getType(typeName) as T;
-    if (!type) {
-      type = typeFactory.getType(modelType, {
-        schema,
-        resolveType,
-        resolveFactoryType,
-      });
-      schema.getTypeMap()[typeName] = type;
-    }
-    return type;
-  };
+  const schemaInfo = makeSchemaInfo(schema);
 
   Object.values(schema.getTypeMap()).forEach(type => {
-    if (isObjectType(type) || isInterfaceType(type)) {
+    if (isOutputType(type) && (isObjectType(type) || isInterfaceType(type))) {
       Object.values(type.getFields()).forEach((field: AMModelField) => {
         if (field.relation) {
           const typeWrap = new TypeWrap(field.type);
@@ -50,28 +38,56 @@ export const relationDirective = (schema: GraphQLSchema) => {
             {
               name: 'where',
               description: null,
-              type: resolveFactoryType(realType, AMWhereTypeFactory),
+              type: schemaInfo.resolveFactoryType(realType, AMWhereTypeFactory),
               defaultValue: undefined,
             },
             {
               name: 'orderBy',
               description: null,
-              type: resolveFactoryType(realType, AMOrderByTypeFactory),
+              type: schemaInfo.resolveFactoryType(
+                realType,
+                AMOrderByTypeFactory
+              ),
               defaultValue: undefined,
             },
-            {
-              name: 'skip',
-              description: null,
-              type: GraphQLInt,
-              defaultValue: undefined,
-            },
-            {
-              name: 'first',
-              description: null,
-              type: GraphQLInt,
-              defaultValue: undefined,
-            },
+            skipArg,
+            firstArg,
           ];
+
+          type.getFields()[`${field.name}Connection`] = <AMField>{
+            name: `${field.name}Connection`,
+            description: '',
+            type: schemaInfo.resolveFactoryType(
+              realType,
+              AMConnectionTypeFactory
+            ),
+            args: [
+              {
+                name: 'where',
+                type: schemaInfo.resolveFactoryType(
+                  realType,
+                  AMWhereTypeFactory
+                ),
+              },
+              skipArg,
+              firstArg,
+            ],
+            mmFieldFactories: {
+              AMCreateTypeFactory: [],
+              AMUpdateTypeFactory: [],
+              AMWhereTypeFactory: [],
+            },
+            amEnter(node, transaction, stack) {
+              const operation = new AMAggregateOperation(transaction, {
+                many: false,
+                collectionName: realType.mmCollectionName,
+              });
+              stack.push(operation);
+            },
+            amLeave(node, transaction, stack) {
+              stack.pop();
+            },
+          };
         }
       });
     }

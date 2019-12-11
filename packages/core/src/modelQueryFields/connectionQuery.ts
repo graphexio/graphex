@@ -14,6 +14,8 @@ import { lowercaseFirstLetter } from '../tsutils';
 import { AMConnectionTypeFactory } from '../types/connection';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMOperation } from '../execution/operation';
+import { skipArg } from '../args/skip';
+import { firstArg } from '../args/first';
 
 export const AMModelConnectionQueryFieldFactory: IAMModelQueryFieldFactory = {
   getFieldName(modelType: AMModelType): string {
@@ -31,42 +33,12 @@ export const AMModelConnectionQueryFieldFactory: IAMModelQueryFieldFactory = {
           name: 'where',
           type: schemaInfo.resolveFactoryType(modelType, AMWhereTypeFactory),
         },
-        {
-          name: 'orderBy',
-          type: schemaInfo.resolveFactoryType(modelType, AMOrderByTypeFactory),
-        },
-        {
-          name: 'skip',
-          type: GraphQLInt,
-          amEnter(node, transaction, stack) {
-            const context = new AMObjectFieldContext('arg');
-            stack.push(context);
-          },
-          amLeave(node, transaction, stack) {
-            const context = stack.pop() as AMObjectFieldContext;
-            const lastInStack = R.last(stack);
-
-            if (lastInStack instanceof AMOperation) {
-              lastInStack.setSkip(context.value as number);
-            }
-          },
-        },
-        {
-          name: 'first',
-          type: GraphQLInt,
-          amEnter(node, transaction, stack) {
-            const context = new AMObjectFieldContext('arg');
-            stack.push(context);
-          },
-          amLeave(node, transaction, stack) {
-            const context = stack.pop() as AMObjectFieldContext;
-            const lastInStack = R.last(stack);
-
-            if (lastInStack instanceof AMOperation) {
-              lastInStack.setFirst(context.value as number);
-            }
-          },
-        },
+        // {
+        //   name: 'orderBy',
+        //   type: schemaInfo.resolveFactoryType(modelType, AMOrderByTypeFactory),
+        // },
+        skipArg,
+        firstArg,
       ],
       amEnter(node, transaction, stack) {
         const operation = new AMAggregateOperation(transaction, {

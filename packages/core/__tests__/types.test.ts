@@ -336,7 +336,7 @@ describe('modelFields', () => {
       "type Query {
         posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, first: Int): [Post!]!
         post(where: PostWhereUniqueInput): Post
-        postsConnection(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, first: Int): PostConnection
+        postsConnection(where: PostWhereInput, skip: Int, first: Int): PostConnection
       }"
     `);
 

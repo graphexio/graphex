@@ -116,8 +116,10 @@ export type AMField = Omit<GraphQLField<any, any>, 'type' | 'args'> &
   AMVisitable & {
     type:
       | Exclude<GraphQLOutputType, GraphQLObjectType | GraphQLInterfaceType>
+      | AMObjectType
       | AMModelType;
     args: AMArgumet[];
+    mmFieldFactories?: { [typeFactoryName: string]: IAMInputFieldFactory[] };
   };
 
 export type AMFieldMap = {
@@ -165,7 +167,6 @@ export type AMModelField = AMField & {
     storeField: string;
     collection: string;
   };
-  mmFieldFactories?: { [typeFactoryName: string]: IAMInputFieldFactory[] };
 };
 
 export type AMModelFieldMap = {
