@@ -33,16 +33,23 @@ export const AMWhereCleanTypeFactory: IAMTypeFactory<GraphQLInputObjectType> = {
       fields: () => {
         const fields = {};
 
-        Object.values(modelType.getFields()).forEach(field => {
-          const fieldFactories = [AsIsSelector]
-            .filter(isApplicable(field))
-            .map(selectorToFieldFactory);
+        try {
+          Object.values(modelType.getFields()).forEach(field => {
+            const fieldFactories = field?.mmFieldFactories
+              ?.AMWhereCleanTypeFactory
+              ? field.mmFieldFactories.AMWhereCleanTypeFactory
+              : [AsIsSelector]
+                  .filter(isApplicable(field))
+                  .map(selectorToFieldFactory);
 
-          fieldFactories.forEach(factory => {
-            const fieldName = factory.getFieldName(field);
-            fields[fieldName] = factory.getField(field, schemaInfo);
+            fieldFactories.forEach(factory => {
+              const fieldName = factory.getFieldName(field);
+              fields[fieldName] = factory.getField(field, schemaInfo);
+            });
           });
-        });
+        } catch (err) {
+          throw err;
+        }
 
         return fields;
       },

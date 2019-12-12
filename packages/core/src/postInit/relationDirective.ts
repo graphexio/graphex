@@ -41,54 +41,63 @@ export const relationDirective = (schema: GraphQLSchema) => {
               type: schemaInfo.resolveFactoryType(realType, AMWhereTypeFactory),
               defaultValue: undefined,
             },
-            {
-              name: 'orderBy',
-              description: null,
-              type: schemaInfo.resolveFactoryType(
-                realType,
-                AMOrderByTypeFactory
-              ),
-              defaultValue: undefined,
-            },
+            ...(!realType.mmAbstract
+              ? [
+                  {
+                    name: 'orderBy',
+                    description: null,
+                    type: schemaInfo.resolveFactoryType(
+                      realType,
+                      AMOrderByTypeFactory
+                    ),
+                    defaultValue: undefined,
+                  },
+                ]
+              : []),
             skipArg,
             firstArg,
           ];
 
-          type.getFields()[`${field.name}Connection`] = <AMField>{
-            name: `${field.name}Connection`,
-            isDeprecated: false,
-            description: '',
-            type: schemaInfo.resolveFactoryType(
-              realType,
-              AMConnectionTypeFactory
-            ),
-            args: [
-              {
-                name: 'where',
-                type: schemaInfo.resolveFactoryType(
-                  realType,
-                  AMWhereTypeFactory
-                ),
+          if (!realType.mmAbstract) {
+            type.getFields()[`${field.name}Connection`] = <AMField>{
+              name: `${field.name}Connection`,
+              isDeprecated: false,
+              description: '',
+              type: schemaInfo.resolveFactoryType(
+                realType,
+                AMConnectionTypeFactory
+              ),
+              args: [
+                {
+                  name: 'where',
+                  type: schemaInfo.resolveFactoryType(
+                    realType,
+                    AMWhereTypeFactory
+                  ),
+                },
+                skipArg,
+                firstArg,
+              ],
+              /* Type resolvers from above lines shouldn't use these new fields */
+              mmFieldFactories: {
+                AMCreateTypeFactory: [],
+                AMUpdateTypeFactory: [],
+                AMWhereTypeFactory: [],
+                AMWhereUniqueTypeFactory: [],
+                AMWhereCleanTypeFactory: [],
               },
-              skipArg,
-              firstArg,
-            ],
-            mmFieldFactories: {
-              AMCreateTypeFactory: [],
-              AMUpdateTypeFactory: [],
-              AMWhereTypeFactory: [],
-            },
-            amEnter(node, transaction, stack) {
-              const operation = new AMAggregateOperation(transaction, {
-                many: false,
-                collectionName: realType.mmCollectionName,
-              });
-              stack.push(operation);
-            },
-            amLeave(node, transaction, stack) {
-              stack.pop();
-            },
-          };
+              amEnter(node, transaction, stack) {
+                const operation = new AMAggregateOperation(transaction, {
+                  many: false,
+                  collectionName: realType.mmCollectionName,
+                });
+                stack.push(operation);
+              },
+              amLeave(node, transaction, stack) {
+                stack.pop();
+              },
+            };
+          }
         }
       });
     }

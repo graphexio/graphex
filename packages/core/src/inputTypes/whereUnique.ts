@@ -35,9 +35,12 @@ export const AMWhereUniqueTypeFactory: IAMTypeFactory<GraphQLInputObjectType> = 
 
         Object.values(modelType.getFields()).forEach(field => {
           if (field.isUnique) {
-            const fieldFactories = [AsIsSelector]
-              .filter(isApplicable(field))
-              .map(selectorToFieldFactory);
+            const fieldFactories = field?.mmFieldFactories
+              ?.AMWhereUniqueTypeFactory
+              ? field.mmFieldFactories.AMWhereUniqueTypeFactory
+              : [AsIsSelector]
+                  .filter(isApplicable(field))
+                  .map(selectorToFieldFactory);
 
             fieldFactories.forEach(factory => {
               const fieldName = factory.getFieldName(field);

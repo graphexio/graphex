@@ -26,6 +26,9 @@ const selectorToFieldFactory = (selector: IAMQuerySelector) => {
 
 export const AMWhereTypeFactory: IAMTypeFactory<AMInputObjectType> = {
   getTypeName(modelType): string {
+    if (`${modelType.name}WhereInput` === 'CategoryConnectionWhereInput') {
+      throw new Error('Aggregate error');
+    }
     return `${modelType.name}WhereInput`;
   },
   getType(modelType, schemaInfo) {
