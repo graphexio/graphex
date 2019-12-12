@@ -1,6 +1,6 @@
 {
   "name": "@apollo-model/type-geojson",
-  "version": "0.6.0-alpha.3",
+  "version": "0.6.0-alpha.4",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
