@@ -24,6 +24,7 @@ export const AMModelMultipleQueryFieldFactory: IAMModelQueryFieldFactory = {
     return <AMField>{
       name: this.getFieldName(modelType),
       description: '',
+      isDeprecated: false,
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(modelType))),
       args: [
         {

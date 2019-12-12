@@ -8,8 +8,16 @@ const {
 } = require('./integration-prepare');
 const _ = require('lodash');
 import gql from 'graphql-tag';
+import { getIntrospectionQuery } from 'graphql';
 
 jest.setTimeout(10000);
+
+test('Introspection', async () => {
+  const { errors, data } = await query({
+    query: getIntrospectionQuery(),
+  });
+  expect(errors).toBeUndefined();
+});
 
 test('QueryCategories empty', async () => {
   let { errors, data } = await query({

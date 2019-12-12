@@ -19,6 +19,7 @@ export const AMModelDeleteManyMutationFieldFactory: IAMModelQueryFieldFactory = 
     return <AMField>{
       name: this.getFieldName(modelType),
       description: '',
+      isDeprecated: false,
       type: new GraphQLNonNull(GraphQLInt),
       args: [
         {

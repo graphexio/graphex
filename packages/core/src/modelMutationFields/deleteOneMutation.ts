@@ -17,6 +17,7 @@ export const AMModelDeleteOneMutationFieldFactory: IAMModelQueryFieldFactory = {
     return <AMField>{
       name: this.getFieldName(modelType),
       description: '',
+      isDeprecated: false,
       type: modelType,
       args: [
         {

@@ -56,6 +56,7 @@ export const relationDirective = (schema: GraphQLSchema) => {
 
           type.getFields()[`${field.name}Connection`] = <AMField>{
             name: `${field.name}Connection`,
+            isDeprecated: false,
             description: '',
             type: schemaInfo.resolveFactoryType(
               realType,
