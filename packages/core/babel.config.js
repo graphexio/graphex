@@ -2,14 +2,14 @@ module.exports = {
   ignore: ['**/*.test.js'],
   presets: [
     ['@babel/preset-typescript'],
-    // [
-    //   '@babel/preset-env',
-    //   {
-    //     targets: {
-    //       node: 'current',
-    //     },
-    //   },
-    // ],
+    [
+      '@babel/preset-env',
+      {
+        targets: {
+          node: 'current',
+        },
+      },
+    ],
   ],
   plugins: [
     ['import-graphql'],
