@@ -44,3 +44,12 @@ export function toArray(value) {
     return value;
   }
 }
+
+export function getDirective(field, name) {
+  if (field.astNode && field.astNode.directives) {
+    return field.astNode.directives.find(
+      directive => directive.name.value === name
+    );
+  }
+  return undefined;
+}

@@ -117,7 +117,7 @@ export class AMOperation extends AMContext {
     this._output = output;
   }
 
-  toJSON() {
+  toJSON(): { [key: string]: any } {
     return {
       identifier: this.getIdentifier(),
       kind: this.constructor.name,

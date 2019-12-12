@@ -19,6 +19,7 @@ import {
   VariableNode,
   astFromValue,
   validate,
+  isScalarType,
 } from 'graphql';
 import { AMTransaction } from './transaction';
 import { Visitor } from '@babel/core';
@@ -74,7 +75,7 @@ export class AMVisitor {
     // });
 
     const scalarVisitor = {
-      leave(node: ValueNode) {
+      enter(node: ValueNode) {
         const type = getNamedType(typeInfo.getInputType()) as GraphQLScalarType;
 
         const lastInStack = R.last(stack);
@@ -88,12 +89,12 @@ export class AMVisitor {
     };
 
     var visitor = {
-      enter(node) {
-        // console.log('enter', node, stack);
-      },
-      leave(node) {
-        // console.log('leave', node, stack);
-      },
+      // enter(node) {
+      // console.log('enter', node, stack);
+      // },
+      // leave(node) {
+      // console.log('leave', node, stack);
+      // },
       [Kind.ARGUMENT]: {
         enter(node) {
           // console.log(typeInfo.getArgument());
@@ -140,11 +141,14 @@ export class AMVisitor {
       },
       [Kind.FIELD]: {
         enter(node) {
+          let fieldName = node.name.value;
+          if (fieldName === '__typename') {
+            return;
+          }
           const type = getNamedType(typeInfo.getType()) as
             | AMModelType
             | AMObjectType;
 
-          let fieldName = node.name.value;
           const field = type.getFields()[fieldName];
 
           if (field.amEnter) {
@@ -152,10 +156,13 @@ export class AMVisitor {
           }
         },
         leave(node) {
+          let fieldName = node.name.value;
+          if (fieldName === '__typename') {
+            return;
+          }
           const type = getNamedType(typeInfo.getType()) as
             | AMModelType
             | AMObjectType;
-          const fieldName = node.name.value;
           const field = type.getFields()[fieldName];
 
           if (field.amLeave) {
@@ -168,6 +175,10 @@ export class AMVisitor {
           const type = getNamedType(
             typeInfo.getInputType()
           ) as AMInputObjectType;
+          if (isScalarType(type)) {
+            scalarVisitor.enter(node);
+            return null;
+          }
 
           if (type.amEnter) {
             type.amEnter(node, transaction, stack);
@@ -241,6 +252,7 @@ export class AMVisitor {
           }
         },
       },
+
       [Kind.STRING]: scalarVisitor,
       [Kind.BOOLEAN]: scalarVisitor,
       [Kind.INT]: scalarVisitor,

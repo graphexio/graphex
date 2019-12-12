@@ -8,15 +8,25 @@ import { UserInputError } from 'apollo-server';
 
 const generateSchema = typeDefs => {
   return new AMM({
+    modules: [DirectiveImplements],
     queryExecutor: null,
   }).makeExecutableSchema({
     resolverValidationOptions: {
       requireResolversForResolveType: false,
     },
-    typeDefs: [typeDefs, DirectiveImplements.typeDefs],
-    schemaDirectives: {
-      ...DirectiveImplements.schemaDirectives,
+    typeDefs: [typeDefs],
+  });
+};
+
+const buildFederatedSchema = typeDefs => {
+  return new AMM({
+    modules: [DirectiveImplements],
+    queryExecutor: null,
+  }).buildFederatedSchema({
+    resolverValidationOptions: {
+      requireResolversForResolveType: false,
     },
+    typeDefs: [typeDefs],
   });
 };
 
@@ -34,6 +44,7 @@ describe('simple schema', () => {
         posts {
           id
           title
+          __typename
         }
       }
     `;
@@ -1420,6 +1431,67 @@ describe('abstract interface', () => {
             "kind": "AMReadDBRefOperation",
             "many": true,
             "output": "AMResultPromise { Operation-3 }",
+          },
+        ],
+      }
+    `);
+  });
+});
+
+describe('federated', () => {
+  const schema = buildFederatedSchema(gql`
+    type Post @model {
+      id: ID @id @unique @db(name: "_id")
+      title: String
+      owner: User @relation
+      likes: [User] @relation
+    }
+
+    interface User @abstract @inherit {
+      id: ID @id @unique @db(name: "_id")
+    }
+
+    type Admin implements User @model {
+      username: String
+    }
+
+    type Subscriber implements User @model {
+      profile: SubscriberProfile
+    }
+
+    type SubscriberProfile @embedded {
+      name: String
+    }
+  `);
+
+  test('entities', () => {
+    const rq = gql`
+      query {
+        _entities(representations: [{ __typename: "Post", id: "post-id" }]) {
+          __typename
+        }
+      }
+    `;
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, {}, transaction);
+    expect(transaction).toMatchInlineSnapshot(`
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": undefined,
+            "identifier": "Operation-0",
+            "kind": "AMReadEntitiesOperation",
+            "output": "AMResultPromise { Operation-0 }",
+            "representations": Array [
+              Object {
+                "collectionName": "posts",
+                "selector": Object {
+                  "_id": "post-id",
+                },
+                "typename": "Post",
+              },
+            ],
           },
         ],
       }

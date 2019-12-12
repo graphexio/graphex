@@ -33,7 +33,7 @@ const QE = QueryExecutor(connectToDatabase);
 const schema = new AMM({
   queryExecutor: QE,
   modules: [DirectiveImplements],
-}).makeExecutableSchema({
+}).buildFederatedSchema({
   resolverValidationOptions: {
     requireResolversForResolveType: false,
   },

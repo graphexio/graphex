@@ -29,6 +29,7 @@ import { AMModelUpdateMutationFieldFactory } from './modelMutationFields/updateM
 import { AMModelMultipleQueryFieldFactory } from './modelQueryFields/multipleQuery';
 import { AMModelSingleQueryFieldFactory } from './modelQueryFields/singleQuery';
 import { AMModelConnectionQueryFieldFactory } from './modelQueryFields/connectionQuery';
+import { AMFederationEntitiesFieldFactory } from './federation/entitiesField';
 import Modules from './modules';
 import { prepare } from './prepare/prepare';
 import { postInit } from './postInit/';
@@ -327,11 +328,11 @@ export default class ModelMongo {
 
   buildFederatedSchema = params => {
     const schema = this.makeExecutableSchema(params);
-    let keyTypes = [];
+    // let keyTypes = [];
     // schema._directives = [...schema._directives, ...federationDirectives];
 
     Object.values(this.SchemaTypes).forEach(type => {
-      this._onSchemaInit(type);
+      // this._onSchemaInit(type);
 
       let typeWrap = new TypeWrap(type);
       if (
@@ -346,9 +347,9 @@ export default class ModelMongo {
               );
             }
           });
-          if (!typeWrap.isInterface()) {
-            keyTypes.push(type);
-          }
+          // if (!typeWrap.isInterface()) {
+          //   keyTypes.push(type);
+          // }
         }
       }
     });
@@ -375,60 +376,7 @@ export default class ModelMongo {
       }),
     };
 
-    if (keyTypes.length > 0) {
-      const _Any = new GraphQLScalarType({
-        name: '_Any',
-      });
-
-      const _Entity = new GraphQLUnionType({
-        name: '_Entity',
-        types: keyTypes,
-      });
-
-      this.SchemaTypes._Any = _Any;
-      this.SchemaTypes._Entity = _Entity;
-      this.Query._fields._entities = {
-        name: '_entities',
-        args: [
-          {
-            name: 'representations',
-            type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(_Any))),
-          },
-        ],
-        isDeprecated: false,
-        type: new GraphQLNonNull(new GraphQLList(_Entity)),
-        resolve: (obj, { representations }, context) => {
-          return Promise.all(
-            representations.map(async representation => {
-              try {
-                let { __typename, ...params } = representation;
-
-                //run parseValue for custom scalars
-                const fields = this.SchemaTypes[__typename].getFields();
-                params = Object.fromEntries(
-                  Object.entries(params).map(([k, v]) => {
-                    const typeWrap = new TypeWrap(fields[k].type);
-                    return [k, typeWrap.realType().parseValue(v)];
-                  })
-                );
-
-                //Now it just calls FIND_ONE. We should replace it with FIND_IDS.
-                const name = getMethodName(SINGLE_QUERY)(__typename);
-                let res = await this.Query._fields[name].__ammResolve(
-                  null,
-                  { where: params },
-                  context
-                );
-                res = { ...res, __typename };
-                return res;
-              } catch (err) {
-                console.log(err);
-              }
-            })
-          );
-        },
-      };
-    }
+    appendField(schema, this.Query, AMFederationEntitiesFieldFactory, null);
 
     return schema;
   };

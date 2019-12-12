@@ -216,8 +216,8 @@ export interface IAMInputFieldFactory {
   getField(field: AMModelField, schemaInfo: AMSchemaInfo): AMInputField;
 }
 
-export interface IAMModelQueryFieldFactory {
-  getFieldName(modelType: AMModelType): string;
+export interface IAMFieldFactory {
+  getFieldName(inputType: AMModelType): string;
   getField(
     inputType: AMModelType,
     schemaInfo: AMSchemaInfo

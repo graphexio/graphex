@@ -2,7 +2,7 @@ import { GraphQLNamedType, GraphQLObjectType, GraphQLSchema } from 'graphql';
 import {
   AMModelType,
   AMResolveFactoryType,
-  IAMModelQueryFieldFactory,
+  IAMFieldFactory,
   IAMTypeFactory,
 } from './definitions';
 import { makeSchemaInfo } from './schemaInfo';
@@ -10,7 +10,7 @@ import { makeSchemaInfo } from './schemaInfo';
 export default function(
   schema: GraphQLSchema,
   targetType: GraphQLObjectType,
-  fieldFactory: IAMModelQueryFieldFactory,
+  fieldFactory: IAMFieldFactory,
   modelType: AMModelType
 ) {
   const schemaInfo = makeSchemaInfo(schema);

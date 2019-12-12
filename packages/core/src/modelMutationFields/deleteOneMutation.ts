@@ -3,13 +3,9 @@ import R from 'ramda';
 import { AMDeleteOperation } from '../execution/operations/deleteOperation';
 import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
 import { resolve } from '../resolve';
-import {
-  AMField,
-  AMModelType,
-  IAMModelQueryFieldFactory,
-} from '../definitions';
+import { AMField, AMModelType, IAMFieldFactory } from '../definitions';
 
-export const AMModelDeleteOneMutationFieldFactory: IAMModelQueryFieldFactory = {
+export const AMModelDeleteOneMutationFieldFactory: IAMFieldFactory = {
   getFieldName(modelType: AMModelType): string {
     return R.concat('delete')(modelType.name);
   },

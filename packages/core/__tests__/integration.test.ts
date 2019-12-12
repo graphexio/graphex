@@ -1172,6 +1172,45 @@ test('test empty object instead array', async () => {
   expect(errors).toBeUndefined();
 });
 
+test('federation entities', async () => {
+  let { errors, data } = await query({
+    query: gql`
+      {
+        _entities(
+          representations: [
+            { __typename: "Category", title: "root" }
+            { __typename: "Hotel", title: "Marriott" }
+          ]
+        ) {
+          __typename
+          ... on Category {
+            title
+          }
+          ... on Hotel {
+            title
+          }
+        }
+      }
+    `,
+    variables: { id: shopId },
+  });
+  expect(errors).toBeUndefined();
+  expect(data).toMatchInlineSnapshot(`
+    Object {
+      "_entities": Array [
+        Object {
+          "__typename": "Category",
+          "title": "root",
+        },
+        Object {
+          "__typename": "Hotel",
+          "title": "Marriott",
+        },
+      ],
+    }
+  `);
+});
+
 beforeAll(async () => {
   let DB = await connectToDatabase();
   DB.collection('posts').createIndex({ place: '2dsphere' });

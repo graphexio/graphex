@@ -1,11 +1,7 @@
 import { GraphQLInt } from 'graphql';
 import pluralize from 'pluralize';
 import R from 'ramda';
-import {
-  AMField,
-  AMModelType,
-  IAMModelQueryFieldFactory,
-} from '../definitions';
+import { AMField, AMModelType, IAMFieldFactory } from '../definitions';
 import { AMAggregateOperation } from '../execution/operations/aggregateOperation';
 import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
 import { AMWhereTypeFactory } from '../inputTypes/where';
@@ -17,7 +13,7 @@ import { AMOperation } from '../execution/operation';
 import { skipArg } from '../args/skip';
 import { firstArg } from '../args/first';
 
-export const AMModelConnectionQueryFieldFactory: IAMModelQueryFieldFactory = {
+export const AMModelConnectionQueryFieldFactory: IAMFieldFactory = {
   getFieldName(modelType: AMModelType): string {
     return R.pipe(pluralize, lowercaseFirstLetter, R.concat)(modelType.name)(
       'Connection'

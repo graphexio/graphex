@@ -4,13 +4,9 @@ import { AMUpdateOperation } from '../execution/operations/updateOperation';
 import { AMUpdateTypeFactory } from '../inputTypes/update';
 import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
 import { resolve } from '../resolve';
-import {
-  AMField,
-  AMModelType,
-  IAMModelQueryFieldFactory,
-} from '../definitions';
+import { AMField, AMModelType, IAMFieldFactory } from '../definitions';
 
-export const AMModelUpdateMutationFieldFactory: IAMModelQueryFieldFactory = {
+export const AMModelUpdateMutationFieldFactory: IAMFieldFactory = {
   getFieldName(modelType: AMModelType): string {
     return R.concat('update')(modelType.name);
   },

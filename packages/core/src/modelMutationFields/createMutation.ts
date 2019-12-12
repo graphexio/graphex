@@ -5,16 +5,12 @@ import { AMReadOperation } from '../execution/operations/readOperation';
 import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
 import { AMWhereTypeFactory } from '../inputTypes/where';
 import { lowercaseFirstLetter } from '../tsutils';
-import {
-  AMField,
-  AMModelType,
-  IAMModelQueryFieldFactory,
-} from '../definitions';
+import { AMField, AMModelType, IAMFieldFactory } from '../definitions';
 import { resolve } from '../resolve';
 import { AMCreateTypeFactory } from '../inputTypes/create';
 import { AMCreateOperation } from '../execution/operations/createOperation';
 
-export const AMModelCreateMutationFieldFactory: IAMModelQueryFieldFactory = {
+export const AMModelCreateMutationFieldFactory: IAMFieldFactory = {
   getFieldName(modelType: AMModelType): string {
     return R.concat('create')(modelType.name);
   },

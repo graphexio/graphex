@@ -5,18 +5,14 @@ import { AMReadOperation } from '../execution/operations/readOperation';
 import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
 import { AMWhereTypeFactory } from '../inputTypes/where';
 import { lowercaseFirstLetter } from '../tsutils';
-import {
-  AMField,
-  AMModelType,
-  IAMModelQueryFieldFactory,
-} from '../definitions';
+import { AMField, AMModelType, IAMFieldFactory } from '../definitions';
 import { resolve } from '../resolve';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMOperation } from '../execution/operation';
 import { skipArg } from '../args/skip';
 import { firstArg } from '../args/first';
 
-export const AMModelMultipleQueryFieldFactory: IAMModelQueryFieldFactory = {
+export const AMModelMultipleQueryFieldFactory: IAMFieldFactory = {
   getFieldName(modelType: AMModelType): string {
     return R.pipe(pluralize, lowercaseFirstLetter)(modelType.name);
   },
