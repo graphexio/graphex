@@ -451,3 +451,21 @@ describe('abstract', () => {
         `);
   });
 });
+
+describe('empty', () => {
+  const schema = generateSchema(gql`
+    type Empty @model {
+      title: String
+    }
+  `);
+
+  test('Query', () => {
+    expect(printType(schema.getQueryType())).toMatchInlineSnapshot(`
+            "type Query {
+              empties(where: EmptyWhereInput, orderBy: EmptyOrderByInput, skip: Int, first: Int): [Empty!]!
+              empty: Empty
+              emptiesConnection(where: EmptyWhereInput, skip: Int, first: Int): EmptyConnection
+            }"
+          `);
+  });
+});

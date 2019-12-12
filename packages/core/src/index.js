@@ -8,8 +8,12 @@ import {
   GraphQLScalarType,
   GraphQLString,
   GraphQLUnionType,
+  getNamedType,
 } from 'graphql';
-import { makeExecutableSchema as makeGraphQLSchema } from 'graphql-tools';
+import {
+  makeExecutableSchema as makeGraphQLSchema,
+  FilterTypes,
+} from 'graphql-tools';
 import _ from 'lodash';
 import pluralize from 'pluralize';
 import appendField from './appendField';
@@ -549,16 +553,44 @@ export default class ModelMongo {
       }
     });
 
-    Object.entries(SchemaTypes).forEach(([name, type]) => {
-      if (type.getFields) {
-        type.getFields();
-        if (Object.keys(type.getFields()).length == 0) {
-          delete SchemaTypes[name];
+    postInit(schema);
+
+    /* resolve field thunks */
+    let initialCount;
+    do {
+      initialCount = Object.values(schema.getTypeMap()).length;
+      Object.entries(schema.getTypeMap()).forEach(([name, type]) => {
+        if (type.getFields) {
+          type.getFields();
         }
+      });
+    } while (initialCount !== Object.values(schema.getTypeMap()).length);
+    /* resolve field thunks */
+
+    let typesToRemove = [];
+    Object.entries(schema.getTypeMap()).forEach(([name, type]) => {
+      if (type.getFields && Object.keys(type.getFields()).length == 0) {
+        typesToRemove.push(type);
       }
     });
 
-    postInit(schema);
+    Object.entries(schema.getTypeMap()).forEach(([name, type]) => {
+      if (type.getFields) {
+        let fields = type.getFields();
+        Object.entries(fields).forEach(([name, field]) => {
+          if (typesToRemove.includes(getNamedType(field.type))) {
+            delete fields[name];
+          } else if (field.args) {
+            field.args = field.args.filter(
+              arg => !typesToRemove.includes(getNamedType(arg.type))
+            );
+          }
+        });
+      }
+    });
+    typesToRemove.forEach(type => {
+      delete schema.getTypeMap()[type.name];
+    });
 
     //Remove system directives
     schema._directives = [];
