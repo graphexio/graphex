@@ -7,6 +7,9 @@
     "prepare": "rimraf ./lib && babel --extensions '.ts,.js' ./src --out-dir ./lib",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "dependencies": {
+    "@apollo-model/core": "^0.6.0-alpha.3"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC"
