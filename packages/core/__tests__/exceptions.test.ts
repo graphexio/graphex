@@ -125,6 +125,19 @@ test('Inherited from abstract and embedded', () => {
 
 test('Type of object field should be embedded, abstract  or model', () => {
   expect.assertions(1);
+
+  makeExecutableSchema({
+    typeDefs: gql`
+      interface Comment @model {
+        title: String
+      }
+      type WallComment implements Comment
+      type Post @model {
+        comment: WallComment
+      }
+    `,
+  });
+
   try {
     makeExecutableSchema({
       typeDefs: gql`

@@ -22,7 +22,8 @@ export const validateObjectFieldType = (schema: GraphQLSchema) => {
           if (
             !fieldRealType.mmAbstract &&
             !fieldRealType.mmModel &&
-            !fieldRealType.mmEmbedded
+            !fieldRealType.mmEmbedded &&
+            !fieldTypeWrap.interfaceWithDirective('model')
           ) {
             // console.log('error', type, field);
             throw new SDLSyntaxException(
