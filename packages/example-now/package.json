@@ -1,6 +1,6 @@
 {
   "name": "@apollo-model/example-now",
-  "version": "0.6.0-alpha.6",
+  "version": "0.6.0-alpha.7",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -14,7 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@apollo-model/core": "^0.6.0-alpha.6",
+    "@apollo-model/core": "^0.6.0-alpha.7",
     "@babel/runtime": "^7.2.0",
     "apollo-server": "^2.2.6",
     "apollo-server-micro": "^2.3.1",

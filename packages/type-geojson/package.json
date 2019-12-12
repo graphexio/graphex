@@ -1,6 +1,6 @@
 {
   "name": "@apollo-model/type-geojson",
-  "version": "0.6.0-alpha.6",
+  "version": "0.6.0-alpha.7",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@apollo-model/core": "^0.6.0-alpha.6"
+    "@apollo-model/core": "^0.6.0-alpha.7"
   },
   "keywords": [],
   "author": "",
