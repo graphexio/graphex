@@ -2,7 +2,7 @@
   "name": "@apollo-model/type-geojson",
   "version": "0.6.0-alpha.2",
   "description": "",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
     "prepare": "rimraf ./lib && babel --extensions '.ts,.js' ./src --out-dir ./lib",
     "test": "echo \"Error: no test specified\" && exit 1"
