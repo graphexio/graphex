@@ -1,6 +1,5 @@
 examples
 src
 cover
-dev-server
-tests
+__tests__
 .travis.yml
