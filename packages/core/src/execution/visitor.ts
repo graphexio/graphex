@@ -1,46 +1,34 @@
 import {
-  visit,
+  DocumentNode,
+  getNamedType,
+  getVisitFn,
+  GraphQLScalarType,
+  GraphQLSchema,
+  isScalarType,
   Kind,
   TypeInfo,
-  parse,
-  DocumentNode,
-  GraphQLSchema,
-  getNamedType,
-  ASTKindToNode,
-  getVisitFn,
-  GraphQLCompositeType,
-  GraphQLInterfaceType,
-  GraphQLObjectType,
-  ASTNode,
-  ValueNode,
-  StringValueNode,
-  BooleanValueNode,
-  GraphQLScalarType,
-  VariableNode,
   validate,
-  isScalarType,
+  ValueNode,
+  VariableNode,
+  visit,
 } from 'graphql';
-
-import { astFromValue } from './astFromValue';
-import { AMTransaction } from './transaction';
-import { Visitor } from '@babel/core';
-import {
-  AMModelType,
-  AMInputObjectType,
-  AMVisitorStack,
-  AMObjectType,
-  AMInterfaceType,
-  AMModelField,
-  AMField,
-  AMEnumType,
-  AMArgumet,
-} from '../definitions';
-import { AMFieldsSelectionContext } from './contexts/fieldsSelection';
 import R from 'ramda';
-import { AMOperation } from './operation';
-import { AMObjectFieldContext } from './contexts/objectField';
+import {
+  AMArgumet,
+  AMEnumType,
+  AMField,
+  AMInputObjectType,
+  AMModelField,
+  AMModelType,
+  AMObjectType,
+  AMVisitorStack,
+} from '../definitions';
+import { astFromValue } from './astFromValue';
+import { AMFieldsSelectionContext } from './contexts/fieldsSelection';
 import { AMListValueContext } from './contexts/listValue';
-import { AMDataContext } from './contexts/data';
+import { AMObjectFieldContext } from './contexts/objectField';
+import { AMOperation } from './operation';
+import { AMTransaction } from './transaction';
 
 function isAMModelField(
   object: AMField | AMModelField
@@ -115,11 +103,7 @@ export class AMVisitor {
           }
         },
       },
-      // [Kind.OBJECT]: {
-      //   enter(node) {
-      //     console.log('obj');
-      //   },
-      // },
+
       [Kind.SELECTION_SET]: {
         enter(node) {
           const selectionSetAction = new AMFieldsSelectionContext();
@@ -200,13 +184,10 @@ export class AMVisitor {
             typeInfo.getInputType()
           ) as AMInputObjectType;
           const fieldName = node.name.value;
-          try {
-            const field = type.getFields()[fieldName];
-            if (field.amEnter) {
-              field.amEnter(node, transaction, stack);
-            }
-          } catch (err) {
-            console.log('err', type);
+
+          const field = type.getFields()[fieldName];
+          if (field.amEnter) {
+            field.amEnter(node, transaction, stack);
           }
         },
         leave(node) {
@@ -224,17 +205,16 @@ export class AMVisitor {
       },
       [Kind.LIST]: {
         enter(node) {
-          const action = new AMListValueContext();
-          stack.push(action);
+          const context = new AMListValueContext();
+          stack.push(context);
         },
         leave(node) {
-          const action = stack.pop() as AMListValueContext;
+          const context = stack.pop() as AMListValueContext;
           const lastInStack = R.last(stack);
-
           if (lastInStack instanceof AMObjectFieldContext) {
-            lastInStack.setValue(action.values);
+            lastInStack.setValue(context.values);
           } else if (lastInStack instanceof AMListValueContext) {
-            lastInStack.addValue(action.values);
+            lastInStack.addValue(context.values);
           }
         },
       },
@@ -269,13 +249,13 @@ export class AMVisitor {
           const type = typeInfo.getInputType();
 
           const newNode = astFromValue(variableValues[node.name.value], type);
-          if (isScalarType(type)) {
-            scalarVisitor.enter(newNode);
+          if (isScalarType(getNamedType(type))) {
+            scalarVisitor.enter(newNode as ValueNode);
             return null;
           } else {
-            visitor[Kind.OBJECT].enter(newNode); // TODO: test it! Kind.OBJECT?
+            visitor[newNode.kind]?.enter(newNode); // TODO: test it! Kind.OBJECT?
+            return newNode;
           }
-          return newNode;
         },
       },
     };

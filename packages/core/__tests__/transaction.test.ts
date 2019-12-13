@@ -1510,6 +1510,7 @@ describe('variables', () => {
     type Post @model {
       id: ID @id @unique @db(name: "_id")
       content: Content
+      contents: [Content!]
       embeddedContent: EmbeddedContent
     }
   `);
@@ -1630,6 +1631,49 @@ describe('variables', () => {
                   "tag2",
                 ],
               },
+            },
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMCreateOperation",
+            "many": false,
+            "output": "AMResultPromise { Operation-0 }",
+          },
+        ],
+      }
+    `);
+  });
+
+  test('array of scalars variable', () => {
+    const rq = gql`
+      mutation createPost($contents: [Content!]!) {
+        createPost(data: { contents: $contents }) {
+          id
+        }
+      }
+    `;
+    const variables = { contents: [{ body: 'body', tags: ['tag1', 'tag2'] }] };
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, variables, transaction);
+    expect(transaction).toMatchInlineSnapshot(`
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "data": Object {
+              "contents": Array [
+                Object {
+                  "body": "body",
+                  "tags": Array [
+                    "tag1",
+                    "tag2",
+                  ],
+                },
+              ],
             },
             "fieldsSelection": Object {
               "fields": Array [

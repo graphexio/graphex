@@ -3,3 +3,4 @@ src
 cover
 __tests__
 .travis.yml
+tsconfig.json
