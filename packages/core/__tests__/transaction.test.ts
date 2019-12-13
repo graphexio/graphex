@@ -1498,3 +1498,151 @@ describe('federated', () => {
     `);
   });
 });
+
+describe('variables', () => {
+  const schema = buildFederatedSchema(gql`
+    scalar Content
+
+    type EmbeddedContent @embedded {
+      content: Content
+    }
+
+    type Post @model {
+      id: ID @id @unique @db(name: "_id")
+      content: Content
+      embeddedContent: EmbeddedContent
+    }
+  `);
+
+  // test('inline', () => {
+  //   const rq = gql`
+  //     mutation {
+  //       createPost(
+  //         data: { content: { body: "body", tags: ["tag1", "tag2"] } }
+  //       ) {
+  //         id
+  //       }
+  //     }
+  //   `;
+
+  //   const transaction = new AMTransaction();
+  //   AMVisitor.visit(schema, rq, {}, transaction);
+  //   expect(transaction).toMatchInlineSnapshot(`
+  //     Object {
+  //       "operations": Array [
+  //         Object {
+  //           "collectionName": "posts",
+  //           "data": Object {
+  //             "content": Object {
+  //               "body": "body",
+  //               "tags": Array [
+  //                 "tag1",
+  //                 "tag2",
+  //               ],
+  //             },
+  //           },
+  //           "fieldsSelection": Object {
+  //             "fields": Array [
+  //               "_id",
+  //             ],
+  //           },
+  //           "identifier": "Operation-0",
+  //           "kind": "AMCreateOperation",
+  //           "many": false,
+  //           "output": "AMResultPromise { Operation-0 }",
+  //         },
+  //       ],
+  //     }
+  //   `);
+  // });
+
+  test('object variable', () => {
+    const rq = gql`
+      mutation createPost(
+        $embeddedContent: EmbeddedContentCreateOneNestedInput
+      ) {
+        createPost(data: { embeddedContent: $embeddedContent }) {
+          id
+        }
+      }
+    `;
+    const variables = {
+      embeddedContent: {
+        create: { content: { body: 'body', tags: ['tag1', 'tag2'] } },
+      },
+    };
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, variables, transaction);
+    expect(transaction).toMatchInlineSnapshot(`
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "data": Object {
+              "embeddedContent": Object {
+                "content": Object {
+                  "body": "body",
+                  "tags": Array [
+                    "tag1",
+                    "tag2",
+                  ],
+                },
+              },
+            },
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMCreateOperation",
+            "many": false,
+            "output": "AMResultPromise { Operation-0 }",
+          },
+        ],
+      }
+    `);
+  });
+
+  test('scalar variable', () => {
+    const rq = gql`
+      mutation createPost($content: Content) {
+        createPost(data: { content: $content }) {
+          id
+        }
+      }
+    `;
+    const variables = { content: { body: 'body', tags: ['tag1', 'tag2'] } };
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, variables, transaction);
+    expect(transaction).toMatchInlineSnapshot(`
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "data": Object {
+              "content": Object {
+                "body": "body",
+                "tags": Array [
+                  "tag1",
+                  "tag2",
+                ],
+              },
+            },
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMCreateOperation",
+            "many": false,
+            "output": "AMResultPromise { Operation-0 }",
+          },
+        ],
+      }
+    `);
+  });
+});

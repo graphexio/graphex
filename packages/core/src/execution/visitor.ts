@@ -17,10 +17,11 @@ import {
   BooleanValueNode,
   GraphQLScalarType,
   VariableNode,
-  astFromValue,
   validate,
   isScalarType,
 } from 'graphql';
+
+import { astFromValue } from './astFromValue';
 import { AMTransaction } from './transaction';
 import { Visitor } from '@babel/core';
 import {
@@ -199,9 +200,13 @@ export class AMVisitor {
             typeInfo.getInputType()
           ) as AMInputObjectType;
           const fieldName = node.name.value;
-          const field = type.getFields()[fieldName];
-          if (field.amEnter) {
-            field.amEnter(node, transaction, stack);
+          try {
+            const field = type.getFields()[fieldName];
+            if (field.amEnter) {
+              field.amEnter(node, transaction, stack);
+            }
+          } catch (err) {
+            console.log('err', type);
           }
         },
         leave(node) {
@@ -209,6 +214,7 @@ export class AMVisitor {
             typeInfo.getInputType()
           ) as AMInputObjectType;
           const fieldName = node.name.value;
+
           const field = type.getFields()[fieldName];
 
           if (field.amLeave) {
@@ -260,11 +266,15 @@ export class AMVisitor {
       [Kind.VARIABLE]: {
         enter(node: VariableNode) {
           //replace variable with astnode to visit that fields
-          const type = getNamedType(
-            typeInfo.getInputType()
-          ) as GraphQLScalarType;
+          const type = typeInfo.getInputType();
+
           const newNode = astFromValue(variableValues[node.name.value], type);
-          visitor[Kind.OBJECT].enter(newNode); // TODO: test it! Kind.OBJECT?
+          if (isScalarType(type)) {
+            scalarVisitor.enter(newNode);
+            return null;
+          } else {
+            visitor[Kind.OBJECT].enter(newNode); // TODO: test it! Kind.OBJECT?
+          }
           return newNode;
         },
       },
