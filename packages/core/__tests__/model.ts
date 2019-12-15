@@ -26,7 +26,7 @@ export default gql`
     body: String!
     category: Category @relation
     keywords: [String!]
-    owner: User @relation
+    owner: User! @relation
     comments: [Comment!]
     poi: Poi @relation
     pois: [Poi] @relation(storeField: "poiIds")
