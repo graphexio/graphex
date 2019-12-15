@@ -49,7 +49,10 @@ export class RelationDirective extends SchemaDirectiveVisitor {
 
 const DirectiveRealationResolver = (next, source, args, ctx, info) => {
   const { storeField } = args;
-  info.fieldName = storeField;
+  //TODO: move to operation putput transformation
+  info.fieldName = info.parentType.getFields()[
+    info.fieldName
+  ].relation.storeField;
   return next();
 };
 

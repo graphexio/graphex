@@ -48,7 +48,7 @@ export const server = new ApolloServer({
         // console.log(util.inspect(params, { showHidden: false, depth: null }));
         // console.log(params);
         let result = await QE(params);
-        // console.log(params, result);
+        // console.log('result', result);
         return result;
       },
     };

@@ -734,6 +734,34 @@ test('CreatePostWithInterfaceRelation', async () => {
   `);
 });
 
+test('Query posts with owner relation', async () => {
+  let res = await query({
+    query: gql`
+      query {
+        posts {
+          owner {
+            username
+          }
+        }
+      }
+    `,
+    variables: {},
+  });
+  let { data, errors } = res;
+  expect(errors).toBeUndefined();
+  expect(data).toMatchInlineSnapshot(`
+    Object {
+      "posts": Array [
+        Object {
+          "owner": Object {
+            "username": "moderator",
+          },
+        },
+      ],
+    }
+  `);
+});
+
 test('QueryUsersInterface', async () => {
   let { errors, data } = await query({
     query: gql`
@@ -1158,7 +1186,11 @@ test('test empty object instead array', async () => {
     query: gql`
       mutation {
         createPost(
-          data: { title: "123", body: "123", comments: { create: [] } }
+          data: {
+            title: "Empty comments post title"
+            body: "Empty comments post body"
+            comments: { create: [] }
+          }
         ) {
           id
           comments {
@@ -1205,6 +1237,80 @@ test('federation entities', async () => {
         Object {
           "__typename": "Hotel",
           "title": "Marriott",
+        },
+      ],
+    }
+  `);
+});
+
+test('relation on null item', async () => {
+  let { errors, data } = await query({
+    query: gql`
+      query($representations: [_Any!]!) {
+        _entities(representations: $representations) {
+          __typename
+          ... on Post {
+            title
+            owner {
+              username
+            }
+          }
+        }
+      }
+    `,
+    variables: {
+      representations: [
+        { __typename: 'Post', title: 'Build GraphQL API with Apollo' },
+        { __typename: 'Post', title: 'Never existing post' },
+      ],
+    },
+  });
+  expect(errors).toBeUndefined();
+  expect(data).toMatchInlineSnapshot(`
+    Object {
+      "_entities": Array [
+        Object {
+          "__typename": "Post",
+          "owner": Object {
+            "username": "moderator",
+          },
+          "title": "Build GraphQL API with Apollo",
+        },
+        null,
+      ],
+    }
+  `);
+});
+
+test('Entities custom scalar inside _Any', async () => {
+  let { errors, data } = await query({
+    query: gql`
+      query($representations: [_Any!]!) {
+        _entities(representations: $representations) {
+          __typename
+          ... on Post {
+            title
+            owner {
+              username
+            }
+          }
+        }
+      }
+    `,
+    variables: {
+      representations: [{ __typename: 'Post', id: postId }],
+    },
+  });
+  expect(errors).toBeUndefined();
+  expect(data).toMatchInlineSnapshot(`
+    Object {
+      "_entities": Array [
+        Object {
+          "__typename": "Post",
+          "owner": Object {
+            "username": "moderator",
+          },
+          "title": "Build GraphQL API with Apollo",
         },
       ],
     }

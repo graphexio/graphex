@@ -42,21 +42,30 @@ export const AMCreateOneRequiredRelationTypeFactory: IAMTypeFactory<AMInputObjec
         const fields = <AMInputFieldConfigMap>{
           create: {
             type: schemaInfo.resolveFactoryType(modelType, typeFactory),
-            amEnter(node, transaction, stack) {
-              const opContext = new AMCreateOperation(transaction, {
-                many: false,
-                collectionName: modelType.mmCollectionName,
-              });
-              stack.push(opContext);
-            },
-            amLeave(node, transaction, stack) {
-              const opContext = stack.pop() as AMReadOperation;
+            /* For abstract interface we create operations inside AMInterfaceCreateTypeFactory */
+            ...(!modelType.mmAbstract
+              ? {
+                  amEnter(node, transaction, stack) {
+                    const opContext = new AMCreateOperation(transaction, {
+                      many: false,
+                      collectionName: modelType.mmCollectionName,
+                    });
+                    stack.push(opContext);
+                  },
+                  amLeave(node, transaction, stack) {
+                    const opContext = stack.pop() as AMCreateOperation;
 
-              const lastInStack = R.last(stack);
-              if (lastInStack instanceof AMObjectFieldContext) {
-                lastInStack.setValue(opContext.getOutput());
-              }
-            },
+                    const lastInStack = R.last(stack);
+                    if (lastInStack instanceof AMObjectFieldContext) {
+                      lastInStack.setValue(
+                        opContext
+                          .getOutput()
+                          .path(lastInStack.field.relation.relationField)
+                      );
+                    }
+                  },
+                }
+              : null),
           },
           connect: {
             type: schemaInfo.resolveFactoryType(

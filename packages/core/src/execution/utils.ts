@@ -6,6 +6,7 @@ import { AMResultPromise } from './resultPromise';
 import { AMFieldsSelectionContext } from './contexts/fieldsSelection';
 import { AMObjectFieldContext } from './contexts/objectField';
 import { AMDataContext } from './contexts/data';
+import { AMFragmentContext } from './contexts/fragment';
 
 const isOperation = (item: AMContext): item is AMOperation => {
   return item instanceof AMOperation;
@@ -52,6 +53,8 @@ export const getFieldsSelectionPath = (
     const ctx = stack[i];
     if (ctx instanceof AMFieldsSelectionContext) {
       path.push(R.last(ctx.fields));
+    } else if (ctx instanceof AMFragmentContext) {
+      path.pop();
     }
   }
   return path.join('.');

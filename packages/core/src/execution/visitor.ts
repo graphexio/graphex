@@ -29,6 +29,7 @@ import { AMListValueContext } from './contexts/listValue';
 import { AMObjectFieldContext } from './contexts/objectField';
 import { AMOperation } from './operation';
 import { AMTransaction } from './transaction';
+import { AMFragmentContext } from './contexts/fragment';
 
 function isAMModelField(
   object: AMField | AMModelField
@@ -103,22 +104,37 @@ export class AMVisitor {
           }
         },
       },
-
-      [Kind.SELECTION_SET]: {
+      [Kind.INLINE_FRAGMENT]: {
         enter(node) {
-          const selectionSetAction = new AMFieldsSelectionContext();
-          stack.push(selectionSetAction);
+          const lastInStack = R.last(stack) as AMFieldsSelectionContext;
+          const context = new AMFragmentContext({
+            fieldsSelectionContext: lastInStack,
+          });
+          stack.push(context);
         },
         leave(node) {
-          const action = stack.pop() as AMFieldsSelectionContext;
+          const context = stack.pop();
+        },
+      },
+      [Kind.SELECTION_SET]: {
+        enter(node) {
+          const selectionSetContext = new AMFieldsSelectionContext();
+          stack.push(selectionSetContext);
+        },
+        leave(node) {
+          const context = stack.pop() as AMFieldsSelectionContext;
           const stackLastItem = R.last(stack);
           if (stackLastItem) {
             if (stackLastItem instanceof AMOperation) {
-              stackLastItem.setFieldsSelection(action);
+              stackLastItem.setFieldsSelection(context);
             } else if (stackLastItem instanceof AMFieldsSelectionContext) {
               let lastField = stackLastItem.fields.pop();
-              action.fields.forEach(field => {
+              context.fields.forEach(field => {
                 stackLastItem.fields.push(`${lastField}.${field}`);
+              });
+            } else if (stackLastItem instanceof AMFragmentContext) {
+              context.fields.forEach(field => {
+                stackLastItem.getFieldsSelectionContext().fields.push(field);
               });
             }
           }

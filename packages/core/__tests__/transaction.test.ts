@@ -1093,10 +1093,12 @@ describe('interfaces', () => {
 
     type Admin implements User {
       username: String
+      approves: [Post] @relation(storeField: "approvesPostIds")
     }
 
     type Subscriber implements User {
       profile: SubscriberProfile
+      likes: [Post] @relation(storeField: "likesPostIds")
     }
 
     type SubscriberProfile @embedded {
@@ -1121,38 +1123,159 @@ describe('interfaces', () => {
     const transaction = new AMTransaction();
     AMVisitor.visit(schema, rq, {}, transaction);
     expect(transaction).toMatchInlineSnapshot(`
-                  Object {
-                    "operations": Array [
-                      Object {
-                        "collectionName": "posts",
-                        "data": Object {
-                          "title": "post title",
-                          "userId": "AMResultPromise { Operation-1 -> path('_id') }",
-                        },
-                        "fieldsSelection": Object {
-                          "fields": Array [
-                            "_id",
-                          ],
-                        },
-                        "identifier": "Operation-0",
-                        "kind": "AMCreateOperation",
-                        "many": false,
-                        "output": "AMResultPromise { Operation-0 }",
-                      },
-                      Object {
-                        "collectionName": "users",
-                        "data": Object {
-                          "_type": "admin",
-                          "username": "new admin",
-                        },
-                        "identifier": "Operation-1",
-                        "kind": "AMCreateOperation",
-                        "many": false,
-                        "output": "AMResultPromise { Operation-1 }",
-                      },
+            Object {
+              "operations": Array [
+                Object {
+                  "collectionName": "posts",
+                  "data": Object {
+                    "title": "post title",
+                    "userId": "AMResultPromise { Operation-1 -> path('_id') }",
+                  },
+                  "fieldsSelection": Object {
+                    "fields": Array [
+                      "_id",
                     ],
-                  }
-            `);
+                  },
+                  "identifier": "Operation-0",
+                  "kind": "AMCreateOperation",
+                  "many": false,
+                  "output": "AMResultPromise { Operation-0 }",
+                },
+                Object {
+                  "collectionName": "users",
+                  "data": Object {
+                    "_type": "admin",
+                    "username": "new admin",
+                  },
+                  "identifier": "Operation-1",
+                  "kind": "AMCreateOperation",
+                  "many": false,
+                  "output": "AMResultPromise { Operation-1 }",
+                },
+              ],
+            }
+      `);
+  });
+
+  test('fragments', () => {
+    const rq = gql`
+      query {
+        users {
+          id
+          ... on Admin {
+            ... on Admin {
+              username
+            }
+          }
+          ... on Subscriber {
+            profile {
+              name
+            }
+          }
+        }
+      }
+    `;
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, {}, transaction);
+    expect(transaction).toMatchInlineSnapshot(`
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "users",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "username",
+                "profile.name",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": "AMResultPromise { Operation-0 }",
+          },
+        ],
+      }
+    `);
+  });
+
+  test('relations in fragments', () => {
+    const rq = gql`
+      query {
+        users {
+          id
+          ... on Admin {
+            approves {
+              id
+            }
+          }
+          ... on Subscriber {
+            likes {
+              id
+            }
+          }
+        }
+      }
+    `;
+
+    //TODO: Fix filtering distinct and distinctReplace
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, {}, transaction);
+    expect(transaction).toMatchInlineSnapshot(`
+    Object {
+      "operations": Array [
+        Object {
+          "collectionName": "users",
+          "fieldsSelection": Object {
+            "fields": Array [
+              "_id",
+              "approvesPostIds",
+              "likesPostIds",
+            ],
+          },
+          "identifier": "Operation-0",
+          "kind": "AMReadOperation",
+          "many": true,
+          "output": "AMResultPromise { Operation-0 -> distinctReplace('approvesPostIds', '_id', AMResultPromise { Operation-1 }) -> distinctReplace('likesPostIds', '_id', AMResultPromise { Operation-2 }) }",
+        },
+        Object {
+          "collectionName": "posts",
+          "fieldsSelection": Object {
+            "fields": Array [
+              "_id",
+            ],
+          },
+          "identifier": "Operation-1",
+          "kind": "AMReadOperation",
+          "many": true,
+          "output": "AMResultPromise { Operation-1 }",
+          "selector": Object {
+            "_id": Object {
+              "$in": "AMResultPromise { Operation-0 -> distinct('approvesPostIds') }",
+            },
+          },
+        },
+        Object {
+          "collectionName": "posts",
+          "fieldsSelection": Object {
+            "fields": Array [
+              "_id",
+            ],
+          },
+          "identifier": "Operation-2",
+          "kind": "AMReadOperation",
+          "many": true,
+          "output": "AMResultPromise { Operation-2 }",
+          "selector": Object {
+            "_id": Object {
+              "$in": "AMResultPromise { Operation-0 -> distinct('likesPostIds') }",
+            },
+          },
+        },
+      ],
+    }
+  `);
   });
 });
 
@@ -1161,7 +1284,7 @@ describe('abstract interface', () => {
     type Post @model {
       id: ID @id @unique @db(name: "_id")
       title: String
-      owner: User @relation
+      owner: User! @relation
       likes: [User] @relation
     }
 

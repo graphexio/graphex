@@ -42,20 +42,21 @@ export class AMReadEntitiesOperation extends AMOperation {
 
       const result = this.representations.map(rep => {
         const keys = Object.keys(rep.selector);
+
         const dataArr = resultData[rep.collectionName] as {}[];
         const match = R.find(item => {
+          let fl = true;
           keys.forEach(key => {
-            if (item[key] !== rep[key]) {
-              return false;
+            if (!R.equals(item[key], rep.selector[key])) {
+              fl = false;
             }
           });
-          return true;
+          return fl;
         }, dataArr);
 
         if (!match) return null;
         return { ...match, __typename: rep.typename };
       });
-
       this._result.resolve(result);
     } catch (err) {
       this._result.reject(err);

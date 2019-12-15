@@ -124,6 +124,9 @@ export class AMDataResultPromise<T> extends AMResultPromise<T> {
 //////////////////////////////////////////////////
 
 const getDistinct = (pathArr: string[]) => (value: any) => {
+  if (!value) {
+    return null;
+  }
   if (value instanceof Array) {
     return value.flatMap(getDistinct(pathArr));
   } else {
@@ -170,6 +173,7 @@ const replaceDistinct = (
   field: string,
   dataMap: { [key: string]: any }
 ) => (value: any) => {
+  if (!value) return value;
   if (value instanceof Array) {
     return value.map(replaceDistinct(pathArr, field, dataMap));
   } else {
@@ -178,9 +182,11 @@ const replaceDistinct = (
     } else {
       return {
         ...value,
-        [pathArr[0]]: replaceDistinct(pathArr.slice(1), field, dataMap)(
-          value[pathArr[0]]
-        ),
+        [pathArr[0]]: replaceDistinct(
+          pathArr.slice(1),
+          field,
+          dataMap
+        )(value[pathArr[0]]),
       };
     }
   }
@@ -286,9 +292,11 @@ const lookup = (
     } else {
       return {
         ...value,
-        [pathArr[0]]: replaceDistinct(pathArr.slice(1), relationField, dataMap)(
-          value[pathArr[0]]
-        ),
+        [pathArr[0]]: replaceDistinct(
+          pathArr.slice(1),
+          relationField,
+          dataMap
+        )(value[pathArr[0]]),
       };
     }
   }
@@ -353,9 +361,10 @@ const replaceDBRef = (pathArr: string[], dataMap: { [key: string]: any }) => (
     } else {
       return {
         ...value,
-        [pathArr[0]]: replaceDBRef(pathArr.slice(1), dataMap)(
-          value[pathArr[0]]
-        ),
+        [pathArr[0]]: replaceDBRef(
+          pathArr.slice(1),
+          dataMap
+        )(value[pathArr[0]]),
       };
     }
   }
@@ -379,9 +388,10 @@ export class AMDBRefReplaceResultPromise<T> extends AMResultPromise<T> {
     this._params = params;
     const pathArr = params.path.split('.');
     promise.then(async value => {
-      const newValue = replaceDBRef(pathArr, await this._params.getData())(
-        value
-      );
+      const newValue = replaceDBRef(
+        pathArr,
+        await this._params.getData()
+      )(value);
       this.resolve(newValue);
     });
     promise.catch(this.reject);
