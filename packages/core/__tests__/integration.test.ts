@@ -1175,13 +1175,8 @@ test('test empty object instead array', async () => {
 test('federation entities', async () => {
   let { errors, data } = await query({
     query: gql`
-      {
-        _entities(
-          representations: [
-            { __typename: "Category", title: "root" }
-            { __typename: "Hotel", title: "Marriott" }
-          ]
-        ) {
+      query($representations: [_Any!]!) {
+        _entities(representations: $representations) {
           __typename
           ... on Category {
             title
@@ -1192,7 +1187,12 @@ test('federation entities', async () => {
         }
       }
     `,
-    variables: { id: shopId },
+    variables: {
+      representations: [
+        { __typename: 'Category', title: 'root' },
+        { __typename: 'Hotel', title: 'Marriott' },
+      ],
+    },
   });
   expect(errors).toBeUndefined();
   expect(data).toMatchInlineSnapshot(`
