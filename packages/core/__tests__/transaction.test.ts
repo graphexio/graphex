@@ -779,6 +779,56 @@ describe('relation', () => {
           `);
   });
 
+  test('connect in variable', () => {
+    const rq = gql`
+      mutation createComment($data: CommentCreateInput!) {
+        createComment(data: $data) {
+          id
+        }
+      }
+    `;
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(
+      schema,
+      rq,
+      { data: { post: { connect: { id: 'post-id' } } } },
+      transaction
+    );
+
+    expect(transaction).toMatchInlineSnapshot(`
+              Object {
+                "operations": Array [
+                  Object {
+                    "collectionName": "comments",
+                    "data": Object {
+                      "postId": "AMResultPromise { Operation-1 -> path('_id') }",
+                    },
+                    "fieldsSelection": Object {
+                      "fields": Array [
+                        "_id",
+                      ],
+                    },
+                    "identifier": "Operation-0",
+                    "kind": "AMCreateOperation",
+                    "many": false,
+                    "output": "AMResultPromise { Operation-0 }",
+                  },
+                  Object {
+                    "collectionName": "posts",
+                    "identifier": "Operation-1",
+                    "kind": "AMReadOperation",
+                    "many": false,
+                    "output": "AMResultPromise { Operation-1 }",
+                    "selector": Object {
+                      "_id": "post-id",
+                    },
+                  },
+                ],
+              }
+          `);
+  });
+
   test('create', () => {
     const rq = gql`
       mutation {

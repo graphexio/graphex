@@ -80,10 +80,10 @@ export class AMVisitor {
 
     var visitor = {
       // enter(node) {
-      // console.log('enter', node, stack);
+      //   console.log('enter', node, stack);
       // },
       // leave(node) {
-      // console.log('leave', node, stack);
+      //   console.log('leave', node, stack);
       // },
       [Kind.ARGUMENT]: {
         enter(node) {
@@ -259,11 +259,16 @@ export class AMVisitor {
       [Kind.BOOLEAN]: scalarVisitor,
       [Kind.INT]: scalarVisitor,
       [Kind.FLOAT]: scalarVisitor,
+      [Kind.VARIABLE_DEFINITION]: {
+        enter(node) {
+          return null;
+        },
+        leave(node) {},
+      },
       [Kind.VARIABLE]: {
         enter(node: VariableNode) {
           //replace variable with astnode to visit that fields
           const type = typeInfo.getInputType();
-
           const newNode = astFromValue(variableValues[node.name.value], type);
           if (isScalarType(getNamedType(type))) {
             scalarVisitor.enter(newNode as ValueNode);
