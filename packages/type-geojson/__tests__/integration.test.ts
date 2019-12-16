@@ -29,6 +29,10 @@ test('Poi create', async () => {
             }
           ) {
             title
+            place{
+              type
+              coordinates
+            }
           }
         }
       `,
@@ -38,6 +42,13 @@ test('Poi create', async () => {
     expect(data).toMatchInlineSnapshot(`
         Object {
           "createPoi": Object {
+            "place": Object {
+              "coordinates": Array [
+                ${coordinates[0]},
+                ${coordinates[1]},
+              ],
+              "type": "Point",
+            },
             "title": "poi ${coordsStr}",
           },
         }
