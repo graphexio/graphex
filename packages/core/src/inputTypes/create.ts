@@ -59,12 +59,12 @@ export const AMCreateTypeFactory: IAMTypeFactory<AMInputObjectType> = {
         /* Begin filling createdAt, updatedAt */
         if (modelType.mmCreatedAtFields) {
           modelType.mmCreatedAtFields.forEach(createdAtField => {
-            context.addValue(createdAtField.dbName, new Date().toISOString());
+            context.addValue(createdAtField.dbName, new Date());
           });
         }
         if (modelType.mmUpdatedAtFields) {
           modelType.mmUpdatedAtFields.forEach(updatedAtField => {
-            context.addValue(updatedAtField.dbName, new Date().toISOString());
+            context.addValue(updatedAtField.dbName, new Date());
           });
         }
         /* End filling createdAt, updatedAt */

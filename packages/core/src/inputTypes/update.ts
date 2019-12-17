@@ -69,7 +69,7 @@ export const AMUpdateTypeFactory: IAMTypeFactory<AMInputObjectType> = {
               R.append(updatedAtField.dbName),
               R.join('.')
             )(path);
-            set[newPath] = new Date().toISOString();
+            set[newPath] = new Date();
           });
         }
         /* End filling updatedAt */

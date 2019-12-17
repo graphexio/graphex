@@ -1317,6 +1317,131 @@ test('Entities custom scalar inside _Any', async () => {
   `);
 });
 
+test('Test createdAt, updatedAt', async () => {
+  let result = await query({
+    query: gql`
+      mutation {
+        createCategory1: createCategory(
+          data: {
+            title: "Category 1"
+            createdAt: "2019-01-01T01:00:00.000Z"
+            updatedAt: "2019-01-01T01:00:00.000Z"
+          }
+        ) {
+          title
+          createdAt
+        }
+        createCategory2: createCategory(
+          data: {
+            title: "Category 2"
+            createdAt: "2019-01-02T01:00:00.000Z"
+            updatedAt: "2019-01-02T01:00:00.000Z"
+          }
+        ) {
+          title
+          createdAt
+        }
+        createCategory3: createCategory(
+          data: {
+            title: "Category 3"
+            createdAt: "2019-01-03T01:00:00.000Z"
+            updatedAt: "2019-01-03T01:00:00.000Z"
+          }
+        ) {
+          title
+          createdAt
+        }
+      }
+    `,
+  });
+  expect(result.errors).toBeUndefined();
+
+  {
+    let { errors, data } = await query({
+      query: gql`
+        query {
+          categories(
+            where: { createdAt_lte: "2019-01-10T00:00:00.000Z" }
+            orderBy: createdAt_ASC
+          ) {
+            title
+            createdAt
+          }
+        }
+      `,
+    });
+
+    //Date shouldn't be stored as string
+
+    //check user defined values
+    let DB = await connectToDatabase();
+    let record = await DB.collection('categories').findOne({
+      title: 'Category 1',
+    });
+    expect(typeof record.created_at).toBe('object');
+    expect(typeof record.updatedAt).toBe('object');
+
+    //check automatically defined values
+    record = await DB.collection('categories').findOne({
+      title: 'root',
+    });
+    expect(typeof record.created_at).toBe('object');
+    expect(typeof record.updatedAt).toBe('object');
+    /////////////
+
+    expect(errors).toBeUndefined();
+    expect(data).toMatchInlineSnapshot(`
+    Object {
+      "categories": Array [
+        Object {
+          "createdAt": "2019-01-01T01:00:00.000Z",
+          "title": "Category 1",
+        },
+        Object {
+          "createdAt": "2019-01-02T01:00:00.000Z",
+          "title": "Category 2",
+        },
+        Object {
+          "createdAt": "2019-01-03T01:00:00.000Z",
+          "title": "Category 3",
+        },
+      ],
+    }
+  `);
+  }
+  {
+    let { errors, data } = await query({
+      query: gql`
+        query {
+          categories(
+            where: { createdAt_gte: "2019-01-10T00:00:00.000Z" }
+            orderBy: createdAt_DESC
+          ) {
+            title
+          }
+        }
+      `,
+    });
+
+    expect(errors).toBeUndefined();
+    expect(data).toMatchInlineSnapshot(`
+    Object {
+      "categories": Array [
+        Object {
+          "title": "MongoDB",
+        },
+        Object {
+          "title": "JS",
+        },
+        Object {
+          "title": "root",
+        },
+      ],
+    }
+  `);
+  }
+});
+
 beforeAll(async () => {
   let DB = await connectToDatabase();
   DB.collection('posts').createIndex({ place: '2dsphere' });
