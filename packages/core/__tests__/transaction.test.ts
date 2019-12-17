@@ -1156,6 +1156,223 @@ describe('interfaces', () => {
     }
   `);
 
+  test('multiple query', () => {
+    const rq = gql`
+      query {
+        admins {
+          username
+        }
+      }
+    `;
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, {}, transaction);
+    expect(transaction).toMatchInlineSnapshot(`
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "users",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "username",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": "AMResultPromise { Operation-0 }",
+            "selector": Object {
+              "_type": "admin",
+            },
+          },
+        ],
+      }
+    `);
+  });
+
+  test('single query', () => {
+    const rq = gql`
+      query {
+        admin {
+          username
+        }
+      }
+    `;
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, {}, transaction);
+    expect(transaction).toMatchInlineSnapshot(`
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "users",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "username",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": false,
+            "output": "AMResultPromise { Operation-0 }",
+            "selector": Object {
+              "_type": "admin",
+            },
+          },
+        ],
+      }
+    `);
+  });
+
+  test('update query', () => {
+    const rq = gql`
+      mutation {
+        updateAdmin(
+          where: { id: "admin-1" }
+          data: { username: "username-1" }
+        ) {
+          username
+        }
+      }
+    `;
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, {}, transaction);
+    expect(transaction).toMatchInlineSnapshot(`
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "users",
+            "data": Object {
+              "$set": Object {
+                "username": "username-1",
+              },
+            },
+            "fieldsSelection": Object {
+              "fields": Array [
+                "username",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMUpdateOperation",
+            "many": false,
+            "output": "AMResultPromise { Operation-0 }",
+            "selector": Object {
+              "_id": "admin-1",
+              "_type": "admin",
+            },
+          },
+        ],
+      }
+    `);
+  });
+
+  test('update query', () => {
+    const rq = gql`
+      mutation {
+        updateAdmin(
+          where: { id: "admin-1" }
+          data: { username: "username-1" }
+        ) {
+          username
+        }
+      }
+    `;
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, {}, transaction);
+    expect(transaction).toMatchInlineSnapshot(`
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "users",
+            "data": Object {
+              "$set": Object {
+                "username": "username-1",
+              },
+            },
+            "fieldsSelection": Object {
+              "fields": Array [
+                "username",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMUpdateOperation",
+            "many": false,
+            "output": "AMResultPromise { Operation-0 }",
+            "selector": Object {
+              "_id": "admin-1",
+              "_type": "admin",
+            },
+          },
+        ],
+      }
+    `);
+  });
+
+  test('single delete mutation', () => {
+    const rq = gql`
+      mutation {
+        deleteAdmin(where: { id: "admin-1" }) {
+          username
+        }
+      }
+    `;
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, {}, transaction);
+    expect(transaction).toMatchInlineSnapshot(`
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "users",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "username",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMDeleteOperation",
+            "many": false,
+            "output": "AMResultPromise { Operation-0 }",
+            "selector": Object {
+              "_id": "admin-1",
+              "_type": "admin",
+            },
+          },
+        ],
+      }
+    `);
+  });
+
+  test('multiple delete mutation', () => {
+    const rq = gql`
+      mutation {
+        deleteAdmins(where: { id: "admin-1" })
+      }
+    `;
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, {}, transaction);
+    expect(transaction).toMatchInlineSnapshot(`
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "users",
+            "identifier": "Operation-0",
+            "kind": "AMDeleteOperation",
+            "many": true,
+            "output": "AMResultPromise { Operation-0 }",
+            "selector": Object {
+              "_id": "admin-1",
+              "_type": "admin",
+            },
+          },
+        ],
+      }
+    `);
+  });
+
   test('create relation', () => {
     const rq = gql`
       mutation {

@@ -7,6 +7,7 @@ import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
 import { lowercaseFirstLetter } from '../tsutils';
 import { AMField, AMModelType, IAMFieldFactory } from '../definitions';
 import { resolve } from '../resolve';
+import { AMSelectorContext } from '../execution/contexts/selector';
 
 export const AMModelSingleQueryFieldFactory: IAMFieldFactory = {
   getFieldName(modelType: AMModelType): string {
@@ -35,7 +36,17 @@ export const AMModelSingleQueryFieldFactory: IAMFieldFactory = {
         stack.push(operation);
       },
       amLeave(node, transaction, stack) {
-        stack.pop();
+        const context = stack.pop() as AMReadOperation;
+        if (modelType.mmDiscriminatorField && modelType.mmDiscriminator) {
+          if (!context.selector) {
+            context.setSelector(new AMSelectorContext());
+          }
+
+          context.selector.addValue(
+            modelType.mmDiscriminatorField,
+            modelType.mmDiscriminator
+          );
+        }
       },
       resolve: resolve,
     };

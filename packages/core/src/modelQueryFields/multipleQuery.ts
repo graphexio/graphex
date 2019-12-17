@@ -11,6 +11,7 @@ import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMOperation } from '../execution/operation';
 import { skipArg } from '../args/skip';
 import { firstArg } from '../args/first';
+import { AMSelectorContext } from '../execution/contexts/selector';
 
 export const AMModelMultipleQueryFieldFactory: IAMFieldFactory = {
   getFieldName(modelType: AMModelType): string {
@@ -42,7 +43,17 @@ export const AMModelMultipleQueryFieldFactory: IAMFieldFactory = {
         stack.push(operation);
       },
       amLeave(node, transaction, stack) {
-        stack.pop();
+        const context = stack.pop() as AMReadOperation;
+        if (modelType.mmDiscriminatorField && modelType.mmDiscriminator) {
+          if (!context.selector) {
+            context.setSelector(new AMSelectorContext());
+          }
+
+          context.selector.addValue(
+            modelType.mmDiscriminatorField,
+            modelType.mmDiscriminator
+          );
+        }
       },
       resolve: resolve,
     };

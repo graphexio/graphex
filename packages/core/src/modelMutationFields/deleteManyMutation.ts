@@ -6,6 +6,7 @@ import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
 import { resolve } from '../resolve';
 import { AMField, AMModelType, IAMFieldFactory } from '../definitions';
 import { AMWhereTypeFactory } from '../inputTypes/where';
+import { AMSelectorContext } from '../execution/contexts/selector';
 
 export const AMModelDeleteManyMutationFieldFactory: IAMFieldFactory = {
   getFieldName(modelType: AMModelType): string {
@@ -33,7 +34,17 @@ export const AMModelDeleteManyMutationFieldFactory: IAMFieldFactory = {
         stack.push(operation);
       },
       amLeave(node, transaction, stack) {
-        stack.pop();
+        const context = stack.pop() as AMDeleteOperation;
+        if (modelType.mmDiscriminatorField && modelType.mmDiscriminator) {
+          if (!context.selector) {
+            context.setSelector(new AMSelectorContext());
+          }
+
+          context.selector.addValue(
+            modelType.mmDiscriminatorField,
+            modelType.mmDiscriminator
+          );
+        }
       },
       resolve: resolve,
     };
