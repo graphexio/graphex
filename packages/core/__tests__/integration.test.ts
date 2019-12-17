@@ -1442,6 +1442,50 @@ test('Test createdAt, updatedAt', async () => {
   }
 });
 
+test('relation some', async () => {
+  {
+    let { errors, data } = await query({
+      query: gql`
+        mutation {
+          createPost(
+            data: {
+              title: "Post with likes"
+              body: "Post with likes"
+              owner: { connect: { User: { username: "admin" } } }
+              likes: { connect: [{ User: { username: "admin" } }] }
+            }
+          ) {
+            id
+          }
+        }
+      `,
+    });
+    expect(errors).toBeUndefined();
+  }
+
+  {
+    let { errors, data } = await query({
+      query: gql`
+        query {
+          posts(where: { likes_some: { username: "admin" } }) {
+            title
+          }
+        }
+      `,
+    });
+    expect(errors).toBeUndefined();
+    expect(data).toMatchInlineSnapshot(`
+      Object {
+        "posts": Array [
+          Object {
+            "title": "Post with likes",
+          },
+        ],
+      }
+    `);
+  }
+});
+
 beforeAll(async () => {
   let DB = await connectToDatabase();
   DB.collection('posts').createIndex({ place: '2dsphere' });

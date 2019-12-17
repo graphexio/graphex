@@ -13,7 +13,7 @@ import { AMQuerySelectorFieldFactory } from '../fieldFactories/querySelector';
 export const SomeSelector: IAMQuerySelector = {
   isApplicable(field) {
     const typeWrap = new TypeWrap(field.type);
-    return typeWrap.isMany();
+    return !field.relation && typeWrap.isMany();
   },
   getFieldFactory() {
     return new AMQuerySelectorFieldFactory(

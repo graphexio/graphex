@@ -15,6 +15,7 @@ import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { isInterfaceType } from 'graphql';
 import { AMInterfaceCreateTypeFactory } from './interfaceCreate';
 import { AMCreateOperation } from '../execution/operations/createOperation';
+import { AMInterfaceWhereWhereUniqueTypeFactory } from './interfaceWhereUnique';
 
 const isApplicable = (field: AMModelField) => (
   fieldFactory: IAMInputFieldFactory
@@ -26,16 +27,20 @@ export const AMCreateOneRelationTypeFactory: IAMTypeFactory<AMInputObjectType> =
   },
   getType(modelType, schemaInfo) {
     const self: IAMTypeFactory<AMInputObjectType> = this;
-    const typeFactory = !isInterfaceType(modelType)
+    const createTypeFactory = !isInterfaceType(modelType)
       ? AMCreateTypeFactory
       : AMInterfaceCreateTypeFactory;
+
+    const whereTypeFactory = !isInterfaceType(modelType)
+      ? AMWhereUniqueTypeFactory
+      : AMInterfaceWhereWhereUniqueTypeFactory;
 
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
         const fields = <AMInputFieldConfigMap>{
           create: {
-            type: schemaInfo.resolveFactoryType(modelType, typeFactory),
+            type: schemaInfo.resolveFactoryType(modelType, createTypeFactory),
             /* For abstract interface we create operations inside AMInterfaceCreateTypeFactory */
             ...(!modelType.mmAbstract
               ? {
@@ -62,10 +67,7 @@ export const AMCreateOneRelationTypeFactory: IAMTypeFactory<AMInputObjectType> =
               : null),
           },
           connect: {
-            type: schemaInfo.resolveFactoryType(
-              modelType,
-              AMWhereUniqueTypeFactory
-            ),
+            type: schemaInfo.resolveFactoryType(modelType, whereTypeFactory),
             ...(!modelType.mmAbstract
               ? {
                   amEnter(node, transaction, stack) {

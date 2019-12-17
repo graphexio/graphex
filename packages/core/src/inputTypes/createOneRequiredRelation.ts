@@ -16,6 +16,7 @@ import { isInterfaceType } from 'graphql';
 import { AMInterfaceCreateTypeFactory } from './interfaceCreate';
 import { AMCreateOperation } from '../execution/operations/createOperation';
 import { UserInputError } from 'apollo-server';
+import { AMInterfaceWhereWhereUniqueTypeFactory } from './interfaceWhereUnique';
 
 const isApplicable = (field: AMModelField) => (
   fieldFactory: IAMInputFieldFactory
@@ -27,9 +28,14 @@ export const AMCreateOneRequiredRelationTypeFactory: IAMTypeFactory<AMInputObjec
   },
   getType(modelType, schemaInfo) {
     const self: IAMTypeFactory<AMInputObjectType> = this;
-    const typeFactory = !isInterfaceType(modelType)
+
+    const createTypeFactory = !isInterfaceType(modelType)
       ? AMCreateTypeFactory
       : AMInterfaceCreateTypeFactory;
+
+    const whereTypeFactory = !isInterfaceType(modelType)
+      ? AMWhereUniqueTypeFactory
+      : AMInterfaceWhereWhereUniqueTypeFactory;
 
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
@@ -41,7 +47,7 @@ export const AMCreateOneRequiredRelationTypeFactory: IAMTypeFactory<AMInputObjec
       fields: () => {
         const fields = <AMInputFieldConfigMap>{
           create: {
-            type: schemaInfo.resolveFactoryType(modelType, typeFactory),
+            type: schemaInfo.resolveFactoryType(modelType, createTypeFactory),
             /* For abstract interface we create operations inside AMInterfaceCreateTypeFactory */
             ...(!modelType.mmAbstract
               ? {
@@ -68,10 +74,7 @@ export const AMCreateOneRequiredRelationTypeFactory: IAMTypeFactory<AMInputObjec
               : null),
           },
           connect: {
-            type: schemaInfo.resolveFactoryType(
-              modelType,
-              AMWhereUniqueTypeFactory
-            ),
+            type: schemaInfo.resolveFactoryType(modelType, whereTypeFactory),
             amEnter(node, transaction, stack) {
               const opContext = new AMReadOperation(transaction, {
                 many: false,

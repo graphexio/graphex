@@ -240,7 +240,7 @@ describe('interface', () => {
       .toMatchInlineSnapshot(`
                   "input UserCreateOneRelationInput {
                     create: UserInterfaceCreateInput
-                    connect: UserWhereUniqueInput
+                    connect: UserInterfaceWhereUniqueInput
                   }"
             `);
   });
@@ -261,6 +261,17 @@ describe('interface', () => {
             "input UserInterfaceCreateInput {
               Admin: AdminCreateInput
               Subscriber: SubscriberCreateInput
+            }"
+        `);
+  });
+
+  test('UserInterfaceWhereUniqueInput', () => {
+    expect(printType(schema.getType('UserInterfaceWhereUniqueInput')))
+      .toMatchInlineSnapshot(`
+            "input UserInterfaceWhereUniqueInput {
+              User: UserWhereUniqueInput
+              Admin: AdminWhereUniqueInput
+              Subscriber: SubscriberWhereUniqueInput
             }"
         `);
   });
@@ -416,7 +427,7 @@ describe('abstract', () => {
       .toMatchInlineSnapshot(`
                   "input UserCreateOneRelationInput {
                     create: UserInterfaceCreateInput
-                    connect: UserWhereUniqueInput
+                    connect: UserInterfaceWhereUniqueInput
                   }"
             `);
   });
@@ -445,6 +456,7 @@ describe('abstract', () => {
     expect(printType(schema.getType('UserInterfaceWhereUniqueInput')))
       .toMatchInlineSnapshot(`
             "input UserInterfaceWhereUniqueInput {
+              User: UserWhereUniqueInput
               Admin: AdminWhereUniqueInput
               Subscriber: SubscriberWhereUniqueInput
             }"

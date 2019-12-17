@@ -6,6 +6,7 @@ import { NotInSelector } from './not_in';
 import { NotSizeSelector } from './not_size';
 import { SizeSelector } from './size';
 import { SomeSelector } from './some';
+import { SomeRelationSelector } from './some-relation';
 import { AsIsSelector } from './asis';
 import { AsIsRelationSelector } from './asis-relation';
 import { LTSelector } from './lt';
@@ -37,6 +38,7 @@ export const Selectors = [
   InSelector,
   NotInSelector,
   SomeSelector,
+  SomeRelationSelector,
   AsIsSelector,
   AsIsRelationSelector,
   LTSelector,

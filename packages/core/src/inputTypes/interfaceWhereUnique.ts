@@ -24,9 +24,10 @@ export const AMInterfaceWhereWhereUniqueTypeFactory: IAMTypeFactory<GraphQLInput
       fields: () => {
         const fields = {};
         if (modelType instanceof GraphQLInterfaceType) {
-          (schemaInfo.schema.getPossibleTypes(
-            modelType
-          ) as AMModelType[]).forEach((possibleType: AMModelType) => {
+          [
+            modelType,
+            ...(schemaInfo.schema.getPossibleTypes(modelType) as AMModelType[]),
+          ].forEach((possibleType: AMModelType) => {
             fields[possibleType.name] = <AMInputFieldConfig>{
               type: schemaInfo.resolveFactoryType(
                 possibleType,
@@ -38,7 +39,6 @@ export const AMInterfaceWhereWhereUniqueTypeFactory: IAMTypeFactory<GraphQLInput
                     //   },
                     amLeave(node, transaction, stack) {
                       const lastInStack = R.last(stack);
-                      console.log({ lastInStack });
                       if (lastInStack instanceof AMReadOperation) {
                         if (lastInStack.data) {
                           lastInStack.data.addValue(
