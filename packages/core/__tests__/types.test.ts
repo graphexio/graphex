@@ -220,18 +220,32 @@ describe('interface', () => {
 
     interface User @model @inherit {
       id: ID @id @unique @db(name: "_id")
+      profile: Profile
+    }
+
+    interface Profile @inherit @embedded {
+      invitedBy: User @relation
     }
 
     type Admin implements User {
       username: String
+      profile: AdminProfile
+    }
+
+    type AdminProfile implements Profile @embedded {
+      name: String
     }
 
     type Subscriber implements User {
       profile: SubscriberProfile
     }
 
-    type SubscriberProfile @embedded {
+    type SubscriberProfile implements Profile @embedded {
       name: String
+    }
+
+    type Manager implements User {
+      username: String
     }
   `);
 
@@ -261,6 +275,7 @@ describe('interface', () => {
             "input UserInterfaceCreateInput {
               Admin: AdminCreateInput
               Subscriber: SubscriberCreateInput
+              Manager: ManagerCreateInput
             }"
         `);
   });
@@ -272,6 +287,26 @@ describe('interface', () => {
               User: UserWhereUniqueInput
               Admin: AdminWhereUniqueInput
               Subscriber: SubscriberWhereUniqueInput
+              Manager: ManagerWhereUniqueInput
+            }"
+        `);
+  });
+
+  test('ManagerCreateInput', () => {
+    expect(printType(schema.getType('ManagerCreateInput')))
+      .toMatchInlineSnapshot(`
+            "input ManagerCreateInput {
+              profile: ProfileCreateOneNestedInput
+              username: String
+            }"
+        `);
+  });
+
+  test('ProfileCreateOneNestedInput', () => {
+    expect(printType(schema.getType('ProfileCreateOneNestedInput')))
+      .toMatchInlineSnapshot(`
+            "input ProfileCreateOneNestedInput {
+              create: ProfileInterfaceCreateInput
             }"
         `);
   });

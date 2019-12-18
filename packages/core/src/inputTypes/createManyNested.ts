@@ -1,4 +1,9 @@
-import { GraphQLInputObjectType, GraphQLList, ObjectFieldNode } from 'graphql';
+import {
+  GraphQLInputObjectType,
+  GraphQLList,
+  ObjectFieldNode,
+  isInterfaceType,
+} from 'graphql';
 import {
   AMModelField,
   IAMInputFieldFactory,
@@ -10,6 +15,7 @@ import {
 import { AMCreateTypeFactory } from './create';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import R from 'ramda';
+import { AMInterfaceCreateTypeFactory } from './interfaceCreate';
 
 const isApplicable = (field: AMModelField) => (
   fieldFactory: IAMInputFieldFactory
@@ -20,6 +26,10 @@ export const AMCreateManyNestedTypeFactory: IAMTypeFactory<AMInputObjectType> = 
     return `${modelType.name}CreateManyNestedInput`;
   },
   getType(modelType, schemaInfo) {
+    const createTypeFactory = !isInterfaceType(modelType)
+      ? AMCreateTypeFactory
+      : AMInterfaceCreateTypeFactory;
+
     const self: IAMTypeFactory<AMInputObjectType> = this;
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
@@ -27,7 +37,7 @@ export const AMCreateManyNestedTypeFactory: IAMTypeFactory<AMInputObjectType> = 
         const fields = <AMInputFieldConfigMap>{
           create: {
             type: new GraphQLList(
-              schemaInfo.resolveFactoryType(modelType, AMCreateTypeFactory)
+              schemaInfo.resolveFactoryType(modelType, createTypeFactory)
             ),
             // we can keep amEnter and amLeave empty because child object will pass value to parent directly
           },

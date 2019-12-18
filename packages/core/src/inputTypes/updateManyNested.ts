@@ -1,4 +1,9 @@
-import { GraphQLInputObjectType, ObjectFieldNode, GraphQLList } from 'graphql';
+import {
+  GraphQLInputObjectType,
+  ObjectFieldNode,
+  GraphQLList,
+  isInterfaceType,
+} from 'graphql';
 import R from 'ramda';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import {
@@ -21,6 +26,7 @@ import {
 import { defaultObjectFieldVisitorHandler } from './visitorHandlers';
 import { AMContext } from '../execution/context';
 import { toArray } from '../tsutils';
+import { AMInterfaceCreateTypeFactory } from './interfaceCreate';
 
 const isApplicable = (field: AMModelField) => (
   fieldFactory: IAMInputFieldFactory
@@ -35,19 +41,23 @@ export const AMUpdateManyNestedTypeFactory: IAMTypeFactory<GraphQLInputObjectTyp
 
     const self: IAMTypeFactory<AMInputObjectType> = this;
 
+    const createTypeFactory = !isInterfaceType(modelType)
+      ? AMCreateTypeFactory
+      : AMInterfaceCreateTypeFactory;
+
     return new AMInputObjectType({
       name: typeName,
       fields: () => {
         const fields = <AMInputFieldConfigMap>{
           create: {
             type: new GraphQLList(
-              schemaInfo.resolveFactoryType(modelType, AMCreateTypeFactory)
+              schemaInfo.resolveFactoryType(modelType, createTypeFactory)
             ),
             ...defaultObjectFieldVisitorHandler('create'),
           },
           recreate: {
             type: new GraphQLList(
-              schemaInfo.resolveFactoryType(modelType, AMCreateTypeFactory)
+              schemaInfo.resolveFactoryType(modelType, createTypeFactory)
             ),
             ...defaultObjectFieldVisitorHandler('recreate'),
           },

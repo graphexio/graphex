@@ -1,4 +1,8 @@
-import { GraphQLInputObjectType, ObjectFieldNode } from 'graphql';
+import {
+  GraphQLInputObjectType,
+  ObjectFieldNode,
+  isInterfaceType,
+} from 'graphql';
 import R from 'ramda';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import {
@@ -8,6 +12,7 @@ import {
   IAMTypeFactory,
 } from '../definitions';
 import { AMCreateTypeFactory } from './create';
+import { AMInterfaceCreateTypeFactory } from './interfaceCreate';
 
 const isApplicable = (field: AMModelField) => (
   fieldFactory: IAMInputFieldFactory
@@ -18,13 +23,17 @@ export const AMCreateOneNestedTypeFactory: IAMTypeFactory<GraphQLInputObjectType
     return `${modelType.name}CreateOneNestedInput`;
   },
   getType(modelType, schemaInfo) {
+    const createTypeFactory = !isInterfaceType(modelType)
+      ? AMCreateTypeFactory
+      : AMInterfaceCreateTypeFactory;
+
     const self: IAMTypeFactory<AMInputObjectType> = this;
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
         const fields = {
           create: {
-            type: schemaInfo.resolveFactoryType(modelType, AMCreateTypeFactory),
+            type: schemaInfo.resolveFactoryType(modelType, createTypeFactory),
           },
         };
 
