@@ -3,6 +3,7 @@ import {
   isObjectType,
   getNamedType,
   isInputObjectType,
+  isInterfaceType,
 } from 'graphql';
 import { getDirectiveAST } from '../tsutils';
 import { AMModelField, AMModelType } from '../definitions';
@@ -13,7 +14,11 @@ export const fieldVisitorEvents = (
   fieldVisitorEventsMap: {}
 ) => {
   Object.values(schema.getTypeMap()).forEach((type: AMModelType) => {
-    if (isObjectType(type) || isInputObjectType(type)) {
+    if (
+      isObjectType(type) ||
+      isInterfaceType(type) ||
+      isInputObjectType(type)
+    ) {
       Object.values(type.getFields()).forEach((field: AMModelField) => {
         if (
           fieldVisitorEventsMap[type.name] &&

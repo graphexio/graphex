@@ -1139,11 +1139,21 @@ describe('interfaces', () => {
 
     interface User @model @inherit {
       id: ID @id @unique @db(name: "_id")
+      profile: Profile
+    }
+
+    interface Profile @inherit @embedded {
+      invitedBy: User @relation
     }
 
     type Admin implements User {
       username: String
       approves: [Post] @relation(storeField: "approvesPostIds")
+      profile: AdminProfile
+    }
+
+    type AdminProfile implements Profile @embedded {
+      name: String
     }
 
     type Subscriber implements User {
@@ -1151,7 +1161,7 @@ describe('interfaces', () => {
       likes: [Post] @relation(storeField: "likesPostIds")
     }
 
-    type SubscriberProfile @embedded {
+    type SubscriberProfile implements Profile @embedded {
       name: String
     }
   `);
@@ -1537,6 +1547,59 @@ describe('interfaces', () => {
           "selector": Object {
             "_id": Object {
               "$in": "AMResultPromise { Operation-0 -> distinct('likesPostIds') }",
+            },
+          },
+        },
+      ],
+    }
+  `);
+  });
+
+  test('relations in embedded interfaces', () => {
+    const rq = gql`
+      query {
+        users {
+          profile {
+            invitedBy {
+              id
+            }
+          }
+        }
+      }
+    `;
+
+    //TODO: Fix filtering distinct and distinctReplace
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, {}, transaction);
+    expect(transaction).toMatchInlineSnapshot(`
+    Object {
+      "operations": Array [
+        Object {
+          "collectionName": "users",
+          "fieldsSelection": Object {
+            "fields": Array [
+              "profile.userId",
+            ],
+          },
+          "identifier": "Operation-0",
+          "kind": "AMReadOperation",
+          "many": true,
+          "output": "AMResultPromise { Operation-0 -> distinctReplace('profile.userId', '_id', AMResultPromise { Operation-1 }) }",
+        },
+        Object {
+          "collectionName": "users",
+          "fieldsSelection": Object {
+            "fields": Array [
+              "_id",
+            ],
+          },
+          "identifier": "Operation-1",
+          "kind": "AMReadOperation",
+          "many": true,
+          "output": "AMResultPromise { Operation-1 }",
+          "selector": Object {
+            "_id": Object {
+              "$in": "AMResultPromise { Operation-0 -> distinct('profile.userId') }",
             },
           },
         },

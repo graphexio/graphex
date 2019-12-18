@@ -1,4 +1,9 @@
-import { GraphQLSchema, isObjectType, getNamedType } from 'graphql';
+import {
+  GraphQLSchema,
+  isObjectType,
+  getNamedType,
+  isInterfaceType,
+} from 'graphql';
 import { getDirectiveAST } from '../tsutils';
 import { AMModelField, AMModelType } from '../definitions';
 
@@ -7,7 +12,7 @@ export const fieldFactories = (
   fieldFactoriesMap: {}
 ) => {
   Object.values(schema.getTypeMap()).forEach((type: AMModelType) => {
-    if (isObjectType(type)) {
+    if (isObjectType(type) || isInterfaceType(type)) {
       Object.values(type.getFields()).forEach((field: AMModelField) => {
         let fieldType = getNamedType(field.type);
         if (fieldFactoriesMap[fieldType.name]) {

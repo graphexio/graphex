@@ -1,4 +1,9 @@
-import { GraphQLSchema, isCompositeType, isObjectType } from 'graphql';
+import {
+  GraphQLSchema,
+  isCompositeType,
+  isObjectType,
+  isInterfaceType,
+} from 'graphql';
 import { AMModelField, AMModelType } from '../definitions';
 import { getDirectiveAST, getArgValueFromDirectiveAST } from '../tsutils';
 import TypeWrap from '@apollo-model/type-wrap';
@@ -6,7 +11,7 @@ import { allQueryArgs, getDirective, getRelationFieldName } from '../utils';
 
 export const extRelationDirective = (schema: GraphQLSchema) => {
   Object.values(schema.getTypeMap()).forEach(modelType => {
-    if (isObjectType(modelType)) {
+    if (isObjectType(modelType) || isInterfaceType(modelType)) {
       Object.values(modelType.getFields()).forEach((field: AMModelField) => {
         const relationDirectiveAST = getDirectiveAST(field, 'extRelation');
         const relationDirective = schema.getDirective('extRelation');

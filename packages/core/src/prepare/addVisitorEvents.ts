@@ -1,4 +1,4 @@
-import { GraphQLSchema, isObjectType } from 'graphql';
+import { GraphQLSchema, isObjectType, isInterfaceType } from 'graphql';
 import R from 'ramda';
 import { AMField, AMModelField } from '../definitions';
 import { AMFieldsSelectionContext } from '../execution/contexts/fieldsSelection';
@@ -13,7 +13,7 @@ import { AMReadDBRefOperation } from '../execution/operations/readDbRefOperation
 
 export const addVisitorEvents = (schema: GraphQLSchema) => {
   Object.values(schema.getTypeMap()).forEach(type => {
-    if (isObjectType(type)) {
+    if (isObjectType(type) || isInterfaceType(type)) {
       Object.values(type.getFields()).forEach((field: AMModelField) => {
         if (field.relation) {
           field.amEnter = (node, transaction, stack) => {
