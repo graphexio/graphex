@@ -17,7 +17,7 @@ export class AMAggregateOperation extends AMOperation {
     })
       .then(res => {
         this._result.resolve({
-          aggregation: {
+          aggregate: {
             count: res,
           },
         });

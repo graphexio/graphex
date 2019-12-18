@@ -362,7 +362,7 @@ describe('modelFields', () => {
 
     expect(printType(schema.getType('PostConnection'))).toMatchInlineSnapshot(`
         "type PostConnection {
-          aggregation: AggregatePost
+          aggregate: AggregatePost
         }"
       `);
 

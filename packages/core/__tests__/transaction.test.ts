@@ -261,7 +261,7 @@ describe('simple schema', () => {
     const rq = gql`
       {
         postsConnection(skip: 2, first: 1) {
-          aggregation {
+          aggregate {
             count
           }
         }

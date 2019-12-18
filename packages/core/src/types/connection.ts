@@ -22,7 +22,7 @@ export const AMConnectionTypeFactory: IAMTypeFactory<AMObjectType> = {
       name: this.getTypeName(modelType),
       fields: () => {
         const fields = {
-          aggregation: {
+          aggregate: {
             type: schemaInfo.resolveFactoryType(
               modelType,
               AMAggregateTypeFactory

@@ -386,12 +386,12 @@ test('QueryCategoriesExtRelation', async () => {
   `);
 });
 
-test('Categories aggregation count', async () => {
+test('Categories aggregate count', async () => {
   let { errors, data } = await query({
     query: gql`
       query {
         categoriesConnection {
-          aggregation {
+          aggregate {
             count
           }
         }
@@ -403,7 +403,7 @@ test('Categories aggregation count', async () => {
   expect(data).toMatchInlineSnapshot(`
     Object {
       "categoriesConnection": Object {
-        "aggregation": Object {
+        "aggregate": Object {
           "count": 4,
         },
       },
@@ -411,12 +411,12 @@ test('Categories aggregation count', async () => {
   `);
 });
 
-test('Categories aggregation count with where', async () => {
+test('Categories aggregate count with where', async () => {
   let { errors, data } = await query({
     query: gql`
       query {
         categoriesConnection(where: { title: "JS" }) {
-          aggregation {
+          aggregate {
             count
           }
         }
@@ -428,7 +428,7 @@ test('Categories aggregation count with where', async () => {
   expect(data).toMatchInlineSnapshot(`
     Object {
       "categoriesConnection": Object {
-        "aggregation": Object {
+        "aggregate": Object {
           "count": 1,
         },
       },
