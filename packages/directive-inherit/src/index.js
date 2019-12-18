@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
+import R from 'ramda';
 
 export const typeDefs = gql`
   directive @inherit on INTERFACE
@@ -12,7 +13,7 @@ class Inherit extends SchemaDirectiveVisitor {
     Object.values(SchemaTypes)
       .filter(type => type._interfaces && type._interfaces.includes(iface))
       .forEach(type => {
-        type._fields = { ...iface._fields, ...type._fields };
+        type._fields = { ...R.clone(iface._fields), ...type._fields };
       });
   }
 }

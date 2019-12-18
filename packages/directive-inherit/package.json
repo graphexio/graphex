@@ -12,7 +12,8 @@
   "license": "ISC",
   "dependencies": {
     "graphql-tag": "^2.10.1",
-    "graphql-tools": "^4.0.5"
+    "graphql-tools": "^4.0.5",
+    "ramda": "^0.26.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.2",
