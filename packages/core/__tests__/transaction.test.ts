@@ -1135,6 +1135,7 @@ describe('interfaces', () => {
       id: ID @id @unique @db(name: "_id")
       title: String
       owner: User @relation
+      ownerRequired: User! @relation(storeField: "ownerRequiredUserId")
     }
 
     interface User @model @inherit {
@@ -1390,6 +1391,7 @@ describe('interfaces', () => {
           data: {
             title: "post title"
             owner: { create: { Admin: { username: "new admin" } } }
+            ownerRequired: { create: { Admin: { username: "new admin" } } }
           }
         ) {
           id
@@ -1405,6 +1407,7 @@ describe('interfaces', () => {
                 Object {
                   "collectionName": "posts",
                   "data": Object {
+                    "ownerRequiredUserId": "AMResultPromise { Operation-2 -> path('_id') }",
                     "title": "post title",
                     "userId": "AMResultPromise { Operation-1 -> path('_id') }",
                   },
@@ -1428,6 +1431,79 @@ describe('interfaces', () => {
                   "kind": "AMCreateOperation",
                   "many": false,
                   "output": "AMResultPromise { Operation-1 }",
+                },
+                Object {
+                  "collectionName": "users",
+                  "data": Object {
+                    "_type": "admin",
+                    "username": "new admin",
+                  },
+                  "identifier": "Operation-2",
+                  "kind": "AMCreateOperation",
+                  "many": false,
+                  "output": "AMResultPromise { Operation-2 }",
+                },
+              ],
+            }
+      `);
+  });
+
+  test('connect relation', () => {
+    const rq = gql`
+      mutation {
+        createPost(
+          data: {
+            title: "post title"
+            owner: { connect: { User: { id: "admin-id" } } }
+            ownerRequired: { connect: { User: { id: "admin-id" } } }
+          }
+        ) {
+          id
+        }
+      }
+    `;
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, {}, transaction);
+    expect(transaction).toMatchInlineSnapshot(`
+            Object {
+              "operations": Array [
+                Object {
+                  "collectionName": "posts",
+                  "data": Object {
+                    "ownerRequiredUserId": "AMResultPromise { Operation-2 -> path('_id') }",
+                    "title": "post title",
+                    "userId": "AMResultPromise { Operation-1 -> path('_id') }",
+                  },
+                  "fieldsSelection": Object {
+                    "fields": Array [
+                      "_id",
+                    ],
+                  },
+                  "identifier": "Operation-0",
+                  "kind": "AMCreateOperation",
+                  "many": false,
+                  "output": "AMResultPromise { Operation-0 }",
+                },
+                Object {
+                  "collectionName": "users",
+                  "identifier": "Operation-1",
+                  "kind": "AMReadOperation",
+                  "many": false,
+                  "output": "AMResultPromise { Operation-1 }",
+                  "selector": Object {
+                    "_id": "admin-id",
+                  },
+                },
+                Object {
+                  "collectionName": "users",
+                  "identifier": "Operation-2",
+                  "kind": "AMReadOperation",
+                  "many": false,
+                  "output": "AMResultPromise { Operation-2 }",
+                  "selector": Object {
+                    "_id": "admin-id",
+                  },
                 },
               ],
             }

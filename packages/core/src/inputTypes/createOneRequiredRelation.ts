@@ -87,7 +87,11 @@ export const AMCreateOneRequiredRelationTypeFactory: IAMTypeFactory<AMInputObjec
 
               const lastInStack = R.last(stack);
               if (lastInStack instanceof AMObjectFieldContext) {
-                lastInStack.setValue(opContext.getOutput());
+                lastInStack.setValue(
+                  opContext
+                    .getOutput()
+                    .path(lastInStack.field.relation.relationField)
+                );
               }
             },
           },
