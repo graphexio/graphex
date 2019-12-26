@@ -178,7 +178,15 @@ const replaceDistinct = (
     return value.map(replaceDistinct(pathArr, field, dataMap));
   } else {
     if (pathArr.length == 0) {
-      return dataMap[value];
+      //TODO: Remove this fix for issue with multiple relations on the same field
+      if (
+        typeof value === 'string' ||
+        (typeof value === 'object' && value.constructor.name === 'ObjectID')
+      ) {
+        return dataMap[value];
+      } else {
+        return value;
+      }
     } else {
       return {
         ...value,
