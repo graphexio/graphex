@@ -4,6 +4,7 @@ import {
   GraphQLInputType,
   isCompositeType,
   ASTNode,
+  ObjectFieldNode,
 } from 'graphql';
 import { IAMQuerySelector, AMVisitorStack } from '../../definitions';
 import { AMWhereTypeFactory } from '../where';
@@ -31,23 +32,38 @@ export const AsIsRelationSelector: IAMQuerySelector = {
         return {
           name: this.getFieldName(field),
           type: schemaInfo.resolveFactoryType(namedType, AMWhereTypeFactory),
-          amEnter(node, transaction, stack) {
-            const context = new AMReadOperation(transaction, {
-              collectionName: field.relation.collection,
-              many: true,
-            });
-            stack.push(context);
-          },
-          amLeave(node, transaction, stack) {
-            const context = stack.pop() as AMReadOperation;
-            const lastInStack = R.last(stack);
-            if (
-              lastInStack instanceof AMSelectorContext ||
-              lastInStack instanceof AMObjectFieldContext
-            ) {
-              lastInStack.addValue(field.relation.storeField, {
-                $in: context.getOutput().distinct(field.relation.relationField),
+          amEnter(node: ObjectFieldNode, transaction, stack) {
+            if (node.value.kind === 'NullValue') {
+              const lastInStack = R.last(stack);
+
+              if (
+                lastInStack instanceof AMSelectorContext ||
+                lastInStack instanceof AMObjectFieldContext
+              ) {
+                lastInStack.addValue(field.relation.storeField, null);
+              }
+            } else {
+              const context = new AMReadOperation(transaction, {
+                collectionName: field.relation.collection,
+                many: true,
               });
+              stack.push(context);
+            }
+          },
+          amLeave(node: ObjectFieldNode, transaction, stack) {
+            if (node.value.kind !== 'NullValue') {
+              const context = stack.pop() as AMReadOperation;
+              const lastInStack = R.last(stack);
+              if (
+                lastInStack instanceof AMSelectorContext ||
+                lastInStack instanceof AMObjectFieldContext
+              ) {
+                lastInStack.addValue(field.relation.storeField, {
+                  $in: context
+                    .getOutput()
+                    .distinct(field.relation.relationField),
+                });
+              }
             }
           },
         };

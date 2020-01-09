@@ -986,6 +986,43 @@ describe('relation', () => {
           `);
   });
 
+  test('where relation null', () => {
+    const rq = gql`
+      {
+        comments(where: { post: null }) {
+          id
+          message
+        }
+      }
+    `;
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, {}, transaction);
+
+    expect(transaction).toMatchInlineSnapshot(`
+                Object {
+                  "operations": Array [
+                    Object {
+                      "collectionName": "comments",
+                      "fieldsSelection": Object {
+                        "fields": Array [
+                          "_id",
+                          "message",
+                        ],
+                      },
+                      "identifier": "Operation-0",
+                      "kind": "AMReadOperation",
+                      "many": true,
+                      "output": "AMResultPromise { Operation-0 }",
+                      "selector": Object {
+                        "postId": null,
+                      },
+                    },
+                  ],
+                }
+          `);
+  });
+
   test('required relation exceptions', () => {
     const rq = gql`
       mutation {
