@@ -1,6 +1,6 @@
 {
   "name": "@apollo-model/core",
-  "version": "0.6.0-alpha.21",
+  "version": "0.6.0-alpha.22",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
