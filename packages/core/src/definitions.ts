@@ -154,6 +154,7 @@ export type AMObjectTypeConfig = GraphQLObjectTypeConfig<any, any, any> &
 
 export type AMInterfaceType = Omit<GraphQLInterfaceType, 'getFields'> & {
   getFields(): AMFieldMap;
+  mmDiscriminatorMap: { [key: string]: string };
 };
 
 export type AMModelField = AMField & {

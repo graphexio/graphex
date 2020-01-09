@@ -2217,3 +2217,68 @@ describe('variables', () => {
     `);
   });
 });
+
+describe('nested interfaces', () => {
+  const schema = generateSchema(gql`
+    type Post @model {
+      id: ID @id @unique @db(name: "_id")
+      title: String
+      comments: [Comment]!
+      pinnedComment: Comment
+    }
+
+    interface Comment @embedded
+    type TextComment implements Comment {
+      message: String
+    }
+
+    type AttachmentComment implements Comment {
+      path: String
+    }
+  `);
+
+  test('create', () => {
+    const rq = gql`
+      mutation {
+        createPost(
+          data: {
+            title: "test-title"
+            pinnedComment: { create: { TextComment: { message: "comment-1" } } }
+          }
+        ) {
+          id
+          title
+        }
+      }
+    `;
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, {}, transaction);
+    expect(transaction).toMatchInlineSnapshot(`
+                  Object {
+                    "operations": Array [
+                      Object {
+                        "collectionName": "posts",
+                        "data": Object {
+                          "pinnedComment": Object {
+                            "_type": "textComment",
+                            "message": "comment-1",
+                          },
+                          "title": "test-title",
+                        },
+                        "fieldsSelection": Object {
+                          "fields": Array [
+                            "_id",
+                            "title",
+                          ],
+                        },
+                        "identifier": "Operation-0",
+                        "kind": "AMCreateOperation",
+                        "many": false,
+                        "output": "AMResultPromise { Operation-0 }",
+                      },
+                    ],
+                  }
+            `);
+  });
+});
