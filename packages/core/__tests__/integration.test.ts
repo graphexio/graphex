@@ -1486,6 +1486,67 @@ test('relation some', async () => {
   }
 });
 
+test('relation reconnect', async () => {
+  let postId;
+  {
+    let { errors, data } = await query({
+      query: gql`
+        mutation {
+          createPost(
+            data: {
+              title: "Post with likes"
+              body: "Post with likes"
+              likes: { connect: [{ User: { username: "admin" } }] }
+            }
+          ) {
+            id
+            likes {
+              username
+            }
+          }
+        }
+      `,
+    });
+    expect(errors).toBeUndefined();
+    postId = data.createPost.id;
+  }
+
+  {
+    let { errors, data } = await query({
+      query: gql`
+        mutation($postId: ObjectID) {
+          updatePost(
+            where: { id: $postId }
+            data: {
+              title: "123"
+              likes: { reconnect: [{ User: { username: "admin" } }] }
+            }
+          ) {
+            likes {
+              username
+            }
+          }
+        }
+      `,
+      variables: {
+        postId,
+      },
+    });
+    expect(errors).toBeUndefined();
+    expect(data).toMatchInlineSnapshot(`
+      Object {
+        "updatePost": Object {
+          "likes": Array [
+            Object {
+              "username": "admin",
+            },
+          ],
+        },
+      }
+    `);
+  }
+});
+
 beforeAll(async () => {
   let DB = await connectToDatabase();
   DB.collection('posts').createIndex({ place: '2dsphere' });

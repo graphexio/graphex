@@ -450,7 +450,9 @@ describe('abstract', () => {
       .toMatchInlineSnapshot(`
                  "input UserUpdateManyRelationInput {
                    create: [UserInterfaceCreateInput]
+                   recreate: [UserInterfaceCreateInput]
                    connect: [UserInterfaceWhereUniqueInput]
+                   reconnect: [UserInterfaceWhereUniqueInput]
                    disconnect: [UserInterfaceWhereUniqueInput]
                    delete: [UserInterfaceWhereUniqueInput]
                  }"

@@ -1026,9 +1026,7 @@ describe('relation', () => {
             "data": Object {
               "$push": Object {
                 "userIds": Object {
-                  "$each": Array [
-                    "AMResultPromise { Operation-1 -> path('insertedIds') }",
-                  ],
+                  "$each": "AMResultPromise { Operation-1 -> path('insertedIds') }",
                 },
               },
             },
