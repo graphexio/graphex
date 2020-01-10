@@ -72,6 +72,19 @@ describe('simple schema', () => {
             `);
   });
 
+  test('undefined variable', () => {
+    const rq = gql`
+      query posts($first: Int) {
+        posts(first: $first) {
+          id
+        }
+      }
+    `;
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, {}, transaction);
+  });
+
   test('single query', () => {
     const rq = gql`
       {

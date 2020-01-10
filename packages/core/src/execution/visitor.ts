@@ -69,7 +69,7 @@ export class AMVisitor {
         const type = getNamedType(typeInfo.getInputType()) as GraphQLScalarType;
 
         const lastInStack = R.last(stack);
-        const value = type.parseLiteral(node, variableValues);
+        const value = node ? type.parseLiteral(node, variableValues) : null;
         if (lastInStack instanceof AMObjectFieldContext) {
           lastInStack.setValue(value);
         } else if (lastInStack instanceof AMListValueContext) {
