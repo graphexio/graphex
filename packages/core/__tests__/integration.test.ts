@@ -1547,6 +1547,32 @@ test('relation reconnect', async () => {
   }
 });
 
+test('extRelation single', async () => {
+  let { errors, data } = await query({
+    query: gql`
+      query {
+        users(where: { username: "admin" }) {
+          lastPost {
+            title
+          }
+        }
+      }
+    `,
+  });
+  expect(errors).toBeUndefined();
+  expect(data).toMatchInlineSnapshot(`
+     Object {
+       "users": Array [
+         Object {
+           "lastPost": Object {
+             "title": "Post with likes",
+           },
+         },
+       ],
+     }
+  `);
+});
+
 beforeAll(async () => {
   let DB = await connectToDatabase();
   DB.collection('posts').createIndex({ place: '2dsphere' });

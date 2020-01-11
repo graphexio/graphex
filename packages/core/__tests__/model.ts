@@ -26,7 +26,7 @@ export default gql`
     body: String!
     category: Category @relation
     keywords: [String!]
-    owner: User! @relation
+    owner: User! @relation(storeField: "ownerUserId")
     likes: [User] @relation
     comments: [Comment!]
     poi: Poi @relation
@@ -38,6 +38,7 @@ export default gql`
 
   interface User @implements(name: "Node & Timestamp") @inherit @model {
     username: String! @unique
+    lastPost: Post @extRelation(storeField: "ownerUserId")
   }
 
   enum AdminRole {

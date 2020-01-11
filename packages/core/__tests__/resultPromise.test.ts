@@ -50,22 +50,92 @@ describe('simple', () => {
 
     return expect(distinctReplaceResultPromise).resolves.toEqual(result);
   });
+});
 
+describe('lookup', () => {
   test('lookup', () => {
+    const arr = [{ id: 'item-id' }];
+    const transaction = new AMTransaction();
+    const operation = new AMOperation(transaction, { collectionName: '' });
+    const resultPromise = new AMOperationResultPromise<any>(operation);
+    resultPromise.resolve(arr);
+
     const data = () =>
-      new AMDataResultPromise([{ _id: 'child-id', parentId: 'value' }]);
+      new AMDataResultPromise([{ _id: 'child-id', parentId: 'item-id' }]);
     const result = [
-      { test: 'value', children: [{ _id: 'child-id', parentId: 'value' }] },
+      { id: 'item-id', children: [{ _id: 'child-id', parentId: 'item-id' }] },
     ];
 
     const lookupResultPromise = resultPromise.lookup(
       'children',
-      'test',
+      'id',
       'parentId',
       data
     );
     expect(lookupResultPromise.getValueSource()).toEqual(
-      "Operation-0 -> lookup('children', 'test', 'parentId', AMResultPromise { Static Data })"
+      "Operation-0 -> lookup('children', 'id', 'parentId', AMResultPromise { Static Data }, true)"
+    );
+
+    return expect(lookupResultPromise).resolves.toEqual(result);
+  });
+
+  test('lookup single', () => {
+    const arr = [{ id: 'item-id' }];
+    const transaction = new AMTransaction();
+    const operation = new AMOperation(transaction, { collectionName: '' });
+    const resultPromise = new AMOperationResultPromise<any>(operation);
+    resultPromise.resolve(arr);
+
+    const data = () =>
+      new AMDataResultPromise([{ _id: 'child-id', parentId: 'item-id' }]);
+    const result = [
+      { id: 'item-id', children: { _id: 'child-id', parentId: 'item-id' } },
+    ];
+
+    const lookupResultPromise = resultPromise.lookup(
+      'children',
+      'id',
+      'parentId',
+      data,
+      false
+    );
+    expect(lookupResultPromise.getValueSource()).toEqual(
+      "Operation-0 -> lookup('children', 'id', 'parentId', AMResultPromise { Static Data }, false)"
+    );
+
+    return expect(lookupResultPromise).resolves.toEqual(result);
+  });
+
+  test('lookup inside nested', () => {
+    const arr = [{ id: 'item-id', nested: { id: 'nested-item-id' } }];
+    const transaction = new AMTransaction();
+    const operation = new AMOperation(transaction, { collectionName: '' });
+    const resultPromise = new AMOperationResultPromise<any>(operation);
+    resultPromise.resolve(arr);
+
+    const data = () =>
+      new AMDataResultPromise([
+        { _id: 'child-id', parentId: 'nested-item-id' },
+      ]);
+    const result = [
+      {
+        id: 'item-id',
+        nested: {
+          id: 'nested-item-id',
+          children: { _id: 'child-id', parentId: 'nested-item-id' },
+        },
+      },
+    ];
+
+    const lookupResultPromise = resultPromise.lookup(
+      'nested.children',
+      'id',
+      'parentId',
+      data,
+      false
+    );
+    expect(lookupResultPromise.getValueSource()).toEqual(
+      "Operation-0 -> lookup('nested.children', 'id', 'parentId', AMResultPromise { Static Data }, false)"
     );
 
     return expect(lookupResultPromise).resolves.toEqual(result);

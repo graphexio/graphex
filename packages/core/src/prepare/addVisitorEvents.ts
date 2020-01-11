@@ -1,4 +1,9 @@
-import { GraphQLSchema, isObjectType, isInterfaceType } from 'graphql';
+import {
+  GraphQLSchema,
+  isObjectType,
+  isInterfaceType,
+  isListType,
+} from 'graphql';
 import R from 'ramda';
 import { AMField, AMModelField } from '../definitions';
 import { AMFieldsSelectionContext } from '../execution/contexts/fieldsSelection';
@@ -83,14 +88,13 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
               );
             } else {
               lastOperation.setOutput(
-                lastOperation
-                  .getOutput()
-                  .lookup(
-                    path,
-                    field.relation.relationField,
-                    field.relation.storeField,
-                    () => relationOperation.getOutput()
-                  )
+                lastOperation.getOutput().lookup(
+                  path,
+                  field.relation.relationField,
+                  field.relation.storeField,
+                  () => relationOperation.getOutput(),
+                  isListType(field.type) //TODO: Add runtime checking for existing unique index on relation field.
+                )
               );
             }
           };

@@ -73,13 +73,15 @@ export class AMResultPromise<T> {
     path: string,
     relationField: string,
     storeField: string,
-    getData: () => AMResultPromise<any>
+    getData: () => AMResultPromise<any>,
+    many = true
   ) {
     return new AMLookupResultPromise(this, this._promise, {
       path,
       relationField,
       storeField,
       getData,
+      many,
     });
   }
 
@@ -285,25 +287,31 @@ const groupForLookup = (storeField: string) => (
 const lookup = (
   pathArr: string[],
   relationField: string,
-  dataMap: { [key: string]: any[] }
+  dataMap: { [key: string]: any[] },
+  many: boolean
 ) => (value: any) => {
   if (value instanceof Array) {
-    return value.map(lookup(pathArr, relationField, dataMap));
+    return value.map(lookup(pathArr, relationField, dataMap, many));
   } else {
     if (pathArr.length === 0) {
-      return {};
+      return null;
     } else if (pathArr.length === 1) {
+      let val = dataMap[value[relationField]] || [];
+      if (!many) {
+        val = R.head(val);
+      }
       return {
         ...value,
-        [pathArr[0]]: dataMap[value[relationField]] || [],
+        [pathArr[0]]: val,
       };
     } else {
       return {
         ...value,
-        [pathArr[0]]: replaceDistinct(
+        [pathArr[0]]: lookup(
           pathArr.slice(1),
           relationField,
-          dataMap
+          dataMap,
+          many
         )(value[pathArr[0]]),
       };
     }
@@ -316,6 +324,7 @@ export class AMLookupResultPromise<T> extends AMResultPromise<T> {
     relationField: string;
     storeField: string;
     getData: () => AMResultPromise<any>;
+    many: boolean;
   };
 
   constructor(
@@ -326,6 +335,7 @@ export class AMLookupResultPromise<T> extends AMResultPromise<T> {
       relationField: string;
       storeField: string;
       getData: () => AMResultPromise<any>;
+      many: boolean;
     }
   ) {
     super(source);
@@ -336,7 +346,12 @@ export class AMLookupResultPromise<T> extends AMResultPromise<T> {
         await params.getData().getPromise()
       );
 
-      const newValue = lookup(pathArr, params.relationField, dataMap)(value);
+      const newValue = lookup(
+        pathArr,
+        params.relationField,
+        dataMap,
+        params.many
+      )(value);
       this.resolve(newValue);
     });
     promise.catch(this.reject);
@@ -348,7 +363,7 @@ export class AMLookupResultPromise<T> extends AMResultPromise<T> {
         this._params.path
       }', '${this._params.relationField}', '${
         this._params.storeField
-      }', ${this._params.getData().toJSON()})`;
+      }', ${this._params.getData().toJSON()}, ${this._params.many})`;
     }
   }
 }

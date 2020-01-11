@@ -1117,12 +1117,23 @@ describe('extRelation', () => {
       id: ID @id @unique @db(name: "_id")
       title: String
       comments: [Comment] @extRelation
+      lastComment: Comment @extRelation
     }
 
     type Comment @model {
       id: ID @id @unique @db(name: "_id")
       post: Post @relation
       message: String
+    }
+
+    type Nested @embedded {
+      id: ID @db(name: "_id")
+      comment: Comment @extRelation(storeField: "postId", field: "_id")
+    }
+
+    type Favorites @model {
+      id: ID @id @unique @db(name: "_id")
+      nested: Nested
     }
   `);
 
@@ -1152,7 +1163,7 @@ describe('extRelation', () => {
                         "identifier": "Operation-0",
                         "kind": "AMReadOperation",
                         "many": true,
-                        "output": "AMResultPromise { Operation-0 -> lookup('comments', '_id', 'postId', AMResultPromise { Operation-1 }) }",
+                        "output": "AMResultPromise { Operation-0 -> lookup('comments', '_id', 'postId', AMResultPromise { Operation-1 }, true) }",
                       },
                       Object {
                         "collectionName": "comments",
@@ -1174,6 +1185,108 @@ describe('extRelation', () => {
                     ],
                   }
             `);
+  });
+
+  test('extRelation single', () => {
+    const rq = gql`
+      {
+        posts {
+          lastComment {
+            id
+          }
+        }
+      }
+    `;
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, {}, transaction);
+    expect(transaction).toMatchInlineSnapshot(`
+       Object {
+         "operations": Array [
+           Object {
+             "collectionName": "posts",
+             "fieldsSelection": Object {
+               "fields": Array [
+                 "_id",
+               ],
+             },
+             "identifier": "Operation-0",
+             "kind": "AMReadOperation",
+             "many": true,
+             "output": "AMResultPromise { Operation-0 -> lookup('lastComment', '_id', 'postId', AMResultPromise { Operation-1 }, false) }",
+           },
+           Object {
+             "collectionName": "comments",
+             "fieldsSelection": Object {
+               "fields": Array [
+                 "_id",
+               ],
+             },
+             "identifier": "Operation-1",
+             "kind": "AMReadOperation",
+             "many": true,
+             "output": "AMResultPromise { Operation-1 }",
+             "selector": Object {
+               "postId": Object {
+                 "$in": "AMResultPromise { Operation-0 -> distinct('_id') }",
+               },
+             },
+           },
+         ],
+       }
+            `);
+  });
+
+  test('extRelation nested single', () => {
+    const rq = gql`
+      {
+        favorites {
+          nested {
+            comment {
+              id
+            }
+          }
+        }
+      }
+    `;
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, {}, transaction);
+    expect(transaction).toMatchInlineSnapshot(`
+    Object {
+      "operations": Array [
+        Object {
+          "collectionName": "favorites",
+          "fieldsSelection": Object {
+            "fields": Array [
+              "nested._id",
+            ],
+          },
+          "identifier": "Operation-0",
+          "kind": "AMReadOperation",
+          "many": false,
+          "output": "AMResultPromise { Operation-0 -> lookup('nested.comment', '_id', 'postId', AMResultPromise { Operation-1 }, false) }",
+        },
+        Object {
+          "collectionName": "comments",
+          "fieldsSelection": Object {
+            "fields": Array [
+              "_id",
+            ],
+          },
+          "identifier": "Operation-1",
+          "kind": "AMReadOperation",
+          "many": true,
+          "output": "AMResultPromise { Operation-1 }",
+          "selector": Object {
+            "postId": Object {
+              "$in": "AMResultPromise { Operation-0 -> distinct('_id') }",
+            },
+          },
+        },
+      ],
+    }
+  `);
   });
 });
 
