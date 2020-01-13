@@ -85,6 +85,19 @@ describe('simple schema', () => {
     AMVisitor.visit(schema, rq, {}, transaction);
   });
 
+  test('undefined variable object', () => {
+    const rq = gql`
+      query posts($where: PostWhereInput) {
+        posts(where: $where) {
+          id
+        }
+      }
+    `;
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, {}, transaction);
+  });
+
   test('single query', () => {
     const rq = gql`
       {

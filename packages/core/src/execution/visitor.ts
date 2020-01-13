@@ -270,6 +270,8 @@ export class AMVisitor {
           //replace variable with astnode to visit that fields
           const type = typeInfo.getInputType();
           const newNode = astFromValue(variableValues[node.name.value], type);
+          if (!newNode) return null;
+
           if (isScalarType(getNamedType(type))) {
             scalarVisitor.enter(newNode as ValueNode);
             return null;
