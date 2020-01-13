@@ -3,6 +3,7 @@ import {
   isObjectType,
   isInterfaceType,
   isListType,
+  isNonNullType,
 } from 'graphql';
 import R from 'ramda';
 import { AMField, AMModelField } from '../definitions';
@@ -93,7 +94,8 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
                   field.relation.relationField,
                   field.relation.storeField,
                   () => relationOperation.getOutput(),
-                  isListType(field.type) //TODO: Add runtime checking for existing unique index on relation field.
+                  isListType(field.type) ||
+                    (isNonNullType(field.type) && isListType(field.type.ofType)) //TODO: Add runtime checking for existing unique index on relation field.
                 )
               );
             }
