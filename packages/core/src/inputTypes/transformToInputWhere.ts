@@ -1,11 +1,6 @@
-import TypeWrap from '@apollo-model/type-wrap';
-import { GraphQLField, isInputObjectType } from 'graphql';
-import { INPUT_TYPE_KIND } from './kinds';
+import { AMModelField, AMSchemaInfo, IAMQuerySelector } from '../definitions';
 import { Selectors } from './querySelectors';
-import * as Transforms from './transforms';
 import { TransformToInputInterface } from './transformToInputInterface';
-import { reduceTransforms } from './utils';
-import { IAMQuerySelector, AMSchemaInfo, AMModelField } from '../definitions';
 
 const isApplicable = (field: AMModelField) => (selector: IAMQuerySelector) =>
   selector.isApplicable(field);

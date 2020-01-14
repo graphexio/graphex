@@ -31,7 +31,6 @@ export const connectToDatabase = () => {
 const QE = QueryExecutor(connectToDatabase);
 
 const schema = new AMM({
-  queryExecutor: QE,
   modules: [DirectiveImplements],
 }).buildFederatedSchema({
   resolverValidationOptions: {

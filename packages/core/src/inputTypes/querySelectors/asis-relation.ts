@@ -1,20 +1,11 @@
 import TypeWrap from '@apollo-model/type-wrap';
-import {
-  getNamedType,
-  GraphQLInputType,
-  isCompositeType,
-  ASTNode,
-  ObjectFieldNode,
-} from 'graphql';
-import { IAMQuerySelector, AMVisitorStack } from '../../definitions';
-import { AMWhereTypeFactory } from '../where';
-import { AMQuerySelectorFieldFactory } from '../fieldFactories/querySelector';
-import { AMQuerySelectorComplexFieldFactory } from '../fieldFactories/querySelectorComplex';
-import { AMObjectFieldContext } from '../../execution/contexts/objectField';
+import { getNamedType, ObjectFieldNode } from 'graphql';
 import R from 'ramda';
+import { IAMQuerySelector } from '../../definitions';
+import { AMObjectFieldContext } from '../../execution/contexts/objectField';
 import { AMSelectorContext } from '../../execution/contexts/selector';
-import { AMTransaction } from '../../execution/transaction';
 import { AMReadOperation } from '../../execution/operations/readOperation';
+import { AMWhereTypeFactory } from '../where';
 
 export const AsIsRelationSelector: IAMQuerySelector = {
   isApplicable(field) {

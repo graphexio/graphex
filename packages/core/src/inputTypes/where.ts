@@ -1,20 +1,15 @@
-import { GraphQLField, GraphQLInputObjectType, GraphQLList } from 'graphql';
+import { GraphQLList } from 'graphql';
 import {
-  IAMQuerySelector,
-  AMInputObjectType,
-  IAMTypeFactory,
   AMInputFieldConfigMap,
+  AMInputObjectType,
   AMModelField,
+  IAMQuerySelector,
+  IAMTypeFactory,
 } from '../definitions';
 import { Selectors } from './querySelectors';
-import { AMSelectorContext } from '../execution/contexts/selector';
-import R from 'ramda';
-import { AMOperation } from '../execution/operation';
-import { AMListValueContext } from '../execution/contexts/listValue';
-import last from 'ramda/es/last';
 import {
-  whereTypeVisitorHandler,
   defaultObjectFieldVisitorHandler,
+  whereTypeVisitorHandler,
 } from './visitorHandlers';
 
 const isApplicable = (field: AMModelField) => (selector: IAMQuerySelector) =>

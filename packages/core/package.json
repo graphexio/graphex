@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "MONGO_URL='mongodb+srv://public:public@cluster0-c6p6b.mongodb.net/admin' MONGO_DB='db1' nodemon --exec babel-node --extensions '.ts,.js' dev-server/index.js",
     "test": "jest",
-    "prepare": "rimraf ./lib && babel --extensions '.ts,.js' ./src --out-dir ./lib"
+    "prepare": "rimraf ./lib && babel --extensions '.ts,.js' ./src --out-dir ./lib && tsc --emitDeclarationOnly"
   },
   "husky": {
     "hooks": {
@@ -45,7 +45,6 @@
     "@apollo-model/directive-inherit": "0.6.0-alpha.18",
     "@apollo/federation": "^0.9.2",
     "@babel/runtime": "^7.2.0",
-    "@types/mongodb": "^3.3.10",
     "dataloader": "^1.4.0",
     "graphql": "^14.4.2",
     "graphql-resolvers": "^0.2.2",
@@ -68,7 +67,8 @@
     "@babel/preset-env": "^7.1.0",
     "@babel/preset-typescript": "^7.6.0",
     "@types/pluralize": "^0.0.29",
-    "@types/ramda": "^0.26.25",
+    "@types/mongodb": "^3.3.10",
+    "@types/ramda": "^0.26.39",
     "apollo-server": "^2.8.1",
     "apollo-server-testing": "^2.3.3",
     "babel-jest": "^24.0.0",
@@ -81,7 +81,7 @@
     "mongodb-memory-server": "^3.1.1",
     "nodemon": "^1.18.9",
     "rimraf": "^2.6.3",
-    "typescript": "^3.6.3"
+    "typescript": "^3.7.4"
   },
   "publishConfig": {
     "access": "public"

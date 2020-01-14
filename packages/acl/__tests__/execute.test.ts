@@ -1,4 +1,9 @@
-import { execute, printSchema } from 'graphql';
+import {
+  execute as graphqlExecute,
+  printSchema,
+  GraphQLSchema,
+  DocumentNode,
+} from 'graphql';
 import gql from 'graphql-tag';
 
 import {
@@ -42,15 +47,32 @@ export const connectToDatabase = () => {
 const QE = QueryExecutor(connectToDatabase);
 
 const createSchema = typeDefs => {
-  const schema = new AMM({
-    queryExecutor: params => {
-      // console.log(params);
-      return QE(params);
-    },
-  }).makeExecutableSchema({
+  const schema = new AMM({}).makeExecutableSchema({
     typeDefs,
   });
   return schema;
+};
+
+const execute = (
+  schema: GraphQLSchema,
+  document: DocumentNode,
+  variableValues?: { [key: string]: any }
+) => {
+  return graphqlExecute(
+    schema,
+    document,
+    undefined,
+    {
+      queryExecutor: async params => {
+        // console.log(util.inspect(params, { showHidden: false, depth: null }));
+        // console.log(params);
+        let result = await QE(params);
+        // console.log('result', result);
+        return result;
+      },
+    },
+    variableValues
+  );
 };
 
 describe('accessRules', () => {
@@ -118,6 +140,7 @@ describe('accessRules', () => {
       `
     );
 
+    expect(createResult.errors).toBeUndefined();
     const createdPost = createResult.data.createPost;
 
     let readResult = await execute(
@@ -131,11 +154,9 @@ describe('accessRules', () => {
           }
         }
       `,
-      null,
-      null,
       { id: createdPost.id }
     );
-
+    expect(readResult.errors).toBeUndefined();
     const readedPost = readResult.data.post;
 
     expect(readedPost.body).toEqual(DEFAULT_BODY);
@@ -168,8 +189,6 @@ describe('accessRules', () => {
           }
         }
       `,
-      null,
-      null,
       { username: USERNAME }
     );
     const createdUser = createUserResult.data.createUser;
@@ -214,8 +233,6 @@ describe('accessRules', () => {
           }
         }
       `,
-      null,
-      null,
       { id: createdPost.id }
     );
 
@@ -282,8 +299,6 @@ describe('accessRules', () => {
           }
         }
       `,
-      null,
-      null,
       { id: createdPost.id }
     );
 
