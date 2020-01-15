@@ -4,6 +4,7 @@ import {
   GraphQLInputType,
   isCompositeType,
   ASTNode,
+  isInterfaceType,
 } from 'graphql';
 import {
   IAMQuerySelector,
@@ -17,6 +18,7 @@ import { AMObjectFieldContext } from '../../execution/contexts/objectField';
 import R from 'ramda';
 import { AMSelectorContext } from '../../execution/contexts/selector';
 import { AMTransaction } from '../../execution/transaction';
+import { AMInterfaceWhereTypeFactory } from '../interfaceWhere';
 
 export const AsIsSelector: IAMQuerySelector = {
   isApplicable(field) {
@@ -33,7 +35,14 @@ export const AsIsSelector: IAMQuerySelector = {
         if (!isCompositeType(namedType)) {
           return namedType;
         } else {
-          return schemaInfo.resolveFactoryType(namedType, AMWhereTypeFactory);
+          if (isInterfaceType(namedType)) {
+            return schemaInfo.resolveFactoryType(
+              namedType,
+              AMInterfaceWhereTypeFactory
+            );
+          } else {
+            return schemaInfo.resolveFactoryType(namedType, AMWhereTypeFactory);
+          }
           // return this._getInputType(
           //   realType,
           //   isInterface ? INPUT_TYPE_KIND.WHERE_INTERFACE : INPUT_TYPE_KIND.WHERE

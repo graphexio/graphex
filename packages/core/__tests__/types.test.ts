@@ -249,6 +249,22 @@ describe('interface', () => {
     }
   `);
 
+  test('UserWhereInput', () => {
+    expect(printType(schema.getType('UserWhereInput'))).toMatchInlineSnapshot(`
+       "input UserWhereInput {
+         AND: [UserWhereInput]
+         OR: [UserWhereInput]
+         id_exists: Boolean
+         id_in: [ID]
+         id_not_in: [ID]
+         id: ID
+         id_not: ID
+         profile_exists: Boolean
+         profile: ProfileInterfaceWhereInput
+       }"
+    `);
+  });
+
   test('UserCreateOneRelationInput', () => {
     expect(printType(schema.getType('UserCreateOneRelationInput')))
       .toMatchInlineSnapshot(`

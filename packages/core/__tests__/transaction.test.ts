@@ -1409,6 +1409,73 @@ describe('interfaces', () => {
     `);
   });
 
+  test('single query', () => {
+    const rq = gql`
+      query {
+        admin {
+          username
+        }
+      }
+    `;
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, {}, transaction);
+    expect(transaction).toMatchInlineSnapshot(`
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "users",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "username",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": false,
+            "output": "AMResultPromise { Operation-0 }",
+            "selector": Object {
+              "_type": "admin",
+            },
+          },
+        ],
+      }
+    `);
+  });
+  test('interface where', () => {
+    const rq = gql`
+      query {
+        users(where: { profile: { SubscriberProfile: { name: "test" } } }) {
+          id
+        }
+      }
+    `;
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, {}, transaction);
+    expect(transaction).toMatchInlineSnapshot(`
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "users",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": "AMResultPromise { Operation-0 }",
+            "selector": Object {
+              "profile.name": "test",
+            },
+          },
+        ],
+      }
+    `);
+  });
+
   test('update query', () => {
     const rq = gql`
       mutation {

@@ -614,6 +614,45 @@ test('CreateSubscriberWithEmbeddedDocument', async () => {
   `);
 });
 
+test('Find users by interface where', async () => {
+  let { errors, data } = await query({
+    query: gql`
+      query {
+        users(
+          where: {
+            profile: {
+              SubscriberProfile: { firstName: "Gwion", lastName: "Britt" }
+            }
+          }
+        ) {
+          ... on Subscriber {
+            username
+            profile {
+              firstName
+              lastName
+            }
+          }
+        }
+      }
+    `,
+    variables: {},
+  });
+  expect(errors).toBeUndefined();
+  expect(data).toMatchInlineSnapshot(`
+    Object {
+      "users": Array [
+        Object {
+          "profile": Object {
+            "firstName": "Gwion",
+            "lastName": "Britt",
+          },
+          "username": "subscriber1",
+        },
+      ],
+    }
+  `);
+});
+
 test('Update subscriber nested field', async () => {
   let { data, errors } = await mutate({
     mutation: gql`

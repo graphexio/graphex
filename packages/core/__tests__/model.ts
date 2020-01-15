@@ -39,6 +39,11 @@ export default gql`
   interface User @implements(name: "Node & Timestamp") @inherit @model {
     username: String! @unique
     lastPost: Post @extRelation(storeField: "ownerUserId")
+    profile: Profile
+  }
+
+  interface Profile @inherit @embedded {
+    invitedBy: User @relation
   }
 
   enum AdminRole {
@@ -48,6 +53,10 @@ export default gql`
 
   type Admin implements User {
     role: AdminRole
+    profile: AdminProfile
+  }
+  type AdminProfile implements Profile @embedded {
+    name: String
   }
 
   enum SubscriberRole {
@@ -56,7 +65,7 @@ export default gql`
     premium
   }
 
-  type SubscriberProfile @embedded {
+  type SubscriberProfile implements Profile @embedded {
     firstName: String!
     lastName: String!
   }
