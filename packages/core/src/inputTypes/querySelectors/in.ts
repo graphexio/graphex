@@ -4,6 +4,7 @@ import {
   GraphQLInputType,
   GraphQLList,
   isCompositeType,
+  isEnumType,
 } from 'graphql';
 import { IAMQuerySelector } from '../../definitions';
 import { AMWhereCleanTypeFactory } from '../whereClean';
@@ -15,6 +16,7 @@ export const InSelector: IAMQuerySelector = {
     const namedType = getNamedType(field.type);
     return (
       (isCompositeType(namedType) ||
+        isEnumType(namedType) ||
         ['ID', 'ObjectID', 'Int', 'Float', 'String'].includes(
           namedType.toString()
         )) &&

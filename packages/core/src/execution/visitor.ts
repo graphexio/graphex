@@ -250,6 +250,8 @@ export class AMVisitor {
             const lastInStack = R.last(stack);
             if (lastInStack instanceof AMObjectFieldContext) {
               lastInStack.setValue(node.value);
+            } else if (lastInStack instanceof AMListValueContext) {
+              lastInStack.addValue(node.value);
             }
           }
         },

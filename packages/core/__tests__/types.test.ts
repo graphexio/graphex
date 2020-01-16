@@ -5,7 +5,7 @@ import { applyInputTransform } from '../src/inputTypes/utils';
 import { printType } from 'graphql';
 
 const generateSchema = typeDefs => {
-  return new AMM({ queryExecutor: null }).makeExecutableSchema({
+  return new AMM({}).makeExecutableSchema({
     resolverValidationOptions: {
       requireResolversForResolveType: false,
     },

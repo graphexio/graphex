@@ -9,7 +9,6 @@ import { UserInputError } from 'apollo-server';
 const generateSchema = typeDefs => {
   return new AMM({
     modules: [DirectiveImplements],
-    queryExecutor: null,
   }).makeExecutableSchema({
     resolverValidationOptions: {
       requireResolversForResolveType: false,
@@ -21,7 +20,6 @@ const generateSchema = typeDefs => {
 const buildFederatedSchema = typeDefs => {
   return new AMM({
     modules: [DirectiveImplements],
-    queryExecutor: null,
   }).buildFederatedSchema({
     resolverValidationOptions: {
       requireResolversForResolveType: false,

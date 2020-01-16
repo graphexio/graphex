@@ -473,4 +473,43 @@ describe('relations', () => {
       }
     `);
   });
+
+  describe('enum', () => {
+    const schema = generateSchema(gql`
+      enum Role {
+        admin
+        customer
+      }
+
+      type User @model {
+        id: ID @id @unique
+        username: String
+        role: Role
+      }
+    `);
+
+    const getSelector = getSelectorFactory(schema);
+
+    test('in', () => {
+      let selector = getSelector(
+        gql`
+          {
+            users(where: { role_in: [admin] }) {
+              id
+            }
+          }
+        `
+      );
+
+      expect(selector).toMatchInlineSnapshot(`
+        Object {
+          "role": Object {
+            "$in": Array [
+              "admin",
+            ],
+          },
+        }
+      `);
+    });
+  });
 });
