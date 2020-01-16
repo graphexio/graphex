@@ -84,7 +84,7 @@ describe('accessRules', () => {
   });
 
   afterAll(async () => {
-    mongod.stop();
+    // mongod.stop();
   });
 
   it('wildcard', async () => {

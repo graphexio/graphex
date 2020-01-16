@@ -1,40 +1,54 @@
-import { GraphQLNonNull, GraphQLInt } from 'graphql';
-import pluralize from 'pluralize';
+import { GraphQLNonNull } from 'graphql';
 import R from 'ramda';
-import { AMDeleteOperation } from '../execution/operations/deleteOperation';
+import { AMUpdateOperation } from '../execution/operations/updateOperation';
+import { AMUpdateTypeFactory } from '../inputTypes/update';
 import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
 import { resolve } from '../resolve';
-import { AMField, AMModelType, IAMFieldFactory } from '../definitions';
-import { AMWhereTypeFactory } from '../inputTypes/where';
+import {
+  AMField,
+  AMModelType,
+  IAMFieldFactory,
+  IAMMethodFieldFactory,
+  GraphQLOperationType,
+} from '../definitions';
 import { AMSelectorContext } from '../execution/contexts/selector';
 
-export const AMModelDeleteManyMutationFieldFactory: IAMFieldFactory = {
+export const AMModelUpdateMutationFieldFactory: IAMMethodFieldFactory = {
+  getOperationType() {
+    return GraphQLOperationType.Mutation;
+  },
   getFieldName(modelType: AMModelType): string {
-    return R.pipe(pluralize, R.concat('delete'))(modelType.name);
+    return R.concat('update')(modelType.name);
   },
   getField(modelType: AMModelType, schemaInfo) {
     return <AMField>{
       name: this.getFieldName(modelType),
       description: '',
       isDeprecated: false,
-      type: new GraphQLNonNull(GraphQLInt),
+      type: modelType,
       args: [
+        {
+          name: 'data',
+          type: new GraphQLNonNull(
+            schemaInfo.resolveFactoryType(modelType, AMUpdateTypeFactory)
+          ),
+        },
         {
           name: 'where',
           type: new GraphQLNonNull(
-            schemaInfo.resolveFactoryType(modelType, AMWhereTypeFactory)
+            schemaInfo.resolveFactoryType(modelType, AMWhereUniqueTypeFactory)
           ),
         },
       ],
       amEnter(node, transaction, stack) {
-        const operation = new AMDeleteOperation(transaction, {
-          many: true,
+        const operation = new AMUpdateOperation(transaction, {
+          many: false,
           collectionName: modelType.mmCollectionName,
         });
         stack.push(operation);
       },
       amLeave(node, transaction, stack) {
-        const context = stack.pop() as AMDeleteOperation;
+        const context = stack.pop() as AMUpdateOperation;
         if (modelType.mmDiscriminatorField && modelType.mmDiscriminator) {
           if (!context.selector) {
             context.setSelector(new AMSelectorContext());

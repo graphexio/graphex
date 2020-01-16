@@ -225,6 +225,20 @@ export interface IAMFieldFactory {
   ): GraphQLField<any, any>;
 }
 
+export enum GraphQLOperationType {
+  Query,
+  Mutation,
+}
+
+export interface IAMMethodFieldFactory {
+  getOperationType(): GraphQLOperationType;
+  getFieldName(inputType: AMModelType): string;
+  getField(
+    inputType: AMModelType,
+    schemaInfo: AMSchemaInfo
+  ): GraphQLField<any, any>;
+}
+
 export interface IAMQuerySelector {
   isApplicable(field: AMModelField): boolean;
   getFieldFactory(): IAMInputFieldFactory;

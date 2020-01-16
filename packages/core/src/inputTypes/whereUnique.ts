@@ -11,7 +11,6 @@ import {
   AMInputObjectType,
   AMModelField,
 } from '../definitions';
-import { Selectors } from './querySelectors';
 import { AsIsSelector } from './querySelectors/asis';
 import { whereTypeVisitorHandler } from './visitorHandlers';
 

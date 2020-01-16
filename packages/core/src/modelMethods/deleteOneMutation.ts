@@ -1,15 +1,23 @@
 import { GraphQLNonNull } from 'graphql';
 import R from 'ramda';
-import { AMUpdateOperation } from '../execution/operations/updateOperation';
-import { AMUpdateTypeFactory } from '../inputTypes/update';
+import { AMDeleteOperation } from '../execution/operations/deleteOperation';
 import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
 import { resolve } from '../resolve';
-import { AMField, AMModelType, IAMFieldFactory } from '../definitions';
+import {
+  AMField,
+  AMModelType,
+  IAMFieldFactory,
+  IAMMethodFieldFactory,
+  GraphQLOperationType,
+} from '../definitions';
 import { AMSelectorContext } from '../execution/contexts/selector';
 
-export const AMModelUpdateMutationFieldFactory: IAMFieldFactory = {
+export const AMModelDeleteOneMutationFieldFactory: IAMMethodFieldFactory = {
+  getOperationType() {
+    return GraphQLOperationType.Mutation;
+  },
   getFieldName(modelType: AMModelType): string {
-    return R.concat('update')(modelType.name);
+    return R.concat('delete')(modelType.name);
   },
   getField(modelType: AMModelType, schemaInfo) {
     return <AMField>{
@@ -19,12 +27,6 @@ export const AMModelUpdateMutationFieldFactory: IAMFieldFactory = {
       type: modelType,
       args: [
         {
-          name: 'data',
-          type: new GraphQLNonNull(
-            schemaInfo.resolveFactoryType(modelType, AMUpdateTypeFactory)
-          ),
-        },
-        {
           name: 'where',
           type: new GraphQLNonNull(
             schemaInfo.resolveFactoryType(modelType, AMWhereUniqueTypeFactory)
@@ -32,14 +34,14 @@ export const AMModelUpdateMutationFieldFactory: IAMFieldFactory = {
         },
       ],
       amEnter(node, transaction, stack) {
-        const operation = new AMUpdateOperation(transaction, {
+        const operation = new AMDeleteOperation(transaction, {
           many: false,
           collectionName: modelType.mmCollectionName,
         });
         stack.push(operation);
       },
       amLeave(node, transaction, stack) {
-        const context = stack.pop() as AMUpdateOperation;
+        const context = stack.pop() as AMDeleteOperation;
         if (modelType.mmDiscriminatorField && modelType.mmDiscriminator) {
           if (!context.selector) {
             context.setSelector(new AMSelectorContext());

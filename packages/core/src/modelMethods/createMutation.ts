@@ -1,16 +1,19 @@
-import { GraphQLInt, GraphQLList, GraphQLNonNull } from 'graphql';
-import pluralize from 'pluralize';
+import { GraphQLNonNull } from 'graphql';
 import R from 'ramda';
-import { AMReadOperation } from '../execution/operations/readOperation';
-import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
-import { AMWhereTypeFactory } from '../inputTypes/where';
-import { lowercaseFirstLetter } from '../tsutils';
-import { AMField, AMModelType, IAMFieldFactory } from '../definitions';
-import { resolve } from '../resolve';
-import { AMCreateTypeFactory } from '../inputTypes/create';
+import {
+  AMField,
+  AMModelType,
+  GraphQLOperationType,
+  IAMMethodFieldFactory,
+} from '../definitions';
 import { AMCreateOperation } from '../execution/operations/createOperation';
+import { AMCreateTypeFactory } from '../inputTypes/create';
+import { resolve } from '../resolve';
 
-export const AMModelCreateMutationFieldFactory: IAMFieldFactory = {
+export const AMModelCreateMutationFieldFactory: IAMMethodFieldFactory = {
+  getOperationType() {
+    return GraphQLOperationType.Mutation;
+  },
   getFieldName(modelType: AMModelType): string {
     return R.concat('create')(modelType.name);
   },

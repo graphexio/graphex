@@ -1,6 +1,3 @@
-import { Selectors } from './inputTypes/querySelectors';
-Selectors; //Preinitialize selectors to resolve circular dependencies
-
 import TypeWrap from '@apollo-model/type-wrap';
 import {
   DirectiveNode,
@@ -17,16 +14,16 @@ import {
 import { makeExecutableSchema as makeGraphQLSchema } from 'graphql-tools';
 import _ from 'lodash';
 import appendField from './appendField';
-import { AMModelType } from './definitions';
+import { AMModelType, GraphQLOperationType } from './definitions';
 import { AMFederationEntitiesFieldFactory } from './federation/entitiesField';
 import InitialScheme from './initialScheme';
-import { AMModelCreateMutationFieldFactory } from './modelMutationFields/createMutation';
-import { AMModelDeleteManyMutationFieldFactory } from './modelMutationFields/deleteManyMutation';
-import { AMModelDeleteOneMutationFieldFactory } from './modelMutationFields/deleteOneMutation';
-import { AMModelUpdateMutationFieldFactory } from './modelMutationFields/updateMutation';
-import { AMModelConnectionQueryFieldFactory } from './modelQueryFields/connectionQuery';
-import { AMModelMultipleQueryFieldFactory } from './modelQueryFields/multipleQuery';
-import { AMModelSingleQueryFieldFactory } from './modelQueryFields/singleQuery';
+import { AMModelCreateMutationFieldFactory } from './modelMethods/createMutation';
+import { AMModelDeleteManyMutationFieldFactory } from './modelMethods/deleteManyMutation';
+import { AMModelDeleteOneMutationFieldFactory } from './modelMethods/deleteOneMutation';
+import { AMModelUpdateMutationFieldFactory } from './modelMethods/updateMutation';
+import { AMModelConnectionQueryFieldFactory } from './modelMethods/connectionQuery';
+import { AMModelMultipleQueryFieldFactory } from './modelMethods/multipleQuery';
+import { AMModelSingleQueryFieldFactory } from './modelMethods/singleQuery';
 import Modules from './modules';
 import { postInit } from './postInit';
 import { prepare } from './prepare/prepare';
@@ -201,30 +198,18 @@ export default class ModelMongo {
             AMModelMultipleQueryFieldFactory,
             AMModelSingleQueryFieldFactory,
             AMModelConnectionQueryFieldFactory,
-          ].forEach(fieldFactory => {
-            appendField(
-              schema,
-              schema.getQueryType(),
-              fieldFactory,
-              type as AMModelType
-            );
-          });
-          if (!isInterfaceType(type)) {
-            appendField(
-              schema,
-              schema.getMutationType(),
-              AMModelCreateMutationFieldFactory,
-              type as AMModelType
-            );
-          }
-          [
+            ...(!isInterfaceType(type)
+              ? [AMModelCreateMutationFieldFactory]
+              : []),
             AMModelDeleteOneMutationFieldFactory,
             AMModelDeleteManyMutationFieldFactory,
             AMModelUpdateMutationFieldFactory,
           ].forEach(fieldFactory => {
             appendField(
               schema,
-              schema.getMutationType(),
+              fieldFactory.getOperationType() === GraphQLOperationType.Query
+                ? schema.getQueryType()
+                : schema.getMutationType(),
               fieldFactory,
               type as AMModelType
             );

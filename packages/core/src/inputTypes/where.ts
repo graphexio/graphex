@@ -6,7 +6,7 @@ import {
   IAMQuerySelector,
   IAMTypeFactory,
 } from '../definitions';
-import { Selectors } from './querySelectors';
+import { getSelectors } from './querySelectors';
 import {
   defaultObjectFieldVisitorHandler,
   whereTypeVisitorHandler,
@@ -49,7 +49,9 @@ export const AMWhereTypeFactory: IAMTypeFactory<AMInputObjectType> = {
         Object.values(modelType.getFields()).forEach(field => {
           const fieldFactories = field?.mmFieldFactories?.AMCreateTypeFactory
             ? field.mmFieldFactories.AMWhereTypeFactory
-            : Selectors.filter(isApplicable(field)).map(selectorToFieldFactory);
+            : getSelectors()
+                .filter(isApplicable(field))
+                .map(selectorToFieldFactory);
 
           fieldFactories.forEach(factory => {
             const fieldName = factory.getFieldName(field);

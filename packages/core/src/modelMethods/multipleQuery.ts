@@ -3,34 +3,50 @@ import pluralize from 'pluralize';
 import R from 'ramda';
 import { AMReadOperation } from '../execution/operations/readOperation';
 import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
-import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
+import { AMWhereTypeFactory } from '../inputTypes/where';
 import { lowercaseFirstLetter } from '../tsutils';
-import { AMField, AMModelType, IAMFieldFactory } from '../definitions';
+import {
+  AMField,
+  AMModelType,
+  IAMFieldFactory,
+  IAMMethodFieldFactory,
+  GraphQLOperationType,
+} from '../definitions';
 import { resolve } from '../resolve';
+import { AMObjectFieldContext } from '../execution/contexts/objectField';
+import { AMOperation } from '../execution/operation';
+import { skipArg } from '../args/skip';
+import { firstArg } from '../args/first';
 import { AMSelectorContext } from '../execution/contexts/selector';
 
-export const AMModelSingleQueryFieldFactory: IAMFieldFactory = {
+export const AMModelMultipleQueryFieldFactory: IAMMethodFieldFactory = {
+  getOperationType() {
+    return GraphQLOperationType.Query;
+  },
   getFieldName(modelType: AMModelType): string {
-    return lowercaseFirstLetter(modelType.name);
+    return R.pipe(pluralize, lowercaseFirstLetter)(modelType.name);
   },
   getField(modelType: AMModelType, schemaInfo) {
     return <AMField>{
       name: this.getFieldName(modelType),
       description: '',
       isDeprecated: false,
-      type: modelType,
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(modelType))),
       args: [
         {
           name: 'where',
-          type: schemaInfo.resolveFactoryType(
-            modelType,
-            AMWhereUniqueTypeFactory
-          ),
+          type: schemaInfo.resolveFactoryType(modelType, AMWhereTypeFactory),
         },
+        {
+          name: 'orderBy',
+          type: schemaInfo.resolveFactoryType(modelType, AMOrderByTypeFactory),
+        },
+        skipArg,
+        firstArg,
       ],
       amEnter(node, transaction, stack) {
         const operation = new AMReadOperation(transaction, {
-          many: false,
+          many: true,
           collectionName: modelType.mmCollectionName,
         });
         stack.push(operation);

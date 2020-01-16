@@ -1,20 +1,24 @@
-import { GraphQLInt } from 'graphql';
 import pluralize from 'pluralize';
 import R from 'ramda';
-import { AMField, AMModelType, IAMFieldFactory } from '../definitions';
+import { firstArg } from '../args/first';
+import { skipArg } from '../args/skip';
+import {
+  AMField,
+  AMModelType,
+  GraphQLOperationType,
+  IAMMethodFieldFactory,
+} from '../definitions';
+import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMAggregateOperation } from '../execution/operations/aggregateOperation';
-import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
 import { AMWhereTypeFactory } from '../inputTypes/where';
 import { resolve } from '../resolve';
 import { lowercaseFirstLetter } from '../tsutils';
 import { AMConnectionTypeFactory } from '../types/connection';
-import { AMObjectFieldContext } from '../execution/contexts/objectField';
-import { AMOperation } from '../execution/operation';
-import { skipArg } from '../args/skip';
-import { firstArg } from '../args/first';
-import { AMSelectorContext } from '../execution/contexts/selector';
 
-export const AMModelConnectionQueryFieldFactory: IAMFieldFactory = {
+export const AMModelConnectionQueryFieldFactory: IAMMethodFieldFactory = {
+  getOperationType() {
+    return GraphQLOperationType.Query;
+  },
   getFieldName(modelType: AMModelType): string {
     return R.pipe(pluralize, lowercaseFirstLetter, R.concat)(modelType.name)(
       'Connection'

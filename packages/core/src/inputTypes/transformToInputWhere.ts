@@ -1,5 +1,5 @@
 import { AMModelField, AMSchemaInfo, IAMQuerySelector } from '../definitions';
-import { Selectors } from './querySelectors';
+import { getSelectors } from './querySelectors';
 import { TransformToInputInterface } from './transformToInputInterface';
 
 const isApplicable = (field: AMModelField) => (selector: IAMQuerySelector) =>
@@ -12,9 +12,9 @@ const selectorToField = (field: AMModelField, schemaInfo: AMSchemaInfo) => (
 };
 
 const transformToInputWhere: TransformToInputInterface = params => {
-  return Selectors.filter(isApplicable(params.field)).map(
-    selectorToField(params.field, params.schemaInfo)
-  );
+  return getSelectors()
+    .filter(isApplicable(params.field))
+    .map(selectorToField(params.field, params.schemaInfo));
 };
 
 export default transformToInputWhere;

@@ -18,7 +18,7 @@ import { ContainsSelector } from './contains';
 import { StartsWithSelector } from './starts_with';
 import { EndsWithSelector } from './ends_with';
 
-export const Selectors = [
+export const getSelectors = () => [
   SizeSelector,
   NotSizeSelector,
   ExistsSelector,

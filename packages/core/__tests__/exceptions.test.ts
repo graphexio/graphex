@@ -1,9 +1,7 @@
 import AMMClass from '../src';
 import gql from 'graphql-tag';
 import SDLSyntaxException from '../src/sdlSyntaxException';
-const AMM = new AMMClass({
-  queryExecutor: null,
-});
+const AMM = new AMMClass({});
 
 const makeExecutableSchema = params => {
   return AMM.makeExecutableSchema({
