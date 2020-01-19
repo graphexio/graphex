@@ -16,7 +16,7 @@ import { isInterfaceType } from 'graphql';
 import { AMInterfaceCreateTypeFactory } from './interfaceCreate';
 import { AMCreateOperation } from '../execution/operations/createOperation';
 import { UserInputError } from 'apollo-server';
-import { AMInterfaceWhereWhereUniqueTypeFactory } from './interfaceWhereUnique';
+import { AMInterfaceWhereUniqueTypeFactory } from './interfaceWhereUnique';
 
 const isApplicable = (field: AMModelField) => (
   fieldFactory: IAMInputFieldFactory
@@ -35,7 +35,7 @@ export const AMCreateOneRequiredRelationTypeFactory: IAMTypeFactory<AMInputObjec
 
     const whereTypeFactory = !isInterfaceType(modelType)
       ? AMWhereUniqueTypeFactory
-      : AMInterfaceWhereWhereUniqueTypeFactory;
+      : AMInterfaceWhereUniqueTypeFactory;
 
     return new AMInputObjectType({
       name: this.getTypeName(modelType),

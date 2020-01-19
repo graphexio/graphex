@@ -18,7 +18,7 @@ import { AMDataContext } from '../execution/contexts/data';
 import { AMListValueContext } from '../execution/contexts/listValue';
 import { toArray } from '../tsutils';
 import { AMWhereTypeFactory } from './where';
-import { AMInterfaceWhereWhereUniqueTypeFactory } from './interfaceWhereUnique';
+import { AMInterfaceWhereUniqueTypeFactory } from './interfaceWhereUnique';
 
 const isApplicable = (field: AMModelField) => (
   fieldFactory: IAMInputFieldFactory
@@ -37,7 +37,7 @@ export const AMCreateManyRelationTypeFactory: IAMTypeFactory<GraphQLInputObjectT
 
     const whereTypeFactory = !isInterfaceType(modelType)
       ? AMWhereUniqueTypeFactory
-      : AMInterfaceWhereWhereUniqueTypeFactory;
+      : AMInterfaceWhereUniqueTypeFactory;
 
     return new GraphQLInputObjectType({
       name: this.getTypeName(modelType),

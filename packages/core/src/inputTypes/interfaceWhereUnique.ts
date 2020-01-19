@@ -12,7 +12,7 @@ import { AMReadOperation } from '../execution/operations/readOperation';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMListValueContext } from '../execution/contexts/listValue';
 
-export const AMInterfaceWhereWhereUniqueTypeFactory: IAMTypeFactory<GraphQLInputObjectType> = {
+export const AMInterfaceWhereUniqueTypeFactory: IAMTypeFactory<GraphQLInputObjectType> = {
   getTypeName(modelType): string {
     return `${modelType.name}InterfaceWhereUniqueInput`;
   },

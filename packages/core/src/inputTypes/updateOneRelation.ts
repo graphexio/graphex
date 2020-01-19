@@ -15,7 +15,7 @@ import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { isInterfaceType } from 'graphql';
 import { AMInterfaceCreateTypeFactory } from './interfaceCreate';
 import { AMCreateOperation } from '../execution/operations/createOperation';
-import { AMInterfaceWhereWhereUniqueTypeFactory } from './interfaceWhereUnique';
+import { AMInterfaceWhereUniqueTypeFactory } from './interfaceWhereUnique';
 
 const isApplicable = (field: AMModelField) => (
   fieldFactory: IAMInputFieldFactory
@@ -33,7 +33,7 @@ export const AMUpdateOneRelationTypeFactory: IAMTypeFactory<AMInputObjectType> =
 
     const whereTypeFactory = !isInterfaceType(modelType)
       ? AMWhereUniqueTypeFactory
-      : AMInterfaceWhereWhereUniqueTypeFactory;
+      : AMInterfaceWhereUniqueTypeFactory;
 
     return new AMInputObjectType({
       name: this.getTypeName(modelType),

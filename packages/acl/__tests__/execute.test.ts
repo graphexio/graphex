@@ -303,7 +303,7 @@ describe('accessRules', () => {
     );
 
     const readedPost = readResult.data.post;
-
+    expect(readResult.errors).toBeUndefined();
     expect(readedPost.meta).toBeTruthy();
     expect(readedPost.meta.slug).toEqual(SLUG);
   });

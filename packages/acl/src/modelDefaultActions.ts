@@ -16,6 +16,7 @@ import {
 import { isInterfaceType } from 'graphql';
 
 import R from 'ramda';
+import { matchingTypes, extractAbstractTypes } from './utils';
 
 function transformAccessToMethodFactories(
   access: string
@@ -46,7 +47,7 @@ const methodFactoryToRegExp = R.curry(
   }
 );
 
-export const modelDefaultActions = (modelName, access) => {
+export const modelDefaultActions = (modelPattern, access) => {
   const typeToRegExp = (type: GraphQLNamedType) =>
     R.pipe(
       R.split(''),
@@ -56,17 +57,12 @@ export const modelDefaultActions = (modelName, access) => {
     )(access);
 
   return ({ type, field, schema }) => {
-    let modelType = schema.getTypeMap()[modelName];
-    if (!modelType) {
-      return false;
-    }
-    let possibleTypes = [modelType];
-    if (isInterfaceType(modelType)) {
-      possibleTypes = [...possibleTypes, ...schema.getPossibleTypes(modelType)];
-    }
+    let possibleTypes = R.pipe(
+      matchingTypes(schema),
+      extractAbstractTypes(schema)
+    )(new RegExp(modelPattern));
 
     const enableFields = R.chain(typeToRegExp, possibleTypes);
-
     return R.anyPass(enableFields)(`${type.name}.${field.name}`);
   };
 };

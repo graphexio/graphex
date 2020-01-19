@@ -14,7 +14,7 @@ export const applyRules = (
       return allow && !deny;
     },
     (type, field) => {
-      let defaultFn = defaults.find(item => item.cond({ type, field }));
+      let defaultFn = defaults.find(item => item.cond({ type, field, schema }));
       if (!defaultFn) {
         return undefined;
       }

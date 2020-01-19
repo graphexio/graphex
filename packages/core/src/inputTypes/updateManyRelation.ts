@@ -23,7 +23,7 @@ import {
   getOperationData,
 } from '../execution/utils';
 import { toArray } from '../tsutils';
-import { AMInterfaceWhereWhereUniqueTypeFactory } from './interfaceWhereUnique';
+import { AMInterfaceWhereUniqueTypeFactory } from './interfaceWhereUnique';
 import { AMDeleteDBRefOperation } from '../execution/operations/deleteDbRefOperation';
 import { AMResultPromise } from '../execution/resultPromise';
 import { DBRef } from 'mongodb';
@@ -44,7 +44,7 @@ export const AMUpdateManyRelationTypeFactory: IAMTypeFactory<AMInputObjectType> 
 
     const whereTypeFactory = !isInterfaceType(modelType)
       ? AMWhereUniqueTypeFactory
-      : AMInterfaceWhereWhereUniqueTypeFactory;
+      : AMInterfaceWhereUniqueTypeFactory;
 
     const typeName = this.getTypeName(modelType);
 

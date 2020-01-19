@@ -1,56 +1,111 @@
 import R from 'ramda';
-import { INPUT_TYPE_KIND } from '@apollo-model/core/lib/inputTypes/kinds.js';
-import { getInputTypeName } from '@apollo-model/core/lib/inputTypes/';
 
-const transformAccessToInputKinds = access => {
+import {
+  GraphQLInputObjectType,
+  GraphQLSchema,
+  GraphQLNamedType,
+  GraphQLField,
+} from 'graphql';
+
+import { AMCreateTypeFactory } from '@apollo-model/core/lib/inputTypes/create';
+import { AMCreateManyNestedTypeFactory } from '@apollo-model/core/lib/inputTypes/createManyNested';
+import { AMCreateManyRelationTypeFactory } from '@apollo-model/core/lib/inputTypes/createManyRelation';
+import { AMCreateOneNestedTypeFactory } from '@apollo-model/core/lib/inputTypes/createOneNested';
+import { AMCreateOneRelationTypeFactory } from '@apollo-model/core/lib/inputTypes/createOneRelation';
+import { AMCreateOneRequiredRelationTypeFactory } from '@apollo-model/core/lib/inputTypes/createOneRequiredRelation';
+import { AMInterfaceCreateTypeFactory } from '@apollo-model/core/lib/inputTypes/interfaceCreate';
+import { AMInterfaceWhereTypeFactory } from '@apollo-model/core/lib/inputTypes/interfaceWhere';
+import { AMInterfaceWhereUniqueTypeFactory } from '@apollo-model/core/lib/inputTypes/interfaceWhereUnique';
+import { AMOrderByTypeFactory } from '@apollo-model/core/lib/inputTypes/orderBy';
+import { AMUpdateTypeFactory } from '@apollo-model/core/lib/inputTypes/update';
+import { AMUpdateManyNestedTypeFactory } from '@apollo-model/core/lib/inputTypes/updateManyNested';
+import { AMUpdateManyRelationTypeFactory } from '@apollo-model/core/lib/inputTypes/updateManyRelation';
+import { AMUpdateOneNestedTypeFactory } from '@apollo-model/core/lib/inputTypes/updateOneNested';
+import { AMUpdateOneRelationTypeFactory } from '@apollo-model/core/lib/inputTypes/updateOneRelation';
+import { AMUpdateWithWhereNestedTypeFactory } from '@apollo-model/core/lib/inputTypes/updateWithWhereNested';
+import { AMWhereTypeFactory } from '@apollo-model/core/lib/inputTypes/where';
+import { AMWhereCleanTypeFactory } from '@apollo-model/core/lib/inputTypes/whereClean';
+import { AMWhereUniqueTypeFactory } from '@apollo-model/core/lib/inputTypes/whereUnique';
+import {
+  AMModelType,
+  IAMTypeFactory,
+} from '@apollo-model/core/lib/definitions';
+import { matchingTypes, extractAbstractTypes } from './utils';
+
+function transformAccessToInputTypeFactories(
+  access: string
+): IAMTypeFactory<GraphQLInputObjectType>[] {
   return {
     R: [
       null, //base type
-      INPUT_TYPE_KIND.WHERE,
-      INPUT_TYPE_KIND.WHERE_UNIQUE,
-      INPUT_TYPE_KIND.ORDER_BY,
-      INPUT_TYPE_KIND.WHERE_INTERFACE,
-      INPUT_TYPE_KIND.WHERE_UNIQUE_INTERFACE,
+      AMInterfaceWhereTypeFactory,
+      AMInterfaceWhereUniqueTypeFactory,
+      AMOrderByTypeFactory,
+      AMWhereTypeFactory,
+      AMWhereCleanTypeFactory,
+      AMWhereUniqueTypeFactory,
     ],
     C: [
-      INPUT_TYPE_KIND.CREATE,
-      INPUT_TYPE_KIND.CREATE_INTERFACE,
-      INPUT_TYPE_KIND.CREATE_ONE_NESTED,
-      INPUT_TYPE_KIND.CREATE_MANY_NESTED,
-      INPUT_TYPE_KIND.CREATE_ONE_REQUIRED_NESTED,
-      INPUT_TYPE_KIND.CREATE_MANY_REQUIRED_NESTED,
+      AMCreateTypeFactory,
+      AMInterfaceCreateTypeFactory,
+      AMCreateOneRelationTypeFactory,
+      AMCreateManyRelationTypeFactory,
+      AMCreateOneNestedTypeFactory,
+      AMCreateManyNestedTypeFactory,
+      AMCreateTypeFactory,
+      AMCreateOneRequiredRelationTypeFactory,
     ],
-
     U: [
-      INPUT_TYPE_KIND.UPDATE,
-      INPUT_TYPE_KIND.UPDATE_INTERFACE,
-      INPUT_TYPE_KIND.UPDATE_ONE_NESTED,
-      INPUT_TYPE_KIND.UPDATE_MANY_NESTED,
-      INPUT_TYPE_KIND.UPDATE_ONE_REQUIRED_NESTED,
-      INPUT_TYPE_KIND.UPDATE_MANY_REQUIRED_NESTED,
-      INPUT_TYPE_KIND.UPDATE_WITH_WHERE_NESTED,
+      AMUpdateWithWhereNestedTypeFactory,
+      AMUpdateOneRelationTypeFactory,
+      AMUpdateManyRelationTypeFactory,
+      AMUpdateOneNestedTypeFactory,
+      AMUpdateManyNestedTypeFactory,
+      AMUpdateTypeFactory,
     ],
   }[access];
-};
+}
 
-const kindToInputRegExp = R.curry((modelName, fieldName, inputKind) => {
-  let inputName = inputKind
-    ? getInputTypeName(inputKind, modelName)
-    : modelName;
-  return new RegExp(
-    `^(?!Query|Mutation|Subscription)${inputName}\\.${fieldName}$`
-  );
-});
+const inputTypeFactoryToInputRegExp = R.curry(
+  (
+    modelType: AMModelType,
+    fieldName,
+    inputTypeFactory: IAMTypeFactory<GraphQLInputObjectType>
+  ) => {
+    let inputName = inputTypeFactory
+      ? inputTypeFactory.getTypeName(modelType)
+      : modelType.name;
+    return new RegExp(
+      `^(?!Query|Mutation|Subscription)${inputName}\\.${fieldName}$`
+    );
+  }
+);
 
-export const modelField = (modelName, fieldName, access) => {
-  let enableFields = R.pipe(
-    R.split(''),
-    R.chain(transformAccessToInputKinds),
-    R.map(kindToInputRegExp(modelName, fieldName)),
-    R.map(R.test)
-  )(access);
+export const modelField = (typePattern, fieldName, access) => {
+  const typeToRegExp = type =>
+    R.pipe(
+      R.split(''),
+      R.chain(transformAccessToInputTypeFactories),
+      R.map(inputTypeFactoryToInputRegExp(type, fieldName)),
+      R.map(R.test)
+    )(access);
 
-  return ({ type, field }) => {
+  return ({
+    type,
+    field,
+    schema,
+  }: {
+    type: GraphQLNamedType;
+    field: GraphQLField<any, any, any>;
+    schema: GraphQLSchema;
+  }) => {
+    let possibleTypes = R.pipe(
+      matchingTypes(schema),
+      extractAbstractTypes(schema)
+    )(new RegExp(typePattern));
+
+    const enableFields = R.chain(typeToRegExp, possibleTypes);
+
     let title = `${type.name}.${field.name}`;
     return R.anyPass(enableFields)(title);
   };
