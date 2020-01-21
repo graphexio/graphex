@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "MONGO_URL='mongodb+srv://public:public@cluster0-c6p6b.mongodb.net/admin' MONGO_DB='db1' nodemon --exec babel-node --extensions '.ts,.js' dev-server/index.js",
     "test": "jest",
-    "prepare": "rimraf ./lib && babel --extensions '.ts,.js' ./src --out-dir ./lib && tsc --emitDeclarationOnly"
+    "prepare": "rimraf ./lib && tsc"
   },
   "husky": {
     "hooks": {

@@ -1,7 +1,7 @@
 import TypeWrap from '@apollo-model/type-wrap';
 import { DirectiveNode, GraphQLUnionType } from 'graphql';
 import { AMModelType, AMObjectType, IAMTypeFactory } from '../definitions';
-import { getDirective } from '../tsutils';
+import { getDirective } from '../utils';
 
 function generateKeyDirective(fields) {
   return <DirectiveNode>{

@@ -12,7 +12,7 @@ import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMAggregateOperation } from '../execution/operations/aggregateOperation';
 import { AMWhereTypeFactory } from '../inputTypes/where';
 import { resolve } from '../resolve';
-import { lowercaseFirstLetter } from '../tsutils';
+import { lowercaseFirstLetter } from '../utils';
 import { AMConnectionTypeFactory } from '../types/connection';
 
 export const AMModelConnectionQueryFieldFactory: IAMMethodFieldFactory = {

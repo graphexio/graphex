@@ -5,7 +5,7 @@ import {
   isInputObjectType,
   isInterfaceType,
 } from 'graphql';
-import { getDirectiveAST } from '../tsutils';
+import { getDirectiveAST } from '../utils';
 import { AMModelField, AMModelType } from '../definitions';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 

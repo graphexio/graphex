@@ -2,6 +2,7 @@ import gql from 'graphql-tag';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
 import { getDirective } from '../../utils';
 import SDLSyntaxException from '../../sdlSyntaxException';
+import { isObjectType, GraphQLObjectType } from 'graphql';
 
 export const SHOULD_BE_MODEL = 'shouldBeModel';
 export const ABSTRACT_WITH_MODEL = 'abstractWithModel';
@@ -13,13 +14,14 @@ export const typeDef = gql`
 
 class Abstract extends SchemaDirectiveVisitor {
   visitInterface(iface) {
-    const { _typeMap: SchemaTypes } = this.schema;
     iface.mmAbstract = true;
     iface.mmAbstractTypes = [];
 
-    Object.values(SchemaTypes)
-      .filter(type => type._interfaces && type._interfaces.includes(iface))
-      .forEach(type => {
+    Object.values(this.schema.getTypeMap())
+      .filter(
+        type => isObjectType(type) && type.getInterfaces().includes(iface)
+      )
+      .forEach((type: GraphQLObjectType) => {
         iface.mmAbstractTypes.push(type);
         // iface._addFromInterfaces(type);
 
@@ -34,7 +36,8 @@ class Abstract extends SchemaDirectiveVisitor {
           );
         }
 
-        type._interfaces
+        type
+          .getInterfaces()
           .filter(i => i != iface)
           .forEach(i => {
             if (getDirective(i, 'model')) {

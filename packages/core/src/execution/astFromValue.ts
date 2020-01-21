@@ -66,7 +66,7 @@ export function astFromValue(value, type) {
     const itemType = type.ofType;
     if (isCollection(value)) {
       const valuesNodes = [];
-      forEach(value, item => {
+      forEach(value as Iterable<any>, item => {
         const itemNode = astFromValue(item, itemType);
         if (itemNode) {
           valuesNodes.push(itemNode);

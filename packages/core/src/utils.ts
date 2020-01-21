@@ -1,8 +1,13 @@
+import pluralize from 'pluralize';
 import { AMModelField } from './definitions';
 import { DirectiveNode, GraphQLDirective, valueFromAST } from 'graphql';
 
 export function lowercaseFirstLetter(string: string) {
   return string.charAt(0).toLowerCase() + string.slice(1);
+}
+
+export function uppercaseFirstLetter(string: string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 export function getDirectiveAST(field: AMModelField, name: string) {
@@ -52,4 +57,28 @@ export function getDirective(field, name) {
     );
   }
   return undefined;
+}
+
+export function getDirectiveArg(directive, name, defaultValue) {
+  let arg = directive.arguments.find(argument => argument.name.value === name);
+  if (arg) return arg.value.value;
+  else {
+    return defaultValue;
+  }
+}
+
+function camelize(str) {
+  return str
+    .replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index) {
+      return index === 0 ? letter.toLowerCase() : letter.toUpperCase();
+    })
+    .replace(/\s+/g, '');
+}
+
+export function getRelationFieldName(collection, field, many = false) {
+  field = field.replace('_', '');
+  if (many) {
+    field = pluralize(field);
+  }
+  return camelize(`${collection} ${field}`);
 }

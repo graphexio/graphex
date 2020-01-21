@@ -4,7 +4,7 @@ import {
   getNamedType,
   isInterfaceType,
 } from 'graphql';
-import { getDirectiveAST } from '../tsutils';
+import { getDirectiveAST } from '../utils';
 import { AMModelField, AMModelType } from '../definitions';
 
 export const fieldFactories = (

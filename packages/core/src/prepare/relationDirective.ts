@@ -5,9 +5,9 @@ import {
   isInterfaceType,
 } from 'graphql';
 import { AMModelField, AMModelType } from '../definitions';
-import { getDirectiveAST, getArgValueFromDirectiveAST } from '../tsutils';
+import { getDirectiveAST, getArgValueFromDirectiveAST } from '../utils';
 import TypeWrap from '@apollo-model/type-wrap';
-import { allQueryArgs, getDirective, getRelationFieldName } from '../utils';
+import { getRelationFieldName } from '../utils';
 
 export const relationDirective = (schema: GraphQLSchema) => {
   Object.values(schema.getTypeMap()).forEach(type => {

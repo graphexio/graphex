@@ -1,18 +1,6 @@
-import { SchemaDirectiveVisitor } from 'graphql-tools';
 import gql from 'graphql-tag';
-
-import * as HANDLER from '../../inputTypes/handlers';
-import { INPUT_TYPE_KIND } from '../../inputTypes/kinds';
-import * as Transforms from '../../inputTypes/transforms';
-import {
-  appendTransform,
-  applyInputTransform,
-  reduceTransforms,
-} from '../../inputTypes/utils';
-import { AMModelField, AMModelType } from '../../definitions';
-import { getNamedType } from 'graphql';
-import TypeWrap from '@apollo-model/type-wrap';
-import { allQueryArgs, getDirective, getRelationFieldName } from '../../utils';
+import { SchemaDirectiveVisitor } from 'graphql-tools';
+import { AMModelField } from '../../definitions';
 
 export const typeDef = gql`
   directive @relation(

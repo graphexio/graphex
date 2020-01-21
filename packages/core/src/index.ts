@@ -27,7 +27,7 @@ import { AMModelSingleQueryFieldFactory } from './modelMethods/singleQuery';
 import Modules from './modules';
 import { postInit } from './postInit';
 import { prepare } from './prepare/prepare';
-import { getDirective, getLastType } from './utils';
+import { getDirective } from './utils';
 
 const { printSchema } = require('@apollo/federation');
 

@@ -4,7 +4,7 @@ import R from 'ramda';
 import { AMReadOperation } from '../execution/operations/readOperation';
 import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
 import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
-import { lowercaseFirstLetter } from '../tsutils';
+import { lowercaseFirstLetter } from '../utils';
 import {
   AMField,
   AMModelType,

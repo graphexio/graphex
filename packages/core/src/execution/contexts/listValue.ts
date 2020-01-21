@@ -1,6 +1,6 @@
 import { AMContext } from '../context';
 import { AMObjectFieldValueType } from '../../definitions';
-import { toArray } from '../../tsutils';
+import { toArray } from '../../utils';
 
 export class AMListValueContext extends AMContext {
   values: AMObjectFieldValueType[] = [];

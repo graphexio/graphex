@@ -4,6 +4,8 @@ import pluralize from 'pluralize';
 
 import SDLSyntaxException from '../../sdlSyntaxException';
 import { getDirective, lowercaseFirstLetter } from '../../utils';
+import { isObjectType } from 'graphql';
+import { AMModelType, AMObjectType } from '../../definitions';
 
 export const MULTIPLE_MODEL = 'multipleModel';
 export const MODEL_WITH_EMBEDDED = 'modelWithEmbedded';
@@ -44,15 +46,16 @@ class Model extends SchemaDirectiveVisitor {
     iface.mmCollectionName =
       collection || lowercaseFirstLetter(pluralize(iface.name));
 
-    const { _typeMap: SchemaTypes } = this.schema;
-
-    Object.values(SchemaTypes)
-      .filter(type => type._interfaces && type._interfaces.includes(iface))
-      .forEach(type => {
+    Object.values(this.schema.getTypeMap())
+      .filter(
+        type => isObjectType(type) && type.getInterfaces().includes(iface)
+      )
+      .forEach((type: AMModelType & AMObjectType) => {
         type.mmCollectionName = iface.mmCollectionName;
 
         //validate usage
-        type._interfaces
+        type
+          .getInterfaces()
           .filter(i => i != iface)
           .forEach(i => {
             if (getDirective(i, 'model')) {
@@ -78,9 +81,11 @@ class Model extends SchemaDirectiveVisitor {
     }
 
     iface.mmDiscriminatorMap = iface.mmDiscriminatorMap || {};
-    Object.values(SchemaTypes)
-      .filter(type => type._interfaces && type._interfaces.includes(iface))
-      .forEach(type => {
+    Object.values(this.schema.getTypeMap())
+      .filter(
+        type => isObjectType(type) && type.getInterfaces().includes(iface)
+      )
+      .forEach((type: AMModelType & AMObjectType) => {
         if (!type.mmDiscriminator) {
           type.mmDiscriminator = lowercaseFirstLetter(type.name);
           type.mmDiscriminatorField = iface.mmDiscriminatorField;

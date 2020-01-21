@@ -3,7 +3,7 @@ import * as Model from './directives/model';
 import * as Discriminator from './directives/discriminator';
 import * as CreatedAt from './directives/createdAt';
 import * as UpdatedAt from './directives/updatedAt';
-import * as Default from './directives/default';
+// import * as Default from './directives/default';
 import * as Abstract from './directives/abstract';
 import * as DB from './directives/db';
 import * as Relation from './directives/relation';
@@ -24,7 +24,7 @@ export default [
   Discriminator,
   CreatedAt,
   UpdatedAt,
-  Default,
+  // Default,
   Abstract,
   DB,
   Relation,

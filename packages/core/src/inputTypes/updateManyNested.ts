@@ -25,7 +25,7 @@ import {
 } from '../execution/utils';
 import { defaultObjectFieldVisitorHandler } from './visitorHandlers';
 import { AMContext } from '../execution/context';
-import { toArray } from '../tsutils';
+import { toArray } from '../utils';
 import { AMInterfaceCreateTypeFactory } from './interfaceCreate';
 
 const isApplicable = (field: AMModelField) => (

@@ -16,7 +16,7 @@ import { AMInterfaceCreateTypeFactory } from './interfaceCreate';
 import { AMCreateOperation } from '../execution/operations/createOperation';
 import { AMDataContext } from '../execution/contexts/data';
 import { AMListValueContext } from '../execution/contexts/listValue';
-import { toArray } from '../tsutils';
+import { toArray } from '../utils';
 import { AMWhereTypeFactory } from './where';
 import { AMInterfaceWhereUniqueTypeFactory } from './interfaceWhereUnique';
 

@@ -22,7 +22,7 @@ import {
   getFieldPath,
   getOperationData,
 } from '../execution/utils';
-import { toArray } from '../tsutils';
+import { toArray } from '../utils';
 import { AMInterfaceWhereUniqueTypeFactory } from './interfaceWhereUnique';
 import { AMDeleteDBRefOperation } from '../execution/operations/deleteDbRefOperation';
 import { AMResultPromise } from '../execution/resultPromise';

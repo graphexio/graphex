@@ -1,5 +1,5 @@
 import { GraphQLSchema, isObjectType, isInterfaceType } from 'graphql';
-import { getDirectiveAST } from '../tsutils';
+import { getDirectiveAST } from '../utils';
 import { AMModelField, AMModelType } from '../definitions';
 
 export const embeddedDirective = (schema: GraphQLSchema) => {

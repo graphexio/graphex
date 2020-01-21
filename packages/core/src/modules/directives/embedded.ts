@@ -2,6 +2,8 @@ import gql from 'graphql-tag';
 import _ from 'lodash';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
 import { lowercaseFirstLetter } from '../../utils';
+import { isObjectType } from 'graphql';
+import { AMModelType } from '../../definitions';
 
 export const typeDef = gql`
   directive @embedded on OBJECT | INTERFACE
@@ -12,7 +14,6 @@ class EmbeddedDirective extends SchemaDirectiveVisitor {
     object.mmEmbedded = true;
   }
   visitInterface(iface) {
-    const { _typeMap: SchemaTypes } = this.schema;
     iface.mmEmbedded = true;
 
     //Set discriminator
@@ -20,9 +21,11 @@ class EmbeddedDirective extends SchemaDirectiveVisitor {
       iface.mmDiscriminatorField = '_type';
     }
 
-    Object.values(SchemaTypes)
-      .filter(type => type._interfaces && type._interfaces.includes(iface))
-      .forEach(type => {
+    Object.values(this.schema.getTypeMap())
+      .filter(
+        type => isObjectType(type) && type.getInterfaces().includes(iface)
+      )
+      .forEach((type: AMModelType) => {
         if (!type.mmDiscriminator) {
           type.mmDiscriminator = lowercaseFirstLetter(type.name);
         }
