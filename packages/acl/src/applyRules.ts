@@ -4,7 +4,12 @@ const { transformSchema } = require('graphql-tools');
 
 export const applyRules = (
   schema,
-  { allow: allowRules = [], deny: denyRules = [], defaults = [] }
+  {
+    allow: allowRules = [],
+    deny: denyRules = [],
+    defaults = [],
+    argsDefaults = [],
+  }
 ) => {
   let filterFields = SchemaFilter(
     (type, field) => {
@@ -15,6 +20,15 @@ export const applyRules = (
     },
     (type, field) => {
       let defaultFn = defaults.find(item => item.cond({ type, field, schema }));
+      if (!defaultFn) {
+        return undefined;
+      }
+      return defaultFn.fn;
+    },
+    (type, field) => {
+      let defaultFn = argsDefaults.find(item =>
+        item.cond({ type, field, schema })
+      );
       if (!defaultFn) {
         return undefined;
       }

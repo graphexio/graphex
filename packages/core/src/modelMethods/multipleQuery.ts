@@ -4,6 +4,7 @@ import R from 'ramda';
 import { AMReadOperation } from '../execution/operations/readOperation';
 import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
 import { AMWhereTypeFactory } from '../inputTypes/where';
+import { AMWhereACLTypeFactory } from '../inputTypes/whereACL';
 import { lowercaseFirstLetter } from '../utils';
 import {
   AMField,
@@ -43,6 +44,17 @@ export const AMModelMultipleQueryFieldFactory: IAMMethodFieldFactory = {
         },
         skipArg,
         firstArg,
+        ...(schemaInfo.options.aclWhere
+          ? [
+              {
+                name: 'aclWhere',
+                type: schemaInfo.resolveFactoryType(
+                  modelType,
+                  AMWhereACLTypeFactory
+                ),
+              },
+            ]
+          : []),
       ],
       amEnter(node, transaction, stack) {
         const operation = new AMReadOperation(transaction, {

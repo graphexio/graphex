@@ -12,6 +12,7 @@ import {
   IAMMethodFieldFactory,
 } from '../definitions';
 import { AMWhereTypeFactory } from '../inputTypes/where';
+import { AMWhereACLTypeFactory } from '../inputTypes/whereACL';
 import { AMSelectorContext } from '../execution/contexts/selector';
 
 export const AMModelDeleteManyMutationFieldFactory: IAMMethodFieldFactory = {
@@ -34,6 +35,17 @@ export const AMModelDeleteManyMutationFieldFactory: IAMMethodFieldFactory = {
             schemaInfo.resolveFactoryType(modelType, AMWhereTypeFactory)
           ),
         },
+        ...(schemaInfo.options.aclWhere
+          ? [
+              {
+                name: 'aclWhere',
+                type: schemaInfo.resolveFactoryType(
+                  modelType,
+                  AMWhereACLTypeFactory
+                ),
+              },
+            ]
+          : []),
       ],
       amEnter(node, transaction, stack) {
         const operation = new AMDeleteOperation(transaction, {

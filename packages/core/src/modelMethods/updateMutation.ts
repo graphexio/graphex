@@ -3,6 +3,7 @@ import R from 'ramda';
 import { AMUpdateOperation } from '../execution/operations/updateOperation';
 import { AMUpdateTypeFactory } from '../inputTypes/update';
 import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
+import { AMWhereACLTypeFactory } from '../inputTypes/whereACL';
 import { resolve } from '../resolve';
 import {
   AMField,
@@ -12,6 +13,7 @@ import {
   GraphQLOperationType,
 } from '../definitions';
 import { AMSelectorContext } from '../execution/contexts/selector';
+import { AMWhereTypeFactory } from '../inputTypes/where';
 
 export const AMModelUpdateMutationFieldFactory: IAMMethodFieldFactory = {
   getOperationType() {
@@ -39,6 +41,17 @@ export const AMModelUpdateMutationFieldFactory: IAMMethodFieldFactory = {
             schemaInfo.resolveFactoryType(modelType, AMWhereUniqueTypeFactory)
           ),
         },
+        ...(schemaInfo.options.aclWhere
+          ? [
+              {
+                name: 'aclWhere',
+                type: schemaInfo.resolveFactoryType(
+                  modelType,
+                  AMWhereACLTypeFactory
+                ),
+              },
+            ]
+          : []),
       ],
       amEnter(node, transaction, stack) {
         const operation = new AMUpdateOperation(transaction, {

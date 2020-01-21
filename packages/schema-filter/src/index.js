@@ -31,6 +31,8 @@ import {
   GraphQLBoolean,
   GraphQLID,
   GraphQLSchema,
+  isObjectType,
+  isInputObjectType,
 } from 'graphql';
 
 import {
@@ -51,8 +53,6 @@ import TypeWrap from '@apollo-model/type-wrap';
 import DefaultFields from './defaultFields';
 
 import R from 'ramda';
-
-// console.log({ Kind });
 
 const capitalizeFirstLetter = string => {
   return string.charAt(0).toUpperCase() + string.slice(1);
@@ -101,7 +101,7 @@ const resolveType = createResolveType((typeName, type) => {
   return type;
 });
 
-export default (filterFields, defaultFields) => {
+export default (filterFields, defaultFields, defaultArgs) => {
   let typeMap = {};
   const getType = typeName => typeMap[typeName];
 
@@ -139,7 +139,8 @@ export default (filterFields, defaultFields) => {
           leave: node => {
             let name = getNameValue(node);
             if (name == '__typename') return;
-            typeStack.pop();
+            const type = typeStack.pop();
+            return defaults.applyDefaultArgs(node)(R.last(typeStack), type);
           },
         },
         [Kind.INLINE_FRAGMENT]: {
@@ -349,7 +350,7 @@ export default (filterFields, defaultFields) => {
 
       Object.values(schema.getTypeMap()).forEach(type => {
         if (type.name.startsWith('__')) return;
-        if (type instanceof GraphQLInputObjectType) {
+        if (isObjectType(type) || isInputObjectType(type)) {
           Object.values(type.getFields()).forEach(field => {
             // if (
             //   !newSchema.getTypeMap()[type.name] ||
@@ -359,15 +360,22 @@ export default (filterFields, defaultFields) => {
             if (defaultFn) {
               defaults.add(type, field, defaultFn);
             }
-            if (
-              new TypeWrap(field.type).isRequired() &&
-              !defaultFn &&
-              (!newSchema.getTypeMap()[type.name] ||
-                !newSchema.getTypeMap()[type.name].getFields()[field.name])
-            ) {
-              throw new Error(
-                `Default value for required field "${field.name}" in type "${type.name}" was not provided`
-              );
+            // if (
+            //   new TypeWrap(field.type).isRequired() &&
+            //   !defaultFn &&
+            //   (!newSchema.getTypeMap()[type.name] ||
+            //     !newSchema.getTypeMap()[type.name].getFields()[field.name])
+            // ) {
+            //   throw new Error(
+            //     `Default value for required field "${field.name}" in type "${type.name}" was not provided`
+            //   );
+            // }
+
+            if (defaultArgs) {
+              let defaultArgsFn = defaultArgs(type, field);
+              if (defaultArgsFn) {
+                defaults.addArg(type, field, defaultArgsFn);
+              }
             }
             // }
           });

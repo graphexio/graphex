@@ -4,9 +4,13 @@ import {
   AMResolveFactoryType,
   AMModelType,
   IAMTypeFactory,
+  AMOptions,
 } from './definitions';
 
-export const makeSchemaInfo = (schema: GraphQLSchema): AMSchemaInfo => {
+export const makeSchemaInfo = (
+  schema: GraphQLSchema,
+  options?: AMOptions
+): AMSchemaInfo => {
   const resolveType = (typeName: string) => {
     return schema.getType(typeName);
   };
@@ -22,6 +26,7 @@ export const makeSchemaInfo = (schema: GraphQLSchema): AMSchemaInfo => {
         schema,
         resolveType,
         resolveFactoryType,
+        options: options ? options : {},
       });
       schema.getTypeMap()[typeName] = type;
     }
@@ -32,5 +37,6 @@ export const makeSchemaInfo = (schema: GraphQLSchema): AMSchemaInfo => {
     schema,
     resolveType,
     resolveFactoryType,
+    options: options ? options : {},
   };
 };

@@ -19,9 +19,9 @@ const selectorToFieldFactory = (selector: IAMQuerySelector) => {
   return selector.getFieldFactory();
 };
 
-export const AMWhereTypeFactory: IAMTypeFactory<AMInputObjectType> = {
+export const AMWhereACLTypeFactory: IAMTypeFactory<AMInputObjectType> = {
   getTypeName(modelType): string {
-    return `${modelType.name}WhereInput`;
+    return `${modelType.name}WhereACLInput`;
   },
   getType(modelType, schemaInfo) {
     const self: IAMTypeFactory<AMInputObjectType> = this;
@@ -31,13 +31,13 @@ export const AMWhereTypeFactory: IAMTypeFactory<AMInputObjectType> = {
         const fields = <AMInputFieldConfigMap>{
           AND: {
             type: new GraphQLList(
-              schemaInfo.resolveFactoryType(modelType, AMWhereTypeFactory)
+              schemaInfo.resolveFactoryType(modelType, AMWhereACLTypeFactory)
             ),
             ...defaultObjectFieldVisitorHandler('$and'),
           },
           OR: {
             type: new GraphQLList(
-              schemaInfo.resolveFactoryType(modelType, AMWhereTypeFactory)
+              schemaInfo.resolveFactoryType(modelType, AMWhereACLTypeFactory)
             ),
             ...defaultObjectFieldVisitorHandler('$or'),
           },

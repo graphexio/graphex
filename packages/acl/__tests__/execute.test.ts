@@ -3,6 +3,7 @@ import {
   printSchema,
   GraphQLSchema,
   DocumentNode,
+  validate,
 } from 'graphql';
 import gql from 'graphql-tag';
 
@@ -10,10 +11,12 @@ import {
   applyRules,
   allQueries,
   allMutations,
+  allACLTypes,
   anyField,
   modelDefault,
   modelField,
   regexFields,
+  modelDefaultActions,
 } from '../src';
 
 import AMM from '@apollo-model/core';
@@ -46,8 +49,8 @@ export const connectToDatabase = () => {
 
 const QE = QueryExecutor(connectToDatabase);
 
-const createSchema = typeDefs => {
-  const schema = new AMM({}).makeExecutableSchema({
+const createSchema = (typeDefs, options?) => {
+  const schema = new AMM({ options }).makeExecutableSchema({
     typeDefs,
   });
   return schema;
@@ -58,6 +61,9 @@ const execute = (
   document: DocumentNode,
   variableValues?: { [key: string]: any }
 ) => {
+  const errors = validate(schema, document);
+  if (errors.length > 0) throw new Error(errors.toString());
+
   return graphqlExecute(
     schema,
     document,
@@ -240,6 +246,130 @@ describe('accessRules', () => {
 
     expect(readedPost.user).toBeTruthy();
     expect(readedPost.user.username).toEqual(USERNAME);
+  });
+
+  it('relation default read', async () => {
+    const schema = createSchema(
+      gql`
+        type Post @model {
+          id: ObjectID @id @unique @db(name: "_id")
+          title: String
+          body: String
+          user: User @relation
+        }
+
+        type User @model {
+          id: ObjectID @id @unique @db(name: "_id")
+          username: String
+        }
+      `,
+      { aclWhere: true }
+    );
+
+    const USERNAME = 'admin';
+
+    const createUserResult = await execute(
+      schema,
+      gql`
+        mutation {
+          createUser(data: { username: "admin1" }) {
+            id
+            username
+          }
+          createPost(
+            data: { title: "Title", user: { create: { username: "admin2" } } }
+          ) {
+            title
+            user {
+              id
+              username
+            }
+          }
+        }
+      `,
+      {}
+    );
+    expect(createUserResult.errors).toBeUndefined();
+    const user1 = createUserResult.data.createUser;
+    const user2 = createUserResult.data.createPost.user;
+
+    //default aclWhere = user1 => no items
+    {
+      let aclSchema = applyRules(schema, {
+        allow: [allQueries, allMutations, anyField],
+        deny: [allACLTypes, modelField('Post', 'user', 'CR')],
+        defaults: [
+          modelDefault('Post', 'user', 'R', () => ({
+            id: user1.id,
+          })),
+        ],
+        argsDefaults: [
+          {
+            cond: modelDefaultActions('Post', 'CRU'),
+            fn: () => ({ aclWhere: { user: { id: user1.id } } }),
+          },
+        ],
+      });
+
+      let readResult = await execute(
+        aclSchema,
+        gql`
+          query {
+            posts {
+              title
+            }
+          }
+        `
+      );
+
+      expect(readResult.errors).toBeUndefined();
+      expect(readResult.data).toMatchInlineSnapshot(`
+      Object {
+        "posts": Array [],
+      }
+    `);
+    }
+
+    //default aclWhere = user2 => one item
+    {
+      let aclSchema = applyRules(schema, {
+        allow: [allQueries, allMutations, anyField],
+        deny: [allACLTypes, modelField('Post', 'user', 'CR')],
+        defaults: [
+          modelDefault('Post', 'user', 'R', () => ({
+            id: user1.id,
+          })),
+        ],
+        argsDefaults: [
+          {
+            cond: modelDefaultActions('Post', 'CRU'),
+            fn: () => ({ aclWhere: { user: { id: user2.id } } }),
+          },
+        ],
+      });
+
+      let readResult = await execute(
+        aclSchema,
+        gql`
+          query {
+            posts {
+              title
+            }
+          }
+        `
+      );
+
+      expect(readResult.errors).toBeUndefined();
+      expect(readResult.data).toMatchInlineSnapshot(`
+        Object {
+          "posts": Array [
+            Object {
+              "title": "Title",
+            },
+          ],
+        }
+      `);
+    }
   });
 
   it('default inside removed type', async () => {

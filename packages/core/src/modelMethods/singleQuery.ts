@@ -4,6 +4,7 @@ import R from 'ramda';
 import { AMReadOperation } from '../execution/operations/readOperation';
 import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
 import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
+import { AMWhereACLTypeFactory } from '../inputTypes/whereACL';
 import { lowercaseFirstLetter } from '../utils';
 import {
   AMField,
@@ -14,6 +15,7 @@ import {
 } from '../definitions';
 import { resolve } from '../resolve';
 import { AMSelectorContext } from '../execution/contexts/selector';
+import { AMWhereTypeFactory } from '../inputTypes/where';
 
 export const AMModelSingleQueryFieldFactory: IAMMethodFieldFactory = {
   getOperationType() {
@@ -36,6 +38,17 @@ export const AMModelSingleQueryFieldFactory: IAMMethodFieldFactory = {
             AMWhereUniqueTypeFactory
           ),
         },
+        ...(schemaInfo.options.aclWhere
+          ? [
+              {
+                name: 'aclWhere',
+                type: schemaInfo.resolveFactoryType(
+                  modelType,
+                  AMWhereACLTypeFactory
+                ),
+              },
+            ]
+          : []),
       ],
       amEnter(node, transaction, stack) {
         const operation = new AMReadOperation(transaction, {

@@ -1,11 +1,10 @@
-import * as DirectiveImplements from '@apollo-model/directive-implements';
+import { printType } from 'graphql';
 import gql from 'graphql-tag';
 import AMM from '../src';
-import { applyInputTransform } from '../src/inputTypes/utils';
-import { printType } from 'graphql';
+import { AMOptions } from '../src/definitions';
 
-const generateSchema = typeDefs => {
-  return new AMM({}).makeExecutableSchema({
+const generateSchema = (typeDefs, options?: AMOptions) => {
+  return new AMM({ options }).makeExecutableSchema({
     resolverValidationOptions: {
       requireResolversForResolveType: false,
     },
@@ -42,47 +41,47 @@ describe('orderBy', () => {
 
   test('values', () => {
     expect(orderByType.toConfig()).toMatchInlineSnapshot(`
-                  Object {
+              Object {
+                "astNode": undefined,
+                "description": undefined,
+                "extensionASTNodes": Array [],
+                "name": "PostOrderByInput",
+                "values": Object {
+                  "id_ASC": Object {
                     "astNode": undefined,
+                    "deprecationReason": undefined,
                     "description": undefined,
-                    "extensionASTNodes": Array [],
-                    "name": "PostOrderByInput",
-                    "values": Object {
-                      "id_ASC": Object {
-                        "astNode": undefined,
-                        "deprecationReason": undefined,
-                        "description": undefined,
-                        "value": Object {
-                          "_id": 1,
-                        },
-                      },
-                      "id_DESC": Object {
-                        "astNode": undefined,
-                        "deprecationReason": undefined,
-                        "description": undefined,
-                        "value": Object {
-                          "_id": -1,
-                        },
-                      },
-                      "title_ASC": Object {
-                        "astNode": undefined,
-                        "deprecationReason": undefined,
-                        "description": undefined,
-                        "value": Object {
-                          "title": 1,
-                        },
-                      },
-                      "title_DESC": Object {
-                        "astNode": undefined,
-                        "deprecationReason": undefined,
-                        "description": undefined,
-                        "value": Object {
-                          "title": -1,
-                        },
-                      },
+                    "value": Object {
+                      "_id": 1,
                     },
-                  }
-          `);
+                  },
+                  "id_DESC": Object {
+                    "astNode": undefined,
+                    "deprecationReason": undefined,
+                    "description": undefined,
+                    "value": Object {
+                      "_id": -1,
+                    },
+                  },
+                  "title_ASC": Object {
+                    "astNode": undefined,
+                    "deprecationReason": undefined,
+                    "description": undefined,
+                    "value": Object {
+                      "title": 1,
+                    },
+                  },
+                  "title_DESC": Object {
+                    "astNode": undefined,
+                    "deprecationReason": undefined,
+                    "description": undefined,
+                    "value": Object {
+                      "title": -1,
+                    },
+                  },
+                },
+              }
+      `);
   });
 });
 
@@ -532,5 +531,44 @@ describe('empty', () => {
               emptiesConnection(where: EmptyWhereInput, skip: Int, first: Int): EmptyConnection
             }"
           `);
+  });
+});
+
+describe('aclWhere', () => {
+  const schema = generateSchema(
+    gql`
+      type Post @model {
+        id: ID @id @unique @db(name: "_id")
+        title: String
+        pinnedComment: Comment
+        comments: [Comment!]
+      }
+
+      type Comment @embedded {
+        message: String
+      }
+    `,
+    { aclWhere: true }
+  );
+
+  test('schema', () => {
+    expect(printType(schema.getQueryType())).toMatchInlineSnapshot(`
+      "type Query {
+        posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, first: Int, aclWhere: PostWhereACLInput): [Post!]!
+        post(where: PostWhereUniqueInput, aclWhere: PostWhereACLInput): Post
+        postsConnection(where: PostWhereInput, skip: Int, first: Int, aclWhere: PostWhereACLInput): PostConnection
+      }"
+    `);
+  });
+
+  test('schema', () => {
+    expect(printType(schema.getMutationType())).toMatchInlineSnapshot(`
+      "type Mutation {
+        createPost(data: PostCreateInput!): Post
+        deletePost(where: PostWhereUniqueInput!, aclWhere: PostWhereACLInput): Post
+        deletePosts(where: PostWhereInput!, aclWhere: PostWhereACLInput): Int!
+        updatePost(data: PostUpdateInput!, where: PostWhereUniqueInput!, aclWhere: PostWhereACLInput): Post
+      }"
+    `);
   });
 });

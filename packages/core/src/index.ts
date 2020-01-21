@@ -14,7 +14,7 @@ import {
 import { makeExecutableSchema as makeGraphQLSchema } from 'graphql-tools';
 import _ from 'lodash';
 import appendField from './appendField';
-import { AMModelType, GraphQLOperationType } from './definitions';
+import { AMModelType, GraphQLOperationType, AMOptions } from './definitions';
 import { AMFederationEntitiesFieldFactory } from './federation/entitiesField';
 import InitialScheme from './initialScheme';
 import { AMModelCreateMutationFieldFactory } from './modelMethods/createMutation';
@@ -48,11 +48,11 @@ type AMModule = any;
 
 export default class ModelMongo {
   Modules: AMModule[];
-  options: {};
+  options?: AMOptions;
 
-  constructor({ options = {}, modules = [] }) {
-    this.Modules = [...Modules, ...modules];
-    this.options = options;
+  constructor(params: { options?: AMOptions; modules?: AMModule[] } = {}) {
+    this.Modules = [...Modules, ...(params.modules ? params.modules : [])];
+    this.options = params.options;
   }
 
   generateKeyDirective(fields): DirectiveNode {
@@ -122,7 +122,8 @@ export default class ModelMongo {
       schema,
       schema.getQueryType(),
       AMFederationEntitiesFieldFactory,
-      null
+      null,
+      this.options
     );
 
     return schema;
@@ -211,7 +212,8 @@ export default class ModelMongo {
                 ? schema.getQueryType()
                 : schema.getMutationType(),
               fieldFactory,
-              type as AMModelType
+              type as AMModelType,
+              this.options
             );
           });
         }

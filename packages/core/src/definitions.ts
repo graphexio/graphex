@@ -27,6 +27,10 @@ import Maybe from 'graphql/tsutils/Maybe';
 import { AMContext } from './execution/context';
 import { AMTransaction } from './execution/transaction';
 
+export type AMOptions = {
+  aclWhere?: boolean;
+};
+
 export type mmTransformType = (input: {
   [fieldName: string]: any;
 }) => { [fieldName: string]: any };
@@ -199,6 +203,7 @@ export interface AMSchemaInfo {
   schema: GraphQLSchema;
   resolveType(typeName: string): GraphQLNamedType;
   resolveFactoryType: AMResolveFactoryType;
+  options: AMOptions;
 }
 
 export interface IAMTypeFactory<T extends GraphQLNamedType> {

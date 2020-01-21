@@ -24,6 +24,7 @@ import { AMUpdateOneNestedTypeFactory } from '@apollo-model/core/lib/inputTypes/
 import { AMUpdateOneRelationTypeFactory } from '@apollo-model/core/lib/inputTypes/updateOneRelation';
 import { AMUpdateWithWhereNestedTypeFactory } from '@apollo-model/core/lib/inputTypes/updateWithWhereNested';
 import { AMWhereTypeFactory } from '@apollo-model/core/lib/inputTypes/where';
+import { AMWhereACLTypeFactory } from '@apollo-model/core/lib/inputTypes/whereACL';
 import { AMWhereCleanTypeFactory } from '@apollo-model/core/lib/inputTypes/whereClean';
 import { AMWhereUniqueTypeFactory } from '@apollo-model/core/lib/inputTypes/whereUnique';
 import {

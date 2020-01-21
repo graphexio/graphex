@@ -1,10 +1,11 @@
 import pluralize from 'pluralize';
 import R from 'ramda';
+import { GraphQLNamedType } from 'graphql';
 
 export { applyRules } from './applyRules';
 export { modelDefaultActions } from './modelDefaultActions';
 export { modelField } from './modelField';
-import { modelField } from './modelField';
+export { modelDefault } from './modelDefault';
 
 export const operationAccessRule = regex => () => {};
 
@@ -24,6 +25,16 @@ export const allMutations = ({ type, field }) => {
   return type.name === 'Mutation';
 };
 
+export const allACLTypes = ({
+  type,
+  field,
+}: {
+  type: GraphQLNamedType;
+  field;
+}) => {
+  return type.name.endsWith('WhereACLInput');
+};
+
 export const modelCustomActions = (modelName, actions: string[]) => {
   const modelNameToRegExp = model =>
     actions.map(action => new RegExp(`^Mutation\\.${action}${model}$`));
@@ -36,12 +47,5 @@ export const modelCustomActions = (modelName, actions: string[]) => {
 
   return ({ type, field }) => {
     return R.anyPass(enableFields)(`${type.name}.${field.name}`);
-  };
-};
-
-export const modelDefault = (modelName, fieldName, access, fn) => {
-  return {
-    cond: modelField(modelName, fieldName, access),
-    fn,
   };
 };

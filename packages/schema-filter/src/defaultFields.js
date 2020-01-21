@@ -1,4 +1,5 @@
 import { valueFromAST, astFromValue } from 'graphql';
+import R from 'ramda';
 
 const reduceDefaults = (state, item) => {
   return { ...state, [item.field.name]: item.valueFn() };
@@ -6,6 +7,7 @@ const reduceDefaults = (state, item) => {
 
 export default () => {
   const defaults = {};
+  const defaultArgs = {};
 
   const add = (type, field, valueFn) => {
     if (!defaults[type.name]) {
@@ -15,6 +17,13 @@ export default () => {
       field,
       valueFn,
     });
+  };
+
+  const addArg = (type, field, valueFn) => {
+    if (!defaultArgs[type.name]) {
+      defaultArgs[type.name] = {};
+    }
+    defaultArgs[type.name][field.name] = valueFn;
   };
 
   const get = type => {
@@ -45,9 +54,42 @@ export default () => {
     return undefined;
   };
 
+  const applyDefaultArgs = node => (parent, field) => {
+    if (
+      defaultArgs[parent.type.name] &&
+      defaultArgs[parent.type.name][node.name.value]
+    ) {
+      const args = defaultArgs[parent.type.name][node.name.value]();
+      const newArguments = [...node.arguments];
+
+      Object.entries(args).forEach(([argName, argValue]) => {
+        try {
+          const argType = R.find(R.propEq('name', argName))(
+            parent.type.getFields()[node.name.value].args
+          ).type;
+
+          const astValue = astFromValue(argValue, argType);
+
+          newArguments.push({
+            kind: 'Argument',
+            name: { kind: 'Name', value: argName },
+            value: astValue,
+          });
+        } catch (err) {}
+      });
+
+      return {
+        ...node,
+        arguments: newArguments,
+      };
+    }
+  };
+
   return {
     add,
+    addArg,
     get,
     applyDefaults,
+    applyDefaultArgs,
   };
 };

@@ -1,13 +1,14 @@
 import * as DirectiveImplements from '@apollo-model/directive-implements';
 import gql from 'graphql-tag';
 import AMM from '../src';
-import { applyInputTransform } from '../src/inputTypes/utils';
 import { AMVisitor } from '../src/execution/visitor';
 import { AMTransaction } from '../src/execution/transaction';
 import { UserInputError } from 'apollo-server';
+import { AMOptions } from '../src/definitions';
 
-const generateSchema = typeDefs => {
+const generateSchema = (typeDefs, options?: AMOptions) => {
   return new AMM({
+    options,
     modules: [DirectiveImplements],
   }).makeExecutableSchema({
     resolverValidationOptions: {
@@ -2521,5 +2522,69 @@ describe('nested interfaces', () => {
                     ],
                   }
             `);
+  });
+});
+
+describe('aclWhere', () => {
+  const schema = generateSchema(
+    gql`
+      type Post @model {
+        id: ID @id @unique @db(name: "_id")
+        title: String
+        comments: [Comment]!
+        pinnedComment: Comment
+      }
+
+      interface Comment @embedded
+      type TextComment implements Comment {
+        message: String
+      }
+
+      type AttachmentComment implements Comment {
+        path: String
+      }
+    `,
+    { aclWhere: true }
+  );
+
+  test('read many', () => {
+    const rq = gql`
+      query {
+        posts(where: { title: "title1" }, aclWhere: { title: "title2" }) {
+          id
+        }
+      }
+    `;
+
+    const transaction = new AMTransaction();
+    AMVisitor.visit(schema, rq, {}, transaction);
+    expect(transaction).toMatchInlineSnapshot(`
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": "AMResultPromise { Operation-0 }",
+            "selector": Object {
+              "$and": Array [
+                Object {
+                  "title": "title1",
+                },
+                Object {
+                  "title": "title2",
+                },
+              ],
+            },
+          },
+        ],
+      }
+    `);
   });
 });

@@ -1,16 +1,21 @@
 jest.setTimeout(20000);
 
-const {
-  query,
-  mutate,
-  mongod,
-  connectToDatabase,
-} = require('./integration-prepare');
+import prepare from './integration-prepare';
+const testInstance = prepare();
+const { query, mutate, mongod, connectToDatabase } = testInstance.start();
+
 const _ = require('lodash');
 import gql from 'graphql-tag';
 import { getIntrospectionQuery } from 'graphql';
 
-jest.setTimeout(10000);
+beforeAll(async () => {
+  let DB = await connectToDatabase();
+  DB.collection('posts').createIndex({ place: '2dsphere' });
+});
+
+afterAll(async () => {
+  testInstance.stop();
+});
 
 test('Introspection', async () => {
   const { errors, data } = await query({
@@ -1610,13 +1615,4 @@ test('extRelation single', async () => {
        ],
      }
   `);
-});
-
-beforeAll(async () => {
-  let DB = await connectToDatabase();
-  DB.collection('posts').createIndex({ place: '2dsphere' });
-});
-
-afterAll(async () => {
-  mongod.stop();
 });

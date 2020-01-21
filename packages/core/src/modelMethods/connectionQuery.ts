@@ -11,6 +11,7 @@ import {
 import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMAggregateOperation } from '../execution/operations/aggregateOperation';
 import { AMWhereTypeFactory } from '../inputTypes/where';
+import { AMWhereACLTypeFactory } from '../inputTypes/whereACL';
 import { resolve } from '../resolve';
 import { lowercaseFirstLetter } from '../utils';
 import { AMConnectionTypeFactory } from '../types/connection';
@@ -41,6 +42,17 @@ export const AMModelConnectionQueryFieldFactory: IAMMethodFieldFactory = {
         // },
         skipArg,
         firstArg,
+        ...(schemaInfo.options.aclWhere
+          ? [
+              {
+                name: 'aclWhere',
+                type: schemaInfo.resolveFactoryType(
+                  modelType,
+                  AMWhereACLTypeFactory
+                ),
+              },
+            ]
+          : []),
       ],
       amEnter(node, transaction, stack) {
         const operation = new AMAggregateOperation(transaction, {
