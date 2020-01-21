@@ -1,6 +1,6 @@
 {
   "name": "@apollo-model/acl",
-  "version": "0.6.0-alpha.28",
+  "version": "0.6.0-alpha.29",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -12,25 +12,25 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@apollo-model/core": "^0.6.0-alpha.28",
+    "@apollo-model/core": "^0.6.0-alpha.29",
     "@apollo-model/mongodb-executor": "^0.5.4-alpha.6",
     "@apollo-model/schema-filter": "^0.5.4-alpha.11",
     "@apollo-model/type-wrap": "^0.6.0-alpha.0",
     "@apollo/federation": "^0.7.0",
     "apollo-server": "^2.7.0",
-    "ramda": "^0.26.1",
-    "graphql": "^14.4.2"
+    "graphql": "^14.4.2",
+    "ramda": "^0.26.1"
   },
   "devDependencies": {
     "@apollo/gateway": "^0.8.1",
     "@babel/cli": "^7.1.2",
     "@babel/core": "^7.1.2",
     "@babel/node": "^7.2.2",
-    "@babel/preset-typescript": "^7.6.0",
     "@babel/plugin-proposal-class-properties": "^7.2.3",
     "@babel/plugin-proposal-pipeline-operator": "^7.5.0",
     "@babel/plugin-transform-runtime": "^7.2.0",
     "@babel/preset-env": "^7.1.0",
+    "@babel/preset-typescript": "^7.6.0",
     "rimraf": "^2.6.3"
   },
   "gitHead": "659f8df0bee46a717d9939878771136ee17e5f53"
