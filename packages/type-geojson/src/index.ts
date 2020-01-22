@@ -3,6 +3,7 @@ import { defaultObjectFieldVisitorHandler } from '@apollo-model/core/lib/inputTy
 import { AMGeoJSONCreateFieldFactory } from './create';
 import { AMGeoJSONNearFieldFactory } from './whereNear';
 import { AMGeoJSONWithinFieldFactory } from './whereWithin';
+import { AMGeoJSONIntersectsFieldFactory } from './whereIntersects';
 
 const toRadians = num => {
   return (num * Math.PI) / 180;
@@ -72,6 +73,11 @@ export const typeDef = gql`
   input GeoJSONPointWithinInput {
     geometry: GeoJSONPolygonInput!
   }
+
+  input GeoJSONIntersectsInput {
+    point: GeoJSONPointInput
+    polygon: GeoJSONPolygonInput
+  }
 `;
 
 export const fieldFactoriesMap = {
@@ -81,6 +87,16 @@ export const fieldFactoriesMap = {
     AMWhereTypeFactory: [
       AMGeoJSONNearFieldFactory,
       AMGeoJSONWithinFieldFactory,
+      AMGeoJSONIntersectsFieldFactory,
+    ],
+  },
+  GeoJSONPolygon: {
+    AMCreateTypeFactory: [AMGeoJSONCreateFieldFactory],
+    AMUpdateTypeFactory: [AMGeoJSONCreateFieldFactory],
+    AMWhereTypeFactory: [
+      AMGeoJSONNearFieldFactory,
+      AMGeoJSONWithinFieldFactory,
+      AMGeoJSONIntersectsFieldFactory,
     ],
   },
 };
@@ -101,5 +117,9 @@ export const fieldVisitorEventsMap = {
   GeoJSONPolygonInput: {
     type: defaultObjectFieldVisitorHandler('type'),
     coordinates: defaultObjectFieldVisitorHandler('coordinates'),
+  },
+  GeoJSONIntersectsInput: {
+    point: defaultObjectFieldVisitorHandler('point'),
+    polygon: defaultObjectFieldVisitorHandler('polygon'),
   },
 };

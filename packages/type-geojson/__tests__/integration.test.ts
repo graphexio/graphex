@@ -11,6 +11,16 @@ import gql from 'graphql-tag';
 
 jest.setTimeout(10000);
 
+beforeAll(async () => {
+  let DB = await connectToDatabase();
+  DB.collection('pois').createIndex({ place: '2dsphere' });
+  DB.collection('area').createIndex({ place: '2dsphere' });
+});
+
+afterAll(async () => {
+  //   mongod.stop();
+});
+
 test('Poi create', async () => {
   [
     [0, 0],
@@ -39,21 +49,76 @@ test('Poi create', async () => {
       variables: { coordinates },
     });
     expect(errors).toBeUndefined();
-    expect(data).toMatchInlineSnapshot(`
-        Object {
-          "createPoi": Object {
-            "place": Object {
-              "coordinates": Array [
-                ${coordinates[0]},
-                ${coordinates[1]},
-              ],
-              "type": "Point",
-            },
-            "title": "poi ${coordsStr}",
-          },
-        }
-    `);
+    expect(data).toEqual({
+      createPoi: {
+        place: {
+          coordinates: [coordinates[0], coordinates[1]],
+          type: 'Point',
+        },
+        title: `poi ${coordsStr}`,
+      },
+    });
   });
+});
+
+test('Create Poi with area', async () => {
+  let { errors, data } = await mutate({
+    mutation: gql`
+      mutation {
+        createPoi(
+          data: {
+            title: "poi with area"
+            area: {
+              type: Polygon
+              coordinates: [[[0, 0], [0, 50], [50, 50], [50, 0], [0, 0]]]
+            }
+          }
+        ) {
+          title
+          area {
+            type
+            coordinates
+          }
+        }
+      }
+    `,
+    variables: {},
+  });
+  expect(errors).toBeUndefined();
+  expect(data).toMatchInlineSnapshot(`
+    Object {
+      "createPoi": Object {
+        "area": Object {
+          "coordinates": Array [
+            Array [
+              Array [
+                0,
+                0,
+              ],
+              Array [
+                0,
+                50,
+              ],
+              Array [
+                50,
+                50,
+              ],
+              Array [
+                50,
+                0,
+              ],
+              Array [
+                0,
+                0,
+              ],
+            ],
+          ],
+          "type": "Polygon",
+        },
+        "title": "poi with area",
+      },
+    }
+    `);
 });
 
 test('Near', async () => {
@@ -156,11 +221,92 @@ test('Within', async () => {
   }
 });
 
-beforeAll(async () => {
-  let DB = await connectToDatabase();
-  DB.collection('pois').createIndex({ place: '2dsphere' });
+test('Intersects', async () => {
+  {
+    let { errors, data } = await query({
+      query: gql`
+        query {
+          pois(
+            where: {
+              area_intersects: { point: { type: Point, coordinates: [25, 25] } }
+            }
+          ) {
+            title
+          }
+        }
+      `,
+      variables: {},
+    });
+    expect(errors).toBeUndefined();
+    expect(data).toMatchInlineSnapshot(`
+    Object {
+      "pois": Array [
+        Object {
+          "title": "poi with area",
+        },
+      ],
+    }
+    `);
+  }
+  {
+    let { errors, data } = await query({
+      query: gql`
+        query {
+          pois(
+            where: {
+              area_intersects: { point: { type: Point, coordinates: [55, 25] } }
+            }
+          ) {
+            title
+          }
+        }
+      `,
+      variables: {},
+    });
+    expect(errors).toBeUndefined();
+    expect(data).toMatchInlineSnapshot(`
+    Object {
+      "pois": Array [],
+    }
+    `);
+  }
 });
 
-afterAll(async () => {
-  //   mongod.stop();
+test('Intersects input error', async () => {
+  let { errors, data } = await query({
+    query: gql`
+      query {
+        pois(
+          where: {
+            area_intersects: {
+              point: { type: Point, coordinates: [25, 25] }
+              polygon: { type: Polygon, coordinates: [[[25, 25]]] }
+            }
+          }
+        ) {
+          title
+        }
+      }
+    `,
+    variables: {},
+  });
+  expect(errors).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "extensions": Object {
+          "code": "BAD_USER_INPUT",
+        },
+        "locations": Array [
+          Object {
+            "column": 3,
+            "line": 2,
+          },
+        ],
+        "message": "You should fill only one field",
+        "path": Array [
+          "pois",
+        ],
+      },
+    ]
+    `);
 });

@@ -12,5 +12,6 @@ export default gql`
   type Poi implements Node & Timestamp @model {
     title: String
     place: GeoJSONPoint
+    area: GeoJSONPolygon
   }
 `;

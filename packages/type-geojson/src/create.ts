@@ -3,6 +3,7 @@ import {
   AMInputField,
   IAMInputFieldFactory,
 } from '@apollo-model/core/src/definitions';
+import { GraphQLNamedType } from 'graphql';
 
 export const AMGeoJSONCreateFieldFactory: IAMInputFieldFactory = {
   isApplicable(field) {
@@ -14,7 +15,9 @@ export const AMGeoJSONCreateFieldFactory: IAMInputFieldFactory = {
   getField(field, schemaInfo) {
     return <AMInputField>{
       name: this.getFieldName(field),
-      type: schemaInfo.schema.getTypeMap().GeoJSONPointInput,
+      type: schemaInfo.schema.getType(
+        `${(field.type as GraphQLNamedType).name}Input`
+      ),
       ...defaultObjectFieldVisitorHandler(field.dbName),
       //   amEnter(node: ObjectFieldNode, transaction, stack) {
       //     const action = new AMObjectFieldContext(field.dbName);
