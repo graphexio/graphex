@@ -56,14 +56,17 @@ export const whereTypeVisitorHandler = <AMVisitable>{
     const context = stack.pop() as AMSelectorContext;
     const lastInStack = R.last(stack);
 
+    if (context.selector.aclWhere) {
+      context.selector = {
+        $and: [
+          R.omit(['aclWhere'], context.selector),
+          context.selector.aclWhere,
+        ],
+      };
+    }
+
     if (lastInStack instanceof AMOperation) {
-      if (!lastInStack.selector) {
-        lastInStack.setSelector(context);
-      } else {
-        lastInStack.selector.selector = {
-          $and: [lastInStack.selector.selector, context.selector],
-        };
-      }
+      lastInStack.setSelector(context);
     } else if (lastInStack instanceof AMListValueContext) {
       lastInStack.addValue(context.selector);
     } else if (lastInStack instanceof AMObjectFieldContext) {

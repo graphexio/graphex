@@ -41,17 +41,6 @@ export const AMModelUpdateMutationFieldFactory: IAMMethodFieldFactory = {
             schemaInfo.resolveFactoryType(modelType, AMWhereUniqueTypeFactory)
           ),
         },
-        ...(schemaInfo.options.aclWhere
-          ? [
-              {
-                name: 'aclWhere',
-                type: schemaInfo.resolveFactoryType(
-                  modelType,
-                  AMWhereACLTypeFactory
-                ),
-              },
-            ]
-          : []),
       ],
       amEnter(node, transaction, stack) {
         const operation = new AMUpdateOperation(transaction, {

@@ -9,7 +9,7 @@
   "devDependencies": {
     "@types/jest": "^24.0.18",
     "lerna": "^3.13.1",
-    "ts-jest": "^24.1.0",
+    "jest": "^25.1.0",
     "prettier": "^1.19.1"
   },
   "private": true,

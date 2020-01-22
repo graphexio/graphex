@@ -1,19 +1,17 @@
+import { GraphQLInputFieldConfig, GraphQLInputObjectType } from 'graphql';
 import {
-  GraphQLField,
-  GraphQLInputObjectType,
-  GraphQLList,
-  getNamedType,
-  isCompositeType,
-} from 'graphql';
-import {
-  IAMQuerySelector,
-  IAMTypeFactory,
+  AMInputFieldConfigMap,
   AMInputObjectType,
   AMModelField,
+  IAMQuerySelector,
+  IAMTypeFactory,
 } from '../definitions';
-
 import { AsIsSelector } from './querySelectors/asis';
-import { whereTypeVisitorHandler } from './visitorHandlers';
+import {
+  defaultObjectFieldVisitorHandler,
+  whereTypeVisitorHandler,
+} from './visitorHandlers';
+import { AMWhereACLTypeFactory } from './whereACL';
 
 const isApplicable = (field: AMModelField) => (selector: IAMQuerySelector) =>
   selector.isApplicable(field);
@@ -31,7 +29,17 @@ export const AMWhereCleanTypeFactory: IAMTypeFactory<GraphQLInputObjectType> = {
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
-        const fields = {};
+        const fields = <AMInputFieldConfigMap>{};
+
+        if (schemaInfo.options.aclWhere) {
+          fields.aclWhere = <GraphQLInputFieldConfig>{
+            type: schemaInfo.resolveFactoryType(
+              modelType,
+              AMWhereACLTypeFactory
+            ),
+            ...defaultObjectFieldVisitorHandler('aclWhere'),
+          };
+        }
 
         try {
           Object.values(modelType.getFields()).forEach(field => {

@@ -135,12 +135,17 @@ export default (filterFields, defaultFields, defaultArgs) => {
               |> R.prop(name)
               |> mapFieldForTypeStack
               |> typeStack.push;
+
+            return defaults.applyDefaultArgs(node)(
+              R.head(R.takeLast(2, typeStack)),
+              R.last(typeStack)
+            );
           },
           leave: node => {
             let name = getNameValue(node);
             if (name == '__typename') return;
             const type = typeStack.pop();
-            return defaults.applyDefaultArgs(node)(R.last(typeStack), type);
+            // return
           },
         },
         [Kind.INLINE_FRAGMENT]: {

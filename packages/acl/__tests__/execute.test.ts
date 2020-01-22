@@ -299,14 +299,16 @@ describe('accessRules', () => {
         allow: [allQueries, allMutations, anyField],
         deny: [allACLTypes, modelField('Post', 'user', 'CR')],
         defaults: [
-          modelDefault('Post', 'user', 'R', () => ({
-            id: user1.id,
-          })),
+          modelDefault('Post', 'aclWhere', 'R', () => {
+            return {
+              user: { id: user1.id },
+            };
+          }),
         ],
         argsDefaults: [
           {
-            cond: modelDefaultActions('Post', 'CRU'),
-            fn: () => ({ aclWhere: { user: { id: user1.id } } }),
+            cond: modelDefaultActions('Post', 'RUD'),
+            fn: () => ({ where: {} }),
           },
         ],
       });
@@ -315,44 +317,7 @@ describe('accessRules', () => {
         aclSchema,
         gql`
           query {
-            posts {
-              title
-            }
-          }
-        `
-      );
-
-      expect(readResult.errors).toBeUndefined();
-      expect(readResult.data).toMatchInlineSnapshot(`
-      Object {
-        "posts": Array [],
-      }
-    `);
-    }
-
-    //default aclWhere = user2 => one item
-    {
-      let aclSchema = applyRules(schema, {
-        allow: [allQueries, allMutations, anyField],
-        deny: [allACLTypes, modelField('Post', 'user', 'CR')],
-        defaults: [
-          modelDefault('Post', 'user', 'R', () => ({
-            id: user1.id,
-          })),
-        ],
-        argsDefaults: [
-          {
-            cond: modelDefaultActions('Post', 'CRU'),
-            fn: () => ({ aclWhere: { user: { id: user2.id } } }),
-          },
-        ],
-      });
-
-      let readResult = await execute(
-        aclSchema,
-        gql`
-          query {
-            posts {
+            post {
               title
             }
           }
@@ -362,11 +327,42 @@ describe('accessRules', () => {
       expect(readResult.errors).toBeUndefined();
       expect(readResult.data).toMatchInlineSnapshot(`
         Object {
-          "posts": Array [
-            Object {
-              "title": "Title",
-            },
-          ],
+          "post": null,
+        }
+      `);
+    }
+
+    //default aclWhere = user2 => one item
+    {
+      let aclSchema = applyRules(schema, {
+        allow: [allQueries, allMutations, anyField],
+        deny: [allACLTypes, modelField('Post', 'user', 'CR')],
+        defaults: [
+          modelDefault('Post', 'aclWhere', 'R', () => {
+            return {
+              user: { id: user2.id },
+            };
+          }),
+        ],
+      });
+
+      let readResult = await execute(
+        aclSchema,
+        gql`
+          query {
+            post(where: {}) {
+              title
+            }
+          }
+        `
+      );
+
+      expect(readResult.errors).toBeUndefined();
+      expect(readResult.data).toMatchInlineSnapshot(`
+        Object {
+          "post": Object {
+            "title": "Title",
+          },
         }
       `);
     }

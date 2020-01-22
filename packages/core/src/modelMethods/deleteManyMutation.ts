@@ -35,17 +35,6 @@ export const AMModelDeleteManyMutationFieldFactory: IAMMethodFieldFactory = {
             schemaInfo.resolveFactoryType(modelType, AMWhereTypeFactory)
           ),
         },
-        ...(schemaInfo.options.aclWhere
-          ? [
-              {
-                name: 'aclWhere',
-                type: schemaInfo.resolveFactoryType(
-                  modelType,
-                  AMWhereACLTypeFactory
-                ),
-              },
-            ]
-          : []),
       ],
       amEnter(node, transaction, stack) {
         const operation = new AMDeleteOperation(transaction, {

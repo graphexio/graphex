@@ -551,23 +551,51 @@ describe('aclWhere', () => {
     { aclWhere: true }
   );
 
-  test('schema', () => {
-    expect(printType(schema.getQueryType())).toMatchInlineSnapshot(`
-      "type Query {
-        posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, first: Int, aclWhere: PostWhereACLInput): [Post!]!
-        post(where: PostWhereUniqueInput, aclWhere: PostWhereACLInput): Post
-        postsConnection(where: PostWhereInput, skip: Int, first: Int, aclWhere: PostWhereACLInput): PostConnection
-      }"
+  test('PostWhereUniqueInput', () => {
+    expect(printType(schema.getType('PostWhereUniqueInput')))
+      .toMatchInlineSnapshot(`
+        "input PostWhereUniqueInput {
+          aclWhere: PostWhereACLInput
+          id: ID
+        }"
     `);
   });
 
-  test('schema', () => {
-    expect(printType(schema.getMutationType())).toMatchInlineSnapshot(`
-      "type Mutation {
-        createPost(data: PostCreateInput!): Post
-        deletePost(where: PostWhereUniqueInput!, aclWhere: PostWhereACLInput): Post
-        deletePosts(where: PostWhereInput!, aclWhere: PostWhereACLInput): Int!
-        updatePost(data: PostUpdateInput!, where: PostWhereUniqueInput!, aclWhere: PostWhereACLInput): Post
+  test('PostWhereInput', () => {
+    expect(printType(schema.getType('PostWhereInput'))).toMatchInlineSnapshot(`
+      "input PostWhereInput {
+        aclWhere: PostWhereACLInput
+        AND: [PostWhereInput]
+        OR: [PostWhereInput]
+        id_exists: Boolean
+        id_in: [ID]
+        id_not_in: [ID]
+        id: ID
+        id_not: ID
+        title_exists: Boolean
+        title_in: [String]
+        title_not_in: [String]
+        title: String
+        title_lt: String
+        title_lte: String
+        title_gt: String
+        title_gte: String
+        title_not: String
+        title_contains: String
+        title_starts_with: String
+        title_ends_with: String
+        pinnedComment_exists: Boolean
+        pinnedComment_in: [CommentWhereCleanInput]
+        pinnedComment_not_in: [CommentWhereCleanInput]
+        pinnedComment: CommentWhereInput
+        comments_size: Int
+        comments_not_size: Int
+        comments_exists: Boolean
+        comments_all: [CommentWhereCleanInput]
+        comments_exact: [CommentWhereCleanInput]
+        comments_in: [CommentWhereCleanInput]
+        comments_not_in: [CommentWhereCleanInput]
+        comments_some: [CommentWhereInput]
       }"
     `);
   });

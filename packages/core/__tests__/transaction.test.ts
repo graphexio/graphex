@@ -2550,7 +2550,7 @@ describe('aclWhere', () => {
   test('read many', () => {
     const rq = gql`
       query {
-        posts(where: { title: "title1" }, aclWhere: { title: "title2" }) {
+        posts(where: { title: "title1", aclWhere: { title: "title2" } }) {
           id
         }
       }

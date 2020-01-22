@@ -42,17 +42,6 @@ export const AMModelConnectionQueryFieldFactory: IAMMethodFieldFactory = {
         // },
         skipArg,
         firstArg,
-        ...(schemaInfo.options.aclWhere
-          ? [
-              {
-                name: 'aclWhere',
-                type: schemaInfo.resolveFactoryType(
-                  modelType,
-                  AMWhereACLTypeFactory
-                ),
-              },
-            ]
-          : []),
       ],
       amEnter(node, transaction, stack) {
         const operation = new AMAggregateOperation(transaction, {
