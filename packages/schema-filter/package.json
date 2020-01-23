@@ -1,6 +1,6 @@
 {
   "name": "@apollo-model/schema-filter",
-  "version": "0.6.0-alpha.30",
+  "version": "0.6.0-alpha.32",
   "description": "",
   "main": "lib/index.js",
   "files": [
@@ -14,10 +14,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@apollo-model/graphql-tools": "^4.0.6",
     "@apollo/federation": "^0.7.0",
     "apollo-server": "^2.7.0",
     "graphql": "^14.4.2",
-    "@apollo-model/graphql-tools": "^4.0.6",
     "ramda": "^0.26.1"
   },
   "devDependencies": {
