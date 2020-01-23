@@ -1,4 +1,4 @@
-import DefaultFields from './defaultFields';
+import DefaultFields from '../src/defaultFields';
 
 let kind = 'Argument';
 let name = { kind: 'Name', value: 'data' };

@@ -31,7 +31,7 @@ export default () => {
     return defaults[type.name].reduce(reduceDefaults, {});
   };
 
-  const applyDefaults = node => ({ type }) => {
+  const applyDefaults = (node, context) => ({ type }) => {
     let defaultValues = defaults[type.name];
     // let defaultValues = get(type);
 
@@ -41,6 +41,7 @@ export default () => {
       defaultValues.forEach(item => {
         input[item.field.name] = item.valueFn({
           input: input[item.field.name],
+          context,
         });
       });
 
@@ -54,12 +55,12 @@ export default () => {
     return undefined;
   };
 
-  const applyDefaultArgs = node => (parent, field) => {
+  const applyDefaultArgs = (node, context) => (parent, field) => {
     if (
       defaultArgs[parent.type.name] &&
       defaultArgs[parent.type.name][node.name.value]
     ) {
-      const args = defaultArgs[parent.type.name][node.name.value]();
+      const args = defaultArgs[parent.type.name][node.name.value]({ context });
       const newArguments = [...node.arguments];
 
       Object.entries(args).forEach(([argName, argValue]) => {

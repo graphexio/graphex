@@ -16,6 +16,7 @@
   "license": "ISC",
   "dependencies": {
     "@apollo-model/core": "^0.6.0-alpha.30",
+    "@apollo-model/graphql-tools": "4.0.6",
     "@apollo-model/mongodb-executor": "0.5.4-alpha.6",
     "@apollo-model/schema-filter": "^0.6.0-alpha.30",
     "@apollo-model/type-wrap": "0.6.0-alpha.0",

@@ -7,7 +7,7 @@ import SchemaFilter, {
   mapFieldForTypeStack,
   groupFields,
   reduceValues,
-} from './';
+} from '../src';
 
 test('mapFieldForTypeStack', () => {
   let input = {

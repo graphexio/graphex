@@ -131,7 +131,12 @@ describe('accessRules', () => {
     let aclSchema = applyRules(schema, {
       allow: [allQueries, allMutations, anyField],
       deny: [modelField('Post', 'body', 'C')],
-      defaults: [modelDefault('Post', 'body', 'C', () => DEFAULT_BODY)],
+      defaults: [
+        modelDefault('Post', 'body', 'C', ({ context }) => {
+          expect(context).toBeDefined();
+          return DEFAULT_BODY;
+        }),
+      ],
     });
 
     let createResult = await execute(

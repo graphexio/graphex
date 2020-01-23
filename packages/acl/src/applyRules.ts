@@ -1,6 +1,6 @@
 import R from 'ramda';
 import SchemaFilter from '@apollo-model/schema-filter';
-const { transformSchema } = require('graphql-tools');
+import { transformSchema } from '@apollo-model/graphql-tools';
 
 export const applyRules = (
   schema,

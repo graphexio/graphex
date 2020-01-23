@@ -38,14 +38,14 @@ import {
 import {
   visitSchema,
   VisitSchemaKind,
-} from 'graphql-tools/dist/transforms/visitSchema';
+} from '@apollo-model/graphql-tools/dist/transforms/visitSchema';
 
 import {
   recreateType,
   createResolveType,
   fieldMapToFieldConfigMap,
   inputFieldMapToFieldConfigMap,
-} from 'graphql-tools/dist/stitching/schemaRecreation';
+} from '@apollo-model/graphql-tools/dist/stitching/schemaRecreation';
 
 import { visit, SelectionSetNode, BREAK, FieldNode } from 'graphql';
 
@@ -108,7 +108,7 @@ export default (filterFields, defaultFields, defaultArgs) => {
   let defaults = DefaultFields();
 
   return {
-    transformRequest(request) {
+    transformRequest(request, options = {}) {
       const typeStack = [];
 
       let newDocument = visit(request.document, {
@@ -136,7 +136,7 @@ export default (filterFields, defaultFields, defaultArgs) => {
               |> mapFieldForTypeStack
               |> typeStack.push;
 
-            return defaults.applyDefaultArgs(node)(
+            return defaults.applyDefaultArgs(node, options.context)(
               R.head(R.takeLast(2, typeStack)),
               R.last(typeStack)
             );
@@ -150,7 +150,7 @@ export default (filterFields, defaultFields, defaultArgs) => {
         },
         [Kind.INLINE_FRAGMENT]: {
           enter: node => {
-            let name = getFragmentTypeName(node);
+            let name = getFragmentTypeName(node, options.context);
             name |> getType |> mapTypeForTypeStack |> typeStack.push;
           },
           leave: node => {
@@ -167,7 +167,9 @@ export default (filterFields, defaultFields, defaultArgs) => {
               |> typeStack.push;
           },
           leave: node => {
-            return typeStack.pop() |> defaults.applyDefaults(node);
+            return (
+              typeStack.pop() |> defaults.applyDefaults(node, options.context)
+            );
           },
         },
         [Kind.OBJECT_FIELD]: {
@@ -180,7 +182,9 @@ export default (filterFields, defaultFields, defaultArgs) => {
               |> typeStack.push;
           },
           leave: node => {
-            return typeStack.pop() |> defaults.applyDefaults(node);
+            return (
+              typeStack.pop() |> defaults.applyDefaults(node, options.context)
+            );
           },
         },
       });
