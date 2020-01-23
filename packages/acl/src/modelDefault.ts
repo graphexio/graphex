@@ -1,8 +1,12 @@
+import { ACLDefault } from './definitions';
 import { modelField } from './modelField';
 
-export const modelDefault = (modelName, fieldName, access, fn) => {
-  return {
-    cond: modelField(modelName, fieldName, access),
-    fn,
+export function modelDefault(modelName, fieldName, access, fn): ACLDefault {
+  return schema => {
+    const cond = modelField(modelName, fieldName, access)(schema);
+    return {
+      cond,
+      fn,
+    };
   };
-};
+}

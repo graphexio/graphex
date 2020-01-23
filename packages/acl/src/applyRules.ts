@@ -11,6 +11,13 @@ export const applyRules = (
     argsDefaults = [],
   }
 ) => {
+  const prepareRules = rules => rules.map(rule => rule(schema));
+
+  allowRules = prepareRules(allowRules);
+  denyRules = prepareRules(denyRules);
+  defaults = prepareRules(defaults);
+  argsDefaults = prepareRules(argsDefaults);
+
   let filterFields = SchemaFilter(
     (type, field) => {
       let allow = R.anyPass(allowRules)({ type, field, schema });

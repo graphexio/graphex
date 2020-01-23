@@ -5,6 +5,7 @@ import {
   GraphQLSchema,
   GraphQLNamedType,
   GraphQLField,
+  GraphQLType,
 } from 'graphql';
 
 import { AMCreateTypeFactory } from '@apollo-model/core/lib/inputTypes/create';
@@ -31,7 +32,14 @@ import {
   AMModelType,
   IAMTypeFactory,
 } from '@apollo-model/core/lib/definitions';
-import { matchingTypes, extractAbstractTypes } from './utils';
+import {
+  matchingTypes,
+  extractAbstractTypes,
+  matchingFields,
+  toEntries,
+  toMap,
+} from './utils';
+import { ACLRule } from './definitions';
 
 function transformAccessToInputTypeFactories(
   access: string
@@ -67,47 +75,47 @@ function transformAccessToInputTypeFactories(
   }[access];
 }
 
-const inputTypeFactoryToInputRegExp = R.curry(
+const typeNameFromFactory = R.curry(
   (
     modelType: AMModelType,
-    fieldName,
     inputTypeFactory: IAMTypeFactory<GraphQLInputObjectType>
   ) => {
-    let inputName = inputTypeFactory
+    return inputTypeFactory
       ? inputTypeFactory.getTypeName(modelType)
       : modelType.name;
-    return new RegExp(
-      `^(?!Query|Mutation|Subscription)${inputName}\\.${fieldName}$`
-    );
   }
 );
 
-export const modelField = (typePattern, fieldName, access) => {
-  const typeToRegExp = type =>
-    R.pipe(
-      R.split(''),
-      R.chain(transformAccessToInputTypeFactories),
-      R.map(inputTypeFactoryToInputRegExp(type, fieldName)),
-      R.map(R.test)
-    )(access);
+export function modelField(typePattern, fieldName, access): ACLRule {
+  return (schema: GraphQLSchema) => {
+    const isTypeExists = typeName => Boolean(schema.getType(typeName));
+    const concatFieldName = typeName => {
+      return matchingFields(
+        schema,
+        typeName,
+        new RegExp(`^(?:${fieldName})$`)
+      ).map(field => `${typeName}.${field.name}`);
+    };
 
-  return ({
-    type,
-    field,
-    schema,
-  }: {
-    type: GraphQLNamedType;
-    field: GraphQLField<any, any, any>;
-    schema: GraphQLSchema;
-  }) => {
-    let possibleTypes = R.pipe(
+    const typeToFieldSignature = type =>
+      R.pipe(
+        R.split(''),
+        R.chain(transformAccessToInputTypeFactories),
+        R.map(typeNameFromFactory(type)),
+        R.filter(isTypeExists),
+        R.chain(concatFieldName)
+      )(access);
+
+    const enableFields = R.pipe(
       matchingTypes(schema),
-      extractAbstractTypes(schema)
-    )(new RegExp(typePattern));
+      extractAbstractTypes(schema),
+      R.chain(typeToFieldSignature),
+      R.map(toEntries),
+      toMap
+    )(new RegExp(`^(?:${typePattern})$`));
 
-    const enableFields = R.chain(typeToRegExp, possibleTypes);
-
-    let title = `${type.name}.${field.name}`;
-    return R.anyPass(enableFields)(title);
+    return ({ type, field }) => {
+      return enableFields.has(`${type.name}.${field.name}`);
+    };
   };
-};
+}

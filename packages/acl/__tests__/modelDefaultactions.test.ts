@@ -31,7 +31,7 @@ test.each([
   ['D', [false, false, false, false, true, true, false]],
 ])('modelAccess %s', (permission, resultmask) => {
   let modelName = 'Brand';
-  let rule = modelDefaultActions(modelName, permission);
+  let rule = modelDefaultActions(modelName, permission)(schema);
   let modelType = schema.getType(modelName) as AMModelType;
 
   [
@@ -43,16 +43,17 @@ test.each([
     AMModelDeleteManyMutationFieldFactory,
     AMModelUpdateMutationFieldFactory,
   ].forEach((methodFactory, i) => {
+    const type =
+      methodFactory.getOperationType() === GraphQLOperationType.Query
+        ? schema.getQueryType()
+        : schema.getMutationType();
+
+    const field = type.getFields()[methodFactory.getFieldName(modelType)];
+
     expect(
       rule({
-        type: {
-          name:
-            methodFactory.getOperationType() === GraphQLOperationType.Query
-              ? 'Query'
-              : 'Mutation',
-        },
-        field: { name: methodFactory.getFieldName(modelType) },
-        schema,
+        type,
+        field,
       })
     ).toBe(resultmask[i]);
   });

@@ -306,10 +306,10 @@ describe('accessRules', () => {
           }),
         ],
         argsDefaults: [
-          {
-            cond: modelDefaultActions('Post', 'RUD'),
+          schema => ({
+            cond: modelDefaultActions('Post', 'RUD')(schema),
             fn: () => ({ where: {} }),
-          },
+          }),
         ],
       });
 

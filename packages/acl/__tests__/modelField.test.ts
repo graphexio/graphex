@@ -16,12 +16,12 @@ const schema = new AMM({}).makeExecutableSchema({
 test('fieldAccessRule', () => {
   const modelName = 'Brand';
   const fieldName = 'title';
-  const type = schema.getType('Brand') as GraphQLObjectType;
-  const field = type.getFields()['title'];
+  const type = schema.getType(modelName) as GraphQLObjectType;
+  const field = type.getFields()[fieldName];
 
-  const rule = modelField(modelName, fieldName, 'R');
+  const rule = modelField(modelName, fieldName, 'R')(schema);
 
-  expect(rule({ type, field, schema })).toBe(true);
+  expect(rule({ type, field })).toBe(true);
 });
 
 test('fieldAccessRule Wildcard', () => {
@@ -34,10 +34,10 @@ test('fieldAccessRule Wildcard', () => {
   const Mutation = schema.getType('Mutation');
   //   const Subscription = schema.getType('Subscription');
 
-  let rule = modelField('.*', '.*', 'R');
+  let rule = modelField('.*', '.*', 'R')(schema);
 
-  expect(rule({ type, field, schema })).toBe(true);
-  expect(rule({ type: Query, field, schema })).toBe(false);
-  expect(rule({ type: Mutation, field, schema })).toBe(false);
+  expect(rule({ type, field })).toBe(true);
+  expect(rule({ type: Query, field })).toBe(false);
+  expect(rule({ type: Mutation, field })).toBe(false);
   //   expect(rule({ type: Subscription, field, schema })).toBe(false);
 });

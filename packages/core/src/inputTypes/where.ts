@@ -55,7 +55,7 @@ export const AMWhereTypeFactory: IAMTypeFactory<AMInputObjectType> = {
         };
 
         Object.values(modelType.getFields()).forEach(field => {
-          const fieldFactories = field?.mmFieldFactories?.AMCreateTypeFactory
+          const fieldFactories = field?.mmFieldFactories?.AMWhereTypeFactory
             ? field.mmFieldFactories.AMWhereTypeFactory
             : getSelectors()
                 .filter(isApplicable(field))
