@@ -3,6 +3,9 @@
   "version": "0.6.0-alpha.31",
   "description": "",
   "main": "lib/index.js",
+  "files": [
+    "lib/*"
+  ],
   "scripts": {
     "dev": "MONGO_URL='mongodb+srv://public:public@cluster0-c6p6b.mongodb.net/admin' MONGO_DB='db1' nodemon --exec babel-node dev-server/index.js",
     "test": "jest",

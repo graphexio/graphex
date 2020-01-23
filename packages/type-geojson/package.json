@@ -3,12 +3,15 @@
   "version": "0.6.0-alpha.30",
   "description": "",
   "main": "lib/index.js",
+  "files": [
+    "lib/*"
+  ],
   "scripts": {
     "prepare": "rimraf ./lib && babel --extensions '.ts,.js' ./src --out-dir ./lib",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@apollo-model/core": "^0.6.0-alpha.30"
+    "@apollo-model/core": "0.6.0-alpha.30"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.2",
