@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@apollo-model/graphql-tools@^4.0.6":
+"@apollo-model/graphql-tools@4.0.6", "@apollo-model/graphql-tools@^4.0.6":
   version "4.0.6"
   resolved "https://registry.yarnpkg.com/@apollo-model/graphql-tools/-/graphql-tools-4.0.6.tgz#331af5122c4dc830f2d7404cc26e7030e2db94ec"
   integrity sha512-/bD8NEpXKcxMqQeP4WtznpJU8bFA/p39lxDKRk/z9euQsdoejAX8ruJlpHOboh/qR3OCm9awozTgDR+DY3LrOw==

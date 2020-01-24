@@ -43,6 +43,38 @@ test('QueryCategories empty', async () => {
   `);
 });
 
+test('Empty WhereUnique', async () => {
+  let { errors, data } = await query({
+    query: gql`
+      query {
+        category(where: {}) {
+          title
+        }
+      }
+    `,
+    variables: {},
+  });
+  expect(errors).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "extensions": Object {
+          "code": "BAD_USER_INPUT",
+        },
+        "locations": Array [
+          Object {
+            "column": 3,
+            "line": 2,
+          },
+        ],
+        "message": "WhereUniqueType cannot be empty",
+        "path": Array [
+          "category",
+        ],
+      },
+    ]
+  `);
+});
+
 test('CreateCategory', async () => {
   let { errors, data } = await mutate({
     mutation: gql`

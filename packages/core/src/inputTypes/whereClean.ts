@@ -61,7 +61,7 @@ export const AMWhereCleanTypeFactory: IAMTypeFactory<GraphQLInputObjectType> = {
 
         return fields;
       },
-      ...whereTypeVisitorHandler,
+      ...whereTypeVisitorHandler({ emptyAllowed: false }),
     });
   },
 };

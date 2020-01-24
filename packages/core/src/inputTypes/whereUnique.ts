@@ -59,7 +59,7 @@ export const AMWhereUniqueTypeFactory: IAMTypeFactory<GraphQLInputObjectType> = 
 
         return fields;
       },
-      ...whereTypeVisitorHandler,
+      ...whereTypeVisitorHandler({ emptyAllowed: false }),
     });
   },
 };

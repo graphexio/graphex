@@ -69,7 +69,7 @@ export const AMWhereTypeFactory: IAMTypeFactory<AMInputObjectType> = {
 
         return fields;
       },
-      ...whereTypeVisitorHandler,
+      ...whereTypeVisitorHandler(),
     });
   },
 };

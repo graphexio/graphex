@@ -6,6 +6,7 @@ import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMOperation } from '../execution/operation';
 import { AMModelField, AMVisitable } from '../definitions';
 import { getLastOperation, getFieldPath } from '../execution/utils';
+import { UserInputError } from 'apollo-server';
 
 export const defaultObjectFieldVisitorHandler = (
   fieldName: string,
@@ -47,30 +48,38 @@ export const updateObjectFieldVisitorHandler = (fieldName: string) =>
     },
   };
 
-export const whereTypeVisitorHandler = <AMVisitable>{
-  amEnter(node, transaction, stack) {
-    const context = new AMSelectorContext();
-    stack.push(context);
-  },
-  amLeave(node, transaction, stack) {
-    const context = stack.pop() as AMSelectorContext;
-    const lastInStack = R.last(stack);
+export const whereTypeVisitorHandler = (options = { emptyAllowed: true }) =>
+  <AMVisitable>{
+    amEnter(node, transaction, stack) {
+      const context = new AMSelectorContext();
+      stack.push(context);
+    },
+    amLeave(node, transaction, stack) {
+      const context = stack.pop() as AMSelectorContext;
+      const lastInStack = R.last(stack);
 
-    if (context.selector.aclWhere) {
-      context.selector = {
-        $and: [
-          R.omit(['aclWhere'], context.selector),
-          context.selector.aclWhere,
-        ],
-      };
-    }
+      if (
+        !options.emptyAllowed &&
+        Object.values(R.omit(['aclWhere'], context.selector)).length === 0
+      ) {
+        throw new UserInputError('WhereUniqueType cannot be empty');
+      }
 
-    if (lastInStack instanceof AMOperation) {
-      lastInStack.setSelector(context);
-    } else if (lastInStack instanceof AMListValueContext) {
-      lastInStack.addValue(context.selector);
-    } else if (lastInStack instanceof AMObjectFieldContext) {
-      lastInStack.setValue(context.selector);
-    }
-  },
-};
+      if (context.selector.aclWhere) {
+        context.selector = {
+          $and: [
+            R.omit(['aclWhere'], context.selector),
+            context.selector.aclWhere,
+          ],
+        };
+      }
+
+      if (lastInStack instanceof AMOperation) {
+        lastInStack.setSelector(context);
+      } else if (lastInStack instanceof AMListValueContext) {
+        lastInStack.addValue(context.selector);
+      } else if (lastInStack instanceof AMObjectFieldContext) {
+        lastInStack.setValue(context.selector);
+      }
+    },
+  };

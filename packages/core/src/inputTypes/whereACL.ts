@@ -58,7 +58,7 @@ export const AMWhereACLTypeFactory: IAMTypeFactory<AMInputObjectType> = {
 
         return fields;
       },
-      ...whereTypeVisitorHandler,
+      ...whereTypeVisitorHandler(),
     });
   },
 };
