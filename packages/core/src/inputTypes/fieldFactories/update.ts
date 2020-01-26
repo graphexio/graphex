@@ -11,7 +11,11 @@ import TypeWrap from '@apollo-model/type-wrap';
 
 export const AMUpdateFieldFactory: IAMInputFieldFactory = {
   isApplicable(field) {
-    return !isCompositeType(getNamedType(field.type)) && !field.isID;
+    return (
+      !isCompositeType(getNamedType(field.type)) &&
+      !field.isID &&
+      !field.isReadOnly
+    );
   },
   getFieldName(field) {
     return field.name;

@@ -13,6 +13,7 @@ import * as ID from './directives/id';
 import * as Inherit from '@apollo-model/directive-inherit';
 import * as Unique from './directives/unique';
 import * as Embedded from './directives/embedded';
+import * as ReadOnly from './directives/readonly';
 
 import * as Date from './scalars/date';
 import * as JSON from './scalars/JSON';
@@ -33,6 +34,7 @@ export default [
   Inherit,
   Unique,
   Embedded,
+  ReadOnly,
 
   Date,
   JSON,

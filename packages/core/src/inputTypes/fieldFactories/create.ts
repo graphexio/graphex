@@ -4,7 +4,11 @@ import { defaultObjectFieldVisitorHandler } from '../visitorHandlers';
 
 export const AMCreateFieldFactory: IAMInputFieldFactory = {
   isApplicable(field) {
-    return !isCompositeType(getNamedType(field.type)) && !field.isID;
+    return (
+      !isCompositeType(getNamedType(field.type)) &&
+      !field.isID &&
+      !field.isReadOnly
+    );
   },
   getFieldName(field) {
     return field.name;

@@ -165,6 +165,7 @@ export type AMModelField = AMField & {
   dbName: string;
   isID: boolean;
   isUnique: boolean;
+  isReadOnly: boolean;
   relation: {
     external: boolean;
     abstract: boolean;
