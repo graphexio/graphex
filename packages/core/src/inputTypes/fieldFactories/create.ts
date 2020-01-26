@@ -16,7 +16,7 @@ export const AMCreateFieldFactory: IAMInputFieldFactory = {
   getField(field, schemaInfo) {
     return <AMInputField>{
       name: this.getFieldName(field),
-      type: field.type,
+      type: field.defaultValue ? getNamedType(field.type) : field.type,
       ...defaultObjectFieldVisitorHandler(field.dbName),
       // amEnter(node: ObjectFieldNode, transaction, stack) {
       //   const action = new AMObjectFieldContext(field.dbName);

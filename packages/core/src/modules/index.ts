@@ -14,6 +14,7 @@ import * as Inherit from '@apollo-model/directive-inherit';
 import * as Unique from './directives/unique';
 import * as Embedded from './directives/embedded';
 import * as ReadOnly from './directives/readonly';
+import * as Default from './directives/default';
 
 import * as Date from './scalars/date';
 import * as JSON from './scalars/JSON';
@@ -25,7 +26,7 @@ export default [
   Discriminator,
   CreatedAt,
   UpdatedAt,
-  // Default,
+
   Abstract,
   DB,
   Relation,
@@ -35,6 +36,7 @@ export default [
   Unique,
   Embedded,
   ReadOnly,
+  Default,
 
   Date,
   JSON,

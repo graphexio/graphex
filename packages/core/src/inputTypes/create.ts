@@ -56,7 +56,7 @@ export const AMCreateTypeFactory: IAMTypeFactory<AMInputObjectType> = {
           );
         }
 
-        /* Begin filling createdAt, updatedAt */
+        /* Begin filling createdAt, updatedAt, default */
         if (modelType.mmCreatedAtFields) {
           modelType.mmCreatedAtFields.forEach(createdAtField => {
             context.addValue(createdAtField.dbName, new Date());
@@ -67,7 +67,12 @@ export const AMCreateTypeFactory: IAMTypeFactory<AMInputObjectType> = {
             context.addValue(updatedAtField.dbName, new Date());
           });
         }
-        /* End filling createdAt, updatedAt */
+        if (modelType.mmDefaultFields) {
+          modelType.mmDefaultFields.forEach(defaultField => {
+            context.addValue(defaultField.dbName, defaultField.defaultValue);
+          });
+        }
+        /* End filling createdAt, updatedAt, default */
       },
       amLeave(node, transaction, stack) {
         const context = stack.pop() as AMDataContext;

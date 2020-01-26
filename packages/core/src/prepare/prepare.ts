@@ -9,6 +9,7 @@ import { extRelationDirective } from './extRelationDirective';
 import { createdAtDirective } from './createdAtDirective';
 import { updatedAtDirective } from './updatedAtDirective';
 import { embeddedDirective } from './embeddedDirective';
+import { defaultDirective } from './defaultDirective';
 import { validations } from './validations';
 
 export const prepare = (
@@ -29,4 +30,5 @@ export const prepare = (
   createdAtDirective(schema);
   updatedAtDirective(schema);
   embeddedDirective(schema);
+  defaultDirective(schema);
 };

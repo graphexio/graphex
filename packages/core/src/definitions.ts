@@ -166,6 +166,7 @@ export type AMModelField = AMField & {
   isID: boolean;
   isUnique: boolean;
   isReadOnly: boolean;
+  defaultValue?: any;
   relation: {
     external: boolean;
     abstract: boolean;
@@ -191,6 +192,7 @@ export type AMModelType = (
   mmModel: boolean;
   mmCreatedAtFields?: AMModelField[];
   mmUpdatedAtFields?: AMModelField[];
+  mmDefaultFields?: AMModelField[];
 };
 
 export interface AMResolveFactoryType {
