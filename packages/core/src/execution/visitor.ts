@@ -44,10 +44,17 @@ export class AMVisitor {
     variableValues: { [key: string]: any } = {},
     transaction: AMTransaction
   ) {
+    /* 
+    
+    Code in resolve.ts splits request into separate documents which produces
+    error if some variables become unused
+
     const errors = validate(schema, document);
     if (errors.length > 0) {
       throw errors;
     }
+
+    */
 
     const typeInfo = new TypeInfo(schema);
     const stack: AMVisitorStack = [];
