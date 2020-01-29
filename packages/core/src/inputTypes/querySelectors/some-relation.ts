@@ -11,6 +11,7 @@ export const SomeRelationSelector: IAMQuerySelector = {
   isApplicable(field) {
     const typeWrap = new TypeWrap(field.type);
     return (
+      typeWrap.isMany() &&
       Boolean(field.relation) &&
       !field.relation.abstract &&
       !field.relation.external

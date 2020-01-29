@@ -657,8 +657,10 @@ test('Find users by interface where', async () => {
       query {
         users(
           where: {
-            profile: {
-              SubscriberProfile: { firstName: "Gwion", lastName: "Britt" }
+            User: {
+              profile: {
+                SubscriberProfile: { firstName: "Gwion", lastName: "Britt" }
+              }
             }
           }
         ) {
@@ -1627,7 +1629,7 @@ test('extRelation single', async () => {
   let { errors, data } = await query({
     query: gql`
       query {
-        users(where: { username: "admin" }) {
+        users(where: { User: { username: "admin" } }) {
           lastPost {
             title
           }

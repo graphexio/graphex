@@ -8,6 +8,9 @@ import {
   IAMTypeFactory,
 } from '../definitions';
 import { AMWhereTypeFactory } from './where';
+import { AMOperation } from '../execution/operation';
+import { AMObjectFieldContext } from '../execution/contexts/objectField';
+import { AMReadOperation } from '../execution/operations/readOperation';
 
 export const AMInterfaceWhereTypeFactory: IAMTypeFactory<GraphQLInputObjectType> = {
   getTypeName(modelType): string {
@@ -21,9 +24,10 @@ export const AMInterfaceWhereTypeFactory: IAMTypeFactory<GraphQLInputObjectType>
       fields: () => {
         const fields = {};
         if (modelType instanceof GraphQLInterfaceType) {
-          (schemaInfo.schema.getPossibleTypes(
-            modelType
-          ) as AMModelType[]).forEach((possibleType: AMModelType) => {
+          [
+            modelType,
+            ...(schemaInfo.schema.getPossibleTypes(modelType) as AMModelType[]),
+          ].forEach((possibleType: AMModelType) => {
             fields[possibleType.name] = <AMInputFieldConfig>{
               type: schemaInfo.resolveFactoryType(
                 possibleType,
@@ -34,10 +38,22 @@ export const AMInterfaceWhereTypeFactory: IAMTypeFactory<GraphQLInputObjectType>
                     // amEnter(node, transaction, stack) {
                     //   },
                     amLeave(node, transaction, stack) {
-                      const lastInStack = R.last(stack);
-                      if (lastInStack instanceof AMCreateOperation) {
-                        if (lastInStack.data) {
-                          lastInStack.data.addValue(
+                      if (
+                        modelType.mmDiscriminatorField &&
+                        possibleType.mmDiscriminator
+                      ) {
+                        const lastInStack = R.last(stack);
+                        if (lastInStack instanceof AMReadOperation) {
+                          if (lastInStack.selector) {
+                            lastInStack.selector.addValue(
+                              modelType.mmDiscriminatorField,
+                              possibleType.mmDiscriminator
+                            );
+                          }
+                        } else if (
+                          lastInStack instanceof AMObjectFieldContext
+                        ) {
+                          lastInStack.addValue(
                             modelType.mmDiscriminatorField,
                             possibleType.mmDiscriminator
                           );

@@ -5,6 +5,7 @@ import { AMVisitor } from '../src/execution/visitor';
 import { AMTransaction } from '../src/execution/transaction';
 import { UserInputError } from 'apollo-server';
 import { AMOptions } from '../src/definitions';
+import { validate } from 'graphql';
 
 const generateSchema = (typeDefs, options?: AMOptions) => {
   return new AMM({
@@ -29,6 +30,16 @@ const buildFederatedSchema = typeDefs => {
   });
 };
 
+const prepareTransaction = (schema, rq) => {
+  const errors = validate(schema, rq);
+  if (errors.length > 0) {
+    throw errors;
+  }
+  const transaction = new AMTransaction();
+  AMVisitor.visit(schema, rq, {}, transaction);
+  return transaction;
+};
+
 describe('simple schema', () => {
   const schema = generateSchema(gql`
     type Post @model {
@@ -48,8 +59,7 @@ describe('simple schema', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
                 Object {
                   "operations": Array [
@@ -80,8 +90,7 @@ describe('simple schema', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
   });
 
   test('undefined variable object', () => {
@@ -93,8 +102,7 @@ describe('simple schema', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
   });
 
   test('single query', () => {
@@ -107,8 +115,7 @@ describe('simple schema', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
                   Object {
                     "operations": Array [
@@ -143,8 +150,7 @@ describe('simple schema', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
                 Object {
                   "operations": Array [
@@ -179,8 +185,7 @@ describe('simple schema', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
               Object {
                 "operations": Array [
@@ -215,8 +220,7 @@ describe('simple schema', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
               Object {
                 "operations": Array [
@@ -251,8 +255,7 @@ describe('simple schema', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
                   Object {
                     "operations": Array [
@@ -293,8 +296,7 @@ describe('simple schema', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
                 Object {
                   "operations": Array [
@@ -345,8 +347,7 @@ describe('nested objects', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
                   Object {
                     "operations": Array [
@@ -391,8 +392,7 @@ describe('nested objects', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
                   Object {
                     "operations": Array [
@@ -440,8 +440,7 @@ describe('nested objects', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
                     Object {
                       "operations": Array [
@@ -486,8 +485,7 @@ describe('nested objects', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction.operations[0].data).toMatchInlineSnapshot(`
                         Object {
                           "$push": Object {
@@ -518,8 +516,7 @@ describe('nested objects', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction.operations[0].data).toMatchInlineSnapshot(`
               Object {
                 "$set": Object {
@@ -561,8 +558,7 @@ describe('nested objects', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
                   Object {
                     "operations": Array [
@@ -620,8 +616,7 @@ describe('nested objects', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
                   Object {
                     "operations": Array [
@@ -691,8 +686,7 @@ describe('relation', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
 
     expect(transaction).toMatchInlineSnapshot(`
                   Object {
@@ -748,8 +742,7 @@ describe('relation', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
 
     expect(transaction).toMatchInlineSnapshot(`
               Object {
@@ -869,8 +862,7 @@ describe('relation', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
 
     expect(transaction).toMatchInlineSnapshot(`
                     Object {
@@ -922,8 +914,7 @@ describe('relation', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
 
     expect(transaction).toMatchInlineSnapshot(`
                               Object {
@@ -972,8 +963,7 @@ describe('relation', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
 
     expect(transaction).toMatchInlineSnapshot(`
                 Object {
@@ -1021,8 +1011,7 @@ describe('relation', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
 
     expect(transaction).toMatchInlineSnapshot(`
                 Object {
@@ -1078,8 +1067,7 @@ describe('relation', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
       Object {
         "operations": Array [
@@ -1160,8 +1148,7 @@ describe('extRelation', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
                   Object {
                     "operations": Array [
@@ -1210,8 +1197,7 @@ describe('extRelation', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
        Object {
          "operations": Array [
@@ -1262,8 +1248,7 @@ describe('extRelation', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
     Object {
       "operations": Array [
@@ -1349,8 +1334,7 @@ describe('interfaces', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
       Object {
         "operations": Array [
@@ -1383,8 +1367,7 @@ describe('interfaces', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
       Object {
         "operations": Array [
@@ -1417,8 +1400,7 @@ describe('interfaces', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
       Object {
         "operations": Array [
@@ -1444,14 +1426,15 @@ describe('interfaces', () => {
   test('interface where', () => {
     const rq = gql`
       query {
-        users(where: { profile: { SubscriberProfile: { name: "test" } } }) {
+        users(
+          where: { User: { profile: { SubscriberProfile: { name: "test" } } } }
+        ) {
           id
         }
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
       Object {
         "operations": Array [
@@ -1467,12 +1450,47 @@ describe('interfaces', () => {
             "many": true,
             "output": "AMResultPromise { Operation-0 }",
             "selector": Object {
+              "profile._type": "subscriberProfile",
               "profile.name": "test",
             },
           },
         ],
       }
-    `);
+      `);
+  });
+
+  test('interface where specific type', () => {
+    const rq = gql`
+      query {
+        users(where: { Subscriber: { profile: { name: "test" } } }) {
+          id
+        }
+      }
+    `;
+
+    const transaction = prepareTransaction(schema, rq);
+    expect(transaction).toMatchInlineSnapshot(`
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "users",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": "AMResultPromise { Operation-0 }",
+            "selector": Object {
+              "_type": "subscriber",
+              "profile.name": "test",
+            },
+          },
+        ],
+      }
+      `);
   });
 
   test('update query', () => {
@@ -1487,8 +1505,7 @@ describe('interfaces', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
       Object {
         "operations": Array [
@@ -1530,8 +1547,7 @@ describe('interfaces', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
       Object {
         "operations": Array [
@@ -1570,8 +1586,7 @@ describe('interfaces', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
       Object {
         "operations": Array [
@@ -1603,8 +1618,7 @@ describe('interfaces', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
       Object {
         "operations": Array [
@@ -1639,8 +1653,7 @@ describe('interfaces', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
             Object {
               "operations": Array [
@@ -1703,8 +1716,7 @@ describe('interfaces', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
             Object {
               "operations": Array [
@@ -1769,8 +1781,7 @@ describe('interfaces', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
       Object {
         "operations": Array [
@@ -1813,8 +1824,7 @@ describe('interfaces', () => {
     `;
 
     //TODO: Fix filtering distinct and distinctReplace
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
     Object {
       "operations": Array [
@@ -1885,8 +1895,7 @@ describe('interfaces', () => {
     `;
 
     //TODO: Fix filtering distinct and distinctReplace
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
     Object {
       "operations": Array [
@@ -1968,8 +1977,7 @@ describe('abstract interface', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
                 Object {
                   "operations": Array [
@@ -2035,8 +2043,7 @@ describe('abstract interface', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
                     Object {
                       "operations": Array [
@@ -2104,8 +2111,7 @@ describe('abstract interface', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction.operations[0].data).toMatchInlineSnapshot(`
                   Object {
                     "title": "post title",
@@ -2134,8 +2140,7 @@ describe('abstract interface', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
       Object {
         "operations": Array [
@@ -2242,8 +2247,7 @@ describe('federated', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
       Object {
         "operations": Array [
@@ -2494,8 +2498,7 @@ describe('nested interfaces', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
                   Object {
                     "operations": Array [
@@ -2556,8 +2559,7 @@ describe('aclWhere', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
       Object {
         "operations": Array [
@@ -2615,8 +2617,7 @@ describe('default', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
       Object {
         "operations": Array [
@@ -2651,8 +2652,7 @@ describe('default', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
-    AMVisitor.visit(schema, rq, {}, transaction);
+    const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
       Object {
         "operations": Array [

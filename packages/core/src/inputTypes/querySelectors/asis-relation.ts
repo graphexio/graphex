@@ -1,11 +1,12 @@
 import TypeWrap from '@apollo-model/type-wrap';
-import { getNamedType, ObjectFieldNode } from 'graphql';
+import { getNamedType, ObjectFieldNode, isInterfaceType } from 'graphql';
 import R from 'ramda';
 import { IAMQuerySelector } from '../../definitions';
 import { AMObjectFieldContext } from '../../execution/contexts/objectField';
 import { AMSelectorContext } from '../../execution/contexts/selector';
 import { AMReadOperation } from '../../execution/operations/readOperation';
 import { AMWhereTypeFactory } from '../where';
+import { AMInterfaceWhereTypeFactory } from '../interfaceWhere';
 
 export const AsIsRelationSelector: IAMQuerySelector = {
   isApplicable(field) {
@@ -22,7 +23,12 @@ export const AsIsRelationSelector: IAMQuerySelector = {
         const namedType = getNamedType(field.type);
         return {
           name: this.getFieldName(field),
-          type: schemaInfo.resolveFactoryType(namedType, AMWhereTypeFactory),
+          type: schemaInfo.resolveFactoryType(
+            namedType,
+            isInterfaceType(namedType)
+              ? AMInterfaceWhereTypeFactory
+              : AMWhereTypeFactory
+          ),
           amEnter(node: ObjectFieldNode, transaction, stack) {
             if (node.value.kind === 'NullValue') {
               const lastInStack = R.last(stack);

@@ -262,6 +262,43 @@ describe('interface', () => {
     }
   `);
 
+  test('PostWhereInput', () => {
+    expect(printType(schema.getType('PostWhereInput'))).toMatchInlineSnapshot(`
+      "input PostWhereInput {
+        AND: [PostWhereInput]
+        OR: [PostWhereInput]
+        id_exists: Boolean
+        id_in: [ID]
+        id_not_in: [ID]
+        id: ID
+        id_not: ID
+        title_exists: Boolean
+        title_in: [String]
+        title_not_in: [String]
+        title: String
+        title_lt: String
+        title_lte: String
+        title_gt: String
+        title_gte: String
+        title_not: String
+        title_contains: String
+        title_starts_with: String
+        title_ends_with: String
+        likes_size: Int
+        likes_not_size: Int
+        likes_exists: Boolean
+        likes_all: [UserWhereCleanInput]
+        likes_exact: [UserWhereCleanInput]
+        likes_not_in: [UserWhereCleanInput]
+        likes_some: UserWhereInput
+        likes: UserInterfaceWhereInput
+        owner_exists: Boolean
+        owner_not_in: [UserWhereCleanInput]
+        owner: UserInterfaceWhereInput
+      }"
+    `);
+  });
+
   test('UserWhereInput', () => {
     expect(printType(schema.getType('UserWhereInput'))).toMatchInlineSnapshot(`
        "input UserWhereInput {
@@ -274,6 +311,17 @@ describe('interface', () => {
          id_not: ID
          profile_exists: Boolean
          profile: ProfileInterfaceWhereInput
+       }"
+    `);
+  });
+
+  test('ProfileInterfaceWhereInput', () => {
+    expect(printType(schema.getType('ProfileInterfaceWhereInput')))
+      .toMatchInlineSnapshot(`
+       "input ProfileInterfaceWhereInput {
+         Profile: ProfileWhereInput
+         AdminProfile: AdminProfileWhereInput
+         SubscriberProfile: SubscriberProfileWhereInput
        }"
     `);
   });
@@ -305,6 +353,18 @@ describe('interface', () => {
               Admin: AdminCreateInput
               Subscriber: SubscriberCreateInput
               Manager: ManagerCreateInput
+            }"
+        `);
+  });
+
+  test('UserInterfaceWhereInput', () => {
+    expect(printType(schema.getType('UserInterfaceWhereInput')))
+      .toMatchInlineSnapshot(`
+            "input UserInterfaceWhereInput {
+              User: UserWhereInput
+              Admin: AdminWhereInput
+              Subscriber: SubscriberWhereInput
+              Manager: ManagerWhereInput
             }"
         `);
   });

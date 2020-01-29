@@ -38,10 +38,22 @@ export const AMInterfaceWhereUniqueTypeFactory: IAMTypeFactory<GraphQLInputObjec
                     // amEnter(node, transaction, stack) {
                     //   },
                     amLeave(node, transaction, stack) {
-                      const lastInStack = R.last(stack);
-                      if (lastInStack instanceof AMReadOperation) {
-                        if (lastInStack.data) {
-                          lastInStack.data.addValue(
+                      if (
+                        modelType.mmDiscriminatorField &&
+                        possibleType.mmDiscriminator
+                      ) {
+                        const lastInStack = R.last(stack);
+                        if (lastInStack instanceof AMReadOperation) {
+                          if (lastInStack.selector) {
+                            lastInStack.selector.addValue(
+                              modelType.mmDiscriminatorField,
+                              possibleType.mmDiscriminator
+                            );
+                          }
+                        } else if (
+                          lastInStack instanceof AMObjectFieldContext
+                        ) {
+                          lastInStack.addValue(
                             modelType.mmDiscriminatorField,
                             possibleType.mmDiscriminator
                           );

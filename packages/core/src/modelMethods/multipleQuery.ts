@@ -1,4 +1,9 @@
-import { GraphQLInt, GraphQLList, GraphQLNonNull } from 'graphql';
+import {
+  GraphQLInt,
+  GraphQLList,
+  GraphQLNonNull,
+  isInterfaceType,
+} from 'graphql';
 import pluralize from 'pluralize';
 import R from 'ramda';
 import { AMReadOperation } from '../execution/operations/readOperation';
@@ -19,6 +24,7 @@ import { AMOperation } from '../execution/operation';
 import { skipArg } from '../args/skip';
 import { firstArg } from '../args/first';
 import { AMSelectorContext } from '../execution/contexts/selector';
+import { AMInterfaceWhereTypeFactory } from '../inputTypes/interfaceWhere';
 
 export const AMModelMultipleQueryFieldFactory: IAMMethodFieldFactory = {
   getOperationType() {
@@ -36,7 +42,12 @@ export const AMModelMultipleQueryFieldFactory: IAMMethodFieldFactory = {
       args: [
         {
           name: 'where',
-          type: schemaInfo.resolveFactoryType(modelType, AMWhereTypeFactory),
+          type: schemaInfo.resolveFactoryType(
+            modelType,
+            isInterfaceType(modelType)
+              ? AMInterfaceWhereTypeFactory
+              : AMWhereTypeFactory
+          ),
         },
         {
           name: 'orderBy',
