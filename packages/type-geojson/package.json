@@ -1,6 +1,6 @@
 {
   "name": "@apollo-model/type-geojson",
-  "version": "0.6.0-alpha.35",
+  "version": "0.6.0-alpha.36",
   "description": "",
   "main": "lib/index.js",
   "files": [
@@ -11,7 +11,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@apollo-model/core": "0.6.0-alpha.35"
+    "@apollo-model/core": "^0.6.0-alpha.36"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.2",
