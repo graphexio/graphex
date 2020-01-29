@@ -35,11 +35,13 @@ export const AMUpdateTypeFactory: IAMTypeFactory<AMInputObjectType> = {
         const fields = {};
 
         Object.values(modelType.getFields()).forEach(field => {
-          const fieldFactories = [
-            AMUpdateFieldFactory,
-            AMUpdateNestedFieldFactory,
-            AMUpdateRelationFieldFactory,
-          ].filter(isApplicable(field));
+          const fieldFactories = field?.mmFieldFactories?.AMUpdateTypeFactory
+            ? field.mmFieldFactories.AMUpdateTypeFactory
+            : [
+                AMUpdateFieldFactory,
+                AMUpdateNestedFieldFactory,
+                AMUpdateRelationFieldFactory,
+              ].filter(isApplicable(field));
 
           fieldFactories.forEach(fieldFactory => {
             const fieldName = fieldFactory.getFieldName(field);
