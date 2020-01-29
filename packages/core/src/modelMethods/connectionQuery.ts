@@ -15,6 +15,8 @@ import { AMWhereACLTypeFactory } from '../inputTypes/whereACL';
 import { resolve } from '../resolve';
 import { lowercaseFirstLetter } from '../utils';
 import { AMConnectionTypeFactory } from '../types/connection';
+import { isInterfaceType } from 'graphql';
+import { AMInterfaceWhereTypeFactory } from '../inputTypes/interfaceWhere';
 
 export const AMModelConnectionQueryFieldFactory: IAMMethodFieldFactory = {
   getOperationType() {
@@ -34,7 +36,12 @@ export const AMModelConnectionQueryFieldFactory: IAMMethodFieldFactory = {
       args: [
         {
           name: 'where',
-          type: schemaInfo.resolveFactoryType(modelType, AMWhereTypeFactory),
+          type: schemaInfo.resolveFactoryType(
+            modelType,
+            isInterfaceType(modelType)
+              ? AMInterfaceWhereTypeFactory
+              : AMWhereTypeFactory
+          ),
         },
         // {
         //   name: 'orderBy',

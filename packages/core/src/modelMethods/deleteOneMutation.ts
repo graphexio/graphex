@@ -1,4 +1,4 @@
-import { GraphQLNonNull } from 'graphql';
+import { GraphQLNonNull, isInterfaceType } from 'graphql';
 import R from 'ramda';
 import { AMDeleteOperation } from '../execution/operations/deleteOperation';
 import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
@@ -13,6 +13,7 @@ import {
 import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMWhereTypeFactory } from '../inputTypes/where';
 import { AMWhereACLTypeFactory } from '../inputTypes/whereACL';
+import { AMInterfaceWhereUniqueTypeFactory } from '../inputTypes/interfaceWhereUnique';
 
 export const AMModelDeleteOneMutationFieldFactory: IAMMethodFieldFactory = {
   getOperationType() {
@@ -31,7 +32,12 @@ export const AMModelDeleteOneMutationFieldFactory: IAMMethodFieldFactory = {
         {
           name: 'where',
           type: new GraphQLNonNull(
-            schemaInfo.resolveFactoryType(modelType, AMWhereUniqueTypeFactory)
+            schemaInfo.resolveFactoryType(
+              modelType,
+              isInterfaceType(modelType)
+                ? AMInterfaceWhereUniqueTypeFactory
+                : AMWhereUniqueTypeFactory
+            )
           ),
         },
       ],

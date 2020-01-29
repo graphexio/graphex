@@ -262,6 +262,53 @@ describe('interface', () => {
     }
   `);
 
+  test('Query', () => {
+    expect(printType(schema.getQueryType())).toMatchInlineSnapshot(`
+    "type Query {
+      posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, first: Int): [Post!]!
+      post(where: PostWhereUniqueInput): Post
+      postsConnection(where: PostWhereInput, skip: Int, first: Int): PostConnection
+      users(where: UserInterfaceWhereInput, orderBy: UserOrderByInput, skip: Int, first: Int): [User!]!
+      user(where: UserInterfaceWhereUniqueInput): User
+      usersConnection(where: UserInterfaceWhereInput, skip: Int, first: Int): UserConnection
+      admins(where: AdminWhereInput, orderBy: AdminOrderByInput, skip: Int, first: Int): [Admin!]!
+      admin(where: AdminWhereUniqueInput): Admin
+      adminsConnection(where: AdminWhereInput, skip: Int, first: Int): AdminConnection
+      subscribers(where: SubscriberWhereInput, orderBy: SubscriberOrderByInput, skip: Int, first: Int): [Subscriber!]!
+      subscriber(where: SubscriberWhereUniqueInput): Subscriber
+      subscribersConnection(where: SubscriberWhereInput, skip: Int, first: Int): SubscriberConnection
+      managers(where: ManagerWhereInput, orderBy: ManagerOrderByInput, skip: Int, first: Int): [Manager!]!
+      manager(where: ManagerWhereUniqueInput): Manager
+      managersConnection(where: ManagerWhereInput, skip: Int, first: Int): ManagerConnection
+    }"
+    `);
+  });
+  test('Mutation', () => {
+    expect(printType(schema.getMutationType())).toMatchInlineSnapshot(`
+        "type Mutation {
+          createPost(data: PostCreateInput!): Post
+          deletePost(where: PostWhereUniqueInput!): Post
+          deletePosts(where: PostWhereInput!): Int!
+          updatePost(data: PostUpdateInput!, where: PostWhereUniqueInput!): Post
+          deleteUser(where: UserInterfaceWhereUniqueInput!): User
+          deleteUsers(where: UserInterfaceWhereInput!): Int!
+          updateUser(data: UserUpdateInput!, where: UserInterfaceWhereUniqueInput!): User
+          createAdmin(data: AdminCreateInput!): Admin
+          deleteAdmin(where: AdminWhereUniqueInput!): Admin
+          deleteAdmins(where: AdminWhereInput!): Int!
+          updateAdmin(data: AdminUpdateInput!, where: AdminWhereUniqueInput!): Admin
+          createSubscriber(data: SubscriberCreateInput!): Subscriber
+          deleteSubscriber(where: SubscriberWhereUniqueInput!): Subscriber
+          deleteSubscribers(where: SubscriberWhereInput!): Int!
+          updateSubscriber(data: SubscriberUpdateInput!, where: SubscriberWhereUniqueInput!): Subscriber
+          createManager(data: ManagerCreateInput!): Manager
+          deleteManager(where: ManagerWhereUniqueInput!): Manager
+          deleteManagers(where: ManagerWhereInput!): Int!
+          updateManager(data: ManagerUpdateInput!, where: ManagerWhereUniqueInput!): Manager
+        }"
+    `);
+  });
+
   test('PostWhereInput', () => {
     expect(printType(schema.getType('PostWhereInput'))).toMatchInlineSnapshot(`
       "input PostWhereInput {

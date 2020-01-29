@@ -1,4 +1,4 @@
-import { GraphQLNonNull, GraphQLInt } from 'graphql';
+import { GraphQLNonNull, GraphQLInt, isInterfaceType } from 'graphql';
 import pluralize from 'pluralize';
 import R from 'ramda';
 import { AMDeleteOperation } from '../execution/operations/deleteOperation';
@@ -14,6 +14,7 @@ import {
 import { AMWhereTypeFactory } from '../inputTypes/where';
 import { AMWhereACLTypeFactory } from '../inputTypes/whereACL';
 import { AMSelectorContext } from '../execution/contexts/selector';
+import { AMInterfaceWhereTypeFactory } from '../inputTypes/interfaceWhere';
 
 export const AMModelDeleteManyMutationFieldFactory: IAMMethodFieldFactory = {
   getOperationType() {
@@ -32,7 +33,12 @@ export const AMModelDeleteManyMutationFieldFactory: IAMMethodFieldFactory = {
         {
           name: 'where',
           type: new GraphQLNonNull(
-            schemaInfo.resolveFactoryType(modelType, AMWhereTypeFactory)
+            schemaInfo.resolveFactoryType(
+              modelType,
+              isInterfaceType(modelType)
+                ? AMInterfaceWhereTypeFactory
+                : AMWhereTypeFactory
+            )
           ),
         },
       ],

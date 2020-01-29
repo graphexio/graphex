@@ -1,21 +1,16 @@
-import { GraphQLInt, GraphQLList, GraphQLNonNull } from 'graphql';
-import pluralize from 'pluralize';
-import R from 'ramda';
-import { AMReadOperation } from '../execution/operations/readOperation';
-import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
-import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
-import { AMWhereACLTypeFactory } from '../inputTypes/whereACL';
-import { lowercaseFirstLetter } from '../utils';
+import { isInterfaceType } from 'graphql';
 import {
   AMField,
   AMModelType,
-  IAMFieldFactory,
-  IAMMethodFieldFactory,
   GraphQLOperationType,
+  IAMMethodFieldFactory,
 } from '../definitions';
-import { resolve } from '../resolve';
 import { AMSelectorContext } from '../execution/contexts/selector';
-import { AMWhereTypeFactory } from '../inputTypes/where';
+import { AMReadOperation } from '../execution/operations/readOperation';
+import { AMInterfaceWhereUniqueTypeFactory } from '../inputTypes/interfaceWhereUnique';
+import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
+import { resolve } from '../resolve';
+import { lowercaseFirstLetter } from '../utils';
 
 export const AMModelSingleQueryFieldFactory: IAMMethodFieldFactory = {
   getOperationType() {
@@ -35,7 +30,9 @@ export const AMModelSingleQueryFieldFactory: IAMMethodFieldFactory = {
           name: 'where',
           type: schemaInfo.resolveFactoryType(
             modelType,
-            AMWhereUniqueTypeFactory
+            isInterfaceType(modelType)
+              ? AMInterfaceWhereUniqueTypeFactory
+              : AMWhereUniqueTypeFactory
           ),
         },
       ],
