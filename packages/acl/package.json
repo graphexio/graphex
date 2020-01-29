@@ -1,6 +1,6 @@
 {
   "name": "@apollo-model/acl",
-  "version": "0.6.0-alpha.37",
+  "version": "0.6.0-alpha.38",
   "description": "",
   "main": "lib/index.js",
   "files": [
