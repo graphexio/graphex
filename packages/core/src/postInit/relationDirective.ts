@@ -58,7 +58,7 @@ export const relationDirective = (schema: GraphQLSchema) => {
             firstArg,
           ];
 
-          if (!realType.mmAbstract) {
+          if (!realType.mmAbstract && typeWrap.isMany()) {
             type.getFields()[`${field.name}Connection`] = <AMField>{
               name: `${field.name}Connection`,
               isDeprecated: false,

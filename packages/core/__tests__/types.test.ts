@@ -309,6 +309,18 @@ describe('interface', () => {
     `);
   });
 
+  test('Post', () => {
+    expect(printType(schema.getType('Post'))).toMatchInlineSnapshot(`
+      "type Post {
+        id: ID
+        title: String
+        likes(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, first: Int): [User]!
+        owner(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, first: Int): User
+        likesConnection(where: UserWhereInput, skip: Int, first: Int): UserConnection
+      }"
+    `);
+  });
+
   test('PostWhereInput', () => {
     expect(printType(schema.getType('PostWhereInput'))).toMatchInlineSnapshot(`
       "input PostWhereInput {
