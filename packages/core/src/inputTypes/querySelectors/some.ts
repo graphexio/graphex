@@ -22,11 +22,9 @@ export const SomeSelector: IAMQuerySelector = {
       (field, schemaInfo) => {
         const namedType = getNamedType(field.type);
         if (!isCompositeType(namedType)) {
-          return new GraphQLList(namedType);
+          return namedType;
         } else {
-          return new GraphQLList(
-            schemaInfo.resolveFactoryType(namedType, AMWhereTypeFactory)
-          );
+          return schemaInfo.resolveFactoryType(namedType, AMWhereTypeFactory);
         }
       },
       value => ({

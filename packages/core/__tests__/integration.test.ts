@@ -1282,6 +1282,20 @@ test('test empty object instead array', async () => {
   expect(errors).toBeUndefined();
 });
 
+test('where nested', async () => {
+  let { data, errors } = await query({
+    query: gql`
+      query posts($where: PostWhereInput) {
+        posts(where: $where) {
+          id
+        }
+      }
+    `,
+    variables: { where: { comments_some: { body_contains: 'test' } } },
+  });
+  expect(errors).toBeUndefined();
+});
+
 test('federation entities', async () => {
   let { errors, data } = await query({
     query: gql`

@@ -30,13 +30,13 @@ const buildFederatedSchema = typeDefs => {
   });
 };
 
-const prepareTransaction = (schema, rq) => {
+const prepareTransaction = (schema, rq, variables = {}) => {
   const errors = validate(schema, rq);
   if (errors.length > 0) {
     throw errors;
   }
   const transaction = new AMTransaction();
-  AMVisitor.visit(schema, rq, {}, transaction);
+  AMVisitor.visit(schema, rq, variables, transaction);
   return transaction;
 };
 
@@ -373,6 +373,47 @@ describe('nested objects', () => {
                     ],
                   }
             `);
+  });
+
+  test('where nested', () => {
+    const rq = gql`
+      query($where: PostWhereInput) {
+        posts(where: $where) {
+          id
+        }
+      }
+    `;
+
+    const transaction = prepareTransaction(schema, rq, {
+      where: { comments_some: { message_contains: 'test' } },
+    });
+    expect(transaction).toMatchInlineSnapshot(`
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": "AMResultPromise { Operation-0 }",
+      "selector": Object {
+        "comments": Object {
+          "$elemMatch": Object {
+            "message": Object {
+              "$regex": /test/,
+            },
+          },
+        },
+      },
+    },
+  ],
+}
+`);
   });
 
   test('create nested list', () => {

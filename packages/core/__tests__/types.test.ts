@@ -717,7 +717,7 @@ describe('aclWhere', () => {
         comments_exact: [CommentWhereCleanInput]
         comments_in: [CommentWhereCleanInput]
         comments_not_in: [CommentWhereCleanInput]
-        comments_some: [CommentWhereInput]
+        comments_some: CommentWhereInput
       }"
     `);
   });
