@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
 import { defaultObjectFieldVisitorHandler } from '@apollo-model/core/lib/inputTypes/visitorHandlers';
 import { AMGeoJSONCreateFieldFactory } from './create';
+import { AMGeoJSONUpdateFieldFactory } from './update';
 import { AMGeoJSONNearFieldFactory } from './whereNear';
 import { AMGeoJSONWithinFieldFactory } from './whereWithin';
 import { AMGeoJSONIntersectsFieldFactory } from './whereIntersects';
@@ -83,7 +84,7 @@ export const typeDef = gql`
 export const fieldFactoriesMap = {
   GeoJSONPoint: {
     AMCreateTypeFactory: [AMGeoJSONCreateFieldFactory],
-    AMUpdateTypeFactory: [AMGeoJSONCreateFieldFactory],
+    AMUpdateTypeFactory: [AMGeoJSONUpdateFieldFactory],
     AMWhereTypeFactory: [
       AMGeoJSONNearFieldFactory,
       AMGeoJSONWithinFieldFactory,
@@ -92,7 +93,7 @@ export const fieldFactoriesMap = {
   },
   GeoJSONPolygon: {
     AMCreateTypeFactory: [AMGeoJSONCreateFieldFactory],
-    AMUpdateTypeFactory: [AMGeoJSONCreateFieldFactory],
+    AMUpdateTypeFactory: [AMGeoJSONUpdateFieldFactory],
     AMWhereTypeFactory: [
       AMGeoJSONNearFieldFactory,
       AMGeoJSONWithinFieldFactory,

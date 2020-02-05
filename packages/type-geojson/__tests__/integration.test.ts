@@ -121,6 +121,61 @@ test('Create Poi with area', async () => {
     `);
 });
 
+test('Update Poi with area', async () => {
+  let { errors, data } = await query({
+    query: gql`
+      query {
+        pois {
+          id
+        }
+      }
+    `,
+    variables: {},
+  });
+  const poiId = data.pois[0].id;
+
+  {
+    let { errors, data } = await mutate({
+      mutation: gql`
+        mutation($poiId: ObjectID!) {
+          updatePoi(
+            where: { id: $poiId }
+            data: { area: { type: Polygon, coordinates: [[[0, 0], [0, 50]]] } }
+          ) {
+            area {
+              type
+              coordinates
+            }
+          }
+        }
+      `,
+      variables: { poiId },
+    });
+    expect(errors).toBeUndefined();
+    expect(data).toMatchInlineSnapshot(`
+        Object {
+          "updatePoi": Object {
+            "area": Object {
+              "coordinates": Array [
+                Array [
+                  Array [
+                    0,
+                    0,
+                  ],
+                  Array [
+                    0,
+                    50,
+                  ],
+                ],
+              ],
+              "type": "Polygon",
+            },
+          },
+        }
+    `);
+  }
+});
+
 test('Near', async () => {
   let { errors, data } = await query({
     query: gql`
