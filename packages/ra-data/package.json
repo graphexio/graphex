@@ -1,0 +1,58 @@
+{
+  "name": "@apollo-model/ra-data-apollo-model",
+  "version": "1.0.2",
+  "description": "A Prisma/GraphCMS data provider for react-admin",
+  "main": "lib/index.js",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dnhsoft/ra-data-prisma2.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dnhsoft/ra-data-prisma2/issues"
+  },
+  "homepage": "https://github.com/dnhsoft/ra-data-prisma2#readme",
+  "authors": [
+    "Flavian DESVERNE",
+    "DNHSoft"
+  ],
+  "keywords": [
+    "reactjs",
+    "react",
+    "react-admin",
+    "admin-on-rest",
+    "rest",
+    "graphql",
+    "prisma",
+    "graphcms"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
+  "dependencies": {
+    "graphql-tag": "^2.6.1",
+    "lodash": "~4.17.5",
+    "pluralize": "^7.0.0",
+    "ra-data-graphql": "^2.3.0",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
+  },
+  "peerDependencies": {
+    "react-admin": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^25.1.1",
+    "@types/lodash": "^4.14.116",
+    "@types/pluralize": "^0.0.29",
+    "apollo-client": "^2.4.2",
+    "babel-cli": "~6.26.0",
+    "babel-plugin-transform-object-rest-spread": "^6.23.0",
+    "babel-preset-env": "^1.7.0",
+    "cross-env": "^5.2.0",
+    "react-admin": "^2.3.0",
+    "rimraf": "^2.6.2",
+    "typescript": "^3.7.4"
+  }
+}

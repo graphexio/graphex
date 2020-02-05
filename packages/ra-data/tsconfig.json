@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "declaration": true,
+    "outDir": "./lib",
+    "strict": false,
+    "esModuleInterop": true,
+    "lib": ["esnext", "dom"]
+  },
+  "include": ["src", "typings.d.ts"],
+  "exclude": ["node_modules", "**/__tests__/*", "**/*.test.js", "**/*.test.ts"]
+}

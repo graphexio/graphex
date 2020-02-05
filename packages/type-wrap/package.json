@@ -22,7 +22,7 @@
     "@babel/preset-env": "^7.5.5",
     "@babel/preset-typescript": "^7.6.0",
     "rimraf": "^2.6.3",
-    "typescript": "^3.6.3"
+    "typescript": "^3.7.4"
   },
   "publishConfig": {
     "access": "public"

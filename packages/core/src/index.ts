@@ -28,6 +28,7 @@ import Modules from './modules';
 import { postInit } from './postInit';
 import { prepare } from './prepare/prepare';
 import { getDirective } from './utils';
+export * from './definitions';
 
 const { printSchema } = require('@apollo/federation');
 
