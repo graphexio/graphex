@@ -8,17 +8,39 @@ import {
 } from 'react-admin';
 import buildVariables from '../src/buildVariables';
 import { TypeKind } from 'graphql/type/introspection';
-import { IntrospectionResult, Resource } from '../src/definitions';
+import { IntrospectionResultData, Resource } from '../src/definitions';
 
 import { prepareIntrospection } from './utils';
 import gql from 'graphql-tag';
+import { IntrospectionResult } from '../src/introspectionResult';
 
 let introspection: IntrospectionResult;
 beforeAll(async () => {
   introspection = await prepareIntrospection(gql`
+    interface User @model @inherit {
+      id: ID! @id @unique
+      username: String
+    }
+    type Admin implements User {
+      nick: String
+    }
+    type Visitor implements User {
+      session: String
+    }
+
     type Post @model {
-      id: ID! @id
+      id: ID! @id @unique
       title: String
+      owner: Visitor! @relation
+      likes: [Visitor!]! @relation
+      moderator: User! @relation
+      approves: [User!]! @relation
+      keywords: [String!]!
+    }
+
+    type Meta @embedded {
+      tags: [String!]!
+      slug: String
     }
   `);
 });
@@ -26,7 +48,7 @@ beforeAll(async () => {
 describe('buildVariables', () => {
   describe('GET_LIST', () => {
     it('returns correct variables', () => {
-      const introspectionResult = {
+      const IntrospectionResultData = {
         types: [
           {
             kind: 'INPUT_OBJECT',
@@ -47,7 +69,7 @@ describe('buildVariables', () => {
       };
 
       expect(
-        buildVariables(introspectionResult as IntrospectionResult)(
+        buildVariables(IntrospectionResultData as IntrospectionResultData)(
           { type: { name: 'Post' } } as Resource,
           GET_LIST,
           params
@@ -68,7 +90,7 @@ describe('buildVariables', () => {
 
   describe('CREATE', () => {
     // it('returns correct variables', () => {
-    //   const introspectionResult = {
+    //   const IntrospectionResultData = {
     //     types: [
     //       {
     //         name: 'Post',
@@ -173,7 +195,7 @@ describe('buildVariables', () => {
     //     },
     //   };
     //   expect(
-    //     buildVariables(introspectionResult as IntrospectionResult)(
+    //     buildVariables(IntrospectionResultData as IntrospectionResultData)(
     //       { type: { name: 'Post' } } as Resource,
     //       CREATE,
     //       params
@@ -196,14 +218,18 @@ describe('buildVariables', () => {
         data: {
           id: 'postId',
           title: 'new title',
+          keywords: ['keyword'],
+          owner: { id: 'owner-id' },
+          moderator: { id: 'moderator-id' },
+          likes: [{ id: 'user-1' }, { id: 'user-2' }],
+          approves: [{ id: 'moderator-id' }],
         },
         previousData: {
           id: 'postId',
-          title: 'old title',
         },
       };
       expect(
-        buildVariables(introspection)(
+        buildVariables(introspection.data, introspection)(
           { type: { name: 'Post' } } as Resource,
           UPDATE,
           params
@@ -212,6 +238,38 @@ describe('buildVariables', () => {
         where: { id: 'postId' },
         data: {
           title: 'new title',
+          keywords: ['keyword'],
+          owner: {
+            connect: {
+              id: 'owner-id',
+            },
+          },
+          likes: {
+            reconnect: [
+              {
+                id: 'user-1',
+              },
+              {
+                id: 'user-2',
+              },
+            ],
+          },
+          moderator: {
+            connect: {
+              User: {
+                id: 'moderator-id',
+              },
+            },
+          },
+          approves: {
+            reconnect: [
+              {
+                User: {
+                  id: 'moderator-id',
+                },
+              },
+            ],
+          },
         },
       });
     });
@@ -224,7 +282,7 @@ describe('buildVariables', () => {
       };
 
       expect(
-        buildVariables({} as IntrospectionResult)(
+        buildVariables({} as IntrospectionResultData)(
           { type: { name: 'Post' } } as Resource,
           GET_MANY,
           params
@@ -243,7 +301,7 @@ describe('buildVariables', () => {
       };
 
       expect(
-        buildVariables({} as IntrospectionResult)(
+        buildVariables({} as IntrospectionResultData)(
           { type: { name: 'Post' } } as Resource,
           GET_MANY_REFERENCE,
           params
@@ -261,7 +319,7 @@ describe('buildVariables', () => {
       };
 
       expect(
-        buildVariables({} as IntrospectionResult)(
+        buildVariables({} as IntrospectionResultData)(
           { type: { name: 'Post', inputFields: [] } } as any,
           DELETE,
           params

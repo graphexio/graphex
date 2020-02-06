@@ -8,7 +8,7 @@ import {
   DELETE,
 } from 'react-admin';
 import getResponseParser from '../src/getResponseParser';
-import { IntrospectionResult, Resource } from '../src/constants/interfaces';
+import { IntrospectionResultData, Resource } from '../src/constants/interfaces';
 
 const testListTypes = (type: string) => {
   it('returns the response expected by RA for GET_LIST', () => {
@@ -112,7 +112,7 @@ const testListTypes = (type: string) => {
     };
 
     expect(
-      getResponseParser(introspectionResults as IntrospectionResult)(
+      getResponseParser(introspectionResults as IntrospectionResultData)(
         type,
         resource as Resource
       )(response)
@@ -234,7 +234,7 @@ const testSingleTypes = (type: string) => {
       },
     };
     expect(
-      getResponseParser(introspectionResults as IntrospectionResult)(
+      getResponseParser(introspectionResults as IntrospectionResultData)(
         type,
         resource as Resource
       )(response)

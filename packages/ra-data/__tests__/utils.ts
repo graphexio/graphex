@@ -1,16 +1,22 @@
-import { DocumentNode, execute, introspectionQuery } from 'graphql';
+import {
+  DocumentNode,
+  execute,
+  introspectionQuery,
+  printSchema,
+} from 'graphql';
 import AMM, { AMOptions } from '@apollo-model/core';
 import gql from 'graphql-tag';
 
 import makeIntrospection from 'ra-data-graphql/lib/introspection';
-import { IntrospectionResult } from '../src/definitions';
+import { IntrospectionResultData } from '../src/definitions';
 import introspectionOptions from '../src/introspectionOptions';
 import { createTestClient } from 'apollo-server-testing';
 import { ApolloServer } from 'apollo-server';
+import { IntrospectionResult } from '../src/introspectionResult';
 
-export const prepareIntrospection = (
+export const prepareIntrospection = async (
   typeDefs: DocumentNode
-): IntrospectionResult => {
+): Promise<IntrospectionResult> => {
   const schema = new AMM({
     modules: [],
   }).makeExecutableSchema({
@@ -19,6 +25,7 @@ export const prepareIntrospection = (
     },
     typeDefs: [typeDefs],
   });
+  //   console.log(printSchema(schema));
 
   const server = new ApolloServer({
     schema,
@@ -26,6 +33,9 @@ export const prepareIntrospection = (
 
   const testClient = createTestClient(server);
 
-  const introspection = makeIntrospection(testClient, introspectionOptions);
-  return introspection;
+  const introspection = await makeIntrospection(
+    testClient,
+    introspectionOptions
+  );
+  return new IntrospectionResult(introspection);
 };

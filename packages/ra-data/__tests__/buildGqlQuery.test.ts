@@ -21,7 +21,7 @@ import buildGqlQuery, {
   getArgType,
   Query,
 } from '../src/buildGqlQuery';
-import { IntrospectionResult, Resource } from '../src/constants/interfaces';
+import { IntrospectionResultData, Resource } from '../src/constants/interfaces';
 
 describe('getArgType', () => {
   it('returns the arg type', () => {
@@ -179,7 +179,9 @@ describe('buildFields', () => {
 
     expect(
       print(
-        buildFields(introspectionResults as IntrospectionResult)(fields as any)
+        buildFields(introspectionResults as IntrospectionResultData)(
+          fields as any
+        )
       )
     ).toEqual([
       'id',
@@ -252,7 +254,7 @@ describe('buildGqlQuery', () => {
   //   it('returns the correct query for GET_LIST', () => {
   //     expect(
   //       print(
-  //         buildGqlQuery(introspectionResults as IntrospectionResult)(
+  //         buildGqlQuery(introspectionResults as IntrospectionResultData)(
   //           resource as Resource,
   //           GET_LIST,
   //           queryType as Query,
@@ -284,7 +286,7 @@ describe('buildGqlQuery', () => {
   //   it('returns the correct query for GET_MANY', () => {
   //     expect(
   //       print(
-  //         buildGqlQuery(introspectionResults as IntrospectionResult)(
+  //         buildGqlQuery(introspectionResults as IntrospectionResultData)(
   //           resource as Resource,
   //           GET_MANY,
   //           queryType as Query,
@@ -316,7 +318,7 @@ describe('buildGqlQuery', () => {
   //   it('returns the correct query for GET_MANY_REFERENCE', () => {
   //     expect(
   //       print(
-  //         buildGqlQuery(introspectionResults as IntrospectionResult)(
+  //         buildGqlQuery(introspectionResults as IntrospectionResultData)(
   //           resource as Resource,
   //           GET_MANY_REFERENCE,
   //           queryType as Query,
@@ -348,7 +350,7 @@ describe('buildGqlQuery', () => {
   //   it('returns the correct query for GET_ONE', () => {
   //     expect(
   //       print(
-  //         buildGqlQuery(introspectionResults as IntrospectionResult)(
+  //         buildGqlQuery(introspectionResults as IntrospectionResultData)(
   //           resource as Resource,
   //           GET_ONE,
   //           { ...queryType, name: 'getCommand' } as Query,
@@ -375,7 +377,7 @@ describe('buildGqlQuery', () => {
   //   it('returns the correct query for UPDATE', () => {
   //     expect(
   //       print(
-  //         buildGqlQuery(introspectionResults as IntrospectionResult)(
+  //         buildGqlQuery(introspectionResults as IntrospectionResultData)(
   //           resource as Resource,
   //           UPDATE,
   //           { ...queryType, name: 'updateCommand' } as Query,
@@ -402,7 +404,7 @@ describe('buildGqlQuery', () => {
   //   it('returns the correct query for CREATE', () => {
   //     expect(
   //       print(
-  //         buildGqlQuery(introspectionResults as IntrospectionResult)(
+  //         buildGqlQuery(introspectionResults as IntrospectionResultData)(
   //           resource as Resource,
   //           CREATE,
   //           { ...queryType, name: 'createCommand' } as Query,
@@ -429,7 +431,7 @@ describe('buildGqlQuery', () => {
   //   it('returns the correct query for DELETE', () => {
   //     expect(
   //       print(
-  //         buildGqlQuery(introspectionResults as IntrospectionResult)(
+  //         buildGqlQuery(introspectionResults as IntrospectionResultData)(
   //           resource as Resource,
   //           DELETE,
   //           { ...queryType, name: 'deleteCommand' } as Query,

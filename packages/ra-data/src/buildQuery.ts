@@ -1,12 +1,14 @@
 import buildVariables from './buildVariables';
 import buildGqlQuery from './buildGqlQuery';
 import getResponseParser from './getResponseParser';
-import { IntrospectionResult } from './definitions';
+import { IntrospectionResultData } from './definitions';
 import { DocumentNode } from 'graphql';
+import { IntrospectionResult } from './introspectionResult';
 
 export const buildQueryFactory = () => (
-  introspectionResults: IntrospectionResult
+  introspectionResults: IntrospectionResultData
 ) => {
+  const introspection = new IntrospectionResult(introspectionResults);
   const knownResources = introspectionResults.resources.map(r => r.type.name);
 
   return (
@@ -35,7 +37,7 @@ export const buildQueryFactory = () => (
       );
     }
 
-    const variables = buildVariables(introspectionResults)(
+    const variables = buildVariables(introspectionResults, introspection)(
       resource,
       aorFetchType,
       params

@@ -7,6 +7,9 @@ import {
   UPDATE,
   DELETE,
 } from 'react-admin';
+import * as R from 'ramda';
+import TypeWrap from '@apollo-model/type-wrap';
+
 import isObject from 'lodash/isObject';
 
 import getFinalType from './utils/getFinalType';
@@ -22,8 +25,13 @@ import {
   IntrospectionObjectType,
   IntrospectionType,
   IntrospectionNamedTypeRef,
+  isScalarType,
+  GraphQLInputObjectType,
+  GraphQLScalarType,
+  getNamedType,
 } from 'graphql';
-import { IntrospectionResult, Resource } from './definitions';
+import { IntrospectionResultData, Resource } from './definitions';
+import { IntrospectionResult } from './introspectionResult';
 
 interface GetListParams {
   filter: { [key: string]: any };
@@ -32,11 +40,9 @@ interface GetListParams {
 }
 
 //TODO: Object filter weren't tested yet
-const buildGetListVariables = (introspectionResults: IntrospectionResult) => (
-  resource: Resource,
-  aorFetchType: string,
-  params: GetListParams
-) => {
+const buildGetListVariables = (
+  introspectionResults: IntrospectionResultData
+) => (resource: Resource, aorFetchType: string, params: GetListParams) => {
   const filter = Object.keys(params.filter).reduce((acc, key) => {
     if (key === 'ids') {
       return { ...acc, id_in: params.filter[key] };
@@ -120,7 +126,7 @@ const buildGetListVariables = (introspectionResults: IntrospectionResult) => (
 };
 
 const findInputFieldForType = (
-  introspectionResults: IntrospectionResult,
+  introspectionResults: IntrospectionResultData,
   typeName: string,
   field: string
 ) => {
@@ -143,7 +149,7 @@ const findInputFieldForType = (
 };
 
 const inputFieldExistsForType = (
-  introspectionResults: IntrospectionResult,
+  introspectionResults: IntrospectionResultData,
   typeName: string,
   field: string
 ): boolean => {
@@ -173,7 +179,7 @@ const buildReferenceField = ({
   mutationType,
 }: {
   inputArg: { [key: string]: any };
-  introspectionResults: IntrospectionResult;
+  introspectionResults: IntrospectionResultData;
   typeName: string;
   field: string;
   mutationType: string;
@@ -206,116 +212,171 @@ interface UpdateParams {
   previousData: { [key: string]: any };
 }
 
-const buildUpdateVariables = (introspectionResults: IntrospectionResult) => (
-  resource: Resource,
-  aorFetchType: String,
-  params: UpdateParams
-) => {
-  return Object.keys(params.data).reduce((acc, key) => {
-    const type = introspectionResults.types.find(
-      t => t.name === resource.type.name
-    ) as IntrospectionObjectType;
+const buildUpdateVariables = (
+  introspectionResults: IntrospectionResultData,
+  introspection: IntrospectionResult
+) => (resource: Resource, aorFetchType: String, params: UpdateParams) => {
+  const type = R.find(R.propEq('name', resource.type.name))(
+    introspectionResults.types
+  ) as IntrospectionObjectType;
 
-    //to work with JSON array
-    const isJsonField = isJsonTypeField([...type.fields], key);
-    if (isJsonField) {
-      return {
-        ...acc,
-        data: {
-          ...acc.data,
-          [key]: params.data[key],
-        },
-      };
-    }
+  const updateType = introspection.getUpdateDataType(resource.type.name);
 
-    if (Array.isArray(params.data[key])) {
-      const inputType = findInputFieldForType(
-        introspectionResults,
-        `${resource.type.name}UpdateInput`,
-        key
-      );
-
-      if (!inputType) {
-        return acc;
-      }
-
-      //TODO: Make connect, disconnect and update overridable
-      //TODO: Make updates working
-
-      //to search for the schema type of related ids
-      const fieldName = typeExistsForRelatedIds(key);
-
-      const {
-        fieldsToAdd,
-        fieldsToRemove /* fieldsToUpdate */,
-      } = computeFieldsToAddRemoveUpdate(
-        params.previousData[key],
-        params.data[key]
-      );
-
-      return {
-        ...acc,
-        data: {
-          ...acc.data,
-          [fieldName]: {
-            [PRISMA_CONNECT]: fieldsToAdd,
-            [PRISMA_DISCONNECT]: fieldsToRemove,
-            //[PRISMA_UPDATE]: fieldsToUpdate
-          },
-        },
-      };
-    }
-
-    if (
-      isObject(params.data[key]) &&
-      Object.prototype.toString.call(params.data[key]) !== '[object Date]'
-    ) {
-      const fieldsToUpdate = buildReferenceField({
-        inputArg: params.data[key],
-        introspectionResults,
-        typeName: `${resource.type.name}UpdateInput`,
-        field: key,
-        mutationType: PRISMA_CONNECT,
-      });
-
-      // If no fields in the object are valid, continue
-      if (Object.keys(fieldsToUpdate).length === 0) {
-        return acc;
-      }
-
-      // Else, connect the nodes
-      return {
-        ...acc,
-        data: {
-          ...acc.data,
-          [key]: { [PRISMA_CONNECT]: { ...fieldsToUpdate } },
-        },
-      };
-    }
-
-    // Put id field in a where object
+  return Object.entries(params.data).reduce((acc, [key, value]) => {
     if (key === 'id' && params.data[key]) {
       return {
         ...acc,
         where: {
-          id: params.data[key],
+          id: value,
         },
       };
     }
 
-    const isInField = type.fields.find((t: any) => t.name === key);
+    const field = updateType.getFields()[key];
+    if (field) {
+      let resultValue;
 
-    if (!!isInField) {
-      // Rest should be put in data object
+      const realType = getNamedType(field.type) as
+        | GraphQLScalarType
+        | GraphQLInputObjectType;
+
+      if (isScalarType(realType)) {
+        resultValue = value;
+      } else {
+        if (realType.name.endsWith('UpdateOneRelationInput')) {
+          const connectType = realType.getFields()['connect']
+            .type as GraphQLInputObjectType;
+          if (connectType.name.endsWith('InterfaceWhereUniqueInput')) {
+            const interfaceName = Object.keys(connectType.getFields())[0];
+            resultValue = { connect: { [interfaceName]: value } };
+          } else {
+            resultValue = { connect: value };
+          }
+        } else if (realType.name.endsWith('UpdateManyRelationInput')) {
+          const reconnectType = getNamedType(
+            realType.getFields()['reconnect'].type
+          ) as GraphQLInputObjectType;
+
+          if (reconnectType.name.endsWith('InterfaceWhereUniqueInput')) {
+            const interfaceName = Object.keys(reconnectType.getFields())[0];
+            resultValue = {
+              reconnect: value.map(v => ({ [interfaceName]: v })),
+            };
+          } else {
+            resultValue = { reconnect: value };
+          }
+        }
+      }
+
       return {
         ...acc,
         data: {
           ...acc.data,
-          [key]: params.data[key],
+          [key]: resultValue,
         },
       };
     }
+    // //to work with JSON array
+    // const isJsonField = isJsonTypeField([...type.fields], key);
+    // if (isJsonField) {
+    //   return {
+    //     ...acc,
+    //     data: {
+    //       ...acc.data,
+    //       [key]: params.data[key],
+    //     },
+    //   };
+    // }
 
+    // if (Array.isArray(params.data[key])) {
+    //   const inputType = findInputFieldForType(
+    //     introspectionResults,
+    //     `${resource.type.name}UpdateInput`,
+    //     key
+    //   );
+
+    //   if (!inputType) {
+    //     return acc;
+    //   }
+
+    //   //TODO: Make connect, disconnect and update overridable
+    //   //TODO: Make updates working
+
+    //   //to search for the schema type of related ids
+    //   const fieldName = typeExistsForRelatedIds(key);
+
+    //   const {
+    //     fieldsToAdd,
+    //     fieldsToRemove /* fieldsToUpdate */,
+    //   } = computeFieldsToAddRemoveUpdate(
+    //     params.previousData[key],
+    //     params.data[key]
+    //   );
+
+    //   return {
+    //     ...acc,
+    //     data: {
+    //       ...acc.data,
+    //       [fieldName]: {
+    //         [PRISMA_CONNECT]: fieldsToAdd,
+    //         [PRISMA_DISCONNECT]: fieldsToRemove,
+    //         //[PRISMA_UPDATE]: fieldsToUpdate
+    //       },
+    //     },
+    //   };
+    // }
+
+    // if (
+    //   isObject(params.data[key]) &&
+    //   Object.prototype.toString.call(params.data[key]) !== '[object Date]'
+    // ) {
+    //   const fieldsToUpdate = buildReferenceField({
+    //     inputArg: params.data[key],
+    //     introspectionResults,
+    //     typeName: `${resource.type.name}UpdateInput`,
+    //     field: key,
+    //     mutationType: PRISMA_CONNECT,
+    //   });
+
+    //   // If no fields in the object are valid, continue
+    //   if (Object.keys(fieldsToUpdate).length === 0) {
+    //     return acc;
+    //   }
+
+    //   // Else, connect the nodes
+    //   return {
+    //     ...acc,
+    //     data: {
+    //       ...acc.data,
+    //       [key]: { [PRISMA_CONNECT]: { ...fieldsToUpdate } },
+    //     },
+    //   };
+    // }
+
+    // // Put id field in a where object
+    // if (key === 'id' && params.data[key]) {
+    //   return {
+    //     ...acc,
+    //     where: {
+    //       id: params.data[key],
+    //     },
+    //   };
+    // }
+
+    // const isInField = type.fields.find((t: any) => t.name === key);
+
+    // if (!!isInField) {
+    //   // Rest should be put in data object
+    //   return {
+    //     ...acc,
+    //     data: {
+    //       ...acc.data,
+    //       [key]: params.data[key],
+    //     },
+    //   };
+    // }
+
+    // return acc;
     return acc;
   }, {} as { [key: string]: any });
 };
@@ -323,11 +384,9 @@ const buildUpdateVariables = (introspectionResults: IntrospectionResult) => (
 interface CreateParams {
   data: { [key: string]: any };
 }
-const buildCreateVariables = (introspectionResults: IntrospectionResult) => (
-  resource: Resource,
-  aorFetchType: string,
-  params: CreateParams
-) =>
+const buildCreateVariables = (
+  introspectionResults: IntrospectionResultData
+) => (resource: Resource, aorFetchType: string, params: CreateParams) =>
   Object.keys(params.data).reduce((acc, key) => {
     const type = introspectionResults.types.find(
       t => t.name === resource.type.name
@@ -425,11 +484,10 @@ const buildCreateVariables = (introspectionResults: IntrospectionResult) => (
     return acc;
   }, {} as { [key: string]: any });
 
-export default (introspectionResults: IntrospectionResult) => (
-  resource: Resource,
-  aorFetchType: string,
-  params: any
-) => {
+export default (
+  introspectionResults: IntrospectionResultData,
+  introspection: IntrospectionResult
+) => (resource: Resource, aorFetchType: string, params: any) => {
   switch (aorFetchType) {
     case GET_LIST: {
       return buildGetListVariables(introspectionResults)(
@@ -454,7 +512,7 @@ export default (introspectionResults: IntrospectionResult) => (
         where: { id: params.id },
       };
     case UPDATE: {
-      return buildUpdateVariables(introspectionResults)(
+      return buildUpdateVariables(introspectionResults, introspection)(
         resource,
         aorFetchType,
         params

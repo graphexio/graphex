@@ -12,7 +12,7 @@ import {
 } from 'graphql';
 import { QUERY_TYPES } from 'ra-data-graphql';
 import { GET_LIST, GET_MANY, GET_MANY_REFERENCE, DELETE } from 'react-admin';
-import { IntrospectionResult, Resource } from './definitions';
+import { IntrospectionResultData, Resource } from './definitions';
 
 import * as gqlTypes from './utils/gqlTypes';
 import getFinalType from './utils/getFinalType';
@@ -24,7 +24,7 @@ export interface Query {
   args: IntrospectionField[];
 }
 
-export const buildFields = (introspectionResults: IntrospectionResult) => (
+export const buildFields = (introspectionResults: IntrospectionResultData) => (
   fields: IntrospectionField[]
 ): FieldNode[] => {
   return fields.reduce((acc: FieldNode[], field) => {
@@ -179,7 +179,7 @@ const buildFieldsFromFragment = (
   return (parsedFragment as any).definitions[0].selectionSet.selections;
 };
 
-export default (introspectionResults: IntrospectionResult) => (
+export default (introspectionResults: IntrospectionResultData) => (
   resource: Resource,
   aorFetchType: string,
   queryType: Query,

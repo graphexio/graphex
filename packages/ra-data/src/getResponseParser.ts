@@ -1,10 +1,10 @@
 import { TypeKind, IntrospectionObjectType } from 'graphql';
 import { GET_LIST, GET_MANY, GET_MANY_REFERENCE } from 'react-admin';
 import getFinalType from './utils/getFinalType';
-import { IntrospectionResult, Resource } from './definitions';
+import { IntrospectionResultData, Resource } from './definitions';
 
 const sanitizeResource = (
-  introspectionResults: IntrospectionResult,
+  introspectionResults: IntrospectionResultData,
   resource: Resource
 ) => (data: { [key: string]: any }): any => {
   return Object.keys(data).reduce((acc, key) => {
@@ -59,7 +59,7 @@ const sanitizeResource = (
   }, {});
 };
 
-export default (introspectionResults: IntrospectionResult) => (
+export default (introspectionResults: IntrospectionResultData) => (
   aorFetchType: string,
   resource: Resource
 ) => (response: { [key: string]: any }) => {

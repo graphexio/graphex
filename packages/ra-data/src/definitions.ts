@@ -5,7 +5,7 @@ export interface Resource {
   [key: string]: any;
 }
 
-export interface IntrospectionResult {
+export interface IntrospectionResultData {
   types: IntrospectionType[];
   queries: IntrospectionType[];
   resources: Resource[];
