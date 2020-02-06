@@ -238,13 +238,21 @@ describe('SchemaFilter', () => {
       }
     `;
 
+    const resolvers = {
+      Mutation: {
+        updateMethod: (_, args) => {
+          return JSON.stringify(args);
+        },
+      },
+    };
+
     test('schema', () => {
       let schema = makeSchema({ typeDefs });
       expect(schema.getTypeMap().Test.getFields().removeField).toBeUndefined();
     });
 
     test('right request', async () => {
-      let schema = makeSchema({ typeDefs });
+      let schema = makeSchema({ typeDefs, resolvers });
       const { mutate } = testClient({ schema });
       const { data, errors } = await mutate({
         query: gql`
@@ -254,6 +262,26 @@ describe('SchemaFilter', () => {
         `,
       });
       expect(errors).toBeUndefined();
+      expect(data.updateMethod).toMatch(
+        `{"data":{"field":"123","removeField":"Test"}}`
+      );
+    });
+
+    test('right request with variable', async () => {
+      let schema = makeSchema({ typeDefs, resolvers });
+      const { mutate } = testClient({ schema });
+      const { data, errors } = await mutate({
+        query: gql`
+          mutation($id: ID!) {
+            updateMethod(data: { field: $id })
+          }
+        `,
+        variables: { id: '123' },
+      });
+      expect(errors).toBeUndefined();
+      expect(data.updateMethod).toMatch(
+        `{"data":{"field":"123","removeField":"Test"}}`
+      );
     });
 
     test('wrong request', async () => {

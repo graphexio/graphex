@@ -62,7 +62,13 @@ export const whereTypeVisitorHandler = (options = { emptyAllowed: true }) =>
         !options.emptyAllowed &&
         Object.values(R.omit(['aclWhere'], context.selector)).length === 0
       ) {
-        throw new UserInputError('WhereUniqueType cannot be empty');
+        throw new UserInputError(
+          `WhereUniqueType cannot be empty. Provided value is ${JSON.stringify(
+            context.selector,
+            null,
+            2
+          )}`
+        );
       }
 
       if (context.selector.aclWhere) {

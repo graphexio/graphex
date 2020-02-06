@@ -55,24 +55,24 @@ test('Empty WhereUnique', async () => {
     variables: {},
   });
   expect(errors).toMatchInlineSnapshot(`
-    Array [
+Array [
+  Object {
+    "extensions": Object {
+      "code": "BAD_USER_INPUT",
+    },
+    "locations": Array [
       Object {
-        "extensions": Object {
-          "code": "BAD_USER_INPUT",
-        },
-        "locations": Array [
-          Object {
-            "column": 3,
-            "line": 2,
-          },
-        ],
-        "message": "WhereUniqueType cannot be empty",
-        "path": Array [
-          "category",
-        ],
+        "column": 3,
+        "line": 2,
       },
-    ]
-  `);
+    ],
+    "message": "WhereUniqueType cannot be empty. Provided value is {}",
+    "path": Array [
+      "category",
+    ],
+  },
+]
+`);
 });
 
 test('CreateCategory', async () => {

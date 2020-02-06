@@ -109,6 +109,7 @@ export default (filterFields, defaultFields, defaultArgs) => {
 
   return {
     transformRequest(request, options = {}) {
+      const { variables } = request;
       const typeStack = [];
 
       let newDocument = visit(request.document, {
@@ -136,10 +137,11 @@ export default (filterFields, defaultFields, defaultArgs) => {
               |> mapFieldForTypeStack
               |> typeStack.push;
 
-            return defaults.applyDefaultArgs(node, options.context)(
-              R.head(R.takeLast(2, typeStack)),
-              R.last(typeStack)
-            );
+            return defaults.applyDefaultArgs(
+              node,
+              variables,
+              options.context
+            )(R.head(R.takeLast(2, typeStack)), R.last(typeStack));
           },
           leave: node => {
             let name = getNameValue(node);
@@ -168,7 +170,8 @@ export default (filterFields, defaultFields, defaultArgs) => {
           },
           leave: node => {
             return (
-              typeStack.pop() |> defaults.applyDefaults(node, options.context)
+              typeStack.pop()
+              |> defaults.applyDefaults(node, variables, options.context)
             );
           },
         },
@@ -183,7 +186,8 @@ export default (filterFields, defaultFields, defaultArgs) => {
           },
           leave: node => {
             return (
-              typeStack.pop() |> defaults.applyDefaults(node, options.context)
+              typeStack.pop()
+              |> defaults.applyDefaults(node, variables, options.context)
             );
           },
         },

@@ -62,7 +62,9 @@ const execute = (
   variableValues?: { [key: string]: any }
 ) => {
   const errors = validate(schema, document);
-  if (errors.length > 0) throw new Error(errors.toString());
+  if (errors.length > 0) {
+    throw new Error(errors.toString());
+  }
 
   return graphqlExecute(
     schema,
@@ -267,6 +269,11 @@ describe('accessRules', () => {
           id: ObjectID @id @unique @db(name: "_id")
           username: String
         }
+
+        type Group @model {
+          id: ObjectID @id @unique @db(name: "_id")
+          posts: [Post] @relation
+        }
       `,
       { aclWhere: true }
     );
@@ -284,6 +291,7 @@ describe('accessRules', () => {
           createPost(
             data: { title: "Title", user: { create: { username: "admin2" } } }
           ) {
+            id
             title
             user {
               id
@@ -297,6 +305,7 @@ describe('accessRules', () => {
     expect(createUserResult.errors).toBeUndefined();
     const user1 = createUserResult.data.createUser;
     const user2 = createUserResult.data.createPost.user;
+    const postId = createUserResult.data.createPost.id;
 
     //default aclWhere = user1 => no items
     {
@@ -321,12 +330,13 @@ describe('accessRules', () => {
       let readResult = await execute(
         aclSchema,
         gql`
-          query {
-            post {
+          query($postId: ObjectID) {
+            post(where: { id: $postId }) {
               title
             }
           }
-        `
+        `,
+        { postId }
       );
 
       expect(readResult.errors).toBeUndefined();
@@ -351,25 +361,59 @@ describe('accessRules', () => {
         ],
       });
 
-      let readResult = await execute(
-        aclSchema,
-        gql`
-          query {
-            post(where: {}) {
-              title
+      //simple read
+      {
+        let readResult = await execute(
+          aclSchema,
+          gql`
+            query($postId: ObjectID) {
+              post(where: { id: $postId }) {
+                title
+              }
             }
-          }
-        `
-      );
+          `,
+          { postId }
+        );
 
-      expect(readResult.errors).toBeUndefined();
-      expect(readResult.data).toMatchInlineSnapshot(`
+        expect(readResult.errors).toBeUndefined();
+        expect(readResult.data).toMatchInlineSnapshot(`
         Object {
           "post": Object {
             "title": "Title",
           },
         }
       `);
+      }
+
+      //connect
+      {
+        let readResult = await execute(
+          aclSchema,
+          gql`
+            mutation($postId: ObjectID!) {
+              createGroup(data: { posts: { connect: [{ id: $postId }] } }) {
+                posts {
+                  title
+                }
+              }
+            }
+          `,
+          { postId }
+        );
+
+        expect(readResult.errors).toBeUndefined();
+        expect(readResult.data).toMatchInlineSnapshot(`
+          Object {
+            "createGroup": Object {
+              "posts": Array [
+                Object {
+                  "title": "Title",
+                },
+              ],
+            },
+          }
+      `);
+      }
     }
   });
 
@@ -432,7 +476,6 @@ describe('accessRules', () => {
       `,
       { id: createdPost.id }
     );
-
     const readedPost = readResult.data.post;
     expect(readResult.errors).toBeUndefined();
     expect(readedPost.meta).toBeTruthy();

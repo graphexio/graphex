@@ -1,4 +1,4 @@
-import { valueFromAST, astFromValue } from 'graphql';
+import { valueFromAST, astFromValue, Kind } from 'graphql';
 import R from 'ramda';
 
 const reduceDefaults = (state, item) => {
@@ -31,12 +31,39 @@ export default () => {
     return defaults[type.name].reduce(reduceDefaults, {});
   };
 
-  const applyDefaults = (node, context) => ({ type }) => {
+  const valueFromFieldNode = (typeFields, variables) => fieldNode => {
+    const fieldName = fieldNode.name.value;
+    const fieldType = typeFields[fieldName].type;
+    const value = valueFromAST(fieldNode.value, fieldType, variables);
+    return [fieldName, value];
+  };
+
+  const applyDefaults = (node, variables, context) => ({ type }) => {
     let defaultValues = defaults[type.name];
+
     // let defaultValues = get(type);
 
     if (defaultValues) {
-      const input = valueFromAST(node.value, type) || {};
+      if (node && node.value && node.value.kind === Kind.LIST) {
+        //TODO: make some kind of case based on Kind
+        const newNode = {
+          ...node,
+          value: {
+            kind: 'ListValue',
+            values: node.value.values.map(val => {
+              return applyDefaults({ value: val }, variables, context)({ type })
+                .value;
+            }),
+          },
+        };
+        return newNode;
+      }
+
+      const typeFields = type.getFields();
+      const input = R.pipe(
+        R.map(valueFromFieldNode(typeFields, variables)),
+        R.fromPairs
+      )(node.value.fields);
 
       defaultValues.forEach(item => {
         input[item.field.name] = item.valueFn({
@@ -55,12 +82,19 @@ export default () => {
     return undefined;
   };
 
-  const applyDefaultArgs = (node, context) => (parent, field) => {
+  const applyDefaultArgs = (node, variables, context) => (parent, field) => {
     if (
       defaultArgs[parent.type.name] &&
       defaultArgs[parent.type.name][node.name.value]
     ) {
-      const args = defaultArgs[parent.type.name][node.name.value]({ context });
+      const inputArgs = node.arguments.map(R.path(['name', 'value']));
+
+      const args = R.pipe(
+        R.path([parent.type.name, node.name.value]),
+        R.applyTo({ context }),
+        R.omit(inputArgs)
+      )(defaultArgs);
+
       const newArguments = [...node.arguments];
 
       Object.entries(args).forEach(([argName, argValue]) => {
