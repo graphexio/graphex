@@ -17,6 +17,11 @@ import { IntrospectionResult } from '../src/introspectionResult';
 let introspection: IntrospectionResult;
 beforeAll(async () => {
   introspection = await prepareIntrospection(gql`
+    enum Position {
+      leftColumn
+      rightColumn
+    }
+
     interface User @model @inherit {
       id: ID! @id @unique
       username: String
@@ -28,6 +33,11 @@ beforeAll(async () => {
       session: String
     }
 
+    type Group @model {
+      id: ID! @id @unique
+      title: String
+    }
+
     type Post @model {
       id: ID! @id @unique
       title: String
@@ -36,11 +46,15 @@ beforeAll(async () => {
       moderator: User! @relation
       approves: [User!]! @relation
       keywords: [String!]!
+      meta: Meta
+      metas: [Meta!]!
+      position: Position
     }
 
     type Meta @embedded {
       tags: [String!]!
       slug: String
+      group: Group @relation
     }
   `);
 });
@@ -223,6 +237,12 @@ describe('buildVariables', () => {
           moderator: { id: 'moderator-id' },
           likes: [{ id: 'user-1' }, { id: 'user-2' }],
           approves: [{ id: 'moderator-id' }],
+          meta: { slug: 'slug-1', group: { id: 'group-id' } },
+          metas: [
+            { slug: 'slug-1', group: { id: 'group-id' } },
+            { slug: 'slug-2' },
+          ],
+          position: 'leftColumn',
         },
         previousData: {
           id: 'postId',
@@ -270,6 +290,16 @@ describe('buildVariables', () => {
               },
             ],
           },
+          meta: {
+            create: { slug: 'slug-1', group: { connect: { id: 'group-id' } } },
+          },
+          metas: {
+            recreate: [
+              { slug: 'slug-1', group: { connect: { id: 'group-id' } } },
+              { slug: 'slug-2' },
+            ],
+          },
+          position: 'leftColumn',
         },
       });
     });

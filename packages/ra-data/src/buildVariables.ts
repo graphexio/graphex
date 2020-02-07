@@ -26,6 +26,7 @@ import {
   IntrospectionType,
   IntrospectionNamedTypeRef,
   isScalarType,
+  isEnumType,
   GraphQLInputObjectType,
   GraphQLScalarType,
   getNamedType,
@@ -212,6 +213,95 @@ interface UpdateParams {
   previousData: { [key: string]: any };
 }
 
+const transformUpdateInput = (data, type) => {
+  return Object.entries(data).reduce((acc, [key, value]) => {
+    const field = type.getFields()[key];
+
+    if (!field) {
+      return acc;
+    }
+    let resultValue;
+
+    const realType = getNamedType(field.type) as
+      | GraphQLScalarType
+      | GraphQLInputObjectType;
+
+    if (isScalarType(realType)) {
+      resultValue = value;
+    } else if (isEnumType(realType)) {
+      resultValue = value;
+    } else {
+      if (
+        realType.name.endsWith('UpdateOneRelationInput') ||
+        realType.name.endsWith('CreateOneRelationInput')
+      ) {
+        const connectType = realType.getFields()['connect']
+          .type as GraphQLInputObjectType;
+        if (connectType.name.endsWith('InterfaceWhereUniqueInput')) {
+          const interfaceName = Object.keys(connectType.getFields())[0];
+          resultValue = { connect: { [interfaceName]: value } };
+        } else {
+          resultValue = { connect: value };
+        }
+      } else if (realType.name.endsWith('UpdateManyRelationInput')) {
+        const reconnectType = getNamedType(
+          realType.getFields()['reconnect'].type
+        ) as GraphQLInputObjectType;
+
+        if (reconnectType.name.endsWith('InterfaceWhereUniqueInput')) {
+          const interfaceName = Object.keys(reconnectType.getFields())[0];
+          resultValue = {
+            reconnect: value.map(v => ({ [interfaceName]: v })),
+          };
+        } else {
+          resultValue = { reconnect: value };
+        }
+      } else if (realType.name.endsWith('UpdateOneNestedInput')) {
+        const createType = getNamedType(
+          realType.getFields()['create'].type
+        ) as GraphQLInputObjectType;
+
+        if (createType.name.endsWith('InterfaceCreateInput')) {
+          resultValue = {
+            create: {
+              [value.__typename]: transformUpdateInput(
+                R.omit(['__typename'], value),
+                createType
+              ),
+            },
+          };
+        } else {
+          resultValue = { create: transformUpdateInput(value, createType) };
+        }
+      } else if (realType.name.endsWith('UpdateManyNestedInput')) {
+        const recreateType = getNamedType(
+          realType.getFields()['recreate'].type
+        ) as GraphQLInputObjectType;
+
+        if (recreateType.name.endsWith('InterfaceCreateInput')) {
+          resultValue = {
+            recreate: value.map(v => ({
+              [v.__typename]: transformUpdateInput(
+                R.omit(['__typename'], v),
+                recreateType
+              ),
+            })),
+          };
+        } else {
+          resultValue = {
+            recreate: value.map(v => transformUpdateInput(v, recreateType)),
+          };
+        }
+      }
+    }
+
+    return {
+      ...acc,
+      [key]: resultValue,
+    };
+  }, {} as { [key: string]: any });
+};
+
 const buildUpdateVariables = (
   introspectionResults: IntrospectionResultData,
   introspection: IntrospectionResult
@@ -221,164 +311,18 @@ const buildUpdateVariables = (
   ) as IntrospectionObjectType;
 
   const updateType = introspection.getUpdateDataType(resource.type.name);
+  const { id, ...restData } = params.data;
 
-  return Object.entries(params.data).reduce((acc, [key, value]) => {
-    if (key === 'id' && params.data[key]) {
-      return {
-        ...acc,
-        where: {
-          id: value,
-        },
-      };
-    }
+  const where = {
+    id,
+  };
 
-    const field = updateType.getFields()[key];
-    if (field) {
-      let resultValue;
+  const data = transformUpdateInput(restData, updateType);
 
-      const realType = getNamedType(field.type) as
-        | GraphQLScalarType
-        | GraphQLInputObjectType;
-
-      if (isScalarType(realType)) {
-        resultValue = value;
-      } else {
-        if (realType.name.endsWith('UpdateOneRelationInput')) {
-          const connectType = realType.getFields()['connect']
-            .type as GraphQLInputObjectType;
-          if (connectType.name.endsWith('InterfaceWhereUniqueInput')) {
-            const interfaceName = Object.keys(connectType.getFields())[0];
-            resultValue = { connect: { [interfaceName]: value } };
-          } else {
-            resultValue = { connect: value };
-          }
-        } else if (realType.name.endsWith('UpdateManyRelationInput')) {
-          const reconnectType = getNamedType(
-            realType.getFields()['reconnect'].type
-          ) as GraphQLInputObjectType;
-
-          if (reconnectType.name.endsWith('InterfaceWhereUniqueInput')) {
-            const interfaceName = Object.keys(reconnectType.getFields())[0];
-            resultValue = {
-              reconnect: value.map(v => ({ [interfaceName]: v })),
-            };
-          } else {
-            resultValue = { reconnect: value };
-          }
-        }
-      }
-
-      return {
-        ...acc,
-        data: {
-          ...acc.data,
-          [key]: resultValue,
-        },
-      };
-    }
-    // //to work with JSON array
-    // const isJsonField = isJsonTypeField([...type.fields], key);
-    // if (isJsonField) {
-    //   return {
-    //     ...acc,
-    //     data: {
-    //       ...acc.data,
-    //       [key]: params.data[key],
-    //     },
-    //   };
-    // }
-
-    // if (Array.isArray(params.data[key])) {
-    //   const inputType = findInputFieldForType(
-    //     introspectionResults,
-    //     `${resource.type.name}UpdateInput`,
-    //     key
-    //   );
-
-    //   if (!inputType) {
-    //     return acc;
-    //   }
-
-    //   //TODO: Make connect, disconnect and update overridable
-    //   //TODO: Make updates working
-
-    //   //to search for the schema type of related ids
-    //   const fieldName = typeExistsForRelatedIds(key);
-
-    //   const {
-    //     fieldsToAdd,
-    //     fieldsToRemove /* fieldsToUpdate */,
-    //   } = computeFieldsToAddRemoveUpdate(
-    //     params.previousData[key],
-    //     params.data[key]
-    //   );
-
-    //   return {
-    //     ...acc,
-    //     data: {
-    //       ...acc.data,
-    //       [fieldName]: {
-    //         [PRISMA_CONNECT]: fieldsToAdd,
-    //         [PRISMA_DISCONNECT]: fieldsToRemove,
-    //         //[PRISMA_UPDATE]: fieldsToUpdate
-    //       },
-    //     },
-    //   };
-    // }
-
-    // if (
-    //   isObject(params.data[key]) &&
-    //   Object.prototype.toString.call(params.data[key]) !== '[object Date]'
-    // ) {
-    //   const fieldsToUpdate = buildReferenceField({
-    //     inputArg: params.data[key],
-    //     introspectionResults,
-    //     typeName: `${resource.type.name}UpdateInput`,
-    //     field: key,
-    //     mutationType: PRISMA_CONNECT,
-    //   });
-
-    //   // If no fields in the object are valid, continue
-    //   if (Object.keys(fieldsToUpdate).length === 0) {
-    //     return acc;
-    //   }
-
-    //   // Else, connect the nodes
-    //   return {
-    //     ...acc,
-    //     data: {
-    //       ...acc.data,
-    //       [key]: { [PRISMA_CONNECT]: { ...fieldsToUpdate } },
-    //     },
-    //   };
-    // }
-
-    // // Put id field in a where object
-    // if (key === 'id' && params.data[key]) {
-    //   return {
-    //     ...acc,
-    //     where: {
-    //       id: params.data[key],
-    //     },
-    //   };
-    // }
-
-    // const isInField = type.fields.find((t: any) => t.name === key);
-
-    // if (!!isInField) {
-    //   // Rest should be put in data object
-    //   return {
-    //     ...acc,
-    //     data: {
-    //       ...acc.data,
-    //       [key]: params.data[key],
-    //     },
-    //   };
-    // }
-
-    // return acc;
-    return acc;
-  }, {} as { [key: string]: any });
+  return {
+    where,
+    data,
+  };
 };
 
 interface CreateParams {
