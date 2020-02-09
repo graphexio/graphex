@@ -1,34 +1,29 @@
 {
   "name": "@apollo-model/ra-data-apollo-model",
-  "version": "0.6.0-alpha.38",
-  "description": "A Prisma/GraphCMS data provider for react-admin",
+  "version": "0.6.0-alpha.44",
+  "description": "An apollo-model data provider for react-admin",
   "main": "lib/index.js",
   "sideEffects": false,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dnhsoft/ra-data-prisma2.git"
+    "url": "https://github.com/apollo-model/apollo-model"
   },
   "bugs": {
-    "url": "https://github.com/dnhsoft/ra-data-prisma2/issues"
+    "url": "https://github.com/apollo-model/apollo-model/issues"
   },
-  "homepage": "https://github.com/dnhsoft/ra-data-prisma2#readme",
-  "authors": [
-    "Flavian DESVERNE",
-    "DNHSoft"
-  ],
+  "homepage": "https://github.com/apollo-model/apollo-model",
   "keywords": [
     "reactjs",
     "react",
     "react-admin",
-    "admin-on-rest",
-    "rest",
-    "graphql",
-    "prisma",
-    "graphcms"
+    "apoll-model"
+  ],
+  "files": [
+    "lib/*"
   ],
   "license": "MIT",
   "scripts": {
-    "build": "tsc",
+    "prepare": "tsc",
     "watch": "tsc --watch"
   },
   "dependencies": {
