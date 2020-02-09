@@ -103,127 +103,81 @@ describe('buildVariables', () => {
   });
 
   describe('CREATE', () => {
-    // it('returns correct variables', () => {
-    //   const IntrospectionResultData = {
-    //     types: [
-    //       {
-    //         name: 'Post',
-    //         fields: [
-    //           {
-    //             name: 'title',
-    //           },
-    //         ],
-    //       },
-    //       {
-    //         name: 'PostCreateInput',
-    //         kind: TypeKind.INPUT_OBJECT,
-    //         inputFields: [
-    //           {
-    //             name: 'author',
-    //             type: {
-    //               kind: TypeKind.NON_NULL,
-    //               ofType: {
-    //                 kind: TypeKind.INPUT_OBJECT,
-    //                 name: 'AuthorCreateOneInput',
-    //               },
-    //             },
-    //           },
-    //           {
-    //             name: 'tags',
-    //             type: {
-    //               kind: TypeKind.NON_NULL,
-    //               ofType: {
-    //                 kind: TypeKind.INPUT_OBJECT,
-    //                 name: 'TagCreateManyInput',
-    //               },
-    //             },
-    //           },
-    //         ],
-    //       },
-    //       {
-    //         name: 'AuthorCreateOneInput',
-    //         kind: TypeKind.INPUT_OBJECT,
-    //         inputFields: [
-    //           {
-    //             name: 'connect',
-    //             type: {
-    //               kind: TypeKind.NON_NULL,
-    //               ofType: {
-    //                 kind: TypeKind.INPUT_OBJECT,
-    //                 name: 'AuthorWhereUniqueInput',
-    //               },
-    //             },
-    //           },
-    //         ],
-    //       },
-    //       {
-    //         name: 'AuthorWhereUniqueInput',
-    //         kind: TypeKind.INPUT_OBJECT,
-    //         inputFields: [
-    //           {
-    //             name: 'id',
-    //             type: {
-    //               kind: TypeKind.SCALAR,
-    //               name: 'String',
-    //             },
-    //           },
-    //         ],
-    //       },
-    //       {
-    //         name: 'TagCreateManyInput',
-    //         kind: TypeKind.INPUT_OBJECT,
-    //         inputFields: [
-    //           {
-    //             name: 'connect',
-    //             type: {
-    //               kind: TypeKind.NON_NULL,
-    //               ofType: {
-    //                 kind: TypeKind.INPUT_OBJECT,
-    //                 name: 'TagWhereUniqueInput',
-    //               },
-    //             },
-    //           },
-    //         ],
-    //       },
-    //       {
-    //         name: 'TagWhereUniqueInput',
-    //         kind: TypeKind.INPUT_OBJECT,
-    //         inputFields: [
-    //           {
-    //             name: 'id',
-    //             type: {
-    //               kind: TypeKind.SCALAR,
-    //               name: 'String',
-    //             },
-    //           },
-    //         ],
-    //       },
-    //     ],
-    //   };
-    //   const params = {
-    //     data: {
-    //       author: { id: 'author1' },
-    //       title: 'Foo',
-    //       tags: [{ id: 'tags1' }, { id: 'tags2' }],
-    //       tagsIds: ['tags1', 'tags2'],
-    //     },
-    //   };
-    //   expect(
-    //     buildVariables(IntrospectionResultData as IntrospectionResultData)(
-    //       { type: { name: 'Post' } } as Resource,
-    //       CREATE,
-    //       params
-    //     )
-    //   ).toEqual({
-    //     data: {
-    //       author: { connect: { id: 'author1' } },
-    //       tags: {
-    //         connect: [{ id: 'tags1' }, { id: 'tags2' }],
-    //       },
-    //       title: 'Foo',
-    //     },
-    //   });
-    // });
+    it('returns correct variables', () => {
+      const params = {
+        data: {
+          id: 'postId',
+          title: 'new title',
+          keywords: ['keyword'],
+          owner: { id: 'owner-id', customField: 'customFieldValue' },
+          moderator: { id: 'moderator-id' },
+          likes: [{ id: 'user-1' }, { id: 'user-2' }],
+          approves: [{ id: 'moderator-id' }],
+          meta: { slug: 'slug-1', group: { id: 'group-id' } },
+          metas: [
+            { slug: 'slug-1', group: { id: 'group-id' } },
+            { slug: 'slug-2' },
+          ],
+          position: 'leftColumn',
+        },
+        previousData: {
+          id: 'postId',
+        },
+      };
+      expect(
+        buildVariables(introspection.data, introspection)(
+          { type: { name: 'Post' } } as Resource,
+          CREATE,
+          params
+        )
+      ).toEqual({
+        data: {
+          title: 'new title',
+          keywords: ['keyword'],
+          owner: {
+            connect: {
+              id: 'owner-id',
+            },
+          },
+          likes: {
+            connect: [
+              {
+                id: 'user-1',
+              },
+              {
+                id: 'user-2',
+              },
+            ],
+          },
+          moderator: {
+            connect: {
+              User: {
+                id: 'moderator-id',
+              },
+            },
+          },
+          approves: {
+            connect: [
+              {
+                User: {
+                  id: 'moderator-id',
+                },
+              },
+            ],
+          },
+          meta: {
+            create: { slug: 'slug-1', group: { connect: { id: 'group-id' } } },
+          },
+          metas: {
+            create: [
+              { slug: 'slug-1', group: { connect: { id: 'group-id' } } },
+              { slug: 'slug-2' },
+            ],
+          },
+          position: 'leftColumn',
+        },
+      });
+    });
   });
 
   describe('UPDATE', () => {
@@ -300,6 +254,32 @@ describe('buildVariables', () => {
             ],
           },
           position: 'leftColumn',
+        },
+      });
+    });
+
+    it('returns correct variables', () => {
+      const params = {
+        data: {
+          id: 'postId',
+          metas: null,
+        },
+        previousData: {
+          id: 'postId',
+        },
+      };
+      expect(
+        buildVariables(introspection.data, introspection)(
+          { type: { name: 'Post' } } as Resource,
+          UPDATE,
+          params
+        )
+      ).toEqual({
+        data: {
+          metas: null,
+        },
+        where: {
+          id: 'postId',
         },
       });
     });

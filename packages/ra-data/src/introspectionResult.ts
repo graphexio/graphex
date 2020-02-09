@@ -37,4 +37,13 @@ export class IntrospectionResult {
         [methodName].args.find(R.propEq('name', 'data')).type
     ) as GraphQLInputObjectType;
   }
+
+  getCreateDataType(resourceName: string) {
+    const methodName = `create${resourceName}`;
+    return getNamedType(
+      this.getMutationType()
+        .getFields()
+        [methodName].args.find(R.propEq('name', 'data')).type
+    ) as GraphQLInputObjectType;
+  }
 }
