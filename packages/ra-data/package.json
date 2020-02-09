@@ -1,6 +1,6 @@
 {
   "name": "@apollo-model/ra-data-apollo-model",
-  "version": "1.0.2",
+  "version": "0.6.0-alpha.38",
   "description": "A Prisma/GraphCMS data provider for react-admin",
   "main": "lib/index.js",
   "sideEffects": false,
@@ -56,5 +56,8 @@
     "react-admin": "^2.3.0",
     "rimraf": "^2.6.2",
     "typescript": "^3.7.4"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
