@@ -284,6 +284,38 @@ describe('SchemaFilter', () => {
       );
     });
 
+    test('right request with arg variable', async () => {
+      let schema = makeSchema({ typeDefs, resolvers });
+      const { mutate } = testClient({ schema });
+      const { data, errors } = await mutate({
+        query: gql`
+          mutation($data: Test) {
+            updateMethod(data: $data)
+          }
+        `,
+        variables: { data: { field: '123' } },
+      });
+      expect(errors).toBeUndefined();
+      expect(data.updateMethod).toMatch(
+        `{"data":{"field":"123","removeField":"Test"}}`
+      );
+    });
+
+    test('right request with undefined arg variable', async () => {
+      let schema = makeSchema({ typeDefs, resolvers });
+      const { mutate } = testClient({ schema });
+      const { data, errors } = await mutate({
+        query: gql`
+          mutation($data: Test) {
+            updateMethod(data: $data)
+          }
+        `,
+        variables: {},
+      });
+      expect(errors).toBeUndefined();
+      expect(data.updateMethod).toMatch(`{"data":{"removeField":"Test"}}`);
+    });
+
     test('wrong request', async () => {
       let schema = makeSchema({ typeDefs });
       const { mutate } = testClient({ schema });

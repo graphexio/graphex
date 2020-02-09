@@ -60,10 +60,16 @@ export default () => {
       }
 
       const typeFields = type.getFields();
-      const input = R.pipe(
-        R.map(valueFromFieldNode(typeFields, variables)),
-        R.fromPairs
-      )(node.value.fields);
+      let input;
+
+      if (node.value.kind === 'Variable') {
+        input = variables[node.value.name.value] || {};
+      } else {
+        input = R.pipe(
+          R.map(valueFromFieldNode(typeFields, variables)),
+          R.fromPairs
+        )(node.value.fields);
+      }
 
       defaultValues.forEach(item => {
         input[item.field.name] = item.valueFn({
