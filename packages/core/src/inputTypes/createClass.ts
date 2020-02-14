@@ -7,23 +7,23 @@ import {
   AMModelField,
   IAMInputFieldFactory,
   IAMTypeFactory,
-  AMModelType,
 } from '../definitions';
 import { AMCreateFieldFactory } from './fieldFactories/create';
 import { AMCreateNestedFieldFactory } from './fieldFactories/createNested';
 import { AMCreateRelationFieldFactory } from './fieldFactories/createRelation';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
-import { getNamedType } from 'graphql';
 
 const isApplicable = (field: AMModelField) => (
   fieldFactory: IAMInputFieldFactory
 ) => fieldFactory.isApplicable(field);
 
-export const AMCreateTypeFactory: IAMTypeFactory<AMInputObjectType> = {
-  getTypeName(modelType): string {
+import { AMTypeFactory, AMModelType } from '../definitions';
+import { getNamedType } from 'graphql';
+export class AMCreateTypeFactory extends AMTypeFactory<AMInputObjectType> {
+  getTypeName(modelType: AMModelType): string {
     return `${modelType.name}CreateInput`;
-  },
-  getType(modelType, schemaInfo) {
+  }
+  getType(modelType: AMModelType) {
     const self: IAMTypeFactory<AMInputObjectType> = this;
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
@@ -31,17 +31,17 @@ export const AMCreateTypeFactory: IAMTypeFactory<AMInputObjectType> = {
         const fields = {};
 
         Object.values(modelType.getFields()).forEach(field => {
-          const fieldFactories = field?.mmFieldFactories?.AMCreateTypeFactory
-            ? field.mmFieldFactories.AMCreateTypeFactory
-            : [
-                AMCreateFieldFactory,
-                AMCreateNestedFieldFactory,
-                AMCreateRelationFieldFactory,
-              ].filter(isApplicable(field));
+          const fieldType = getNamedType(field.type) as AMModelType;
+          let links = this.links.fieldFactories;
+          if (!Array.isArray(links)) links = [links];
+
+          const fieldFactories = this.configResolver
+            .resolveInputFieldFactories(fieldType, links)
+            .filter(factory => factory.isApplicable(field));
 
           fieldFactories.forEach(fieldFactory => {
             const fieldName = fieldFactory.getFieldName(field);
-            fields[fieldName] = fieldFactory.getField(field, schemaInfo);
+            fields[fieldName] = fieldFactory.getField(field);
           });
         });
 
@@ -91,5 +91,5 @@ export const AMCreateTypeFactory: IAMTypeFactory<AMInputObjectType> = {
         }
       },
     });
-  },
-};
+  }
+}

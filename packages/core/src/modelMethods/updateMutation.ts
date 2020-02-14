@@ -11,19 +11,20 @@ import {
   IAMFieldFactory,
   IAMMethodFieldFactory,
   GraphQLOperationType,
+  AMMethodFieldFactory,
 } from '../definitions';
 import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMWhereTypeFactory } from '../inputTypes/where';
 import { AMInterfaceWhereUniqueTypeFactory } from '../inputTypes/interfaceWhereUnique';
 
-export const AMModelUpdateMutationFieldFactory: IAMMethodFieldFactory = {
+export class AMModelUpdateMutationFieldFactory extends AMMethodFieldFactory {
   getOperationType() {
     return GraphQLOperationType.Mutation;
-  },
+  }
   getFieldName(modelType: AMModelType): string {
     return R.concat('update')(modelType.name);
-  },
-  getField(modelType: AMModelType, schemaInfo) {
+  }
+  getField(modelType: AMModelType) {
     return <AMField>{
       name: this.getFieldName(modelType),
       description: '',
@@ -33,17 +34,17 @@ export const AMModelUpdateMutationFieldFactory: IAMMethodFieldFactory = {
         {
           name: 'data',
           type: new GraphQLNonNull(
-            schemaInfo.resolveFactoryType(modelType, AMUpdateTypeFactory)
+            this.configResolver.resolveInputType(modelType, this.links.data)
           ),
         },
         {
           name: 'where',
           type: new GraphQLNonNull(
-            schemaInfo.resolveFactoryType(
+            this.configResolver.resolveInputType(
               modelType,
               isInterfaceType(modelType)
-                ? AMInterfaceWhereUniqueTypeFactory
-                : AMWhereUniqueTypeFactory
+                ? this.links.whereInterface
+                : this.links.where
             )
           ),
         },
@@ -70,5 +71,5 @@ export const AMModelUpdateMutationFieldFactory: IAMMethodFieldFactory = {
       },
       resolve: resolve,
     };
-  },
-};
+  }
+}

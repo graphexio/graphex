@@ -22,13 +22,17 @@ import { AMModelDeleteManyMutationFieldFactory } from './modelMethods/deleteMany
 import { AMModelDeleteOneMutationFieldFactory } from './modelMethods/deleteOneMutation';
 import { AMModelUpdateMutationFieldFactory } from './modelMethods/updateMutation';
 import { AMModelConnectionQueryFieldFactory } from './modelMethods/connectionQuery';
-import { AMModelMultipleQueryFieldFactory } from './modelMethods/multipleQuery';
+// import { AMModelMultipleQueryFieldFactory } from './modelMethods/multipleQuery';
 import { AMModelSingleQueryFieldFactory } from './modelMethods/singleQuery';
 import Modules from './modules';
 import { postInit } from './postInit';
 import { prepare } from './prepare/prepare';
 import { getDirective } from './utils';
 export * from './definitions';
+
+import { defaultConfig } from './config/defaultConfig';
+import { AMConfigResolver } from './config/resolver';
+import { makeSchemaInfo } from './schemaInfo';
 
 const { printSchema } = require('@apollo/federation');
 
@@ -189,6 +193,12 @@ export default class ModelMongo {
 
     prepare(schema, { fieldFactoriesMap, fieldVisitorEventsMap });
 
+    const schemaInfo = makeSchemaInfo(schema, this.options);
+    const configResolver = new AMConfigResolver({
+      configs: [defaultConfig],
+      schemaInfo,
+    });
+
     Object.values(schema.getTypeMap()).forEach(type => {
       // this._onSchemaInit(type);
 
@@ -197,15 +207,15 @@ export default class ModelMongo {
         if (!typeWrap.isAbstract()) {
           // console.log(`Building queries for ${type.name}`);
           [
-            AMModelMultipleQueryFieldFactory,
-            AMModelSingleQueryFieldFactory,
-            AMModelConnectionQueryFieldFactory,
+            configResolver.resolveMethodFactory(type, 'multipleQuery'),
+            configResolver.resolveMethodFactory(type, 'singleQuery'),
+            configResolver.resolveMethodFactory(type, 'connectionQuery'),
             ...(!isInterfaceType(type)
-              ? [AMModelCreateMutationFieldFactory]
+              ? [configResolver.resolveMethodFactory(type, 'createMutation')]
               : []),
             AMModelDeleteOneMutationFieldFactory,
             AMModelDeleteManyMutationFieldFactory,
-            AMModelUpdateMutationFieldFactory,
+            configResolver.resolveMethodFactory(type, 'updateMutation'),
           ].forEach(fieldFactory => {
             appendField(
               schema,

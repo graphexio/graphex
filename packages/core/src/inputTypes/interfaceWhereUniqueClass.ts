@@ -1,0 +1,113 @@
+import {
+  GraphQLInputObjectType,
+  GraphQLInterfaceType,
+  isInterfaceType,
+} from 'graphql';
+import R from 'ramda';
+import { AMCreateOperation } from '../execution/operations/createOperation';
+import {
+  AMInputFieldConfig,
+  AMInputObjectType,
+  IAMTypeFactory,
+} from '../definitions';
+import { AMWhereUniqueTypeFactory } from './whereUnique';
+import { AMReadOperation } from '../execution/operations/readOperation';
+import { AMObjectFieldContext } from '../execution/contexts/objectField';
+import { AMListValueContext } from '../execution/contexts/listValue';
+
+import { AMTypeFactory, AMModelType } from '../definitions';
+
+export class AMInterfaceWhereUniqueTypeFactory extends AMTypeFactory<
+  GraphQLInputObjectType
+> {
+  isApplicable(type: AMModelType) {
+    return isInterfaceType(type);
+  }
+  getTypeName(modelType: AMModelType): string {
+    return `${modelType.name}InterfaceWhereUniqueInput`;
+  }
+  getType(modelType: AMModelType) {
+    const self: IAMTypeFactory<AMInputObjectType> = this;
+
+    return new AMInputObjectType({
+      name: this.getTypeName(modelType),
+      fields: () => {
+        const fields = {};
+        if (modelType instanceof GraphQLInterfaceType) {
+          [
+            modelType,
+            ...(this.schemaInfo.schema.getPossibleTypes(
+              modelType
+            ) as AMModelType[]),
+          ].forEach((possibleType: AMModelType) => {
+            fields[possibleType.name] = <AMInputFieldConfig>{
+              type: this.configResolver.resolveInputType(
+                possibleType,
+                this.links.whereUnique
+              ),
+              ...(!modelType.mmAbstract
+                ? {
+                    // amEnter(node, transaction, stack) {
+                    //   },
+                    amLeave(node, transaction, stack) {
+                      if (
+                        modelType.mmDiscriminatorField &&
+                        possibleType.mmDiscriminator
+                      ) {
+                        const lastInStack = R.last(stack);
+                        if (lastInStack instanceof AMReadOperation) {
+                          if (lastInStack.selector) {
+                            lastInStack.selector.addValue(
+                              modelType.mmDiscriminatorField,
+                              possibleType.mmDiscriminator
+                            );
+                          }
+                        } else if (
+                          lastInStack instanceof AMObjectFieldContext
+                        ) {
+                          lastInStack.addValue(
+                            modelType.mmDiscriminatorField,
+                            possibleType.mmDiscriminator
+                          );
+                        }
+                      }
+                    },
+                  }
+                : {
+                    amEnter(node, transaction, stack) {
+                      const readOperation = new AMReadOperation(transaction, {
+                        many: false,
+                        collectionName: possibleType.mmCollectionName,
+                      });
+                      stack.push(readOperation);
+                    },
+                    amLeave(node, transaction, stack) {
+                      const readOp = stack.pop() as AMReadOperation;
+                      const lastInStack = R.last(stack);
+
+                      if (lastInStack instanceof AMObjectFieldContext) {
+                        lastInStack.setValue(
+                          readOp
+                            .getOutput()
+                            .path('_id')
+                            .dbRef(possibleType.mmCollectionName)
+                        );
+                      } else if (lastInStack instanceof AMListValueContext) {
+                        lastInStack.addValue(
+                          readOp
+                            .getOutput()
+                            .path('_id')
+                            .dbRef(possibleType.mmCollectionName)
+                        );
+                      }
+                    },
+                  }),
+            };
+          });
+        }
+
+        return fields;
+      },
+    });
+  }
+}

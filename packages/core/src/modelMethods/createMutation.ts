@@ -5,19 +5,20 @@ import {
   AMModelType,
   GraphQLOperationType,
   IAMMethodFieldFactory,
+  AMMethodFieldFactory,
 } from '../definitions';
 import { AMCreateOperation } from '../execution/operations/createOperation';
 import { AMCreateTypeFactory } from '../inputTypes/create';
 import { resolve } from '../resolve';
 
-export const AMModelCreateMutationFieldFactory: IAMMethodFieldFactory = {
+export class AMModelCreateMutationFieldFactory extends AMMethodFieldFactory {
   getOperationType() {
     return GraphQLOperationType.Mutation;
-  },
+  }
   getFieldName(modelType: AMModelType): string {
     return R.concat('create')(modelType.name);
-  },
-  getField(modelType: AMModelType, schemaInfo) {
+  }
+  getField(modelType: AMModelType) {
     return <AMField>{
       name: this.getFieldName(modelType),
       description: '',
@@ -27,7 +28,7 @@ export const AMModelCreateMutationFieldFactory: IAMMethodFieldFactory = {
         {
           name: 'data',
           type: new GraphQLNonNull(
-            schemaInfo.resolveFactoryType(modelType, AMCreateTypeFactory)
+            this.configResolver.resolveInputType(modelType, this.links.data)
           ),
         },
       ],
@@ -43,5 +44,5 @@ export const AMModelCreateMutationFieldFactory: IAMMethodFieldFactory = {
       },
       resolve: resolve,
     };
-  },
-};
+  }
+}

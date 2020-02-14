@@ -4,6 +4,7 @@ import {
   AMModelType,
   GraphQLOperationType,
   IAMMethodFieldFactory,
+  AMMethodFieldFactory,
 } from '../definitions';
 import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMReadOperation } from '../execution/operations/readOperation';
@@ -12,14 +13,14 @@ import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
 import { resolve } from '../resolve';
 import { lowercaseFirstLetter } from '../utils';
 
-export const AMModelSingleQueryFieldFactory: IAMMethodFieldFactory = {
+export class AMModelSingleQueryFieldFactory extends AMMethodFieldFactory {
   getOperationType() {
     return GraphQLOperationType.Query;
-  },
+  }
   getFieldName(modelType: AMModelType): string {
     return lowercaseFirstLetter(modelType.name);
-  },
-  getField(modelType: AMModelType, schemaInfo) {
+  }
+  getField(modelType: AMModelType) {
     return <AMField>{
       name: this.getFieldName(modelType),
       description: '',
@@ -28,11 +29,9 @@ export const AMModelSingleQueryFieldFactory: IAMMethodFieldFactory = {
       args: [
         {
           name: 'where',
-          type: schemaInfo.resolveFactoryType(
+          type: this.configResolver.resolveInputType(
             modelType,
-            isInterfaceType(modelType)
-              ? AMInterfaceWhereUniqueTypeFactory
-              : AMWhereUniqueTypeFactory
+            this.links.whereUnique
           ),
         },
       ],
@@ -58,5 +57,5 @@ export const AMModelSingleQueryFieldFactory: IAMMethodFieldFactory = {
       },
       resolve: resolve,
     };
-  },
-};
+  }
+}

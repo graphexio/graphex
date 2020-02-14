@@ -5,6 +5,8 @@ import {
   AMModelField,
   IAMInputFieldFactory,
   IAMTypeFactory,
+  AMTypeFactory,
+  AMModelType,
 } from '../definitions';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import {
@@ -15,11 +17,16 @@ import { getLastOperation } from '../execution/utils';
 import { AMUpdateTypeFactory } from './update';
 import { AMWhereTypeFactory } from './where';
 
-export const AMUpdateWithWhereNestedTypeFactory: IAMTypeFactory<GraphQLInputObjectType> = {
-  getTypeName(modelType): string {
+export class AMUpdateWithWhereNestedTypeFactory extends AMTypeFactory<
+  AMInputObjectType
+> {
+  isApplicable(modelType: AMModelType) {
+    return true;
+  }
+  getTypeName(modelType: AMModelType): string {
     return `${modelType.name}UpdateWithWhereNestedInput`;
-  },
-  getType(modelType, schemaInfo) {
+  }
+  getType(modelType: AMModelType) {
     const self: IAMTypeFactory<AMInputObjectType> = this;
     let arrayFilter: ArrayFilter;
 
@@ -28,7 +35,10 @@ export const AMUpdateWithWhereNestedTypeFactory: IAMTypeFactory<GraphQLInputObje
       fields: () => {
         const fields = <AMInputFieldConfigMap>{
           where: {
-            type: schemaInfo.resolveFactoryType(modelType, AMWhereTypeFactory),
+            type: this.configResolver.resolveInputType(
+              modelType,
+              this.links.where
+            ),
             amEnter(node, transaction, stack) {
               const context = new AMObjectFieldContext('where');
               stack.push(context);
@@ -39,7 +49,10 @@ export const AMUpdateWithWhereNestedTypeFactory: IAMTypeFactory<GraphQLInputObje
             },
           },
           data: {
-            type: schemaInfo.resolveFactoryType(modelType, AMUpdateTypeFactory),
+            type: this.configResolver.resolveInputType(
+              modelType,
+              this.links.data
+            ),
           },
         };
 
@@ -61,5 +74,5 @@ export const AMUpdateWithWhereNestedTypeFactory: IAMTypeFactory<GraphQLInputObje
         stack.pop();
       },
     });
-  },
-};
+  }
+}

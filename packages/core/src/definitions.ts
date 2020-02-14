@@ -26,6 +26,19 @@ import {
 import Maybe from 'graphql/tsutils/Maybe';
 import { AMContext } from './execution/context';
 import { AMTransaction } from './execution/transaction';
+import { AMConfigResolver } from './config/resolver';
+
+export abstract class AMFactory {
+  links: { [key: string]: string | string[] };
+  schemaInfo: AMSchemaInfo;
+  configResolver: AMConfigResolver;
+
+  constructor(options: AMFactoryOptions) {
+    this.links = options.links;
+    this.schemaInfo = options.schemaInfo;
+    this.configResolver = options.configResolver;
+  }
+}
 
 export type AMOptions = {
   aclWhere?: boolean;
@@ -214,6 +227,16 @@ export interface IAMTypeFactory<T extends GraphQLNamedType> {
   getType(inputType: AMModelType, schemaInfo: AMSchemaInfo): T;
 }
 
+export abstract class AMTypeFactory<
+  T extends GraphQLNamedType
+> extends AMFactory {
+  isApplicable(inputType: AMModelType) {
+    return true;
+  }
+  abstract getTypeName(inputType: GraphQLNamedType): string;
+  abstract getType(inputType: AMModelType, schemaInfo: AMSchemaInfo): T;
+}
+
 // export interface IAMModelTypeFactory<T extends GraphQLNamedType>
 //   extends IAMTypeFactory<T> {
 //   getFieldFactories(field: AMField): IAMInputFieldFactory[];
@@ -223,6 +246,12 @@ export interface IAMInputFieldFactory {
   isApplicable(field: AMModelField): boolean;
   getFieldName(field: AMModelField): string;
   getField(field: AMModelField, schemaInfo: AMSchemaInfo): AMInputField;
+}
+
+export abstract class AMInputFieldFactory extends AMFactory {
+  abstract isApplicable(field: AMModelField): boolean;
+  abstract getFieldName(field: AMModelField): string;
+  abstract getField(field: AMModelField): AMInputField;
 }
 
 export interface IAMFieldFactory {
@@ -245,6 +274,18 @@ export interface IAMMethodFieldFactory {
     inputType: AMModelType,
     schemaInfo: AMSchemaInfo
   ): GraphQLField<any, any>;
+}
+
+type AMFactoryOptions = {
+  links: { [key: string]: string | string[] };
+  schemaInfo: AMSchemaInfo;
+  configResolver: AMConfigResolver;
+};
+
+export abstract class AMMethodFieldFactory extends AMFactory {
+  abstract getOperationType(): GraphQLOperationType;
+  abstract getFieldName(type: AMModelType): string;
+  abstract getField(type: AMModelType): GraphQLField<any, any>;
 }
 
 export interface IAMQuerySelector {
@@ -288,4 +329,45 @@ export enum AMDBExecutorOperationType {
   DELETE_MANY = 'deleteMany',
   UPDATE_ONE = 'updateOne',
   UPDATE_MANY = 'updateMany',
+}
+
+export interface AMConfig {
+  [typeName: string]: {
+    methodFactories?: {
+      [factoryKey: string]: {
+        factory: new (options: AMFactoryOptions) => AMMethodFieldFactory;
+        links?: {
+          [key: string]: string | string[];
+        };
+      };
+    };
+    typeFactories?: {
+      [factoryKey: string]: {
+        factory: new (options: AMFactoryOptions) => AMTypeFactory<
+          GraphQLNamedType
+        >;
+        links?: {
+          [key: string]: string | string[];
+        };
+      };
+    };
+    inputTypeFactories?: {
+      [factoryKey: string]: {
+        factory: new (options: AMFactoryOptions) => AMTypeFactory<
+          GraphQLInputObjectType
+        >;
+        links?: {
+          [key: string]: string | string[];
+        };
+      };
+    };
+    inputFieldFactories?: {
+      [factoryKey: string]: {
+        factory: new (options: AMFactoryOptions) => AMInputFieldFactory;
+        links?: {
+          [key: string]: string | string[];
+        };
+      };
+    };
+  };
 }
