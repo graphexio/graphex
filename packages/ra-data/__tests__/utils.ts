@@ -13,12 +13,13 @@ import introspectionOptions from '../src/introspectionOptions';
 import { createTestClient } from 'apollo-server-testing';
 import { ApolloServer } from 'apollo-server';
 import { IntrospectionResult } from '../src/introspectionResult';
+import * as GeoJSON from '@apollo-model/type-geojson';
 
 export const prepareIntrospection = async (
   typeDefs: DocumentNode
 ): Promise<IntrospectionResult> => {
   const schema = new AMM({
-    modules: [],
+    modules: [GeoJSON],
   }).makeExecutableSchema({
     resolverValidationOptions: {
       requireResolversForResolveType: false,

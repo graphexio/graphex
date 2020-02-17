@@ -179,7 +179,9 @@ const transformInput = (value, type: GraphQLInputType) => {
 
   if (
     type.name.endsWith('WhereUniqueInput') ||
-    type.name.endsWith('CreateInput')
+    type.name.endsWith('CreateInput') ||
+    type.name.endsWith('GeoJSONPointInput') ||
+    type.name.endsWith('GeoJSONPolygonInput')
   ) {
     return transformInputObject(value, type);
   }

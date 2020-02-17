@@ -49,6 +49,8 @@ beforeAll(async () => {
       meta: Meta
       metas: [Meta!]!
       position: Position
+      point: GeoJSONPoint
+      polygon: GeoJSONPolygon
     }
 
     type Meta @embedded {
@@ -119,6 +121,21 @@ describe('buildVariables', () => {
             { slug: 'slug-2' },
           ],
           position: 'leftColumn',
+          point: {
+            type: 'Point',
+            coordinates: [[0, 0]],
+          },
+          polygon: {
+            type: 'Polygon',
+            coordinates: [
+              [
+                [0, 0],
+                [1, 1],
+                [0, 0],
+                [0, 0],
+              ],
+            ],
+          },
         },
         previousData: {
           id: 'postId',
@@ -175,6 +192,21 @@ describe('buildVariables', () => {
             ],
           },
           position: 'leftColumn',
+          point: {
+            type: 'Point',
+            coordinates: [[0, 0]],
+          },
+          polygon: {
+            type: 'Polygon',
+            coordinates: [
+              [
+                [0, 0],
+                [1, 1],
+                [0, 0],
+                [0, 0],
+              ],
+            ],
+          },
         },
       });
     });
