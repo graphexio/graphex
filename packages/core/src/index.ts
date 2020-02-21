@@ -200,9 +200,7 @@ export default class ModelMongo {
             AMModelMultipleQueryFieldFactory,
             AMModelSingleQueryFieldFactory,
             AMModelConnectionQueryFieldFactory,
-            ...(!isInterfaceType(type)
-              ? [AMModelCreateMutationFieldFactory]
-              : []),
+            AMModelCreateMutationFieldFactory,
             AMModelDeleteOneMutationFieldFactory,
             AMModelDeleteManyMutationFieldFactory,
             AMModelUpdateMutationFieldFactory,

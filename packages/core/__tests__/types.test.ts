@@ -285,28 +285,29 @@ describe('interface', () => {
   });
   test('Mutation', () => {
     expect(printType(schema.getMutationType())).toMatchInlineSnapshot(`
-        "type Mutation {
-          createPost(data: PostCreateInput!): Post
-          deletePost(where: PostWhereUniqueInput!): Post
-          deletePosts(where: PostWhereInput!): Int!
-          updatePost(data: PostUpdateInput!, where: PostWhereUniqueInput!): Post
-          deleteUser(where: UserInterfaceWhereUniqueInput!): User
-          deleteUsers(where: UserInterfaceWhereInput!): Int!
-          updateUser(data: UserUpdateInput!, where: UserInterfaceWhereUniqueInput!): User
-          createAdmin(data: AdminCreateInput!): Admin
-          deleteAdmin(where: AdminWhereUniqueInput!): Admin
-          deleteAdmins(where: AdminWhereInput!): Int!
-          updateAdmin(data: AdminUpdateInput!, where: AdminWhereUniqueInput!): Admin
-          createSubscriber(data: SubscriberCreateInput!): Subscriber
-          deleteSubscriber(where: SubscriberWhereUniqueInput!): Subscriber
-          deleteSubscribers(where: SubscriberWhereInput!): Int!
-          updateSubscriber(data: SubscriberUpdateInput!, where: SubscriberWhereUniqueInput!): Subscriber
-          createManager(data: ManagerCreateInput!): Manager
-          deleteManager(where: ManagerWhereUniqueInput!): Manager
-          deleteManagers(where: ManagerWhereInput!): Int!
-          updateManager(data: ManagerUpdateInput!, where: ManagerWhereUniqueInput!): Manager
-        }"
-    `);
+"type Mutation {
+  createPost(data: PostCreateInput!): Post
+  deletePost(where: PostWhereUniqueInput!): Post
+  deletePosts(where: PostWhereInput!): Int!
+  updatePost(data: PostUpdateInput!, where: PostWhereUniqueInput!): Post
+  createUser(data: UserInterfaceCreateInput!): User
+  deleteUser(where: UserInterfaceWhereUniqueInput!): User
+  deleteUsers(where: UserInterfaceWhereInput!): Int!
+  updateUser(data: UserUpdateInput!, where: UserInterfaceWhereUniqueInput!): User
+  createAdmin(data: AdminCreateInput!): Admin
+  deleteAdmin(where: AdminWhereUniqueInput!): Admin
+  deleteAdmins(where: AdminWhereInput!): Int!
+  updateAdmin(data: AdminUpdateInput!, where: AdminWhereUniqueInput!): Admin
+  createSubscriber(data: SubscriberCreateInput!): Subscriber
+  deleteSubscriber(where: SubscriberWhereUniqueInput!): Subscriber
+  deleteSubscribers(where: SubscriberWhereInput!): Int!
+  updateSubscriber(data: SubscriberUpdateInput!, where: SubscriberWhereUniqueInput!): Subscriber
+  createManager(data: ManagerCreateInput!): Manager
+  deleteManager(where: ManagerWhereUniqueInput!): Manager
+  deleteManagers(where: ManagerWhereInput!): Int!
+  updateManager(data: ManagerUpdateInput!, where: ManagerWhereUniqueInput!): Manager
+}"
+`);
   });
 
   test('Post', () => {

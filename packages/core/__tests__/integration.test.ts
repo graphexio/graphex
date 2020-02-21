@@ -1664,3 +1664,28 @@ test('extRelation single', async () => {
      }
   `);
 });
+
+test('Create interface', async () => {
+  let { data, errors } = await query({
+    query: gql`
+      mutation {
+        createUser(
+          data: { Admin: { username: "new-admin-created-by-interface" } }
+        ) {
+          __typename
+          username
+        }
+      }
+    `,
+    variables: {},
+  });
+  expect(errors).toBeUndefined();
+  expect(data).toMatchInlineSnapshot(`
+    Object {
+      "createUser": Object {
+        "__typename": "Admin",
+        "username": "new-admin-created-by-interface",
+      },
+    }
+  `);
+});
