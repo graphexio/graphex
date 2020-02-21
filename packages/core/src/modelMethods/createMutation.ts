@@ -1,4 +1,4 @@
-import { GraphQLNonNull } from 'graphql';
+import { GraphQLNonNull, isInterfaceType } from 'graphql';
 import R from 'ramda';
 import {
   AMField,
@@ -9,6 +9,7 @@ import {
 import { AMCreateOperation } from '../execution/operations/createOperation';
 import { AMCreateTypeFactory } from '../inputTypes/create';
 import { resolve } from '../resolve';
+import { AMInterfaceCreateTypeFactory } from '../inputTypes/interfaceCreate';
 
 export const AMModelCreateMutationFieldFactory: IAMMethodFieldFactory = {
   getOperationType() {
@@ -27,7 +28,12 @@ export const AMModelCreateMutationFieldFactory: IAMMethodFieldFactory = {
         {
           name: 'data',
           type: new GraphQLNonNull(
-            schemaInfo.resolveFactoryType(modelType, AMCreateTypeFactory)
+            schemaInfo.resolveFactoryType(
+              modelType,
+              isInterfaceType(modelType)
+                ? AMInterfaceCreateTypeFactory
+                : AMCreateTypeFactory
+            )
           ),
         },
       ],
