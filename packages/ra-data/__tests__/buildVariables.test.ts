@@ -210,6 +210,29 @@ describe('buildVariables', () => {
         },
       });
     });
+
+    it('create interface', () => {
+      const params = {
+        data: {
+          __typename: 'Admin',
+          username: 'admin',
+        },
+        previousData: {},
+      };
+      expect(
+        buildVariables(introspection.data, introspection)(
+          { type: { name: 'User' } } as Resource,
+          CREATE,
+          params
+        )
+      ).toEqual({
+        data: {
+          Admin: {
+            username: 'admin',
+          },
+        },
+      });
+    });
   });
 
   describe('UPDATE', () => {

@@ -168,18 +168,22 @@ const transformInput = (value, type: GraphQLInputType) => {
   }
 
   if (type.name.endsWith('InterfaceWhereUniqueInput')) {
-    const interfaceName = Object.keys(type.getFields())[0];
-    return transformInputObject({ [interfaceName]: value }, type);
+    let { __typename, ...restValue } = value;
+    if (!__typename) {
+      __typename = Object.keys(type.getFields())[0];
+    }
+    return transformInputObject({ [__typename]: restValue }, type);
   }
 
   if (type.name.endsWith('InterfaceCreateInput')) {
-    const { __typename, restValue } = value;
+    const { __typename, ...restValue } = value;
     return transformInputObject({ [__typename]: restValue }, type);
   }
 
   if (
     type.name.endsWith('WhereUniqueInput') ||
     type.name.endsWith('CreateInput') ||
+    type.name.endsWith('UpdateInput') ||
     type.name.endsWith('GeoJSONPointInput') ||
     type.name.endsWith('GeoJSONPolygonInput')
   ) {
@@ -235,7 +239,7 @@ const buildUpdateVariables = (
     id,
   };
 
-  const data = transformInputObject(restData, updateType);
+  const data = transformInput(restData, updateType);
 
   return {
     where,
@@ -257,7 +261,7 @@ const buildCreateVariables = (
 
   const createType = introspection.getCreateDataType(resource.type.name);
 
-  const data = transformInputObject(params.data, createType);
+  const data = transformInput(params.data, createType);
 
   return {
     data,
