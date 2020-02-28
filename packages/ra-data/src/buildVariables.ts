@@ -167,7 +167,8 @@ const transformInput = (value, type: GraphQLInputType) => {
     return transformInputObject({ recreate: value }, type);
   }
 
-  if (type.name.endsWith('InterfaceWhereUniqueInput')) {
+  if (type.name.endsWith('InterfaceWhereUniqueInput') ||
+    type.name.endsWith('InterfaceWhereInput')) {
     let { __typename, ...restValue } = value;
     if (!__typename) {
       __typename = Object.keys(type.getFields())[0];
@@ -175,13 +176,17 @@ const transformInput = (value, type: GraphQLInputType) => {
     return transformInputObject({ [__typename]: restValue }, type);
   }
 
-  if (type.name.endsWith('InterfaceCreateInput')) {
+  if (
+    type.name.endsWith('InterfaceCreateInput') ||
+    type.name.endsWith('InterfaceUpdateInput')
+  ) {
     const { __typename, ...restValue } = value;
     return transformInputObject({ [__typename]: restValue }, type);
   }
 
   if (
     type.name.endsWith('WhereUniqueInput') ||
+    type.name.endsWith('WhereInput') ||
     type.name.endsWith('CreateInput') ||
     type.name.endsWith('UpdateInput') ||
     type.name.endsWith('GeoJSONPointInput') ||
@@ -232,14 +237,24 @@ const buildUpdateVariables = (
     introspectionResults.types
   ) as IntrospectionObjectType;
 
-  const updateType = introspection.getUpdateDataType(resource.type.name);
+  const updateDataType = introspection.getUpdateType(
+    resource.type.name,
+    'data'
+  );
+  const updateWhereType = introspection.getUpdateType(
+    resource.type.name,
+    'where'
+  );
   const { id, ...restData } = params.data;
 
-  const where = {
-    id,
-  };
-
-  const data = transformInput(restData, updateType);
+  const where = transformInput(
+    {
+      id,
+      __typename: restData.__typename,
+    },
+    updateWhereType
+  );
+  const data = transformInput(restData, updateDataType);
 
   return {
     where,
@@ -268,6 +283,9 @@ const buildCreateVariables = (
   };
 };
 
+const renameKey = R.curry((oldKey, newKey, obj) =>
+  R.assoc(newKey, R.prop(oldKey, obj), R.dissoc(oldKey, obj)));
+
 export default (
   introspectionResults: IntrospectionResultData,
   introspection: IntrospectionResult
@@ -281,9 +299,18 @@ export default (
       );
     }
     case GET_MANY:
-      return {
-        where: { id_in: params.ids },
-      };
+      if (introspection) {
+        const getManyType = introspection.getGetManyWhereType(resource.type.name);
+        const paramsIdsToIdIn = params.ids ? renameKey('ids', 'id_in', params) : params;
+        const getManyWhere = transformInput(paramsIdsToIdIn, getManyType);
+        return {
+          where: getManyWhere,
+        }
+      } else {
+        return {
+          where: { id_in: params.ids },
+        }
+      }
     case GET_MANY_REFERENCE: {
       const parts = params.target.split('.');
 
@@ -292,8 +319,10 @@ export default (
       };
     }
     case GET_ONE:
+      const getOneType = introspection.getGetOneWhereType(resource.type.name);
+      const getOneWhere = transformInput(params, getOneType);
       return {
-        where: { id: params.id },
+        where: getOneWhere,
       };
     case UPDATE: {
       return buildUpdateVariables(introspectionResults, introspection)(
@@ -312,8 +341,16 @@ export default (
     }
 
     case DELETE:
-      return {
-        where: { id: params.id },
-      };
+      if (introspection) {
+        const deleteType = introspection.getGetOneWhereType(resource.type.name);
+        const deleteWhere = transformInput(params, deleteType);
+        return {
+          where: deleteWhere,
+        };
+      } else {
+        return {
+          where: { id: params.id },
+        };
+      }
   }
 };

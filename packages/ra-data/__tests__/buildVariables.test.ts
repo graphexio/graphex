@@ -2,6 +2,7 @@ import {
   GET_LIST,
   GET_MANY,
   GET_MANY_REFERENCE,
+  GET_ONE,
   CREATE,
   UPDATE,
   DELETE,
@@ -100,6 +101,40 @@ describe('buildVariables', () => {
         first: 10,
         orderBy: 'sortField_DESC',
         skip: 90,
+      });
+    });
+  });
+
+  describe('GET_ONE', () => {
+    const params = {
+      id: 'foo',
+      __typename: 'Admin',
+    };
+    it('returns correct variables (interface)', () => {
+      expect(
+        buildVariables(introspection.data, introspection)(
+          { type: { name: 'User' } } as Resource,
+          GET_ONE,
+          params
+        )
+      ).toEqual({
+        where: {
+          Admin: {
+            id: 'foo',
+          },
+        },
+      });
+    });
+
+    it('returns correct variables (type)', () => {
+      expect(
+        buildVariables(introspection.data, introspection)(
+          { type: { name: 'Admin' } } as Resource,
+          GET_ONE,
+          params
+        )
+      ).toEqual({
+        where: { id: 'foo' },
       });
     });
   });
@@ -338,6 +373,36 @@ describe('buildVariables', () => {
         },
       });
     });
+
+    it('returns correct variables (interface)', () => {
+      const params = {
+        data: {
+          __typename: 'Admin',
+          id: 'userId',
+          username: 'Bar',
+        },
+        previousData: {
+          id: 'userId',
+          username: 'Foo',
+        },
+      };
+      expect(
+        buildVariables(introspection.data, introspection)(
+          { type: { name: 'User' } } as Resource,
+          UPDATE,
+          params
+        )
+      ).toEqual({
+        data: {
+          username: 'Bar',
+        },
+        where: {
+          Admin: {
+            id: 'userId',
+          },
+        },
+      });
+    });
   });
 
   describe('GET_MANY', () => {
@@ -354,6 +419,23 @@ describe('buildVariables', () => {
         )
       ).toEqual({
         where: { id_in: ['tag1', 'tag2'] },
+      });
+    });
+
+    it('returns correct variables (interface)', () => {
+      const params = {
+        ids: ['tag1', 'tag2'],
+        __typename: 'User',
+      };
+
+      expect(
+        buildVariables(introspection.data, introspection)(
+          { type: { name: 'User' } } as Resource,
+          'GET_MANY',
+          params
+        )
+      ).toEqual({
+        where: { User: { id_in: ['tag1', 'tag2'] } },
       });
     });
   });
@@ -375,6 +457,24 @@ describe('buildVariables', () => {
         where: { author: { id: 'author1' } },
       });
     });
+
+    it('returns correct variables (interface)', () => {
+      const params = {
+        target: 'author.id',
+        id: 'author1',
+      };
+
+      expect(
+        buildVariables(introspection.data, introspection)(
+          { type: { name: 'User' } } as Resource,
+          GET_MANY_REFERENCE,
+          params
+        )
+      ).toEqual({
+        where: { author: { id: 'author1' } },
+      });
+    });
+
   });
 
   describe('DELETE', () => {
@@ -391,6 +491,24 @@ describe('buildVariables', () => {
         )
       ).toEqual({
         where: { id: 'post1' },
+      });
+    });
+
+    it('returns correct variables (interface)', () => {
+      const params = { id: 'userId' };
+
+      expect(
+        buildVariables(introspection.data, introspection)(
+          { type: { name: 'User' } } as Resource,
+          DELETE,
+          params
+        )
+      ).toEqual({
+        where: {
+          User: {
+            id: 'userId',
+          },
+        },
       });
     });
   });

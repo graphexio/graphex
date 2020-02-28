@@ -33,9 +33,24 @@ beforeAll(async () => {
   `);
 });
 
-test('getUpdateDataType', () => {
+test('getUpdateType', () => {
   const resource = {};
-  expect(introspection.getUpdateDataType('Admin').name).toMatch(
+  expect(introspection.getUpdateType('Admin', 'data').name).toMatch(
     'AdminUpdateInput'
+  );
+  expect(introspection.getUpdateType('User', 'where').name).toMatch(
+    'UserInterfaceWhereUniqueInput'
+  );
+});
+
+test('getOneWhereType', () => {
+  expect(introspection.getGetOneWhereType('User').name).toMatch(
+    'UserInterfaceWhereUniqueInput'
+  );
+});
+
+test('getManyWhereType', () => {
+  expect(introspection.getGetManyWhereType('User').name).toMatch(
+    'UserInterfaceWhereInput'
   );
 });
