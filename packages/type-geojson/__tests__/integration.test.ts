@@ -1,24 +1,27 @@
 jest.setTimeout(20000);
 
-const {
-  query,
-  mutate,
-  mongod,
-  connectToDatabase,
-} = require('./integration-prepare');
+import prepare from './integration-prepare';
 const _ = require('lodash');
 import gql from 'graphql-tag';
 
 jest.setTimeout(10000);
 
+const testInstance = prepare();
+let query, mutate, connectToDatabase;
+
 beforeAll(async () => {
+  const instance = await testInstance.start();
+  query = instance.query;
+  mutate = instance.mutate;
+  connectToDatabase = instance.connectToDatabase;
+
   let DB = await connectToDatabase();
-  DB.collection('pois').createIndex({ place: '2dsphere' });
-  DB.collection('area').createIndex({ place: '2dsphere' });
+  await DB.collection('pois').createIndex({ place: '2dsphere' });
+  await DB.collection('area').createIndex({ place: '2dsphere' });
 });
 
 afterAll(async () => {
-  //   mongod.stop();
+  await testInstance.stop();
 });
 
 test('Poi create', async () => {

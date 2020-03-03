@@ -3,64 +3,80 @@ import AMM from '@apollo-model/core';
 import QueryExecutor from '@apollo-model/mongodb-executor';
 import { MongoClient, ObjectID } from 'mongodb';
 import typeDefs from './model';
-import MongoMemoryServer from 'mongodb-memory-server';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 import * as DirectiveImplements from '@apollo-model/directive-implements';
 import * as TypeGeoJSON from '../src';
 const util = require('util');
 
-export const mongod = new MongoMemoryServer();
-const uri = mongod.getConnectionString();
-const dbName = mongod.getDbName();
+export default () => {
+  let mongod;
+  let client: MongoClient;
 
-let DB = null;
+  return {
+    async start() {
+      mongod = new MongoMemoryServer();
+      const MONGO_URL = await mongod.getConnectionString();
+      const MONGO_DB = await mongod.getDbName();
 
-export const connectToDatabase = () => {
-  if (DB && DB.serverConfig.isConnected()) {
-    return Promise.resolve(DB);
-  }
-  return Promise.all([uri, dbName]).then(([uri, dbName]) =>
-    MongoClient.connect(uri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    }).then(client => {
-      DB = client.db(dbName);
-      return DB;
-    })
-  );
+      let DB = null;
+
+      const connectToDatabase = async () => {
+        if (DB && DB.serverConfig.isConnected()) {
+          return DB;
+        }
+        client = await MongoClient.connect(MONGO_URL, {
+          useNewUrlParser: true,
+          useUnifiedTopology: true,
+        });
+        DB = await client.db(MONGO_DB);
+        return DB;
+      };
+
+      const QE = QueryExecutor(connectToDatabase);
+
+      const schema = new AMM({
+        modules: [DirectiveImplements, TypeGeoJSON],
+      }).makeExecutableSchema({
+        resolverValidationOptions: {
+          requireResolversForResolveType: false,
+        },
+        typeDefs,
+      });
+
+      const server = new ApolloServer({
+        schema,
+        context: () => {
+          return {
+            queryExecutor: async params => {
+              // console.log(util.inspect(params, { showHidden: false, depth: null }));
+              // console.log(params);
+              let result = await QE(params);
+              // console.log('result', result);
+              return result;
+            },
+          };
+        },
+        introspection: true,
+        playground: true,
+        formatError: error => {
+          // console.log(error);
+          // console.dir(error.extensions);
+          return error;
+        },
+      });
+
+      const { createTestClient } = require('apollo-server-testing');
+      const { query, mutate } = createTestClient(server);
+      return {
+        query,
+        mutate,
+        connectToDatabase,
+        mongod,
+      };
+    },
+    async stop() {
+      await client.close();
+      await mongod.stop();
+    },
+  };
 };
-
-const QE = QueryExecutor(connectToDatabase);
-
-const schema = new AMM({
-  modules: [DirectiveImplements, TypeGeoJSON],
-}).makeExecutableSchema({
-  resolverValidationOptions: {
-    requireResolversForResolveType: false,
-  },
-  typeDefs,
-});
-
-export const server = new ApolloServer({
-  schema,
-  context: () => {
-    return {
-      queryExecutor: async params => {
-        // console.log(util.inspect(params, { showHidden: false, depth: null }));
-        // console.log(params);
-        let result = await QE(params);
-        // console.log(params, result);
-        return result;
-      },
-    };
-  },
-  introspection: true,
-  playground: true,
-  formatError: error => {
-    // console.log(error);
-    // console.dir(error.extensions);
-    return error;
-  },
-});
-
-const { createTestClient } = require('apollo-server-testing');
-export const { query, mutate } = createTestClient(server);

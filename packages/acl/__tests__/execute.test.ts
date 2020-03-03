@@ -1,53 +1,35 @@
+import AMM from '@apollo-model/core';
 import {
-  execute as graphqlExecute,
-  printSchema,
-  GraphQLSchema,
   DocumentNode,
+  execute as graphqlExecute,
+  GraphQLSchema,
   validate,
 } from 'graphql';
 import gql from 'graphql-tag';
-
 import {
-  applyRules,
-  allQueries,
-  allMutations,
   allACLTypes,
+  allMutations,
+  allQueries,
   anyField,
+  applyRules,
   modelDefault,
-  modelField,
-  regexFields,
   modelDefaultActions,
+  modelField,
 } from '../src';
+import Prepare from './prepare';
 
-import AMM from '@apollo-model/core';
-import QueryExecutor from '@apollo-model/mongodb-executor';
-import { MongoClient, ObjectID } from 'mongodb';
-import typeDefs from './__fixtures__/model.js';
+const testInstance = Prepare();
+let QE, connectToDatabase;
 
-import MongoMemoryServer from 'mongodb-memory-server';
+beforeAll(async () => {
+  const instance = await testInstance.start();
+  QE = instance.QE;
+  connectToDatabase = instance.connectToDatabase;
+});
 
-export const mongod = new MongoMemoryServer();
-const uri = mongod.getConnectionString();
-const dbName = mongod.getDbName();
-
-let DB = null;
-
-export const connectToDatabase = () => {
-  if (DB && DB.serverConfig.isConnected()) {
-    return Promise.resolve(DB);
-  }
-  return Promise.all([uri, dbName]).then(([uri, dbName]) =>
-    MongoClient.connect(uri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    }).then(client => {
-      DB = client.db(dbName);
-      return DB;
-    })
-  );
-};
-
-const QE = QueryExecutor(connectToDatabase);
+afterAll(async () => {
+  await testInstance.stop();
+});
 
 const createSchema = (typeDefs, options?) => {
   const schema = new AMM({ options }).makeExecutableSchema({

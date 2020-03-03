@@ -3,34 +3,33 @@ import AMM from '../src';
 import QueryExecutor from '@apollo-model/mongodb-executor';
 import { MongoClient, ObjectID } from 'mongodb';
 import typeDefs from './model';
-import MongoMemoryServer from 'mongodb-memory-server';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 import * as DirectiveImplements from '@apollo-model/directive-implements';
 import { AMOptions } from '../src/definitions';
 const util = require('util');
 
 export default () => {
   let mongod;
+  let client: MongoClient;
+
   return {
-    start(options?: AMOptions) {
+    async start(options?: AMOptions) {
       mongod = new MongoMemoryServer();
-      const uri = mongod.getConnectionString();
-      const dbName = mongod.getDbName();
+      const MONGO_URL = await mongod.getConnectionString();
+      const MONGO_DB = await mongod.getDbName();
 
       let DB = null;
 
-      const connectToDatabase = () => {
+      const connectToDatabase = async () => {
         if (DB && DB.serverConfig.isConnected()) {
-          return Promise.resolve(DB);
+          return DB;
         }
-        return Promise.all([uri, dbName]).then(([uri, dbName]) =>
-          MongoClient.connect(uri, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-          }).then(client => {
-            DB = client.db(dbName);
-            return DB;
-          })
-        );
+        client = await MongoClient.connect(MONGO_URL, {
+          useNewUrlParser: true,
+          useUnifiedTopology: true,
+        });
+        DB = await client.db(MONGO_DB);
+        return DB;
       };
 
       const QE = QueryExecutor(connectToDatabase);
@@ -75,8 +74,9 @@ export default () => {
         mongod,
       };
     },
-    stop() {
-      mongod.stop();
+    async stop() {
+      await client.close();
+      await mongod.stop();
     },
   };
 };

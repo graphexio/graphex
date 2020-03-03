@@ -2,21 +2,26 @@ jest.setTimeout(20000);
 
 import prepare from './integration-prepare';
 const testInstance = prepare();
-const { query, mutate, mongod, connectToDatabase } = testInstance.start({
-  aclWhere: true,
-});
+let query, mutate, connectToDatabase;
 
 const _ = require('lodash');
 import gql from 'graphql-tag';
 import { getIntrospectionQuery } from 'graphql';
 
 beforeAll(async () => {
+  let instance = await testInstance.start({
+    aclWhere: true,
+  });
+  query = instance.query;
+  mutate = instance.mutate;
+  connectToDatabase = instance.connectToDatabase;
+
   let DB = await connectToDatabase();
-  DB.collection('posts').createIndex({ place: '2dsphere' });
+  await DB.collection('posts').createIndex({ place: '2dsphere' });
 });
 
 afterAll(async () => {
-  mongod.stop();
+  testInstance.stop();
 });
 
 let admin1, admin2;
