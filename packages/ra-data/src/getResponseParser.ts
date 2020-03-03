@@ -12,6 +12,9 @@ const sanitizeResource = (
     const field = (resource.type as IntrospectionObjectType).fields.find(
       (f: any) => f.name === key
     )!;
+    if (!field) {
+      return  {...acc, [key]: data[key] ? data[key] : undefined}
+    }
     const type = getFinalType(field.type);
 
     if (type.kind !== TypeKind.OBJECT) {
