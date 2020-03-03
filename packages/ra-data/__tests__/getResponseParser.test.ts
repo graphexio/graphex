@@ -119,6 +119,7 @@ const testListTypes = (type: string) => {
     ).toEqual({
       data: [
         {
+          _typeName: 'Post',
           id: 'post1',
           title: 'title1',
           'author.id': 'author1',
@@ -131,6 +132,7 @@ const testListTypes = (type: string) => {
           embeddedJson: { foo: 'bar' },
         },
         {
+          _typeName: 'Post',
           id: 'post2',
           title: 'title2',
           'author.id': 'author1',
@@ -240,6 +242,7 @@ const testSingleTypes = (type: string) => {
       )(response)
     ).toEqual({
       data: {
+        _typeName: 'Post',
         id: 'post1',
         title: 'title1',
         'author.id': 'author1',

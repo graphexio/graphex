@@ -8,13 +8,13 @@ const sanitizeResource = (
   resource: Resource
 ) => (data: { [key: string]: any }): any => {
   return Object.keys(data).reduce((acc, key) => {
-    if (key.startsWith('_')) {
-      return acc;
-    }
 
     const field = (resource.type as IntrospectionObjectType).fields.find(
       (f: any) => f.name === key
     )!;
+    if (!field) {
+      return  {...acc, [key]: data[key] ? data[key] : undefined}
+    }
     const type = getFinalType(field.type);
 
     if (type.kind !== TypeKind.OBJECT) {

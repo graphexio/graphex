@@ -2,11 +2,14 @@ import {
   buildClientSchema,
   getNamedType,
   GraphQLInputObjectType,
+  GraphQLInterfaceType,
   GraphQLNamedType,
+  GraphQLObjectType,
   GraphQLSchema,
 } from 'graphql';
 import * as R from 'ramda';
 import { IntrospectionResultData } from './definitions';
+import _ from 'lodash';
 
 export class IntrospectionResult {
   data: IntrospectionResultData;
@@ -29,12 +32,12 @@ export class IntrospectionResult {
     return this.schema.getMutationType();
   }
 
-  getUpdateDataType(resourceName: string) {
+  getUpdateType(resourceName: string, key: string) {
     const methodName = `update${resourceName}`;
     return getNamedType(
       this.getMutationType()
         .getFields()
-        [methodName].args.find(R.propEq('name', 'data')).type
+        [methodName].args.find(R.propEq('name', key)).type
     ) as GraphQLInputObjectType;
   }
 
@@ -44,6 +47,24 @@ export class IntrospectionResult {
       this.getMutationType()
         .getFields()
         [methodName].args.find(R.propEq('name', 'data')).type
+    ) as GraphQLInputObjectType;
+  }
+
+  getGetOneWhereType(resourceName: string) {
+    return getNamedType(
+      this.getQueryType()
+        .getFields()
+        [_.camelCase(resourceName)].args.find(R.propEq('name', 'where')).type
+    ) as GraphQLInputObjectType;
+  }
+
+  getGetManyWhereType(resourceName: string) {
+    const sourceType = getNamedType(this.getType(resourceName));
+    const typeName = `${resourceName}${
+      sourceType instanceof GraphQLInterfaceType ? 'Interface' : ''
+    }WhereInput`;
+    return getNamedType(
+      this.getType(typeName) as GraphQLInputObjectType
     ) as GraphQLInputObjectType;
   }
 }
