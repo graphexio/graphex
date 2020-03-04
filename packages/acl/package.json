@@ -20,6 +20,7 @@
     "@apollo-model/mongodb-executor": "0.6.0-alpha.32",
     "@apollo-model/schema-filter": "0.6.0-alpha.52",
     "@apollo-model/type-wrap": "0.6.0-alpha.49",
+    "@apollo-model/ast-from-value": "0.6.0-alpha.52",
     "@apollo/federation": "^0.7.0",
     "apollo-server": "^2.7.0",
     "graphql": "^14.4.2",
