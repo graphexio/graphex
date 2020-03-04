@@ -1,6 +1,6 @@
 {
   "name": "@apollo-model/acl",
-  "version": "0.6.0-alpha.52",
+  "version": "0.6.0-alpha.53",
   "description": "",
   "main": "lib/index.js",
   "files": [
@@ -15,12 +15,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@apollo-model/ast-from-value": "0.6.0-alpha.52",
     "@apollo-model/core": "0.6.0-alpha.52",
     "@apollo-model/graphql-tools": "4.0.6",
     "@apollo-model/mongodb-executor": "0.6.0-alpha.32",
-    "@apollo-model/schema-filter": "0.6.0-alpha.52",
+    "@apollo-model/schema-filter": "0.6.0-alpha.53",
     "@apollo-model/type-wrap": "0.6.0-alpha.49",
-    "@apollo-model/ast-from-value": "0.6.0-alpha.52",
     "@apollo/federation": "^0.7.0",
     "apollo-server": "^2.7.0",
     "graphql": "^14.4.2",
