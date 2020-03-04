@@ -1,6 +1,6 @@
 {
   "name": "@apollo-model/ast-from-value",
-  "version": "0.0.1",
+  "version": "0.6.0-alpha.52",
   "main": "lib/index.js",
   "license": "MIT",
   "devDependencies": {
