@@ -235,6 +235,11 @@ describe('SchemaFilter', () => {
       input Test {
         field: ID
         removeField: String!
+        nestedInput: TestNestedInput
+      }
+
+      input TestNestedInput {
+        defaultField: String
       }
     `;
 
@@ -293,11 +298,11 @@ describe('SchemaFilter', () => {
             updateMethod(data: $data)
           }
         `,
-        variables: { data: { field: '123' } },
+        variables: { data: { field: '123', nestedInput: {} } },
       });
       expect(errors).toBeUndefined();
       expect(data.updateMethod).toMatch(
-        `{"data":{"field":"123","removeField":"Test"}}`
+        `{"data":{"field":"123","removeField":"Test","nestedInput":{"defaultField":"DefaultValue"}}}`
       );
     });
 

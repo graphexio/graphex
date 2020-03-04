@@ -23,7 +23,7 @@ import {
   AMObjectType,
   AMVisitorStack,
 } from '../definitions';
-import { astFromValue } from './astFromValue';
+import { astFromValue } from '@apollo-model/ast-from-value';
 import { AMFieldsSelectionContext } from './contexts/fieldsSelection';
 import { AMListValueContext } from './contexts/listValue';
 import { AMObjectFieldContext } from './contexts/objectField';

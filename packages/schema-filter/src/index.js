@@ -1,58 +1,28 @@
 import {
-  GraphQLArgument,
-  GraphQLArgumentConfig,
-  GraphQLEnumType,
-  GraphQLField,
-  GraphQLFieldConfig,
-  GraphQLFieldConfigArgumentMap,
-  GraphQLFieldConfigMap,
-  GraphQLFieldMap,
-  GraphQLInputField,
-  GraphQLInputFieldConfig,
-  GraphQLInputFieldConfigMap,
-  GraphQLInputFieldMap,
-  GraphQLInputObjectType,
-  GraphQLInterfaceType,
-  GraphQLList,
-  GraphQLNamedType,
-  GraphQLNonNull,
-  GraphQLObjectType,
-  GraphQLScalarType,
-  GraphQLType,
-  GraphQLUnionType,
-  GraphQLDirective,
-  Kind,
-  ValueNode,
-  getNamedType,
-  isNamedType,
-  GraphQLInt,
-  GraphQLFloat,
-  GraphQLString,
-  GraphQLBoolean,
-  GraphQLID,
-  GraphQLSchema,
-  isObjectType,
-  isInputObjectType,
-} from 'graphql';
-
-import {
-  visitSchema,
-  VisitSchemaKind,
-} from '@apollo-model/graphql-tools/dist/transforms/visitSchema';
-
-import {
-  recreateType,
   createResolveType,
   fieldMapToFieldConfigMap,
   inputFieldMapToFieldConfigMap,
 } from '@apollo-model/graphql-tools/dist/stitching/schemaRecreation';
-
-import { visit, SelectionSetNode, BREAK, FieldNode } from 'graphql';
-
+import {
+  visitSchema,
+  VisitSchemaKind,
+} from '@apollo-model/graphql-tools/dist/transforms/visitSchema';
 import TypeWrap from '@apollo-model/type-wrap';
-import DefaultFields from './defaultFields';
-
+import {
+  GraphQLEnumType,
+  GraphQLInputObjectType,
+  GraphQLInterfaceType,
+  GraphQLObjectType,
+  isInputObjectType,
+  isObjectType,
+  Kind,
+  visit,
+  isScalarType,
+  getNamedType,
+} from 'graphql';
 import R from 'ramda';
+import DefaultFields from './defaultFields';
+import { astFromValue } from '@apollo-model/ast-from-value';
 
 const capitalizeFirstLetter = string => {
   return string.charAt(0).toUpperCase() + string.slice(1);
@@ -112,7 +82,13 @@ export default (filterFields, defaultFields, defaultArgs) => {
       const { variables } = request;
       const typeStack = [];
 
-      let newDocument = visit(request.document, {
+      const visitor = {
+        // enter(node) {
+        //   console.log('enter', node);
+        // },
+        // leave(node) {
+        //   console.log('leave', node);
+        // },
         [Kind.OPERATION_DEFINITION]: {
           enter: node => {
             node.operation
@@ -191,12 +167,45 @@ export default (filterFields, defaultFields, defaultArgs) => {
             );
           },
         },
-      });
-
-      return {
-        ...request,
-        document: newDocument,
+        [Kind.VARIABLE_DEFINITION]: {
+          enter(node) {
+            return null;
+          },
+          leave(node) {},
+        },
+        [Kind.VARIABLE]: {
+          enter(node) {
+            if (!variables[node.name.value]) {
+              return undefined;
+            }
+            // console.log({ node });
+            // //replace variable with astnode to visit that fields
+            const type = typeStack |> R.last |> R.prop('type');
+            const newNode = astFromValue(variables[node.name.value], type);
+            if (!newNode) return null;
+            if (isScalarType(getNamedType(type))) {
+              return newNode;
+            } else {
+              if (newNode && newNode.kind && visitor[newNode.kind]) {
+                visitor[newNode.kind].enter(newNode);
+              } // TODO: test it! Kind.OBJECT?
+              return newNode;
+            }
+          },
+        },
       };
+
+      try {
+        let newDocument = visit(request.document, visitor);
+
+        return {
+          ...request,
+          document: newDocument,
+        };
+      } catch (err) {
+        console.log(err);
+        throw err;
+      }
     },
 
     transformSchema(schema) {

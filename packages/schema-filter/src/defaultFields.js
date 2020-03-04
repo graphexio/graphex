@@ -61,8 +61,9 @@ export default () => {
 
       const typeFields = type.getFields();
       let input;
+      if (!node.value) return undefined;
 
-      if (node.value.kind === 'Variable') {
+      if (node && node.value && node.value.kind === 'Variable') {
         input = variables[node.value.name.value] || {};
       } else {
         input = R.pipe(
