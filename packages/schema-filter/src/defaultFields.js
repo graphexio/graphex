@@ -94,7 +94,18 @@ export default () => {
       defaultArgs[parent.type.name] &&
       defaultArgs[parent.type.name][node.name.value]
     ) {
-      const inputArgs = node.arguments.map(R.path(['name', 'value']));
+      const inputArgs = node.arguments
+        //Filter undefined variables
+        .filter(argNode => {
+          if (
+            argNode.value.kind === Kind.VARIABLE &&
+            !variables[argNode.value.name.value]
+          ) {
+            return false;
+          }
+          return true;
+        })
+        .map(R.path(['name', 'value']));
 
       const args = R.pipe(
         R.path([parent.type.name, node.name.value]),

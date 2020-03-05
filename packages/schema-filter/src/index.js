@@ -19,6 +19,8 @@ import {
   visit,
   isScalarType,
   getNamedType,
+  GraphQLList,
+  typeFromAST,
 } from 'graphql';
 import R from 'ramda';
 import DefaultFields from './defaultFields';
@@ -73,12 +75,14 @@ const resolveType = createResolveType((typeName, type) => {
 
 export default (filterFields, defaultFields, defaultArgs) => {
   let typeMap = {};
+  let Schema;
   const getType = typeName => typeMap[typeName];
 
   let defaults = DefaultFields();
 
   return {
     transformRequest(request, options = {}) {
+      let variableTypes = {};
       const { variables } = request;
       const typeStack = [];
 
@@ -137,6 +141,12 @@ export default (filterFields, defaultFields, defaultArgs) => {
         },
         [Kind.ARGUMENT]: {
           enter: node => {
+            if (
+              node.value.kind === Kind.VARIABLE &&
+              !variables[node.value.name.value]
+            ) {
+              return null;
+            }
             typeStack
               |> R.last
               |> getArgs
@@ -153,6 +163,12 @@ export default (filterFields, defaultFields, defaultArgs) => {
         },
         [Kind.OBJECT_FIELD]: {
           enter: node => {
+            if (
+              node.value.kind === Kind.VARIABLE &&
+              !variables[node.value.name.value]
+            ) {
+              return null;
+            }
             typeStack
               |> R.last
               |> getFields
@@ -169,28 +185,26 @@ export default (filterFields, defaultFields, defaultArgs) => {
         },
         [Kind.VARIABLE_DEFINITION]: {
           enter(node) {
+            const type = typeFromAST(Schema, node.type);
+            variableTypes[node.variable.name.value] = type;
             return null;
           },
           leave(node) {},
         },
         [Kind.VARIABLE]: {
           enter(node) {
-            if (!variables[node.name.value]) {
-              return undefined;
-            }
-            // console.log({ node });
-            // //replace variable with astnode to visit that fields
-            const type = typeStack |> R.last |> R.prop('type');
-            const newNode = astFromValue(variables[node.name.value], type);
+            const type = variableTypes[node.name.value];
+            const newNode = astFromValue(
+              variables[node.name.value] ? variables[node.name.value] : null,
+              type
+            );
             if (!newNode) return null;
-            if (isScalarType(getNamedType(type))) {
-              return newNode;
-            } else {
-              if (newNode && newNode.kind && visitor[newNode.kind]) {
-                visitor[newNode.kind].enter(newNode);
-              } // TODO: test it! Kind.OBJECT?
-              return newNode;
-            }
+
+            if (newNode && newNode.kind && visitor[newNode.kind]) {
+              visitor[newNode.kind].enter(newNode);
+            } // TODO: test it! Kind.OBJECT?
+
+            return newNode;
           },
         },
       };
@@ -209,6 +223,7 @@ export default (filterFields, defaultFields, defaultArgs) => {
     },
 
     transformSchema(schema) {
+      Schema = schema;
       defaults = DefaultFields();
 
       let newSchema = visitSchema(schema, {

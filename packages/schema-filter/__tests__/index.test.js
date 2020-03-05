@@ -65,6 +65,13 @@ describe('SchemaFilter', () => {
       if (/.*\.(defaultCreateField)/.test(`${type.name}.${field.name}`)) {
         return () => ({ create: { removeField: '123' } });
       }
+    },
+    (type, field) => {
+      if (type.name === 'Mutation' && field.name === 'updateMethod') {
+        return () => ({
+          data: {},
+        });
+      }
     }
   );
 
@@ -230,6 +237,8 @@ describe('SchemaFilter', () => {
 
       type Mutation {
         updateMethod(data: Test): String
+        methodWithScalarArg(data: Int): String
+        methodWithScalarArrayArg(data: [Int]): String
       }
 
       input Test {
@@ -246,6 +255,12 @@ describe('SchemaFilter', () => {
     const resolvers = {
       Mutation: {
         updateMethod: (_, args) => {
+          return JSON.stringify(args);
+        },
+        methodWithScalarArg: (_, args) => {
+          return JSON.stringify(args);
+        },
+        methodWithScalarArrayArg: (_, args) => {
           return JSON.stringify(args);
         },
       },
@@ -306,6 +321,68 @@ describe('SchemaFilter', () => {
       );
     });
 
+    test('undefined scalar arg variable', async () => {
+      let schema = makeSchema({ typeDefs, resolvers });
+      const { mutate } = testClient({ schema });
+      const { data, errors } = await mutate({
+        query: gql`
+          mutation($data: Int) {
+            methodWithScalarArg(data: $data)
+          }
+        `,
+      });
+      expect(errors).toBeUndefined();
+      expect(data.methodWithScalarArg).toMatch(`{}`);
+    });
+
+    test('scalar array arg variable', async () => {
+      let schema = makeSchema({ typeDefs, resolvers });
+      const { mutate } = testClient({ schema });
+      const { data, errors } = await mutate({
+        query: gql`
+          mutation($data: [Int]) {
+            methodWithScalarArrayArg(data: $data)
+          }
+        `,
+        variables: {
+          data: [1, 2],
+        },
+      });
+      expect(errors).toBeUndefined();
+      expect(data.methodWithScalarArrayArg).toMatch(`{"data":[1,2]}`);
+    });
+
+    test('undefined scalar array arg variable', async () => {
+      let schema = makeSchema({ typeDefs, resolvers });
+      const { mutate } = testClient({ schema });
+      const { data, errors } = await mutate({
+        query: gql`
+          mutation($data: [Int]) {
+            methodWithScalarArrayArg(data: $data)
+          }
+        `,
+      });
+      expect(errors).toBeUndefined();
+      expect(data.methodWithScalarArrayArg).toMatch(`{}`);
+    });
+
+    test('wrong type scalar array arg variable', async () => {
+      let schema = makeSchema({ typeDefs, resolvers });
+      const { mutate } = testClient({ schema });
+      const { data, errors } = await mutate({
+        query: gql`
+          mutation($data: Int) {
+            methodWithScalarArrayArg(data: $data)
+          }
+        `,
+      });
+      expect(errors).toMatchInlineSnapshot(`
+        Array [
+          [ValidationError: Variable "$data" of type "Int" used in position expecting type "[Int]".],
+        ]
+      `);
+    });
+
     test('right request with undefined arg variable', async () => {
       let schema = makeSchema({ typeDefs, resolvers });
       const { mutate } = testClient({ schema });
@@ -313,6 +390,21 @@ describe('SchemaFilter', () => {
         query: gql`
           mutation($data: Test) {
             updateMethod(data: $data)
+          }
+        `,
+        variables: {},
+      });
+      expect(errors).toBeUndefined();
+      expect(data.updateMethod).toMatch(`{"data":{"removeField":"Test"}}`);
+    });
+
+    test('right request with undefined nested variable', async () => {
+      let schema = makeSchema({ typeDefs, resolvers });
+      const { mutate } = testClient({ schema });
+      const { data, errors } = await mutate({
+        query: gql`
+          mutation($data: TestNestedInput) {
+            updateMethod(data: { nestedInput: $data })
           }
         `,
         variables: {},
