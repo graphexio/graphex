@@ -677,6 +677,7 @@ test('Find users by interface where', async () => {
               firstName
               lastName
             }
+            name
           }
         }
       }
@@ -688,6 +689,7 @@ test('Find users by interface where', async () => {
     Object {
       "users": Array [
         Object {
+          "name": "Gwion",
           "profile": Object {
             "firstName": "Gwion",
             "lastName": "Britt",
