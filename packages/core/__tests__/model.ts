@@ -73,6 +73,7 @@ export default gql`
   type Subscriber implements User {
     role: SubscriberRole
     profile: SubscriberProfile!
+    name: String @db(name: "profile.firstName") @readonly
   }
 
   interface Poi @implements(name: "Node & Timestamp") @inherit @abstract {

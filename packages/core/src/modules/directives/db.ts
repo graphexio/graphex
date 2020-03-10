@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
+import R from 'ramda';
 
 export const typeDef = gql`
   directive @db(name: String!, defaultValue: String = null) on FIELD_DEFINITION
@@ -14,7 +15,7 @@ class DirectiveDB extends SchemaDirectiveVisitor {
 
 const DirectiveDBResolver = (next, source, args, ctx, info) => {
   const { name } = args;
-  info.fieldName = name;
+  source[info.fieldName] = R.path(R.split('.', name), source);
   return next();
 };
 
