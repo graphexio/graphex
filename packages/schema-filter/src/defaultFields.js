@@ -75,6 +75,7 @@ export default () => {
       defaultValues.forEach(item => {
         input[item.field.name] = item.valueFn({
           input: input[item.field.name],
+          parent: input,
           context,
         });
       });
