@@ -57,12 +57,11 @@ function transformAccessToInputTypeFactories(
     C: [
       AMCreateTypeFactory,
       AMInterfaceCreateTypeFactory,
-      AMCreateOneRelationTypeFactory,
-      AMCreateManyRelationTypeFactory,
-      AMCreateOneNestedTypeFactory,
-      AMCreateManyNestedTypeFactory,
-      AMCreateTypeFactory,
-      AMCreateOneRequiredRelationTypeFactory,
+      // AMCreateOneRelationTypeFactory,
+      // AMCreateManyRelationTypeFactory,
+      // AMCreateOneNestedTypeFactory,
+      // AMCreateManyNestedTypeFactory,
+      // AMCreateOneRequiredRelationTypeFactory,
     ],
     U: [
       AMUpdateWithWhereNestedTypeFactory,
