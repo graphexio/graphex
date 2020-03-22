@@ -16,15 +16,18 @@ import {
   isInputObjectType,
   isObjectType,
   Kind,
-  visit,
+  // visit,
   isScalarType,
   getNamedType,
   GraphQLList,
   typeFromAST,
+  GraphQLNamedType,
 } from 'graphql';
-import R from 'ramda';
+
+import * as R from 'ramda';
 import DefaultFields from './defaultFields';
 import { astFromValue } from '@apollo-model/ast-from-value';
+import { visit } from './visitor';
 
 const capitalizeFirstLetter = string => {
   return string.charAt(0).toUpperCase() + string.slice(1);
@@ -81,10 +84,11 @@ export default (filterFields, defaultFields, defaultArgs) => {
   let defaults = DefaultFields();
 
   return {
-    transformRequest(request, options = {}) {
+    async transformRequest(request, options: { context?: any } = {}) {
       let variableTypes = {};
       const { variables } = request;
       const typeStack = [];
+      const typeStackPush = item => typeStack.push(item);
 
       const visitor = {
         // enter(node) {
@@ -95,11 +99,12 @@ export default (filterFields, defaultFields, defaultArgs) => {
         // },
         [Kind.OPERATION_DEFINITION]: {
           enter: node => {
-            node.operation
-              |> capitalizeFirstLetter
-              |> getType
-              |> mapTypeForTypeStack
-              |> typeStack.push;
+            R.pipe(
+              capitalizeFirstLetter,
+              getType,
+              mapTypeForTypeStack,
+              typeStackPush
+            )(node.operation);
           },
           leave: node => {
             typeStack.pop();
@@ -110,12 +115,14 @@ export default (filterFields, defaultFields, defaultArgs) => {
             let name = getNameValue(node);
 
             if (name == '__typename') return;
-            typeStack
-              |> R.last
-              |> getFields
-              |> R.prop(name)
-              |> mapFieldForTypeStack
-              |> typeStack.push;
+
+            R.pipe(
+              R.last,
+              getFields,
+              R.prop(name),
+              mapFieldForTypeStack,
+              typeStackPush
+            )(typeStack);
 
             return defaults.applyDefaultArgs(
               node,
@@ -132,8 +139,8 @@ export default (filterFields, defaultFields, defaultArgs) => {
         },
         [Kind.INLINE_FRAGMENT]: {
           enter: node => {
-            let name = getFragmentTypeName(node, options.context);
-            name |> getType |> mapTypeForTypeStack |> typeStack.push;
+            let name = getFragmentTypeName(node);
+            R.pipe(getType, mapTypeForTypeStack, typeStackPush)(name);
           },
           leave: node => {
             typeStack.pop();
@@ -147,18 +154,21 @@ export default (filterFields, defaultFields, defaultArgs) => {
             ) {
               return null;
             }
-            typeStack
-              |> R.last
-              |> getArgs
-              |> R.prop(getNameValue(node))
-              |> mapArgForTypeStack
-              |> typeStack.push;
+
+            R.pipe(
+              R.last,
+              getArgs,
+              R.prop(getNameValue(node)),
+              mapArgForTypeStack,
+              typeStackPush
+            )(typeStack);
           },
           leave: node => {
-            return (
-              typeStack.pop()
-              |> defaults.applyDefaults(node, variables, options.context)
-            );
+            return defaults.applyDefaults(
+              node,
+              variables,
+              options.context
+            )(typeStack.pop());
           },
         },
         [Kind.OBJECT_FIELD]: {
@@ -169,18 +179,21 @@ export default (filterFields, defaultFields, defaultArgs) => {
             ) {
               return null;
             }
-            typeStack
-              |> R.last
-              |> getFields
-              |> R.prop(getNameValue(node))
-              |> mapArgForTypeStack
-              |> typeStack.push;
+
+            R.pipe(
+              R.last,
+              getFields,
+              R.prop(getNameValue(node)),
+              mapArgForTypeStack,
+              typeStackPush
+            )(typeStack);
           },
           leave: node => {
-            return (
-              typeStack.pop()
-              |> defaults.applyDefaults(node, variables, options.context)
-            );
+            return defaults.applyDefaults(
+              node,
+              variables,
+              options.context
+            )(typeStack.pop());
           },
         },
         [Kind.VARIABLE_DEFINITION]: {
@@ -210,7 +223,7 @@ export default (filterFields, defaultFields, defaultArgs) => {
       };
 
       try {
-        let newDocument = visit(request.document, visitor);
+        let newDocument = await visit(request.document, visitor);
 
         return {
           ...request,
@@ -227,16 +240,16 @@ export default (filterFields, defaultFields, defaultArgs) => {
       defaults = DefaultFields();
 
       let newSchema = visitSchema(schema, {
-        [VisitSchemaKind.OBJECT_TYPE]: type => {
+        [VisitSchemaKind.OBJECT_TYPE]: (type: GraphQLObjectType) => {
           const groupedFields = groupFields(
             field => filterFields(type, field),
             type.getFields()
           );
 
-          if (!groupedFields[false]) {
+          if (!groupedFields['false']) {
             return undefined;
           }
-          if (!groupedFields[true]) return null;
+          if (!groupedFields['true']) return null;
 
           const interfaces = type.getInterfaces();
 
@@ -246,58 +259,62 @@ export default (filterFields, defaultFields, defaultArgs) => {
             astNode: type.astNode,
             isTypeOf: type.isTypeOf,
             fields: () =>
-              fieldMapToFieldConfigMap(groupedFields[true], resolveType, true),
+              fieldMapToFieldConfigMap(
+                groupedFields['true'],
+                resolveType,
+                true
+              ),
             interfaces: () => interfaces,
           });
         },
-        [VisitSchemaKind.INPUT_OBJECT_TYPE]: type => {
+        [VisitSchemaKind.INPUT_OBJECT_TYPE]: (type: GraphQLInputObjectType) => {
           const groupedFields = groupFields(
             field => filterFields(type, field),
             type.getFields()
           );
 
-          if (!groupedFields[false]) {
+          if (!groupedFields['false']) {
             return undefined;
           }
 
-          if (!groupedFields[true]) return null;
+          if (!groupedFields['true']) return null;
 
           return new GraphQLInputObjectType({
             name: type.name,
             description: type.description,
             astNode: type.astNode,
-            isTypeOf: type.isTypeOf,
+            // isTypeOf: type.isTypeOf,
             fields: () =>
-              inputFieldMapToFieldConfigMap(groupedFields[true], resolveType),
+              inputFieldMapToFieldConfigMap(groupedFields['true'], resolveType),
           });
         },
-        [VisitSchemaKind.ENUM_TYPE]: type => {
+        [VisitSchemaKind.ENUM_TYPE]: (type: GraphQLEnumType) => {
           const groupedFields = groupFields(
             field => filterFields(type, field),
             reduceValues(type.getValues())
           );
 
-          if (!groupedFields[false]) {
+          if (!groupedFields['false']) {
             return undefined;
           }
-          if (!groupedFields[true]) return null;
+          if (!groupedFields['true']) return null;
 
           return new GraphQLEnumType({
             name: type.name,
             description: type.description,
             astNode: type.astNode,
-            values: groupedFields[true],
+            values: groupedFields['true'],
           });
 
           return undefined;
         },
-        [VisitSchemaKind.INTERFACE_TYPE]: type => {
+        [VisitSchemaKind.INTERFACE_TYPE]: (type: GraphQLInterfaceType) => {
           const groupedFields = groupFields(
             field => filterFields(type, field),
             type.getFields()
           );
 
-          if (!groupedFields[false]) {
+          if (!groupedFields['false']) {
             return undefined;
           }
           // else {
@@ -315,7 +332,7 @@ export default (filterFields, defaultFields, defaultArgs) => {
           //   });
           //
 
-          if (!groupedFields[true]) return null;
+          if (!groupedFields['true']) return null;
 
           return new GraphQLInterfaceType({
             name: type.name,
@@ -323,7 +340,11 @@ export default (filterFields, defaultFields, defaultArgs) => {
             astNode: type.astNode,
             // isTypeOf: type.isTypeOf,
             fields: () =>
-              fieldMapToFieldConfigMap(groupedFields[true], resolveType),
+              fieldMapToFieldConfigMap(
+                groupedFields['true'],
+                resolveType,
+                undefined
+              ),
           });
 
           return undefined;
@@ -332,7 +353,7 @@ export default (filterFields, defaultFields, defaultArgs) => {
 
       //remove null from interfaces after first transformation
       newSchema = visitSchema(newSchema, {
-        [VisitSchemaKind.OBJECT_TYPE]: type => {
+        [VisitSchemaKind.OBJECT_TYPE]: (type: GraphQLObjectType) => {
           const interfaces = type.getInterfaces();
           let filteredInterfaces = interfaces.filter(iface => iface);
 
@@ -361,21 +382,23 @@ export default (filterFields, defaultFields, defaultArgs) => {
         smthRemoved = false;
 
         newSchema = visitSchema(newSchema, {
-          [VisitSchemaKind.OBJECT_TYPE]: type => {
+          [VisitSchemaKind.OBJECT_TYPE]: (type: GraphQLObjectType) => {
             if (Object.keys(type.getFields()).length === 0) {
               smthRemoved = true;
               return null;
             }
             return undefined;
           },
-          [VisitSchemaKind.INPUT_OBJECT_TYPE]: type => {
+          [VisitSchemaKind.INPUT_OBJECT_TYPE]: (
+            type: GraphQLInputObjectType
+          ) => {
             if (Object.keys(type.getFields()).length === 0) {
               smthRemoved = true;
               return null;
             }
             return undefined;
           },
-          [VisitSchemaKind.INTERFACE_TYPE]: type => {
+          [VisitSchemaKind.INTERFACE_TYPE]: (type: GraphQLInterfaceType) => {
             if (Object.keys(type.getFields()).length === 0) {
               smthRemoved = true;
               return null;
@@ -385,7 +408,7 @@ export default (filterFields, defaultFields, defaultArgs) => {
         });
       } while (smthRemoved);
 
-      Object.values(schema.getTypeMap()).forEach(type => {
+      Object.values(schema.getTypeMap()).forEach((type: GraphQLNamedType) => {
         if (type.name.startsWith('__')) return;
         if (isObjectType(type) || isInputObjectType(type)) {
           Object.values(type.getFields()).forEach(field => {

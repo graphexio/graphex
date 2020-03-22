@@ -1,4 +1,7 @@
-import { makeExecutableSchema, transformSchema } from 'graphql-tools';
+import {
+  makeExecutableSchema,
+  transformSchema,
+} from '@apollo-model/graphql-tools';
 const { ApolloServer, gql } = require('apollo-server');
 const { createTestClient } = require('apollo-server-testing');
 import { printSchema } from 'graphql';
