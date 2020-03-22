@@ -4,9 +4,10 @@ import {
 } from '@apollo-model/graphql-tools';
 const { ApolloServer, gql } = require('apollo-server');
 const { createTestClient } = require('apollo-server-testing');
-import { printSchema } from 'graphql';
+import { printSchema, GraphQLObjectType, GraphQLEnumType } from 'graphql';
 
-import SchemaFilter, {
+import {
+  SchemaFilter,
   mapFieldForTypeStack,
   groupFields,
   reduceValues,
@@ -54,11 +55,11 @@ test('reduceValues', () => {
 });
 
 describe('SchemaFilter', () => {
-  let filterFields = SchemaFilter(
-    (type, field) => {
+  let filterFields = SchemaFilter({
+    filterFields: (type, field) => {
       return !/^.*\.removeField$/.test(`${type.name}.${field.name}`);
     },
-    (type, field) => {
+    defaultFields: (type, field) => {
       if (/.*\.(removeField)/.test(`${type.name}.${field.name}`)) {
         return () => 'Test';
       }
@@ -69,14 +70,14 @@ describe('SchemaFilter', () => {
         return () => ({ create: { removeField: '123' } });
       }
     },
-    (type, field) => {
+    defaultArgs: (type, field) => {
       if (type.name === 'Mutation' && field.name === 'updateMethod') {
         return () => ({
           data: {},
         });
       }
-    }
-  );
+    },
+  });
 
   const makeSchema = params => {
     let schema = makeExecutableSchema(params);
@@ -158,7 +159,9 @@ describe('SchemaFilter', () => {
 
     test('schema', () => {
       let schema = makeSchema({ typeDefs, resolvers });
-      expect(schema.getTypeMap().Test.getFields().removeField).toBeUndefined();
+      expect(
+        (schema.getTypeMap().Test as GraphQLObjectType).getFields().removeField
+      ).toBeUndefined();
     });
 
     test('right request', async () => {
@@ -271,7 +274,9 @@ describe('SchemaFilter', () => {
 
     test('schema', () => {
       let schema = makeSchema({ typeDefs });
-      expect(schema.getTypeMap().Test.getFields().removeField).toBeUndefined();
+      expect(
+        (schema.getTypeMap().Test as GraphQLObjectType).getFields().removeField
+      ).toBeUndefined();
     });
 
     test('right request', async () => {
@@ -456,7 +461,9 @@ describe('SchemaFilter', () => {
     test('schema', () => {
       let schema = makeSchema({ typeDefs });
       expect(schema.getTypeMap().TestEnum).toBeUndefined();
-      expect(schema.getTypeMap().Test.getFields().enumInput).toBeUndefined();
+      expect(
+        (schema.getTypeMap().Test as GraphQLObjectType).getFields().enumInput
+      ).toBeUndefined();
     });
 
     // Broken test. Solution needed.
@@ -501,9 +508,8 @@ describe('SchemaFilter', () => {
       let schema = makeSchema({ typeDefs });
 
       expect(
-        schema
-          .getTypeMap()
-          .TestEnum.getValues()
+        (schema.getTypeMap().TestEnum as GraphQLEnumType)
+          .getValues()
           .find(item => item.name === 'removeField')
       ).toBeUndefined();
     });
