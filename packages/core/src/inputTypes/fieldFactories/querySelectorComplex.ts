@@ -72,6 +72,7 @@ export class AMQuerySelectorComplexFieldFactory
     return <AMInputField>{
       name: this.getFieldName(field),
       type,
+      extensions: undefined,
       mmTransform: params => params,
       amEnter(node: ObjectFieldNode, transaction, stack) {
         const context = new AMObjectFieldContext(field.dbName);

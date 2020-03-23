@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@apollo-model/graphql-tools@4.0.6":
-  version "4.0.6"
-  resolved "https://registry.yarnpkg.com/@apollo-model/graphql-tools/-/graphql-tools-4.0.6.tgz#331af5122c4dc830f2d7404cc26e7030e2db94ec"
-  integrity sha512-/bD8NEpXKcxMqQeP4WtznpJU8bFA/p39lxDKRk/z9euQsdoejAX8ruJlpHOboh/qR3OCm9awozTgDR+DY3LrOw==
+"@apollo-model/graphql-tools@4.0.7":
+  version "4.0.7"
+  resolved "https://registry.yarnpkg.com/@apollo-model/graphql-tools/-/graphql-tools-4.0.7.tgz#d18f10f8d9c64061ec1944dc8b48fc0520de351d"
+  integrity sha512-m1oCUQ3vVo6O4v4Lxyj8AGOlXcetAZU1l1eHT5/z8O3JpZZjfM5Q26j0mSPBoZxdEpYYR15893x6d6PPdX77sg==
   dependencies:
     apollo-link "^1.2.3"
     apollo-utilities "^1.0.1"
@@ -6553,6 +6553,13 @@ graphql-upload@^8.0.2:
     fs-capacitor "^2.0.4"
     http-errors "^1.7.2"
     object-path "^0.11.4"
+
+graphql@14.6.0, graphql@^14.6.0:
+  version "14.6.0"
+  resolved "https://registry.yarnpkg.com/graphql/-/graphql-14.6.0.tgz#57822297111e874ea12f5cd4419616930cd83e49"
+  integrity sha512-VKzfvHEKybTKjQVpTFrA5yUq2S9ihcZvfJAtsDBBCuV6wauPu1xl/f9ehgVf0FcEJJs4vz6ysb/ZMkGigQZseg==
+  dependencies:
+    iterall "^1.2.2"
 
 graphql@^14.4.2:
   version "14.4.2"

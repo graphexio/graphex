@@ -41,47 +41,52 @@ describe('orderBy', () => {
 
   test('values', () => {
     expect(orderByType.toConfig()).toMatchInlineSnapshot(`
-              Object {
-                "astNode": undefined,
-                "description": undefined,
-                "extensionASTNodes": Array [],
-                "name": "PostOrderByInput",
-                "values": Object {
-                  "id_ASC": Object {
-                    "astNode": undefined,
-                    "deprecationReason": undefined,
-                    "description": undefined,
-                    "value": Object {
-                      "_id": 1,
-                    },
-                  },
-                  "id_DESC": Object {
-                    "astNode": undefined,
-                    "deprecationReason": undefined,
-                    "description": undefined,
-                    "value": Object {
-                      "_id": -1,
-                    },
-                  },
-                  "title_ASC": Object {
-                    "astNode": undefined,
-                    "deprecationReason": undefined,
-                    "description": undefined,
-                    "value": Object {
-                      "title": 1,
-                    },
-                  },
-                  "title_DESC": Object {
-                    "astNode": undefined,
-                    "deprecationReason": undefined,
-                    "description": undefined,
-                    "value": Object {
-                      "title": -1,
-                    },
-                  },
-                },
-              }
-      `);
+Object {
+  "astNode": undefined,
+  "description": undefined,
+  "extensionASTNodes": Array [],
+  "extensions": undefined,
+  "name": "PostOrderByInput",
+  "values": Object {
+    "id_ASC": Object {
+      "astNode": undefined,
+      "deprecationReason": undefined,
+      "description": undefined,
+      "extensions": undefined,
+      "value": Object {
+        "_id": 1,
+      },
+    },
+    "id_DESC": Object {
+      "astNode": undefined,
+      "deprecationReason": undefined,
+      "description": undefined,
+      "extensions": undefined,
+      "value": Object {
+        "_id": -1,
+      },
+    },
+    "title_ASC": Object {
+      "astNode": undefined,
+      "deprecationReason": undefined,
+      "description": undefined,
+      "extensions": undefined,
+      "value": Object {
+        "title": 1,
+      },
+    },
+    "title_DESC": Object {
+      "astNode": undefined,
+      "deprecationReason": undefined,
+      "description": undefined,
+      "extensions": undefined,
+      "value": Object {
+        "title": -1,
+      },
+    },
+  },
+}
+`);
   });
 });
 

@@ -38,7 +38,7 @@ export default () => {
     return [fieldName, value];
   };
 
-  const applyDefaults = (node, variables, context) => ({ type }) => {
+  const applyDefaults = (node, variables, context) => async ({ type }) => {
     let defaultValues = defaults[type.name];
 
     // let defaultValues = get(type);
@@ -50,10 +50,17 @@ export default () => {
           ...node,
           value: {
             kind: 'ListValue',
-            values: node.value.values.map(val => {
-              return applyDefaults({ value: val }, variables, context)({ type })
-                .value;
-            }),
+            values: await Promise.all(
+              node.value.values.map(async val => {
+                return (
+                  await applyDefaults(
+                    { value: val },
+                    variables,
+                    context
+                  )({ type })
+                ).value;
+              })
+            ),
           },
         };
         return newNode;
@@ -72,13 +79,15 @@ export default () => {
         )(node.value.fields);
       }
 
-      defaultValues.forEach(item => {
-        input[item.field.name] = item.valueFn({
-          input: input[item.field.name],
-          parent: input,
-          context,
-        });
-      });
+      await Promise.all(
+        defaultValues.map(async item => {
+          input[item.field.name] = await item.valueFn({
+            input: input[item.field.name],
+            parent: input,
+            context,
+          });
+        })
+      );
 
       let newNode = {
         ...node,

@@ -7,6 +7,10 @@ import { AMOperation } from '../execution/operation';
 export const skipArg: AMArgumet = {
   name: 'skip',
   type: GraphQLInt,
+  description: undefined,
+  defaultValue: undefined,
+  astNode: undefined,
+  extensions: undefined,
   amEnter(node, transaction, stack) {
     const context = new AMObjectFieldContext('arg');
     stack.push(context);

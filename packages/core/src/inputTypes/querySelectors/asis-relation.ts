@@ -29,6 +29,7 @@ export const AsIsRelationSelector: IAMQuerySelector = {
               ? AMInterfaceWhereTypeFactory
               : AMWhereTypeFactory
           ),
+          extensions: undefined,
           amEnter(node: ObjectFieldNode, transaction, stack) {
             if (node.value.kind === 'NullValue') {
               const lastInStack = R.last(stack);
