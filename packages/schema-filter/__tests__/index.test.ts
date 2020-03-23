@@ -6,12 +6,8 @@ const { ApolloServer, gql } = require('apollo-server');
 const { createTestClient } = require('apollo-server-testing');
 import { printSchema, GraphQLObjectType, GraphQLEnumType } from 'graphql';
 
-import {
-  SchemaFilter,
-  mapFieldForTypeStack,
-  groupFields,
-  reduceValues,
-} from '../src';
+import { SchemaFilter } from '../src';
+import { mapFieldForTypeStack, groupFields, reduceValues } from '../src/utils';
 
 test('mapFieldForTypeStack', () => {
   let input = {

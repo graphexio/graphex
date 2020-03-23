@@ -7,7 +7,6 @@ import {
   visitSchema,
   VisitSchemaKind,
 } from '@apollo-model/graphql-tools/dist/transforms/visitSchema';
-import TypeWrap from '@apollo-model/type-wrap';
 import {
   GraphQLEnumType,
   GraphQLInputObjectType,
@@ -17,35 +16,8 @@ import {
   isInputObjectType,
   isObjectType,
 } from 'graphql';
-import * as R from 'ramda';
 import DefaultFields from './defaultFields';
-
-const reduceArgs = (map, arg) => {
-  map[arg.name] = arg;
-  return map;
-};
-
-export const mapFieldForTypeStack = field => ({
-  type: new TypeWrap(field.type).realType(),
-  args: field.args.reduce(reduceArgs, {}),
-});
-
-export const groupFields = (predicate, object) => {
-  let result = {};
-  for (let key in object) {
-    let predicateValue = predicate(object[key]);
-    if (!result[predicateValue]) result[predicateValue] = {};
-    result[predicateValue][key] = object[key];
-  }
-  return result;
-};
-
-export const reduceValues = values => {
-  return values.reduce((state, item) => {
-    state[item.name] = R.omit(['deprecationReason', 'isDeprecated'], item);
-    return state;
-  }, {});
-};
+import { groupFields, reduceValues } from './utils';
 
 const resolveType = createResolveType((typeName, type) => {
   return type;

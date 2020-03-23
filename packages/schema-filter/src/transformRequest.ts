@@ -16,48 +16,16 @@ import {
 import * as R from 'ramda';
 import { visit } from './visitor';
 
-const capitalizeFirstLetter = string => {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-};
-
-const reduceArgs = (map, arg) => {
-  map[arg.name] = arg;
-  return map;
-};
-
-const getFields = stackItem => stackItem.type.getFields();
-const getArgs = stackItem => stackItem.args;
-
-const getNameValue = node => node.name.value;
-const getFragmentTypeName = node => node.typeCondition.name.value;
-
-const mapTypeForTypeStack = type => ({ type });
-
-export const mapFieldForTypeStack = field => ({
-  type: new TypeWrap(field.type).realType(),
-  args: field.args.reduce(reduceArgs, {}),
-});
-
-const mapArgForTypeStack = arg => ({
-  type: new TypeWrap(arg.type).realType(),
-});
-
-export const groupFields = (predicate, object) => {
-  let result = {};
-  for (let key in object) {
-    let predicateValue = predicate(object[key]);
-    if (!result[predicateValue]) result[predicateValue] = {};
-    result[predicateValue][key] = object[key];
-  }
-  return result;
-};
-
-export const reduceValues = values => {
-  return values.reduce((state, item) => {
-    state[item.name] = R.omit(['deprecationReason', 'isDeprecated'], item);
-    return state;
-  }, {});
-};
+import {
+  capitalizeFirstLetter,
+  mapTypeForTypeStack,
+  getNameValue,
+  getFragmentTypeName,
+  getFields,
+  mapFieldForTypeStack,
+  getArgs,
+  mapArgForTypeStack,
+} from './utils';
 
 export const transformRequest = (transformOptions, transformContext) => async (
   request,
