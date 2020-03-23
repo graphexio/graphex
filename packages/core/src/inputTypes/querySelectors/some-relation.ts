@@ -28,6 +28,7 @@ export const SomeRelationSelector: IAMQuerySelector = {
         return {
           name: this.getFieldName(field),
           type: schemaInfo.resolveFactoryType(namedType, AMWhereTypeFactory),
+          extensions: undefined,
           amEnter(node, transaction, stack) {
             const context = new AMReadOperation(transaction, {
               collectionName: field.relation.collection,

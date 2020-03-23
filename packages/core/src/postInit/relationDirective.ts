@@ -38,6 +38,8 @@ export const relationDirective = (schema: GraphQLSchema) => {
             {
               name: 'where',
               description: null,
+              extensions: undefined,
+              astNode: undefined,
               type: schemaInfo.resolveFactoryType(realType, AMWhereTypeFactory),
               defaultValue: undefined,
             },
@@ -46,6 +48,8 @@ export const relationDirective = (schema: GraphQLSchema) => {
                   {
                     name: 'orderBy',
                     description: null,
+                    extensions: undefined,
+                    astNode: undefined,
                     type: schemaInfo.resolveFactoryType(
                       realType,
                       AMOrderByTypeFactory
@@ -63,6 +67,8 @@ export const relationDirective = (schema: GraphQLSchema) => {
               name: `${field.name}Connection`,
               isDeprecated: false,
               description: '',
+              extensions: undefined,
+              astNode: undefined,
               type: schemaInfo.resolveFactoryType(
                 realType,
                 AMConnectionTypeFactory

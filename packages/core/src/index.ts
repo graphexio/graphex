@@ -111,6 +111,7 @@ export default class ModelMongo {
     schema.getQueryType().getFields()._service = {
       name: '_service',
       description: '',
+      extensions: undefined,
       args: [],
       isDeprecated: false,
       type: _Service,

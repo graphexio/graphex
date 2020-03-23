@@ -17,13 +17,12 @@
   "dependencies": {
     "@apollo-model/ast-from-value": "0.6.0-alpha.52",
     "@apollo-model/core": "0.6.0-alpha.55",
-    "@apollo-model/graphql-tools": "4.0.6",
+    "@apollo-model/graphql-tools": "4.0.7",
     "@apollo-model/mongodb-executor": "0.6.0-alpha.32",
     "@apollo-model/schema-filter": "0.6.0-alpha.56",
     "@apollo-model/type-wrap": "0.6.0-alpha.49",
     "@apollo/federation": "^0.7.0",
     "apollo-server": "^2.7.0",
-    "graphql": "^14.4.2",
     "ramda": "^0.26.1"
   },
   "devDependencies": {
@@ -36,7 +35,11 @@
     "@babel/plugin-transform-runtime": "^7.2.0",
     "@babel/preset-env": "^7.1.0",
     "@babel/preset-typescript": "^7.6.0",
-    "rimraf": "^2.6.3"
+    "rimraf": "^2.6.3",
+    "graphql": "14.6.0"
+  },
+  "peerDependencies": {
+    "graphql": "14.6.0"
   },
   "gitHead": "659f8df0bee46a717d9939878771136ee17e5f53"
 }

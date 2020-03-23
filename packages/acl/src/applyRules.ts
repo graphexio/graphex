@@ -1,5 +1,5 @@
 import R from 'ramda';
-import SchemaFilter from '@apollo-model/schema-filter';
+import { SchemaFilter } from '@apollo-model/schema-filter';
 import { transformSchema } from '@apollo-model/graphql-tools';
 
 export const applyRules = (
@@ -18,21 +18,21 @@ export const applyRules = (
   defaults = prepareRules(defaults);
   argsDefaults = prepareRules(argsDefaults);
 
-  let filterFields = SchemaFilter(
-    (type, field) => {
+  let filterFields = SchemaFilter({
+    filterFields: (type, field) => {
       let allow = R.anyPass(allowRules)({ type, field, schema });
       let deny = R.anyPass(denyRules)({ type, field, schema });
 
       return allow && !deny;
     },
-    (type, field) => {
+    defaultFields: (type, field) => {
       let defaultFn = defaults.find(item => item.cond({ type, field, schema }));
       if (!defaultFn) {
         return undefined;
       }
       return defaultFn.fn;
     },
-    (type, field) => {
+    defaultArgs: (type, field) => {
       let defaultFn = argsDefaults.find(item =>
         item.cond({ type, field, schema })
       );
@@ -40,8 +40,8 @@ export const applyRules = (
         return undefined;
       }
       return defaultFn.fn;
-    }
-  );
+    },
+  });
 
   return transformSchema(schema, [filterFields]);
 };

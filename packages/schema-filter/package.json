@@ -19,8 +19,6 @@
     "@apollo-model/graphql-tools": "4.0.7",
     "@apollo-model/type-wrap": "0.6.0-alpha.49",
     "@apollo/federation": "^0.7.0",
-    "apollo-server": "^2.7.0",
-    "graphql": "^14.4.2",
     "ramda": "^0.26.1"
   },
   "devDependencies": {
@@ -30,13 +28,16 @@
     "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/plugin-proposal-pipeline-operator": "^7.5.0",
     "@babel/preset-env": "^7.5.5",
-    "@types/graphql": "^14.5.0",
     "apollo-server": "^2.8.1",
     "apollo-server-testing": "^2.8.1",
+    "graphql": "^14.6.0",
     "jest": "^25.1.0",
     "nodemon": "^1.19.1",
     "rimraf": "^2.6.3",
     "typescript": "^3.7.4"
+  },
+  "peerDependencies": {
+    "graphql": "^14.6.0"
   },
   "publishConfig": {
     "access": "public"

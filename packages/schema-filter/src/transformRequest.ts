@@ -12,6 +12,8 @@ import {
   TypeNode,
   VariableDefinitionNode,
   VariableNode,
+  GraphQLNamedType,
+  GraphQLType,
 } from 'graphql';
 import * as R from 'ramda';
 import { visit } from './visitor';
@@ -148,8 +150,18 @@ export const transformRequest = (transformOptions, transformContext) => async (
     },
     [Kind.VARIABLE_DEFINITION]: {
       enter(node: VariableDefinitionNode) {
-        const type = typeFromAST(initialSchema, node.type);
+        let type: GraphQLType;
+
+        if (node.type.kind === 'ListType') {
+          type = typeFromAST(initialSchema, node.type);
+        } else if (node.type.kind === 'NonNullType') {
+          type = typeFromAST(initialSchema, node.type);
+        } else if (node.type.kind === 'NamedType') {
+          type = typeFromAST(initialSchema, node.type);
+        }
+
         variableTypes[node.variable.name.value] = type;
+
         return null;
       },
       leave(node: VariableDefinitionNode) {},
