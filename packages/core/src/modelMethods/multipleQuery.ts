@@ -52,9 +52,9 @@ export class AMModelMultipleQueryFieldFactory extends AMMethodFieldFactory {
         },
         {
           name: 'orderBy',
-          type: this.schemaInfo.resolveFactoryType(
+          type: this.configResolver.resolveInputType(
             modelType,
-            AMOrderByTypeFactory
+            this.links.orderBy
           ),
         },
         skipArg,

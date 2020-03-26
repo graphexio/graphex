@@ -8,6 +8,8 @@ import {
   GraphQLNamedType,
   GraphQLInputType,
   GraphQLInputObjectType,
+  GraphQLEnumType,
+  GraphQLScalarType,
 } from 'graphql';
 
 export class AMConfigResolver {
@@ -74,7 +76,9 @@ export class AMConfigResolver {
   }
 
   resolveInputType(inputType: AMModelType, link: string | string[]) {
-    let typeFactory: AMTypeFactory<GraphQLInputObjectType>;
+    let typeFactory: AMTypeFactory<
+      GraphQLInputObjectType | GraphQLEnumType | GraphQLScalarType
+    >;
     if (Array.isArray(link)) {
       typeFactory = link
         .map(l => this.resolveInputTypeFactory(inputType, l))

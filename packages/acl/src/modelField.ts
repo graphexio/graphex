@@ -6,6 +6,9 @@ import {
   GraphQLNamedType,
   GraphQLField,
   GraphQLType,
+  GraphQLInputType,
+  GraphQLScalarType,
+  GraphQLEnumType,
 } from 'graphql';
 
 import { AMCreateTypeFactory } from '@apollo-model/core/lib/inputTypes/create';
@@ -40,48 +43,50 @@ import {
   toMap,
 } from './utils';
 import { ACLRule } from './definitions';
+import {
+  defaultConfig,
+  AMTypeFactory,
+  AMInputTypeFactory,
+} from '@apollo-model/core/src';
 
 function transformAccessToInputTypeFactories(
   access: string
-): IAMTypeFactory<GraphQLInputObjectType>[] {
+): typeof AMInputTypeFactory[] {
   return {
     R: [
       null, //base type
-      AMInterfaceWhereTypeFactory,
-      AMInterfaceWhereUniqueTypeFactory,
-      AMOrderByTypeFactory,
-      AMWhereTypeFactory,
-      AMWhereCleanTypeFactory,
-      AMWhereUniqueTypeFactory,
+      defaultConfig._default.inputTypeFactories.interfaceWhere.factory,
+      defaultConfig._default.inputTypeFactories.interfaceWhereUnique.factory,
+      defaultConfig._default.inputTypeFactories.orderBy.factory,
+      defaultConfig._default.inputTypeFactories.where.factory,
+      defaultConfig._default.inputTypeFactories.whereClean.factory,
+      defaultConfig._default.inputTypeFactories.whereUnique.factory,
     ],
     C: [
-      AMCreateTypeFactory,
-      AMInterfaceCreateTypeFactory,
-      AMCreateOneRelationTypeFactory,
-      AMCreateManyRelationTypeFactory,
-      AMCreateOneNestedTypeFactory,
-      AMCreateManyNestedTypeFactory,
-      AMCreateTypeFactory,
-      AMCreateOneRequiredRelationTypeFactory,
+      defaultConfig._default.inputTypeFactories.create.factory,
+      defaultConfig._default.inputTypeFactories.interfaceCreate.factory,
+      defaultConfig._default.inputTypeFactories.createOneRelation.factory,
+      defaultConfig._default.inputTypeFactories.createManyRelation.factory,
+      defaultConfig._default.inputTypeFactories.createOneNested.factory,
+      defaultConfig._default.inputTypeFactories.createManyNested.factory,
+      defaultConfig._default.inputTypeFactories.createOneRequirerdRelation
+        .factory,
     ],
     U: [
-      AMUpdateWithWhereNestedTypeFactory,
-      AMUpdateOneRelationTypeFactory,
-      AMUpdateManyRelationTypeFactory,
-      AMUpdateOneNestedTypeFactory,
-      AMUpdateManyNestedTypeFactory,
-      AMUpdateTypeFactory,
+      defaultConfig._default.inputTypeFactories.updateWithWhereNested.factory,
+      defaultConfig._default.inputTypeFactories.updateOneRelation.factory,
+      defaultConfig._default.inputTypeFactories.updateManyRelation.factory,
+      defaultConfig._default.inputTypeFactories.updateOneNested.factory,
+      defaultConfig._default.inputTypeFactories.updateManyNested.factory,
+      defaultConfig._default.inputTypeFactories.update.factory,
     ],
   }[access];
 }
 
 const typeNameFromFactory = R.curry(
-  (
-    modelType: AMModelType,
-    inputTypeFactory: IAMTypeFactory<GraphQLInputObjectType>
-  ) => {
+  (modelType: AMModelType, inputTypeFactory: typeof AMInputTypeFactory) => {
     return inputTypeFactory
-      ? inputTypeFactory.getTypeName(modelType)
+      ? inputTypeFactory.prototype.getTypeName(modelType)
       : modelType.name;
   }
 );

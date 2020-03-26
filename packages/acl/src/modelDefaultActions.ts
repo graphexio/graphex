@@ -1,48 +1,43 @@
 import {
+  AMMethodFieldFactory,
   AMModelType,
   GraphQLOperationType,
-  IAMMethodFieldFactory,
-} from '@apollo-model/core/lib/definitions';
-import { AMModelConnectionQueryFieldFactory } from '@apollo-model/core/lib/modelMethods/connectionQuery';
-import { AMModelCreateMutationFieldFactory } from '@apollo-model/core/lib/modelMethods/createMutation';
-import { AMModelDeleteManyMutationFieldFactory } from '@apollo-model/core/lib/modelMethods/deleteManyMutation';
-import { AMModelDeleteOneMutationFieldFactory } from '@apollo-model/core/lib/modelMethods/deleteOneMutation';
-import { AMModelMultipleQueryFieldFactory } from '@apollo-model/core/lib/modelMethods/multipleQuery';
-import { AMModelSingleQueryFieldFactory } from '@apollo-model/core/lib/modelMethods/singleQuery';
-import { AMModelUpdateMutationFieldFactory } from '@apollo-model/core/lib/modelMethods/updateMutation';
-import { GraphQLNamedType, GraphQLSchema, GraphQLType } from 'graphql';
+  defaultConfig,
+} from '@apollo-model/core';
+
+import { GraphQLSchema, GraphQLType } from 'graphql';
 import R from 'ramda';
 import { ACLRule } from './definitions';
 import { extractAbstractTypes, matchingTypes, toEntries, toMap } from './utils';
 
 function transformAccessToMethodFactories(
   access: string
-): IAMMethodFieldFactory[] {
+): typeof AMMethodFieldFactory[] {
   return {
     R: [
-      AMModelMultipleQueryFieldFactory,
-      AMModelSingleQueryFieldFactory,
-      AMModelConnectionQueryFieldFactory,
+      defaultConfig._default.methodFactories.multipleQuery.factory,
+      defaultConfig._default.methodFactories.singleQuery.factory,
+      defaultConfig._default.methodFactories.connectionQuery.factory,
     ],
-    C: [AMModelCreateMutationFieldFactory],
+    C: [defaultConfig._default.methodFactories.createMutation.factory],
     D: [
-      AMModelDeleteOneMutationFieldFactory,
-      AMModelDeleteManyMutationFieldFactory,
+      defaultConfig._default.methodFactories.deleteOneMutation.factory,
+      defaultConfig._default.methodFactories.deleteManyMutation.factory,
     ],
-    U: [AMModelUpdateMutationFieldFactory],
+    U: [defaultConfig._default.methodFactories.updateMutation.factory],
   }[access];
 }
 
 export function modelDefaultActions(modelPattern, access): ACLRule {
   return (schema: GraphQLSchema) => {
     const methodFactoryToSignatures = R.curry(
-      (modelType: AMModelType, factory: IAMMethodFieldFactory) => {
+      (modelType: AMModelType, factory: typeof AMMethodFieldFactory) => {
         let operation =
-          factory.getOperationType() === GraphQLOperationType.Query
+          factory.prototype.getOperationType() === GraphQLOperationType.Query
             ? schema.getQueryType()
             : schema.getMutationType();
 
-        let methodName = factory.getFieldName(modelType);
+        let methodName = factory.prototype.getFieldName(modelType);
         if (operation.getFields()[methodName]) {
           return [`${operation}.${methodName}`];
         } else {

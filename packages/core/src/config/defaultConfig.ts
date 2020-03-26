@@ -48,8 +48,11 @@ import { AMUpdateFieldFactory } from '../inputTypes/fieldFactories/updateClass';
 import { AMUpdateNestedFieldFactory } from '../inputTypes/fieldFactories/updateNestedClass';
 import { AMUpdateRelationFieldFactory } from '../inputTypes/fieldFactories/updateRelationClass';
 import { AMModelUpdateMutationFieldFactory } from '../modelMethods/updateMutation';
+import { AMModelDeleteOneMutationFieldFactory } from '../modelMethods/deleteOneMutation';
+import { AMModelDeleteManyMutationFieldFactory } from '../modelMethods/deleteManyMutation';
+import { AMOrderByTypeFactory } from '../inputTypes/orderByClass';
 
-export const defaultConfig = <AMConfig>{
+const config = {
   _default: {
     methodFactories: {
       singleQuery: {
@@ -62,6 +65,7 @@ export const defaultConfig = <AMConfig>{
         factory: AMModelMultipleQueryFieldFactory,
         links: {
           where: ['where', 'interfaceWhere'],
+          orderBy: 'orderBy',
         },
       },
       connectionQuery: {
@@ -82,6 +86,18 @@ export const defaultConfig = <AMConfig>{
           data: 'update',
           where: 'whereUnique',
           whereInterface: 'interfaceWhereUnique',
+        },
+      },
+      deleteOneMutation: {
+        factory: AMModelDeleteOneMutationFieldFactory,
+        links: {
+          where: ['whereUnique', 'interfaceWhereUnique'],
+        },
+      },
+      deleteManyMutation: {
+        factory: AMModelDeleteManyMutationFieldFactory,
+        links: {
+          where: ['where', 'interfaceWhere'],
         },
       },
     },
@@ -212,6 +228,9 @@ export const defaultConfig = <AMConfig>{
       updateOneRelation: {
         factory: AMUpdateOneRelationTypeFactory,
       },
+      orderBy: {
+        factory: AMOrderByTypeFactory,
+      },
     },
     inputFieldFactories: {
       selectorAll: {
@@ -329,3 +348,9 @@ export const defaultConfig = <AMConfig>{
     },
   },
 };
+
+function buildConfigType<T extends AMConfig>(config: T): T {
+  return config;
+}
+
+export const defaultConfig = buildConfigType(config);

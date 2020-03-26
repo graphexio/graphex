@@ -14,25 +14,20 @@ import {
 import { makeExecutableSchema as makeGraphQLSchema } from 'graphql-tools';
 import _ from 'lodash';
 import appendField from './appendField';
-import { AMModelType, GraphQLOperationType, AMOptions } from './definitions';
+import { defaultConfig } from './config/defaultConfig';
+import { AMConfigResolver } from './config/resolver';
+import { AMModelType, AMOptions, GraphQLOperationType } from './definitions';
 import { AMFederationEntitiesFieldFactory } from './federation/entitiesField';
 import InitialScheme from './initialScheme';
-import { AMModelCreateMutationFieldFactory } from './modelMethods/createMutation';
 import { AMModelDeleteManyMutationFieldFactory } from './modelMethods/deleteManyMutation';
 import { AMModelDeleteOneMutationFieldFactory } from './modelMethods/deleteOneMutation';
-import { AMModelUpdateMutationFieldFactory } from './modelMethods/updateMutation';
-import { AMModelConnectionQueryFieldFactory } from './modelMethods/connectionQuery';
-// import { AMModelMultipleQueryFieldFactory } from './modelMethods/multipleQuery';
-import { AMModelSingleQueryFieldFactory } from './modelMethods/singleQuery';
 import Modules from './modules';
 import { postInit } from './postInit';
 import { prepare } from './prepare/prepare';
+import { makeSchemaInfo } from './schemaInfo';
 import { getDirective } from './utils';
 export * from './definitions';
-
-import { defaultConfig } from './config/defaultConfig';
-import { AMConfigResolver } from './config/resolver';
-import { makeSchemaInfo } from './schemaInfo';
+export { defaultConfig } from './config/defaultConfig';
 
 const { printSchema } = require('@apollo/federation');
 
@@ -213,8 +208,8 @@ export default class ModelMongo {
             ...(!isInterfaceType(type)
               ? [configResolver.resolveMethodFactory(type, 'createMutation')]
               : []),
-            AMModelDeleteOneMutationFieldFactory,
-            AMModelDeleteManyMutationFieldFactory,
+            configResolver.resolveMethodFactory(type, 'deleteOneMutation'),
+            configResolver.resolveMethodFactory(type, 'deleteManyMutation'),
             configResolver.resolveMethodFactory(type, 'updateMutation'),
           ].forEach(fieldFactory => {
             appendField(

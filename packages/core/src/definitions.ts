@@ -22,6 +22,7 @@ import {
   GraphQLOutputType,
   GraphQLObjectTypeConfig,
   GraphQLArgument,
+  GraphQLScalarType,
 } from 'graphql';
 import Maybe from 'graphql/tsutils/Maybe';
 import { AMContext } from './execution/context';
@@ -237,6 +238,10 @@ export abstract class AMTypeFactory<
   abstract getType(inputType: AMModelType, schemaInfo: AMSchemaInfo): T;
 }
 
+export abstract class AMInputTypeFactory extends AMTypeFactory<
+  GraphQLInputObjectType | GraphQLEnumType | GraphQLScalarType
+> {}
+
 // export interface IAMModelTypeFactory<T extends GraphQLNamedType>
 //   extends IAMTypeFactory<T> {
 //   getFieldFactories(field: AMField): IAMInputFieldFactory[];
@@ -353,9 +358,7 @@ export interface AMConfig {
     };
     inputTypeFactories?: {
       [factoryKey: string]: {
-        factory: new (options: AMFactoryOptions) => AMTypeFactory<
-          GraphQLInputObjectType
-        >;
+        factory: new (options: AMFactoryOptions) => AMInputTypeFactory;
         links?: {
           [key: string]: string | string[];
         };

@@ -1,28 +1,25 @@
 import { GraphQLNonNull, isInterfaceType } from 'graphql';
 import R from 'ramda';
-import { AMDeleteOperation } from '../execution/operations/deleteOperation';
-import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
-import { resolve } from '../resolve';
 import {
   AMField,
+  AMMethodFieldFactory,
   AMModelType,
-  IAMFieldFactory,
-  IAMMethodFieldFactory,
   GraphQLOperationType,
 } from '../definitions';
 import { AMSelectorContext } from '../execution/contexts/selector';
-import { AMWhereTypeFactory } from '../inputTypes/where';
-import { AMWhereACLTypeFactory } from '../inputTypes/whereACL';
+import { AMDeleteOperation } from '../execution/operations/deleteOperation';
 import { AMInterfaceWhereUniqueTypeFactory } from '../inputTypes/interfaceWhereUnique';
+import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
+import { resolve } from '../resolve';
 
-export const AMModelDeleteOneMutationFieldFactory: IAMMethodFieldFactory = {
+export class AMModelDeleteOneMutationFieldFactory extends AMMethodFieldFactory {
   getOperationType() {
     return GraphQLOperationType.Mutation;
-  },
+  }
   getFieldName(modelType: AMModelType): string {
     return R.concat('delete')(modelType.name);
-  },
-  getField(modelType: AMModelType, schemaInfo) {
+  }
+  getField(modelType: AMModelType) {
     return <AMField>{
       name: this.getFieldName(modelType),
       description: '',
@@ -32,12 +29,7 @@ export const AMModelDeleteOneMutationFieldFactory: IAMMethodFieldFactory = {
         {
           name: 'where',
           type: new GraphQLNonNull(
-            schemaInfo.resolveFactoryType(
-              modelType,
-              isInterfaceType(modelType)
-                ? AMInterfaceWhereUniqueTypeFactory
-                : AMWhereUniqueTypeFactory
-            )
+            this.configResolver.resolveInputType(modelType, this.links.where)
           ),
         },
       ],
@@ -63,5 +55,5 @@ export const AMModelDeleteOneMutationFieldFactory: IAMMethodFieldFactory = {
       },
       resolve: resolve,
     };
-  },
-};
+  }
+}
