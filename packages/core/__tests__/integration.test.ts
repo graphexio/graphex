@@ -1559,7 +1559,7 @@ test('relation some', async () => {
     let { errors, data } = await query({
       query: gql`
         query {
-          posts(where: { likes_some: { username: "admin" } }) {
+          posts(where: { likes_some: { User: { username: "admin" } } }) {
             title
           }
         }
