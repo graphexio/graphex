@@ -50,7 +50,10 @@ export class AMCreateOneRequiredRelationTypeFactory extends AMTypeFactory<
       fields: () => {
         const fields = <AMInputFieldConfigMap>{
           create: {
-            type: schemaInfo.resolveFactoryType(modelType, createTypeFactory),
+            type: this.schemaInfo.resolveFactoryType(
+              modelType,
+              createTypeFactory
+            ),
             /* For abstract interface we create operations inside AMInterfaceCreateTypeFactory */
             ...(!modelType.mmAbstract
               ? {
@@ -77,7 +80,10 @@ export class AMCreateOneRequiredRelationTypeFactory extends AMTypeFactory<
               : null),
           },
           connect: {
-            type: schemaInfo.resolveFactoryType(modelType, whereTypeFactory),
+            type: this.schemaInfo.resolveFactoryType(
+              modelType,
+              whereTypeFactory
+            ),
             amEnter(node, transaction, stack) {
               const opContext = new AMReadOperation(transaction, {
                 many: false,

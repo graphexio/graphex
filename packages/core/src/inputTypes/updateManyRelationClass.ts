@@ -57,7 +57,7 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
         const fields = <AMInputFieldConfigMap>{
           create: {
             type: new GraphQLList(
-              schemaInfo.resolveFactoryType(modelType, createTypeFactory)
+              this.schemaInfo.resolveFactoryType(modelType, createTypeFactory)
             ),
             /* For abstract interface we make separate operation for each document */
             ...(!modelType.mmAbstract
@@ -107,7 +107,7 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
           },
           recreate: {
             type: new GraphQLList(
-              schemaInfo.resolveFactoryType(modelType, createTypeFactory)
+              this.schemaInfo.resolveFactoryType(modelType, createTypeFactory)
             ),
             /* For abstract interface we make separate operation for each document */
             ...(!modelType.mmAbstract
@@ -157,7 +157,7 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
           },
           connect: {
             type: new GraphQLList(
-              schemaInfo.resolveFactoryType(modelType, whereTypeFactory)
+              this.schemaInfo.resolveFactoryType(modelType, whereTypeFactory)
             ),
             /* For abstract interface we make separate operation for each document */
             ...(!modelType.mmAbstract
@@ -223,7 +223,7 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
           },
           reconnect: {
             type: new GraphQLList(
-              schemaInfo.resolveFactoryType(modelType, whereTypeFactory)
+              this.schemaInfo.resolveFactoryType(modelType, whereTypeFactory)
             ),
             /* For abstract interface we make separate operation for each document */
             ...(!modelType.mmAbstract
@@ -289,7 +289,7 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
           },
           disconnect: {
             type: new GraphQLList(
-              schemaInfo.resolveFactoryType(modelType, whereTypeFactory)
+              this.schemaInfo.resolveFactoryType(modelType, whereTypeFactory)
             ),
             ...(!modelType.mmAbstract
               ? {
@@ -311,7 +311,7 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
           },
           delete: {
             type: new GraphQLList(
-              schemaInfo.resolveFactoryType(modelType, whereTypeFactory)
+              this.schemaInfo.resolveFactoryType(modelType, whereTypeFactory)
             ),
             ...(!modelType.mmAbstract
               ? {

@@ -39,7 +39,7 @@ export abstract class AMQuerySelectorComplexFieldFactory extends AMInputFieldFac
       },
       amLeave(node, transaction, stack) {
         const context = stack.pop() as AMObjectFieldContext;
-        this.applyValue(node, transaction, stack, context, field);
+        self.applyValue(node, transaction, stack, context, field);
       },
     };
   }
