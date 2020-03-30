@@ -3,8 +3,15 @@ import gql from 'graphql-tag';
 import AMM from '@apollo-model/core';
 import { AMOptions } from '@apollo-model/core/lib/definitions';
 import * as TypeGeoJSON from '../src';
+import * as R from 'ramda';
+import { defaultConfig } from '@apollo-model/core';
 
-const generateSchema = (typeDefs, options?: AMOptions) => {
+const generateSchema = (
+  typeDefs,
+  options: AMOptions = {
+    config: R.mergeDeepRight(defaultConfig, TypeGeoJSON.config),
+  }
+) => {
   return new AMM({ options, modules: [TypeGeoJSON] }).makeExecutableSchema({
     resolverValidationOptions: {
       requireResolversForResolveType: false,

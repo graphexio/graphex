@@ -26,22 +26,38 @@ export class AMConfigResolver {
     return this.config[typeName] || this.config._default;
   }
 
+  private getDefaultNamespace() {
+    return this.config._default;
+  }
+
   resolveMethodFactory(type: AMModelType, link: string) {
-    const factoryItem = this.getNamespace(type).methodFactories[link];
+    let factoryItem = this.getNamespace(type).methodFactories
+      ? this.getNamespace(type).methodFactories[link]
+      : undefined;
+    if (!factoryItem) {
+      factoryItem = this.getDefaultNamespace().methodFactories[link];
+    }
     if (!factoryItem) throw new Error('Unknown factory');
     return new factoryItem.factory({
       links: factoryItem.links,
+      dynamicLinks: factoryItem.dynamicLinks,
       schemaInfo: this.schemaInfo,
       configResolver: this,
     });
   }
 
   resolveTypeFactory(type: AMModelType, link: string) {
-    const factoryItem = this.getNamespace(type).typeFactories[link];
+    let factoryItem = this.getNamespace(type).typeFactories
+      ? this.getNamespace(type).typeFactories[link]
+      : undefined;
+    if (!factoryItem) {
+      factoryItem = this.getDefaultNamespace().typeFactories[link];
+    }
     if (!factoryItem)
       throw new Error(`Unknown factory ${link} for type ${type.name}`);
     return new factoryItem.factory({
       links: factoryItem.links,
+      dynamicLinks: factoryItem.dynamicLinks,
       schemaInfo: this.schemaInfo,
       configResolver: this,
     });
@@ -65,11 +81,20 @@ export class AMConfigResolver {
   }
 
   resolveInputTypeFactory(type: AMModelType, link: string) {
-    const factoryItem = this.getNamespace(type).inputTypeFactories[link];
+    // if (type.name === 'GeoJSONPoint') {
+    // console.log('inputType', type, link);
+    // }
+    let factoryItem = this.getNamespace(type).inputTypeFactories
+      ? this.getNamespace(type).inputTypeFactories[link]
+      : undefined;
+    if (!factoryItem) {
+      factoryItem = this.getDefaultNamespace().inputTypeFactories[link];
+    }
     if (!factoryItem)
       throw new Error(`Unknown factory ${link} for type ${type.name}`);
     return new factoryItem.factory({
       links: factoryItem.links,
+      dynamicLinks: factoryItem.dynamicLinks,
       schemaInfo: this.schemaInfo,
       configResolver: this,
     });
@@ -95,11 +120,18 @@ export class AMConfigResolver {
   }
 
   resolveInputFieldFactory(type: AMModelType, link: string) {
-    const factoryItem = this.getNamespace(type).inputFieldFactories[link];
+    // console.log('inputField', type, link);
+    let factoryItem = this.getNamespace(type).inputFieldFactories
+      ? this.getNamespace(type).inputFieldFactories[link]
+      : undefined;
+    if (!factoryItem) {
+      factoryItem = this.getDefaultNamespace().inputFieldFactories[link];
+    }
     if (!factoryItem)
       throw new Error(`Unknown factory ${link} for type ${type.name}`);
     return new factoryItem.factory({
       links: factoryItem.links,
+      dynamicLinks: factoryItem.dynamicLinks,
       schemaInfo: this.schemaInfo,
       configResolver: this,
     });

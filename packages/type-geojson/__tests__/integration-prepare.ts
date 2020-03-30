@@ -6,6 +6,9 @@ import typeDefs from './model';
 import MongoMemoryServer from 'mongodb-memory-server';
 import * as DirectiveImplements from '@apollo-model/directive-implements';
 import * as TypeGeoJSON from '../src';
+import { defaultConfig } from '@apollo-model/core';
+
+import * as R from 'ramda';
 const util = require('util');
 
 export const mongod = new MongoMemoryServer();
@@ -33,6 +36,9 @@ const QE = QueryExecutor(connectToDatabase);
 
 const schema = new AMM({
   modules: [DirectiveImplements, TypeGeoJSON],
+  options: {
+    config: R.mergeDeepRight(defaultConfig, TypeGeoJSON.config),
+  },
 }).makeExecutableSchema({
   resolverValidationOptions: {
     requireResolversForResolveType: false,

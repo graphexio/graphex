@@ -53,7 +53,7 @@ export class AMWhereCleanTypeFactory extends AMTypeFactory<AMInputObjectType> {
         try {
           Object.values(modelType.getFields()).forEach(field => {
             const fieldType = getNamedType(field.type) as AMModelType;
-            let links = this.links.selectors;
+            let links = this.getDynamicLinksForType(fieldType.name).selectors;
             if (!Array.isArray(links)) links = [links];
 
             const fieldFactories = this.configResolver

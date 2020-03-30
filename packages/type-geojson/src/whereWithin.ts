@@ -8,18 +8,19 @@ import {
 import { AMObjectFieldContext } from '@apollo-model/core/lib/execution/contexts/objectField';
 import { AMDataContext } from '@apollo-model/core/lib/execution/contexts/data';
 import { AMSelectorContext } from '@apollo-model/core/lib/execution/contexts/selector';
+import { AMInputFieldFactory } from '@apollo-model/core';
 
-export const AMGeoJSONWithinFieldFactory: IAMInputFieldFactory = {
+export class AMGeoJSONWithinFieldFactory extends AMInputFieldFactory {
   isApplicable(field) {
     return true;
-  },
+  }
   getFieldName(field) {
     return `${field.name}_within`;
-  },
-  getField(field, schemaInfo) {
+  }
+  getField(field) {
     return <AMInputField>{
       name: this.getFieldName(field),
-      type: schemaInfo.schema.getTypeMap().GeoJSONPointWithinInput,
+      type: this.schemaInfo.schema.getTypeMap().GeoJSONPointWithinInput,
 
       amEnter(node: ObjectFieldNode, transaction, stack) {
         const action = new AMObjectFieldContext(field.dbName);
@@ -45,5 +46,5 @@ export const AMGeoJSONWithinFieldFactory: IAMInputFieldFactory = {
         }
       },
     };
-  },
-};
+  }
+}

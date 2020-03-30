@@ -115,34 +115,38 @@ const config = {
           whereACL: 'whereACL',
           and: 'where',
           or: 'where',
-          selectors: [
-            'selectorSize',
-            'selectorNotSize',
-            'selectorExists',
+        },
+        dynamicLinks: {
+          _default: {
+            selectors: [
+              'selectorSize',
+              'selectorNotSize',
+              'selectorExists',
 
-            'selectorAll',
-            'selectorExact',
+              'selectorAll',
+              'selectorExact',
 
-            'selectorIn',
-            'selectorNotIn',
+              'selectorIn',
+              'selectorNotIn',
 
-            'selectorSome',
-            'selectorSomeRelation',
+              'selectorSome',
+              'selectorSomeRelation',
 
-            'selectorAsIs',
-            'selectorAsIsRelation',
+              'selectorAsIs',
+              'selectorAsIsRelation',
 
-            'selectorLT',
-            'selectorLTE',
-            'selectorGT',
-            'selectorGTE',
+              'selectorLT',
+              'selectorLTE',
+              'selectorGT',
+              'selectorGTE',
 
-            'selectorNot',
+              'selectorNot',
 
-            'selectorContains',
-            'selectorStartsWith',
-            'selectorEndsWith',
-          ],
+              'selectorContains',
+              'selectorStartsWith',
+              'selectorEndsWith',
+            ],
+          },
         },
       },
       interfaceWhere: {
@@ -157,7 +161,11 @@ const config = {
           whereACL: 'whereACL',
           and: 'where',
           or: 'where',
-          selectors: ['selectorAsIs'],
+        },
+        dynamicLinks: {
+          _default: {
+            selectors: ['selectorAsIs'],
+          },
         },
       },
       interfaceWhereUnique: {
@@ -170,7 +178,11 @@ const config = {
         factory: AMWhereUniqueTypeFactory,
         links: {
           whereACL: 'whereACL',
-          selectors: ['selectorAsIs'],
+        },
+        dynamicLinks: {
+          _default: {
+            selectors: ['selectorAsIs'],
+          },
         },
       },
       updateWithWhereNested: {
@@ -182,8 +194,10 @@ const config = {
       },
       create: {
         factory: AMCreateTypeFactory,
-        links: {
-          fieldFactories: ['create', 'createNested', 'createRelation'],
+        dynamicLinks: {
+          _default: {
+            fieldFactories: ['create', 'createNested', 'createRelation'],
+          },
         },
       },
       createManyNested: {
@@ -206,8 +220,10 @@ const config = {
       },
       update: {
         factory: AMUpdateTypeFactory,
-        links: {
-          fieldFactories: ['update', 'updateNested', 'updateRelation'],
+        dynamicLinks: {
+          _default: {
+            fieldFactories: ['update', 'updateNested', 'updateRelation'],
+          },
         },
       },
       updateManyNested: {
@@ -349,7 +365,7 @@ const config = {
   },
 };
 
-function buildConfigType<T extends AMConfig>(config: T): T {
+export function buildConfigType<T extends AMConfig>(config: T): T {
   return config;
 }
 

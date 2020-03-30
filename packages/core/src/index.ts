@@ -27,7 +27,9 @@ import { prepare } from './prepare/prepare';
 import { makeSchemaInfo } from './schemaInfo';
 import { getDirective } from './utils';
 export * from './definitions';
-export { defaultConfig } from './config/defaultConfig';
+export * from './config/defaultConfig';
+export * from './execution';
+export * from './inputTypes';
 
 const { printSchema } = require('@apollo/federation');
 
@@ -190,7 +192,7 @@ export default class ModelMongo {
 
     const schemaInfo = makeSchemaInfo(schema, this.options);
     const configResolver = new AMConfigResolver({
-      configs: [defaultConfig],
+      configs: [this?.options?.config ? this.options.config : defaultConfig],
       schemaInfo,
     });
 

@@ -31,18 +31,27 @@ import { AMConfigResolver } from './config/resolver';
 
 export abstract class AMFactory {
   links: { [key: string]: string | string[] };
+  dynamicLinks: { [key: string]: { [key: string]: string | string[] } };
   schemaInfo: AMSchemaInfo;
   configResolver: AMConfigResolver;
 
   constructor(options: AMFactoryOptions) {
     this.links = options.links;
+    this.dynamicLinks = options.dynamicLinks;
     this.schemaInfo = options.schemaInfo;
     this.configResolver = options.configResolver;
+  }
+
+  getDynamicLinksForType(typeName: string) {
+    return this.dynamicLinks[typeName]
+      ? this.dynamicLinks[typeName]
+      : this.dynamicLinks._default;
   }
 }
 
 export type AMOptions = {
   aclWhere?: boolean;
+  config?: AMConfig;
 };
 
 export type mmTransformType = (input: {
@@ -283,6 +292,7 @@ export interface IAMMethodFieldFactory {
 
 type AMFactoryOptions = {
   links: { [key: string]: string | string[] };
+  dynamicLinks: { [key: string]: { [key: string]: string | string[] } };
   schemaInfo: AMSchemaInfo;
   configResolver: AMConfigResolver;
 };
@@ -340,35 +350,55 @@ export interface AMConfig {
   [typeName: string]: {
     methodFactories?: {
       [factoryKey: string]: {
-        factory: new (options: AMFactoryOptions) => AMMethodFieldFactory;
+        factory?: new (options: AMFactoryOptions) => AMMethodFieldFactory;
         links?: {
           [key: string]: string | string[];
+        };
+        dynamicLinks?: {
+          [type: string]: {
+            [key: string]: string | string[];
+          };
         };
       };
     };
     typeFactories?: {
       [factoryKey: string]: {
-        factory: new (options: AMFactoryOptions) => AMTypeFactory<
+        factory?: new (options: AMFactoryOptions) => AMTypeFactory<
           GraphQLNamedType
         >;
         links?: {
           [key: string]: string | string[];
         };
+        dynamicLinks?: {
+          [type: string]: {
+            [key: string]: string | string[];
+          };
+        };
       };
     };
     inputTypeFactories?: {
       [factoryKey: string]: {
-        factory: new (options: AMFactoryOptions) => AMInputTypeFactory;
+        factory?: new (options: AMFactoryOptions) => AMInputTypeFactory;
         links?: {
           [key: string]: string | string[];
+        };
+        dynamicLinks?: {
+          [type: string]: {
+            [key: string]: string | string[];
+          };
         };
       };
     };
     inputFieldFactories?: {
       [factoryKey: string]: {
-        factory: new (options: AMFactoryOptions) => AMInputFieldFactory;
+        factory?: new (options: AMFactoryOptions) => AMInputFieldFactory;
         links?: {
           [key: string]: string | string[];
+        };
+        dynamicLinks?: {
+          [type: string]: {
+            [key: string]: string | string[];
+          };
         };
       };
     };
