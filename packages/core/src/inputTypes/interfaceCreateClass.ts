@@ -14,7 +14,6 @@ import {
 import { AMListValueContext } from '../execution/contexts/listValue';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMCreateOperation } from '../execution/operations/createOperation';
-import { AMCreateTypeFactory } from './create';
 
 export class AMInterfaceCreateTypeFactory extends AMTypeFactory<
   GraphQLInputObjectType
@@ -37,9 +36,9 @@ export class AMInterfaceCreateTypeFactory extends AMTypeFactory<
             modelType
           ) as AMModelType[]).forEach((possibleType: AMModelType) => {
             fields[possibleType.name] = <AMInputFieldConfig>{
-              type: this.schemaInfo.resolveFactoryType(
+              type: this.configResolver.resolveInputType(
                 possibleType,
-                AMCreateTypeFactory
+                'create'
               ),
               ...(!modelType.mmAbstract
                 ? {

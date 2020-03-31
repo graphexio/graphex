@@ -13,10 +13,6 @@ import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMCreateOperation } from '../execution/operations/createOperation';
 import { AMReadOperation } from '../execution/operations/readOperation';
-import { AMCreateTypeFactory } from './create';
-import { AMInterfaceCreateTypeFactory } from './interfaceCreate';
-import { AMInterfaceWhereUniqueTypeFactory } from './interfaceWhereUnique';
-import { AMWhereUniqueTypeFactory } from './whereUnique';
 
 export class AMCreateManyRelationTypeFactory extends AMTypeFactory<
   GraphQLInputObjectType
@@ -27,21 +23,16 @@ export class AMCreateManyRelationTypeFactory extends AMTypeFactory<
   getType(modelType: AMModelType) {
     const self: IAMTypeFactory<GraphQLInputObjectType> = this;
 
-    const createTypeFactory = !isInterfaceType(modelType)
-      ? AMCreateTypeFactory
-      : AMInterfaceCreateTypeFactory;
-
-    const whereTypeFactory = !isInterfaceType(modelType)
-      ? AMWhereUniqueTypeFactory
-      : AMInterfaceWhereUniqueTypeFactory;
-
     return new GraphQLInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
         const fields = <AMInputFieldConfigMap>{
           create: {
             type: new GraphQLList(
-              this.schemaInfo.resolveFactoryType(modelType, createTypeFactory)
+              this.configResolver.resolveInputType(modelType, [
+                'create',
+                'interfaceCreate',
+              ])
             ),
             /* For abstract interface we create operations inside AMInterfaceCreateTypeFactory */
             ...(!modelType.mmAbstract
@@ -90,7 +81,10 @@ export class AMCreateManyRelationTypeFactory extends AMTypeFactory<
           },
           connect: {
             type: new GraphQLList(
-              this.schemaInfo.resolveFactoryType(modelType, whereTypeFactory)
+              this.configResolver.resolveInputType(modelType, [
+                'whereUnique',
+                'interfaceWhereUnique',
+              ])
             ),
             amEnter(node, transaction, stack) {
               const opContext = new AMReadOperation(transaction, {

@@ -1,23 +1,19 @@
 import {
-  GraphQLList,
-  GraphQLInputFieldConfig,
-  isInterfaceType,
   getNamedType,
+  GraphQLInputFieldConfig,
+  GraphQLList,
+  isInterfaceType,
 } from 'graphql';
 import {
   AMInputFieldConfigMap,
   AMInputObjectType,
-  AMModelField,
-  IAMQuerySelector,
-  AMTypeFactory,
   AMModelType,
+  AMTypeFactory,
 } from '../definitions';
-import { getSelectors } from './querySelectors';
 import {
   defaultObjectFieldVisitorHandler,
   whereTypeVisitorHandler,
 } from './visitorHandlers';
-import { AMWhereACLTypeFactory } from './whereACL';
 
 export class AMWhereTypeFactory extends AMTypeFactory<AMInputObjectType> {
   isApplicable(type: AMModelType) {

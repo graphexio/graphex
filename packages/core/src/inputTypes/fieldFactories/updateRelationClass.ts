@@ -8,8 +8,7 @@ import {
   IAMInputFieldFactory,
   AMInputFieldFactory,
 } from '../../definitions';
-import { AMUpdateManyRelationTypeFactory } from '../updateManyRelation';
-import { AMUpdateOneRelationTypeFactory } from '../updateOneRelation';
+
 import {
   getLastOperation,
   getFieldPath,
@@ -27,13 +26,13 @@ export class AMUpdateRelationFieldFactory extends AMInputFieldFactory {
     const typeWrap = new TypeWrap(field.type);
     const isMany = typeWrap.isMany();
     const isRequired = typeWrap.isRequired();
-    let type = this.schemaInfo.resolveFactoryType(
+    let type = this.configResolver.resolveInputType(
       typeWrap.realType(),
       isMany
-        ? AMUpdateManyRelationTypeFactory
+        ? 'updateManyRelation'
         : // : isRequired
           // ? AMUpdateOneRequiredRelationTypeFactory
-          AMUpdateOneRelationTypeFactory
+          'updateOneRelation'
     );
 
     return <AMInputField>{

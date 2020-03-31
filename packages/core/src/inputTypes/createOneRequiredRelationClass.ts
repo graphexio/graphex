@@ -1,28 +1,23 @@
+import { UserInputError } from 'apollo-server';
+import { isInterfaceType } from 'graphql';
 import R from 'ramda';
-import { AMReadOperation } from '../execution/operations/readOperation';
 import {
   AMInputFieldConfigMap,
   AMInputObjectType,
   AMModelField,
+  AMModelType,
+  AMTypeFactory,
   IAMInputFieldFactory,
   IAMTypeFactory,
 } from '../definitions';
-import { AMCreateTypeFactory } from './create';
-import { AMWhereUniqueTypeFactory } from './whereUnique';
-import { AMDataContext } from '../execution/contexts/data';
-import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
-import { isInterfaceType } from 'graphql';
-import { AMInterfaceCreateTypeFactory } from './interfaceCreate';
 import { AMCreateOperation } from '../execution/operations/createOperation';
-import { UserInputError } from 'apollo-server';
-import { AMInterfaceWhereUniqueTypeFactory } from './interfaceWhereUnique';
+import { AMReadOperation } from '../execution/operations/readOperation';
 
 const isApplicable = (field: AMModelField) => (
   fieldFactory: IAMInputFieldFactory
 ) => fieldFactory.isApplicable(field);
 
-import { AMTypeFactory, AMModelType } from '../definitions';
 export class AMCreateOneRequiredRelationTypeFactory extends AMTypeFactory<
   AMInputObjectType
 > {
@@ -31,14 +26,6 @@ export class AMCreateOneRequiredRelationTypeFactory extends AMTypeFactory<
   }
   getType(modelType: AMModelType) {
     const self: IAMTypeFactory<AMInputObjectType> = this;
-
-    const createTypeFactory = !isInterfaceType(modelType)
-      ? AMCreateTypeFactory
-      : AMInterfaceCreateTypeFactory;
-
-    const whereTypeFactory = !isInterfaceType(modelType)
-      ? AMWhereUniqueTypeFactory
-      : AMInterfaceWhereUniqueTypeFactory;
 
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
@@ -50,10 +37,10 @@ export class AMCreateOneRequiredRelationTypeFactory extends AMTypeFactory<
       fields: () => {
         const fields = <AMInputFieldConfigMap>{
           create: {
-            type: this.schemaInfo.resolveFactoryType(
-              modelType,
-              createTypeFactory
-            ),
+            type: this.configResolver.resolveInputType(modelType, [
+              'create',
+              'interfaceCreate',
+            ]),
             /* For abstract interface we create operations inside AMInterfaceCreateTypeFactory */
             ...(!modelType.mmAbstract
               ? {
@@ -80,10 +67,10 @@ export class AMCreateOneRequiredRelationTypeFactory extends AMTypeFactory<
               : null),
           },
           connect: {
-            type: this.schemaInfo.resolveFactoryType(
-              modelType,
-              whereTypeFactory
-            ),
+            type: this.configResolver.resolveInputType(modelType, [
+              'whereUnique',
+              'interfaceWhereUnique',
+            ]),
             amEnter(node, transaction, stack) {
               const opContext = new AMReadOperation(transaction, {
                 many: false,

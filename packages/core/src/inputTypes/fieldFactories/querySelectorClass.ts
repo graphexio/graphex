@@ -1,20 +1,10 @@
-import {
-  getNamedType,
-  GraphQLInputType,
-  ObjectFieldNode,
-  ASTNode,
-} from 'graphql';
+import { ASTNode, GraphQLInputType } from 'graphql';
 import R from 'ramda';
-import {
-  AMInputField,
-  AMInputFieldFactory,
-  AMModelField,
-  AMVisitorStack,
-} from '../../definitions';
+import { AMModelField, AMVisitorStack } from '../../definitions';
 import { AMObjectFieldContext } from '../../execution/contexts/objectField';
 import { AMSelectorContext } from '../../execution/contexts/selector';
-import { AMQuerySelectorComplexFieldFactory } from './querySelectorComplexClass';
 import { AMTransaction } from '../../execution/transaction';
+import { AMQuerySelectorComplexFieldFactory } from './querySelectorComplexClass';
 
 export abstract class AMQuerySelectorFieldFactory extends AMQuerySelectorComplexFieldFactory {
   abstract getFieldType(field: AMModelField): GraphQLInputType;

@@ -4,20 +4,14 @@ import { firstArg } from '../args/first';
 import { skipArg } from '../args/skip';
 import {
   AMField,
+  AMMethodFieldFactory,
   AMModelType,
   GraphQLOperationType,
-  IAMMethodFieldFactory,
-  AMMethodFieldFactory,
 } from '../definitions';
 import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMAggregateOperation } from '../execution/operations/aggregateOperation';
-import { AMWhereTypeFactory } from '../inputTypes/where';
-import { AMWhereACLTypeFactory } from '../inputTypes/whereACL';
 import { resolve } from '../resolve';
 import { lowercaseFirstLetter } from '../utils';
-import { AMConnectionTypeFactory } from '../types/connection';
-import { isInterfaceType } from 'graphql';
-import { AMInterfaceWhereTypeFactory } from '../inputTypes/interfaceWhere';
 
 export class AMModelConnectionQueryFieldFactory extends AMMethodFieldFactory {
   getOperationType() {
@@ -33,10 +27,7 @@ export class AMModelConnectionQueryFieldFactory extends AMMethodFieldFactory {
       name: this.getFieldName(modelType),
       description: '',
       isDeprecated: false,
-      type: this.schemaInfo.resolveFactoryType(
-        modelType,
-        AMConnectionTypeFactory
-      ),
+      type: this.configResolver.resolveType(modelType, 'connection'),
       args: [
         {
           name: 'where',

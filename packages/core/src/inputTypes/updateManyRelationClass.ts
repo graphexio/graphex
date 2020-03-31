@@ -11,9 +11,7 @@ import {
   AMInputFieldConfigMap,
   AMInputObjectType,
 } from '../definitions';
-import { AMCreateTypeFactory } from './create';
-import { AMWhereUniqueTypeFactory } from './whereUnique';
-import { AMInterfaceCreateTypeFactory } from './interfaceCreate';
+
 import { AMCreateOperation } from '../execution/operations/createOperation';
 import { AMListValueContext } from '../execution/contexts/listValue';
 import { AMDataContext } from '../execution/contexts/data';
@@ -23,7 +21,7 @@ import {
   getOperationData,
 } from '../execution/utils';
 import { toArray } from '../utils';
-import { AMInterfaceWhereUniqueTypeFactory } from './interfaceWhereUnique';
+
 import { AMDeleteDBRefOperation } from '../execution/operations/deleteDbRefOperation';
 import { AMResultPromise } from '../execution/resultPromise';
 import { DBRef } from 'mongodb';
@@ -40,15 +38,6 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
     return `${modelType.name}UpdateManyRelationInput`;
   }
   getType(modelType: AMModelType) {
-    const self: IAMTypeFactory<AMInputObjectType> = this;
-    const createTypeFactory = !isInterfaceType(modelType)
-      ? AMCreateTypeFactory
-      : AMInterfaceCreateTypeFactory;
-
-    const whereTypeFactory = !isInterfaceType(modelType)
-      ? AMWhereUniqueTypeFactory
-      : AMInterfaceWhereUniqueTypeFactory;
-
     const typeName = this.getTypeName(modelType);
 
     return new AMInputObjectType({
@@ -57,7 +46,10 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
         const fields = <AMInputFieldConfigMap>{
           create: {
             type: new GraphQLList(
-              this.schemaInfo.resolveFactoryType(modelType, createTypeFactory)
+              this.configResolver.resolveInputType(modelType, [
+                'create',
+                'interfaceCreate',
+              ])
             ),
             /* For abstract interface we make separate operation for each document */
             ...(!modelType.mmAbstract
@@ -107,7 +99,10 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
           },
           recreate: {
             type: new GraphQLList(
-              this.schemaInfo.resolveFactoryType(modelType, createTypeFactory)
+              this.configResolver.resolveInputType(modelType, [
+                'create',
+                'interfaceCreate',
+              ])
             ),
             /* For abstract interface we make separate operation for each document */
             ...(!modelType.mmAbstract
@@ -157,7 +152,10 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
           },
           connect: {
             type: new GraphQLList(
-              this.schemaInfo.resolveFactoryType(modelType, whereTypeFactory)
+              this.configResolver.resolveInputType(modelType, [
+                'whereUnique',
+                'interfaceWhereUnique',
+              ])
             ),
             /* For abstract interface we make separate operation for each document */
             ...(!modelType.mmAbstract
@@ -223,7 +221,10 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
           },
           reconnect: {
             type: new GraphQLList(
-              this.schemaInfo.resolveFactoryType(modelType, whereTypeFactory)
+              this.configResolver.resolveInputType(modelType, [
+                'whereUnique',
+                'interfaceWhereUnique',
+              ])
             ),
             /* For abstract interface we make separate operation for each document */
             ...(!modelType.mmAbstract
@@ -289,7 +290,10 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
           },
           disconnect: {
             type: new GraphQLList(
-              this.schemaInfo.resolveFactoryType(modelType, whereTypeFactory)
+              this.configResolver.resolveInputType(modelType, [
+                'whereUnique',
+                'interfaceWhereUnique',
+              ])
             ),
             ...(!modelType.mmAbstract
               ? {
@@ -311,7 +315,10 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
           },
           delete: {
             type: new GraphQLList(
-              this.schemaInfo.resolveFactoryType(modelType, whereTypeFactory)
+              this.configResolver.resolveInputType(modelType, [
+                'whereUnique',
+                'interfaceWhereUnique',
+              ])
             ),
             ...(!modelType.mmAbstract
               ? {

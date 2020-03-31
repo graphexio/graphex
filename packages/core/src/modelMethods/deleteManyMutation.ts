@@ -1,4 +1,4 @@
-import { GraphQLInt, GraphQLNonNull, isInterfaceType } from 'graphql';
+import { GraphQLInt, GraphQLNonNull } from 'graphql';
 import pluralize from 'pluralize';
 import R from 'ramda';
 import {
@@ -9,8 +9,6 @@ import {
 } from '../definitions';
 import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMDeleteOperation } from '../execution/operations/deleteOperation';
-import { AMInterfaceWhereTypeFactory } from '../inputTypes/interfaceWhere';
-import { AMWhereTypeFactory } from '../inputTypes/where';
 import { resolve } from '../resolve';
 
 export class AMModelDeleteManyMutationFieldFactory extends AMMethodFieldFactory {

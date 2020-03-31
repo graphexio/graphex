@@ -118,6 +118,38 @@ const config = {
           and: 'whereACL',
           or: 'whereACL',
         },
+        dynamicLinks: {
+          _default: {
+            selectors: [
+              'selectorSize',
+              'selectorNotSize',
+              'selectorExists',
+
+              'selectorAll',
+              'selectorExact',
+
+              'selectorIn',
+              'selectorNotIn',
+
+              'selectorSome',
+              'selectorSomeRelation',
+
+              'selectorAsIs',
+              'selectorAsIsRelation',
+
+              'selectorLT',
+              'selectorLTE',
+              'selectorGT',
+              'selectorGTE',
+
+              'selectorNot',
+
+              'selectorContains',
+              'selectorStartsWith',
+              'selectorEndsWith',
+            ],
+          },
+        },
       },
       where: {
         factory: AMWhereTypeFactory,

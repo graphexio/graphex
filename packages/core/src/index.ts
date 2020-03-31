@@ -19,15 +19,13 @@ import { AMConfigResolver } from './config/resolver';
 import { AMModelType, AMOptions, GraphQLOperationType } from './definitions';
 import { AMFederationEntitiesFieldFactory } from './federation/entitiesField';
 import InitialScheme from './initialScheme';
-import { AMModelDeleteManyMutationFieldFactory } from './modelMethods/deleteManyMutation';
-import { AMModelDeleteOneMutationFieldFactory } from './modelMethods/deleteOneMutation';
 import Modules from './modules';
 import { postInit } from './postInit';
 import { prepare } from './prepare/prepare';
 import { makeSchemaInfo } from './schemaInfo';
 import { getDirective } from './utils';
-export * from './definitions';
 export * from './config/defaultConfig';
+export * from './definitions';
 export * from './execution';
 export * from './inputTypes';
 

@@ -1,14 +1,13 @@
-import { GraphQLList } from 'graphql';
+import { getNamedType, GraphQLList } from 'graphql';
 import {
   AMInputFieldConfigMap,
   AMInputObjectType,
   AMModelField,
+  AMModelType,
+  AMTypeFactory,
   IAMQuerySelector,
   IAMTypeFactory,
-  AMTypeFactory,
-  AMModelType,
 } from '../definitions';
-import { getSelectors } from './querySelectors';
 import {
   defaultObjectFieldVisitorHandler,
   whereTypeVisitorHandler,
@@ -49,15 +48,17 @@ export class AMWhereACLTypeFactory extends AMTypeFactory<AMInputObjectType> {
         };
 
         Object.values(modelType.getFields()).forEach(field => {
-          const fieldFactories = field?.mmFieldFactories?.AMCreateTypeFactory
-            ? field.mmFieldFactories.AMWhereTypeFactory
-            : getSelectors()
-                .filter(isApplicable(field))
-                .map(selectorToFieldFactory);
+          const fieldType = getNamedType(field.type) as AMModelType;
+          let links = this.getDynamicLinksForType(fieldType.name).selectors;
+          if (!Array.isArray(links)) links = [links];
+
+          const fieldFactories = this.configResolver
+            .resolveInputFieldFactories(fieldType, links)
+            .filter(factory => factory.isApplicable(field));
 
           fieldFactories.forEach(factory => {
             const fieldName = factory.getFieldName(field);
-            fields[fieldName] = factory.getField(field, this.schemaInfo);
+            fields[fieldName] = factory.getField(field);
           });
         });
 

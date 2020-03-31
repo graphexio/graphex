@@ -1,23 +1,17 @@
-import {
-  GraphQLInputFieldConfig,
-  GraphQLInputObjectType,
-  getNamedType,
-} from 'graphql';
+import { getNamedType, GraphQLInputFieldConfig } from 'graphql';
 import {
   AMInputFieldConfigMap,
   AMInputObjectType,
   AMModelField,
+  AMModelType,
+  AMTypeFactory,
   IAMQuerySelector,
   IAMTypeFactory,
-  AMTypeFactory,
-  AMModelType,
 } from '../definitions';
-import { AsIsSelector } from './querySelectors/asis';
 import {
   defaultObjectFieldVisitorHandler,
   whereTypeVisitorHandler,
 } from './visitorHandlers';
-import { AMWhereACLTypeFactory } from './whereACL';
 
 const isApplicable = (field: AMModelField) => (selector: IAMQuerySelector) =>
   selector.isApplicable(field);

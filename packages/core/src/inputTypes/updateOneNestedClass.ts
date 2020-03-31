@@ -11,9 +11,6 @@ import {
   IAMInputFieldFactory,
   IAMTypeFactory,
 } from '../definitions';
-import { AMCreateTypeFactory } from './create';
-import { AMUpdateTypeFactory } from './update';
-import { AMInterfaceCreateTypeFactory } from './interfaceCreate';
 
 const isApplicable = (field: AMModelField) => (
   fieldFactory: IAMInputFieldFactory
@@ -28,26 +25,19 @@ export class AMUpdateOneNestedTypeFactory extends AMTypeFactory<
     return `${modelType.name}UpdateOneNestedInput`;
   }
   getType(modelType: AMModelType) {
-    const createTypeFactory = !isInterfaceType(modelType)
-      ? AMCreateTypeFactory
-      : AMInterfaceCreateTypeFactory;
-
     const self: IAMTypeFactory<AMInputObjectType> = this;
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
         const fields = {
           create: {
-            type: this.schemaInfo.resolveFactoryType(
-              modelType,
-              createTypeFactory
-            ),
+            type: this.configResolver.resolveInputType(modelType, [
+              'create',
+              'interfaceCreate',
+            ]),
           },
           update: {
-            type: this.schemaInfo.resolveFactoryType(
-              modelType,
-              AMUpdateTypeFactory
-            ),
+            type: this.configResolver.resolveInputType(modelType, ['update']),
           },
         };
 

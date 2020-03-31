@@ -10,10 +10,6 @@ import {
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMCreateOperation } from '../execution/operations/createOperation';
 import { AMReadOperation } from '../execution/operations/readOperation';
-import { AMCreateTypeFactory } from './create';
-import { AMInterfaceCreateTypeFactory } from './interfaceCreate';
-import { AMInterfaceWhereUniqueTypeFactory } from './interfaceWhereUnique';
-import { AMWhereUniqueTypeFactory } from './whereUnique';
 
 export class AMUpdateOneRelationTypeFactory extends AMTypeFactory<
   AMInputObjectType
@@ -22,24 +18,15 @@ export class AMUpdateOneRelationTypeFactory extends AMTypeFactory<
     return `${modelType.name}UpdateOneRelationInput`;
   }
   getType(modelType: AMModelType) {
-    const self: IAMTypeFactory<AMInputObjectType> = this;
-    const createTypeFactory = !isInterfaceType(modelType)
-      ? AMCreateTypeFactory
-      : AMInterfaceCreateTypeFactory;
-
-    const whereTypeFactory = !isInterfaceType(modelType)
-      ? AMWhereUniqueTypeFactory
-      : AMInterfaceWhereUniqueTypeFactory;
-
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
         const fields = <AMInputFieldConfigMap>{
           create: {
-            type: this.schemaInfo.resolveFactoryType(
-              modelType,
-              createTypeFactory
-            ),
+            type: this.configResolver.resolveInputType(modelType, [
+              'create',
+              'interfaceCreate',
+            ]),
             amEnter(node, transaction, stack) {
               const opContext = new AMCreateOperation(transaction, {
                 many: false,
@@ -61,10 +48,10 @@ export class AMUpdateOneRelationTypeFactory extends AMTypeFactory<
             },
           },
           connect: {
-            type: this.schemaInfo.resolveFactoryType(
-              modelType,
-              whereTypeFactory
-            ),
+            type: this.configResolver.resolveInputType(modelType, [
+              'whereUnique',
+              'interfaceWhereUnique',
+            ]),
             amEnter(node, transaction, stack) {
               const opContext = new AMReadOperation(transaction, {
                 many: false,

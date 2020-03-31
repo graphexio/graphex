@@ -2,20 +2,13 @@ import TypeWrap from '@apollo-model/type-wrap';
 import { getNamedType, isCompositeType } from 'graphql';
 import {
   AMInputField,
-  IAMInputFieldFactory,
   AMInputFieldFactory,
   AMModelType,
 } from '../../definitions';
-import { AMUpdateManyNestedTypeFactory } from '../updateManyNested';
-import { AMUpdateOneNestedTypeFactory } from '../updateOneNested';
-import { updateObjectFieldVisitorHandler } from '../visitorHandlers';
 import { AMObjectFieldContext } from '../../execution/contexts/objectField';
-import R from 'ramda';
-import { AMDataContext } from '../../execution/contexts/data';
-import { AMSelectorContext } from '../../execution/contexts/selector';
 import {
-  getLastOperation,
   getFieldPath,
+  getLastOperation,
   getOperationData,
 } from '../../execution/utils';
 

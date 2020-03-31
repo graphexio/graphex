@@ -5,8 +5,6 @@ import {
   AMInputFieldFactory,
   AMModelType,
 } from '../../definitions';
-import { AMCreateManyNestedTypeFactory } from '../createManyNested';
-import { AMCreateOneNestedTypeFactory } from '../createOneNested';
 import { defaultObjectFieldVisitorHandler } from '../visitorHandlers';
 
 export class AMCreateNestedFieldFactory extends AMInputFieldFactory {
