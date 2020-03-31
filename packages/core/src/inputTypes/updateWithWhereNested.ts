@@ -1,10 +1,4 @@
 import { GraphQLInputObjectType } from 'graphql';
-import { AMObjectFieldContext } from '../execution/contexts/objectField';
-import {
-  AMUpdateOperation,
-  ArrayFilter,
-} from '../execution/operations/updateOperation';
-import { getLastOperation } from '../execution/utils';
 import {
   AMInputFieldConfigMap,
   AMInputObjectType,
@@ -12,12 +6,14 @@ import {
   IAMInputFieldFactory,
   IAMTypeFactory,
 } from '../definitions';
+import { AMObjectFieldContext } from '../execution/contexts/objectField';
+import {
+  AMUpdateOperation,
+  ArrayFilter,
+} from '../execution/operations/updateOperation';
+import { getLastOperation } from '../execution/utils';
 import { AMUpdateTypeFactory } from './update';
 import { AMWhereTypeFactory } from './where';
-
-const isApplicable = (field: AMModelField) => (
-  fieldFactory: IAMInputFieldFactory
-) => fieldFactory.isApplicable(field);
 
 export const AMUpdateWithWhereNestedTypeFactory: IAMTypeFactory<GraphQLInputObjectType> = {
   getTypeName(modelType): string {

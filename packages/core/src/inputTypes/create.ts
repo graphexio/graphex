@@ -7,11 +7,13 @@ import {
   AMModelField,
   IAMInputFieldFactory,
   IAMTypeFactory,
+  AMModelType,
 } from '../definitions';
 import { AMCreateFieldFactory } from './fieldFactories/create';
 import { AMCreateNestedFieldFactory } from './fieldFactories/createNested';
 import { AMCreateRelationFieldFactory } from './fieldFactories/createRelation';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
+import { getNamedType } from 'graphql';
 
 const isApplicable = (field: AMModelField) => (
   fieldFactory: IAMInputFieldFactory

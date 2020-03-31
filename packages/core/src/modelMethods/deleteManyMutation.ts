@@ -1,29 +1,26 @@
-import { GraphQLNonNull, GraphQLInt, isInterfaceType } from 'graphql';
+import { GraphQLInt, GraphQLNonNull, isInterfaceType } from 'graphql';
 import pluralize from 'pluralize';
 import R from 'ramda';
-import { AMDeleteOperation } from '../execution/operations/deleteOperation';
-import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
-import { resolve } from '../resolve';
 import {
   AMField,
+  AMMethodFieldFactory,
   AMModelType,
-  IAMFieldFactory,
   GraphQLOperationType,
-  IAMMethodFieldFactory,
 } from '../definitions';
-import { AMWhereTypeFactory } from '../inputTypes/where';
-import { AMWhereACLTypeFactory } from '../inputTypes/whereACL';
 import { AMSelectorContext } from '../execution/contexts/selector';
+import { AMDeleteOperation } from '../execution/operations/deleteOperation';
 import { AMInterfaceWhereTypeFactory } from '../inputTypes/interfaceWhere';
+import { AMWhereTypeFactory } from '../inputTypes/where';
+import { resolve } from '../resolve';
 
-export const AMModelDeleteManyMutationFieldFactory: IAMMethodFieldFactory = {
+export class AMModelDeleteManyMutationFieldFactory extends AMMethodFieldFactory {
   getOperationType() {
     return GraphQLOperationType.Mutation;
-  },
+  }
   getFieldName(modelType: AMModelType): string {
     return R.pipe(pluralize, R.concat('delete'))(modelType.name);
-  },
-  getField(modelType: AMModelType, schemaInfo) {
+  }
+  getField(modelType: AMModelType) {
     return <AMField>{
       name: this.getFieldName(modelType),
       description: '',
@@ -33,12 +30,7 @@ export const AMModelDeleteManyMutationFieldFactory: IAMMethodFieldFactory = {
         {
           name: 'where',
           type: new GraphQLNonNull(
-            schemaInfo.resolveFactoryType(
-              modelType,
-              isInterfaceType(modelType)
-                ? AMInterfaceWhereTypeFactory
-                : AMWhereTypeFactory
-            )
+            this.configResolver.resolveInputType(modelType, this.links.where)
           ),
         },
       ],
@@ -64,5 +56,5 @@ export const AMModelDeleteManyMutationFieldFactory: IAMMethodFieldFactory = {
       },
       resolve: resolve,
     };
-  },
-};
+  }
+}

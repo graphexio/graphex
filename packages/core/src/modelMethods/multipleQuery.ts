@@ -15,7 +15,7 @@ import {
   AMField,
   AMModelType,
   IAMFieldFactory,
-  IAMMethodFieldFactory,
+  AMMethodFieldFactory,
   GraphQLOperationType,
 } from '../definitions';
 import { resolve } from '../resolve';
@@ -26,14 +26,14 @@ import { firstArg } from '../args/first';
 import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMInterfaceWhereTypeFactory } from '../inputTypes/interfaceWhere';
 
-export const AMModelMultipleQueryFieldFactory: IAMMethodFieldFactory = {
+export class AMModelMultipleQueryFieldFactory extends AMMethodFieldFactory {
   getOperationType() {
     return GraphQLOperationType.Query;
-  },
+  }
   getFieldName(modelType: AMModelType): string {
     return R.pipe(pluralize, lowercaseFirstLetter)(modelType.name);
-  },
-  getField(modelType: AMModelType, schemaInfo) {
+  }
+  getField(modelType: AMModelType) {
     return <AMField>{
       name: this.getFieldName(modelType),
       description: '',
@@ -42,16 +42,20 @@ export const AMModelMultipleQueryFieldFactory: IAMMethodFieldFactory = {
       args: [
         {
           name: 'where',
-          type: schemaInfo.resolveFactoryType(
+          type: this.configResolver.resolveInputType(
             modelType,
-            isInterfaceType(modelType)
-              ? AMInterfaceWhereTypeFactory
-              : AMWhereTypeFactory
+            this.links.where
           ),
+          // isInterfaceType(modelType)
+          //   ? AMInterfaceWhereTypeFactory
+          //   : AMWhereTypeFactory
         },
         {
           name: 'orderBy',
-          type: schemaInfo.resolveFactoryType(modelType, AMOrderByTypeFactory),
+          type: this.configResolver.resolveInputType(
+            modelType,
+            this.links.orderBy
+          ),
         },
         skipArg,
         firstArg,
@@ -78,5 +82,5 @@ export const AMModelMultipleQueryFieldFactory: IAMMethodFieldFactory = {
       },
       resolve: resolve,
     };
-  },
-};
+  }
+}

@@ -7,6 +7,7 @@ import {
   AMModelType,
   GraphQLOperationType,
   IAMMethodFieldFactory,
+  AMMethodFieldFactory,
 } from '../definitions';
 import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMAggregateOperation } from '../execution/operations/aggregateOperation';
@@ -18,29 +19,30 @@ import { AMConnectionTypeFactory } from '../types/connection';
 import { isInterfaceType } from 'graphql';
 import { AMInterfaceWhereTypeFactory } from '../inputTypes/interfaceWhere';
 
-export const AMModelConnectionQueryFieldFactory: IAMMethodFieldFactory = {
+export class AMModelConnectionQueryFieldFactory extends AMMethodFieldFactory {
   getOperationType() {
     return GraphQLOperationType.Query;
-  },
+  }
   getFieldName(modelType: AMModelType): string {
     return R.pipe(pluralize, lowercaseFirstLetter, R.concat)(modelType.name)(
       'Connection'
     );
-  },
-  getField(modelType: AMModelType, schemaInfo) {
+  }
+  getField(modelType: AMModelType) {
     return <AMField>{
       name: this.getFieldName(modelType),
       description: '',
       isDeprecated: false,
-      type: schemaInfo.resolveFactoryType(modelType, AMConnectionTypeFactory),
+      type: this.schemaInfo.resolveFactoryType(
+        modelType,
+        AMConnectionTypeFactory
+      ),
       args: [
         {
           name: 'where',
-          type: schemaInfo.resolveFactoryType(
+          type: this.configResolver.resolveInputType(
             modelType,
-            isInterfaceType(modelType)
-              ? AMInterfaceWhereTypeFactory
-              : AMWhereTypeFactory
+            this.links.where
           ),
         },
         // {
@@ -72,5 +74,5 @@ export const AMModelConnectionQueryFieldFactory: IAMMethodFieldFactory = {
       },
       resolve: resolve,
     };
-  },
-};
+  }
+}

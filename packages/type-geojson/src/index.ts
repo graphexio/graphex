@@ -5,6 +5,7 @@ import { AMGeoJSONUpdateFieldFactory } from './update';
 import { AMGeoJSONNearFieldFactory } from './whereNear';
 import { AMGeoJSONWithinFieldFactory } from './whereWithin';
 import { AMGeoJSONIntersectsFieldFactory } from './whereIntersects';
+export * from './config';
 
 const toRadians = num => {
   return (num * Math.PI) / 180;
@@ -81,26 +82,26 @@ export const typeDef = gql`
   }
 `;
 
-export const fieldFactoriesMap = {
-  GeoJSONPoint: {
-    AMCreateTypeFactory: [AMGeoJSONCreateFieldFactory],
-    AMUpdateTypeFactory: [AMGeoJSONUpdateFieldFactory],
-    AMWhereTypeFactory: [
-      AMGeoJSONNearFieldFactory,
-      AMGeoJSONWithinFieldFactory,
-      AMGeoJSONIntersectsFieldFactory,
-    ],
-  },
-  GeoJSONPolygon: {
-    AMCreateTypeFactory: [AMGeoJSONCreateFieldFactory],
-    AMUpdateTypeFactory: [AMGeoJSONUpdateFieldFactory],
-    AMWhereTypeFactory: [
-      AMGeoJSONNearFieldFactory,
-      AMGeoJSONWithinFieldFactory,
-      AMGeoJSONIntersectsFieldFactory,
-    ],
-  },
-};
+// export const fieldFactoriesMap = {
+//   GeoJSONPoint: {
+//     AMCreateTypeFactory: [AMGeoJSONCreateFieldFactory],
+//     AMUpdateTypeFactory: [AMGeoJSONUpdateFieldFactory],
+//     AMWhereTypeFactory: [
+//       AMGeoJSONNearFieldFactory,
+//       AMGeoJSONWithinFieldFactory,
+//       AMGeoJSONIntersectsFieldFactory,
+//     ],
+//   },
+//   GeoJSONPolygon: {
+//     AMCreateTypeFactory: [AMGeoJSONCreateFieldFactory],
+//     AMUpdateTypeFactory: [AMGeoJSONUpdateFieldFactory],
+//     AMWhereTypeFactory: [
+//       AMGeoJSONNearFieldFactory,
+//       AMGeoJSONWithinFieldFactory,
+//       AMGeoJSONIntersectsFieldFactory,
+//     ],
+//   },
+// };
 
 export const fieldVisitorEventsMap = {
   GeoJSONPointNearInput: {

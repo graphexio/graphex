@@ -9,18 +9,19 @@ import { AMObjectFieldContext } from '@apollo-model/core/lib/execution/contexts/
 import { AMDataContext } from '@apollo-model/core/lib/execution/contexts/data';
 import { AMSelectorContext } from '@apollo-model/core/lib/execution/contexts/selector';
 import { UserInputError } from 'apollo-server';
+import { AMInputFieldFactory } from '@apollo-model/core';
 
-export const AMGeoJSONIntersectsFieldFactory: IAMInputFieldFactory = {
+export class AMGeoJSONIntersectsFieldFactory extends AMInputFieldFactory {
   isApplicable(field) {
     return true;
-  },
+  }
   getFieldName(field) {
     return `${field.name}_intersects`;
-  },
-  getField(field, schemaInfo) {
+  }
+  getField(field) {
     return <AMInputField>{
       name: this.getFieldName(field),
-      type: schemaInfo.schema.getTypeMap().GeoJSONIntersectsInput,
+      type: this.schemaInfo.schema.getTypeMap().GeoJSONIntersectsInput,
 
       amEnter(node: ObjectFieldNode, transaction, stack) {
         const action = new AMObjectFieldContext(field.dbName);
@@ -46,5 +47,5 @@ export const AMGeoJSONIntersectsFieldFactory: IAMInputFieldFactory = {
         }
       },
     };
-  },
-};
+  }
+}

@@ -1,25 +1,22 @@
+import { AMInputFieldFactory } from '@apollo-model/core';
+import { AMDataContext } from '@apollo-model/core/lib/execution/contexts/data';
+import { AMObjectFieldContext } from '@apollo-model/core/lib/execution/contexts/objectField';
+import { AMSelectorContext } from '@apollo-model/core/lib/execution/contexts/selector';
+import { AMInputField } from '@apollo-model/core/src/definitions';
 import { ObjectFieldNode } from 'graphql';
 import R from 'ramda';
-import { defaultObjectFieldVisitorHandler } from '@apollo-model/core/lib/inputTypes/visitorHandlers';
-import {
-  AMInputField,
-  IAMInputFieldFactory,
-} from '@apollo-model/core/src/definitions';
-import { AMObjectFieldContext } from '@apollo-model/core/lib/execution/contexts/objectField';
-import { AMDataContext } from '@apollo-model/core/lib/execution/contexts/data';
-import { AMSelectorContext } from '@apollo-model/core/lib/execution/contexts/selector';
 
-export const AMGeoJSONNearFieldFactory: IAMInputFieldFactory = {
+export class AMGeoJSONNearFieldFactory extends AMInputFieldFactory {
   isApplicable(field) {
     return true;
-  },
+  }
   getFieldName(field) {
     return `${field.name}_near`;
-  },
-  getField(field, schemaInfo) {
+  }
+  getField(field) {
     return <AMInputField>{
       name: this.getFieldName(field),
-      type: schemaInfo.schema.getTypeMap().GeoJSONPointNearInput,
+      type: this.schemaInfo.schema.getTypeMap().GeoJSONPointNearInput,
       //   ...defaultObjectFieldVisitorHandler(field.dbName),
       amEnter(node: ObjectFieldNode, transaction, stack) {
         const action = new AMObjectFieldContext(field.dbName);
@@ -53,5 +50,5 @@ export const AMGeoJSONNearFieldFactory: IAMInputFieldFactory = {
         }
       },
     };
-  },
-};
+  }
+}
