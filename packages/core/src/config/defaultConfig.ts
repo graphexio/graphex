@@ -51,6 +51,8 @@ import { AMModelUpdateMutationFieldFactory } from '../modelMethods/updateMutatio
 import { AMModelDeleteOneMutationFieldFactory } from '../modelMethods/deleteOneMutation';
 import { AMModelDeleteManyMutationFieldFactory } from '../modelMethods/deleteManyMutation';
 import { AMOrderByTypeFactory } from '../inputTypes/orderByClass';
+import { AMConnectionTypeFactory } from '../types/connectionClass';
+import { AMAggregateTypeFactory } from '../types/aggregateClass';
 
 const config = {
   _default: {
@@ -99,6 +101,14 @@ const config = {
         links: {
           where: ['where', 'interfaceWhere'],
         },
+      },
+    },
+    typeFactories: {
+      aggregate: {
+        factory: AMAggregateTypeFactory,
+      },
+      connection: {
+        factory: AMConnectionTypeFactory,
       },
     },
     inputTypeFactories: {

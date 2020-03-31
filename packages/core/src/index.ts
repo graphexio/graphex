@@ -189,12 +189,18 @@ export default class ModelMongo {
     let schema = makeGraphQLSchema(modelParams);
     // let schema = buildFederatedSchema(modules);
 
-    prepare(schema, { fieldFactoriesMap, fieldVisitorEventsMap });
-
     const schemaInfo = makeSchemaInfo(schema, this.options);
     const configResolver = new AMConfigResolver({
       configs: [this?.options?.config ? this.options.config : defaultConfig],
       schemaInfo,
+    });
+
+    prepare({
+      schema,
+      schemaInfo,
+      configResolver,
+      fieldFactoriesMap,
+      fieldVisitorEventsMap,
     });
 
     Object.values(schema.getTypeMap()).forEach(type => {
@@ -227,7 +233,7 @@ export default class ModelMongo {
       }
     });
 
-    postInit(schema);
+    postInit({ schema, schemaInfo, configResolver });
 
     /* resolve field thunks */
     let initialCount;
