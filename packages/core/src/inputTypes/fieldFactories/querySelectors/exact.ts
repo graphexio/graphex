@@ -1,7 +1,7 @@
 import TypeWrap from '@apollo-model/type-wrap';
 import { getNamedType, GraphQLList, isCompositeType } from 'graphql';
 import { AMModelField, AMModelType } from '../../../definitions';
-import { AMQuerySelectorFieldFactory } from '../../fieldFactories/querySelectorClass';
+import { AMQuerySelectorFieldFactory } from '../querySelector';
 import { makeArray } from '../utils';
 
 export class ExactSelector extends AMQuerySelectorFieldFactory {

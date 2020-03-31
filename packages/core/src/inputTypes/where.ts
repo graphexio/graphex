@@ -1,41 +1,38 @@
-import { GraphQLList, GraphQLInputFieldConfig } from 'graphql';
+import {
+  getNamedType,
+  GraphQLInputFieldConfig,
+  GraphQLList,
+  isInterfaceType,
+} from 'graphql';
 import {
   AMInputFieldConfigMap,
   AMInputObjectType,
-  AMModelField,
-  IAMQuerySelector,
-  IAMTypeFactory,
+  AMModelType,
+  AMTypeFactory,
 } from '../definitions';
-import { getSelectors } from './querySelectors';
 import {
   defaultObjectFieldVisitorHandler,
   whereTypeVisitorHandler,
 } from './visitorHandlers';
-import { AMWhereACLTypeFactory } from './whereACL';
 
-const isApplicable = (field: AMModelField) => (selector: IAMQuerySelector) =>
-  selector.isApplicable(field);
-
-const selectorToFieldFactory = (selector: IAMQuerySelector) => {
-  return selector.getFieldFactory();
-};
-
-export const AMWhereTypeFactory: IAMTypeFactory<AMInputObjectType> = {
-  getTypeName(modelType): string {
+export class AMWhereTypeFactory extends AMTypeFactory<AMInputObjectType> {
+  isApplicable(type: AMModelType) {
+    return !isInterfaceType(type);
+  }
+  getTypeName(modelType: AMModelType): string {
     return `${modelType.name}WhereInput`;
-  },
-  getType(modelType, schemaInfo) {
-    const self: IAMTypeFactory<AMInputObjectType> = this;
+  }
+  getType(modelType: AMModelType) {
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
         const fields = <AMInputFieldConfigMap>{};
 
-        if (schemaInfo.options.aclWhere) {
+        if (this.schemaInfo.options.aclWhere) {
           fields.aclWhere = <GraphQLInputFieldConfig>{
-            type: schemaInfo.resolveFactoryType(
+            type: this.configResolver.resolveInputType(
               modelType,
-              AMWhereACLTypeFactory
+              this.links.whereACL
             ),
             ...defaultObjectFieldVisitorHandler('aclWhere'),
           };
@@ -43,27 +40,29 @@ export const AMWhereTypeFactory: IAMTypeFactory<AMInputObjectType> = {
 
         fields.AND = {
           type: new GraphQLList(
-            schemaInfo.resolveFactoryType(modelType, AMWhereTypeFactory)
+            this.configResolver.resolveInputType(modelType, this.links.and)
           ),
           ...defaultObjectFieldVisitorHandler('$and'),
         };
         fields.OR = {
           type: new GraphQLList(
-            schemaInfo.resolveFactoryType(modelType, AMWhereTypeFactory)
+            this.configResolver.resolveInputType(modelType, this.links.or)
           ),
           ...defaultObjectFieldVisitorHandler('$or'),
         };
 
         Object.values(modelType.getFields()).forEach(field => {
-          const fieldFactories = field?.mmFieldFactories?.AMWhereTypeFactory
-            ? field.mmFieldFactories.AMWhereTypeFactory
-            : getSelectors()
-                .filter(isApplicable(field))
-                .map(selectorToFieldFactory);
+          const fieldType = getNamedType(field.type) as AMModelType;
+          let links = this.getDynamicLinksForType(fieldType.name).selectors;
+          if (!Array.isArray(links)) links = [links];
+
+          const fieldFactories = this.configResolver
+            .resolveInputFieldFactories(fieldType, links)
+            .filter(factory => factory.isApplicable(field));
 
           fieldFactories.forEach(factory => {
             const fieldName = factory.getFieldName(field);
-            fields[fieldName] = factory.getField(field, schemaInfo);
+            fields[fieldName] = factory.getField(field);
           });
         });
 
@@ -71,5 +70,5 @@ export const AMWhereTypeFactory: IAMTypeFactory<AMInputObjectType> = {
       },
       ...whereTypeVisitorHandler(),
     });
-  },
-};
+  }
+}

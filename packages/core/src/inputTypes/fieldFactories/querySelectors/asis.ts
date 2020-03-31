@@ -15,7 +15,7 @@ import {
 import { AMObjectFieldContext } from '../../../execution/contexts/objectField';
 import { AMSelectorContext } from '../../../execution/contexts/selector';
 import { AMTransaction } from '../../../execution/transaction';
-import { AMQuerySelectorComplexFieldFactory } from '../querySelectorComplexClass';
+import { AMQuerySelectorComplexFieldFactory } from '../querySelectorComplex';
 
 export class AsIsSelector extends AMQuerySelectorComplexFieldFactory {
   isApplicable(field: AMModelField) {

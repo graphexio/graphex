@@ -1,6 +1,6 @@
 import { getNamedType, isCompositeType } from 'graphql';
 import { AMModelField } from '../../../definitions';
-import { AMQuerySelectorFieldFactory } from '../querySelectorClass';
+import { AMQuerySelectorFieldFactory } from '../querySelector';
 
 export class GTESelector extends AMQuerySelectorFieldFactory {
   isApplicable(field: AMModelField) {

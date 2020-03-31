@@ -5,7 +5,7 @@ import {
   AMModelField,
   AMModelType,
 } from '../../../definitions';
-import { AMQuerySelectorFieldFactory } from '../querySelectorClass';
+import { AMQuerySelectorFieldFactory } from '../querySelector';
 import { AMWhereCleanTypeFactory } from '../../whereClean';
 import { makeArray } from '../utils';
 

@@ -4,7 +4,7 @@ import { AMModelField, AMVisitorStack } from '../../definitions';
 import { AMObjectFieldContext } from '../../execution/contexts/objectField';
 import { AMSelectorContext } from '../../execution/contexts/selector';
 import { AMTransaction } from '../../execution/transaction';
-import { AMQuerySelectorComplexFieldFactory } from './querySelectorComplexClass';
+import { AMQuerySelectorComplexFieldFactory } from './querySelectorComplex';
 
 export abstract class AMQuerySelectorFieldFactory extends AMQuerySelectorComplexFieldFactory {
   abstract getFieldType(field: AMModelField): GraphQLInputType;

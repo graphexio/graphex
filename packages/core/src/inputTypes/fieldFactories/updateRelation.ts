@@ -1,17 +1,9 @@
 import TypeWrap from '@apollo-model/type-wrap';
-import R from 'ramda';
-import { AMDataContext } from '../../execution/contexts/data';
+import { AMInputField, AMInputFieldFactory } from '../../definitions';
 import { AMObjectFieldContext } from '../../execution/contexts/objectField';
-import { AMResultPromise } from '../../execution/resultPromise';
 import {
-  AMInputField,
-  IAMInputFieldFactory,
-  AMInputFieldFactory,
-} from '../../definitions';
-
-import {
-  getLastOperation,
   getFieldPath,
+  getLastOperation,
   getOperationData,
 } from '../../execution/utils';
 

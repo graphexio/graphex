@@ -1,7 +1,7 @@
 import TypeWrap from '@apollo-model/type-wrap';
 import { GraphQLBoolean } from 'graphql';
 import { AMModelField } from '../../../definitions';
-import { AMQuerySelectorFieldFactory } from '../../fieldFactories/querySelectorClass';
+import { AMQuerySelectorFieldFactory } from '../querySelector';
 
 export class ExistsSelector extends AMQuerySelectorFieldFactory {
   isApplicable(field: AMModelField) {

@@ -5,7 +5,7 @@ import {
   isEnumType,
 } from 'graphql';
 import { AMModelField, AMModelType } from '../../../definitions';
-import { AMQuerySelectorFieldFactory } from '../querySelectorClass';
+import { AMQuerySelectorFieldFactory } from '../querySelector';
 import { makeArray } from '../utils';
 
 export class NotInSelector extends AMQuerySelectorFieldFactory {

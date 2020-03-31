@@ -10,7 +10,7 @@ import {
   AMModelField,
   AMModelType,
 } from '../../../definitions';
-import { AMQuerySelectorFieldFactory } from '../../fieldFactories/querySelectorClass';
+import { AMQuerySelectorFieldFactory } from '../querySelector';
 import { AMWhereCleanTypeFactory } from '../../whereClean';
 import { makeArray } from '../utils';
 
