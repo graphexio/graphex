@@ -1,4 +1,4 @@
-import { AMInputFieldFactory } from '@apollo-model/core';
+import { AMInputFieldFactory, AMModelField } from '@apollo-model/core';
 import { AMDataContext } from '@apollo-model/core/lib/execution/contexts/data';
 import { AMObjectFieldContext } from '@apollo-model/core/lib/execution/contexts/objectField';
 import { AMSelectorContext } from '@apollo-model/core/lib/execution/contexts/selector';
@@ -7,14 +7,14 @@ import { ObjectFieldNode } from 'graphql';
 import R from 'ramda';
 
 export class AMGeoJSONNearFieldFactory extends AMInputFieldFactory {
-  isApplicable(field) {
+  isApplicable() {
     return true;
   }
-  getFieldName(field) {
+  getFieldName(field: AMModelField) {
     return `${field.name}_near`;
   }
   getField(field) {
-    return <AMInputField>{
+    return {
       name: this.getFieldName(field),
       type: this.schemaInfo.schema.getTypeMap().GeoJSONPointNearInput,
       //   ...defaultObjectFieldVisitorHandler(field.dbName),
@@ -30,7 +30,7 @@ export class AMGeoJSONNearFieldFactory extends AMInputFieldFactory {
           lastInStack instanceof AMDataContext ||
           lastInStack instanceof AMSelectorContext
         ) {
-          let value = context.value as {
+          const value = context.value as {
             geometry: [number, number];
             minDistance?: number;
             maxDistance?: number;
@@ -49,6 +49,6 @@ export class AMGeoJSONNearFieldFactory extends AMInputFieldFactory {
           });
         }
       },
-    };
+    } as AMInputField;
   }
 }

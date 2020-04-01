@@ -14,7 +14,7 @@ export const fieldFactories = (
   Object.values(schema.getTypeMap()).forEach((type: AMModelType) => {
     if (isObjectType(type) || isInterfaceType(type)) {
       Object.values(type.getFields()).forEach((field: AMModelField) => {
-        let fieldType = getNamedType(field.type);
+        const fieldType = getNamedType(field.type);
         if (fieldFactoriesMap[fieldType.name]) {
           field.mmFieldFactories = fieldFactoriesMap[fieldType.name];
         }

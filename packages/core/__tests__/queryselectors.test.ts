@@ -48,7 +48,7 @@ describe('simple schema', () => {
 
   describe('array selectors', () => {
     test('size', () => {
-      let selector = getSelector(
+      const selector = getSelector(
         gql`
           {
             posts(where: { comments_size: 1 }) {
@@ -62,7 +62,7 @@ describe('simple schema', () => {
     });
 
     test('not_size', () => {
-      let selector = getSelector(
+      const selector = getSelector(
         gql`
           {
             posts(where: { comments_not_size: 1 }) {
@@ -76,7 +76,7 @@ describe('simple schema', () => {
     });
 
     test('exists', () => {
-      let selector = getSelector(
+      const selector = getSelector(
         gql`
           {
             posts(where: { comments_exists: true }) {
@@ -90,7 +90,7 @@ describe('simple schema', () => {
     });
 
     test('all for scalar 1', () => {
-      let selector = getSelector(
+      const selector = getSelector(
         gql`
           {
             posts(where: { tags_all: ["apollo-model"] }) {
@@ -106,7 +106,7 @@ describe('simple schema', () => {
     });
 
     test('all for scalar 2', () => {
-      let selector = getSelector(
+      const selector = getSelector(
         gql`
           {
             posts(where: { tags_all: "apollo-model" }) {
@@ -122,7 +122,7 @@ describe('simple schema', () => {
     });
 
     test('all for embedded', () => {
-      let selector = getSelector(
+      const selector = getSelector(
         gql`
           {
             posts(where: { comments_all: { message: "test message" } }) {
@@ -138,7 +138,7 @@ describe('simple schema', () => {
     });
 
     test('exact', () => {
-      let selector = getSelector(
+      const selector = getSelector(
         gql`
           {
             posts(where: { comments_exact: { message: "test message" } }) {
@@ -154,7 +154,7 @@ describe('simple schema', () => {
     });
 
     test('in', () => {
-      let selector = getSelector(
+      const selector = getSelector(
         gql`
           {
             posts(where: { comments_in: { message: "test message" } }) {
@@ -170,7 +170,7 @@ describe('simple schema', () => {
     });
 
     test('not_in', () => {
-      let selector = getSelector(
+      const selector = getSelector(
         gql`
           {
             posts(where: { comments_not_in: { message: "test message" } }) {
@@ -186,7 +186,7 @@ describe('simple schema', () => {
     });
 
     test('some', () => {
-      let selector = getSelector(
+      const selector = getSelector(
         gql`
           {
             posts(where: { comments_some: { message: "test message" } }) {
@@ -204,7 +204,7 @@ describe('simple schema', () => {
 
   describe('nested selectors', () => {
     test('some nested', () => {
-      let selector = getSelector(
+      const selector = getSelector(
         gql`
           {
             posts(where: { comments_some: { likes_some: { id: "USERID" } } }) {
@@ -220,7 +220,7 @@ describe('simple schema', () => {
     });
 
     test('asis nested', () => {
-      let selector = getSelector(
+      const selector = getSelector(
         gql`
           {
             posts(where: { pinnedComment: { user: { id: "USERID" } } }) {
@@ -238,7 +238,7 @@ describe('simple schema', () => {
 
   describe('scalar selectors', () => {
     test('asis', () => {
-      let selector = getSelector(
+      const selector = getSelector(
         gql`
           {
             posts(where: { title: "test-title" }) {
@@ -252,7 +252,7 @@ describe('simple schema', () => {
     });
 
     test('in', () => {
-      let selector = getSelector(
+      const selector = getSelector(
         gql`
           {
             posts(where: { title_in: ["title1", "title2"] }) {
@@ -268,7 +268,7 @@ describe('simple schema', () => {
     });
 
     test('exists', () => {
-      let selector = getSelector(
+      const selector = getSelector(
         gql`
           {
             posts(where: { title_exists: true }) {
@@ -282,7 +282,7 @@ describe('simple schema', () => {
     });
 
     test('lt', () => {
-      let selector = getSelector(
+      const selector = getSelector(
         gql`
           {
             posts(where: { num_lt: 10 }) {
@@ -296,7 +296,7 @@ describe('simple schema', () => {
     });
 
     test('lte', () => {
-      let selector = getSelector(
+      const selector = getSelector(
         gql`
           {
             posts(where: { num_lte: 10 }) {
@@ -310,7 +310,7 @@ describe('simple schema', () => {
     });
 
     test('gt', () => {
-      let selector = getSelector(
+      const selector = getSelector(
         gql`
           {
             posts(where: { num_gt: 10 }) {
@@ -324,7 +324,7 @@ describe('simple schema', () => {
     });
 
     test('gte', () => {
-      let selector = getSelector(
+      const selector = getSelector(
         gql`
           {
             posts(where: { num_gte: 10 }) {
@@ -338,7 +338,7 @@ describe('simple schema', () => {
     });
 
     test('not', () => {
-      let selector = getSelector(
+      const selector = getSelector(
         gql`
           {
             posts(where: { num_not: 10 }) {
@@ -352,7 +352,7 @@ describe('simple schema', () => {
     });
 
     test('contains', () => {
-      let selector = getSelector(
+      const selector = getSelector(
         gql`
           {
             posts(where: { title_contains: "title" }) {
@@ -366,7 +366,7 @@ describe('simple schema', () => {
     });
 
     test('starts_with', () => {
-      let selector = getSelector(
+      const selector = getSelector(
         gql`
           {
             posts(where: { title_starts_with: "title" }) {
@@ -380,7 +380,7 @@ describe('simple schema', () => {
     });
 
     test('ends_with', () => {
-      let selector = getSelector(
+      const selector = getSelector(
         gql`
           {
             posts(where: { title_ends_with: "title" }) {
@@ -396,7 +396,7 @@ describe('simple schema', () => {
 
   describe('variables', () => {
     test('string', () => {
-      let selector = getSelector(
+      const selector = getSelector(
         gql`
           query GetPosts($title: String) {
             posts(where: { title: $title }) {
@@ -411,7 +411,7 @@ describe('simple schema', () => {
     });
 
     test('object', () => {
-      let selector = getSelector(
+      const selector = getSelector(
         gql`
           query GetPosts($where: PostWhereInput) {
             posts(where: $where) {
@@ -454,7 +454,7 @@ describe('relations', () => {
   const getSelector = getSelectorFactory(schema);
 
   test('some', () => {
-    let selector = getSelector(
+    const selector = getSelector(
       gql`
         {
           posts(where: { comments_some: { message: "test message" } }) {
@@ -490,7 +490,7 @@ describe('relations', () => {
     const getSelector = getSelectorFactory(schema);
 
     test('in', () => {
-      let selector = getSelector(
+      const selector = getSelector(
         gql`
           {
             users(where: { role_in: [admin] }) {

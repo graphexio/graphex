@@ -24,9 +24,9 @@ test.each([
   ['U', [false, false, false, false, false, false, true]],
   ['D', [false, false, false, false, true, true, false]],
 ])('modelAccess %s', (permission, resultmask) => {
-  let modelName = 'Brand';
-  let rule = modelDefaultActions(modelName, permission)(schema);
-  let modelType = schema.getType(modelName) as AMModelType;
+  const modelName = 'Brand';
+  const rule = modelDefaultActions(modelName, permission)(schema);
+  const modelType = schema.getType(modelName) as AMModelType;
 
   [
     defaultConfig._default.methodFactories.singleQuery.factory,

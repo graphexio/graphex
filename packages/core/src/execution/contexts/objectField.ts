@@ -5,7 +5,7 @@ export class AMObjectFieldContext extends AMContext {
   fieldName: string;
   field: AMModelField;
   value: AMObjectFieldValueType;
-  nested: boolean = false;
+  nested = false;
 
   constructor(fieldName?: string, field?: AMModelField) {
     super();

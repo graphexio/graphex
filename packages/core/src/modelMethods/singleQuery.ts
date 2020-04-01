@@ -1,15 +1,11 @@
-import { isInterfaceType } from 'graphql';
 import {
   AMField,
+  AMMethodFieldFactory,
   AMModelType,
   GraphQLOperationType,
-  IAMMethodFieldFactory,
-  AMMethodFieldFactory,
 } from '../definitions';
 import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMReadOperation } from '../execution/operations/readOperation';
-import { AMInterfaceWhereUniqueTypeFactory } from '../inputTypes/interfaceWhereUnique';
-import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
 import { resolve } from '../resolve';
 import { lowercaseFirstLetter } from '../utils';
 

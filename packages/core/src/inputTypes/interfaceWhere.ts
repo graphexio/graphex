@@ -1,19 +1,11 @@
-import {
-  GraphQLInputObjectType,
-  GraphQLInterfaceType,
-  isInterfaceType,
-} from 'graphql';
+import { GraphQLInterfaceType, isInterfaceType } from 'graphql';
 import R from 'ramda';
-import { AMCreateOperation } from '../execution/operations/createOperation';
 import {
   AMInputFieldConfig,
   AMInputObjectType,
   AMModelType,
-  IAMTypeFactory,
   AMTypeFactory,
 } from '../definitions';
-import { AMWhereTypeFactory } from './where';
-import { AMOperation } from '../execution/operation';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMReadOperation } from '../execution/operations/readOperation';
 

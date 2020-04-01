@@ -135,7 +135,7 @@ export class AMVisitor {
             if (stackLastItem instanceof AMOperation) {
               stackLastItem.setFieldsSelection(context);
             } else if (stackLastItem instanceof AMFieldsSelectionContext) {
-              let lastField = stackLastItem.fields.pop();
+              const lastField = stackLastItem.fields.pop();
               context.fields.forEach(field => {
                 stackLastItem.fields.push(`${lastField}.${field}`);
               });
@@ -149,7 +149,7 @@ export class AMVisitor {
       },
       [Kind.FIELD]: {
         enter(node) {
-          let fieldName = node.name.value;
+          const fieldName = node.name.value;
           if (fieldName === '__typename') {
             return;
           }
@@ -164,7 +164,7 @@ export class AMVisitor {
           }
         },
         leave(node) {
-          let fieldName = node.name.value;
+          const fieldName = node.name.value;
           if (fieldName === '__typename') {
             return;
           }

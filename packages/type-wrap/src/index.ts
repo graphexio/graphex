@@ -1,14 +1,11 @@
 import {
-  GraphQLInt,
-  GraphQLObjectType,
   GraphQLInputObjectType,
   GraphQLInterfaceType,
   GraphQLList,
-  GraphQLNonNull,
-  GraphQLEnumType,
-  GraphQLBoolean,
-  GraphQLType,
   GraphQLNamedType,
+  GraphQLNonNull,
+  GraphQLObjectType,
+  GraphQLType,
 } from 'graphql';
 import _ from 'lodash';
 

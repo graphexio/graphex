@@ -7,18 +7,19 @@ import {
   AMInputField,
   AMInputFieldFactory,
   AMObjectFieldContext,
+  AMModelField,
 } from '@apollo-model/core';
 import { GraphQLNamedType } from 'graphql';
 
 export class AMGeoJSONUpdateFieldFactory extends AMInputFieldFactory {
-  isApplicable(field) {
+  isApplicable() {
     return true;
   }
-  getFieldName(field) {
+  getFieldName(field: AMModelField) {
     return `${field.name}`;
   }
   getField(field) {
-    return <AMInputField>{
+    return {
       name: this.getFieldName(field),
       type: this.schemaInfo.schema.getType(
         `${(field.type as GraphQLNamedType).name}Input`
@@ -37,6 +38,6 @@ export class AMGeoJSONUpdateFieldFactory extends AMInputFieldFactory {
         data.addValue('$set', set);
         set[path] = context.value;
       },
-    };
+    } as AMInputField;
   }
 }

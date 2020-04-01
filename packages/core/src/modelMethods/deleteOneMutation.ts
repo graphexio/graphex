@@ -1,4 +1,4 @@
-import { GraphQLNonNull, isInterfaceType } from 'graphql';
+import { GraphQLNonNull } from 'graphql';
 import R from 'ramda';
 import {
   AMField,
@@ -8,8 +8,6 @@ import {
 } from '../definitions';
 import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMDeleteOperation } from '../execution/operations/deleteOperation';
-import { AMInterfaceWhereUniqueTypeFactory } from '../inputTypes/interfaceWhereUnique';
-import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
 import { resolve } from '../resolve';
 
 export class AMModelDeleteOneMutationFieldFactory extends AMMethodFieldFactory {

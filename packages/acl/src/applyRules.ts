@@ -18,22 +18,24 @@ export const applyRules = (
   defaults = prepareRules(defaults);
   argsDefaults = prepareRules(argsDefaults);
 
-  let filterFields = SchemaFilter({
+  const filterFields = SchemaFilter({
     filterFields: (type, field) => {
-      let allow = R.anyPass(allowRules)({ type, field, schema });
-      let deny = R.anyPass(denyRules)({ type, field, schema });
+      const allow = R.anyPass(allowRules)({ type, field, schema });
+      const deny = R.anyPass(denyRules)({ type, field, schema });
 
       return allow && !deny;
     },
     defaultFields: (type, field) => {
-      let defaultFn = defaults.find(item => item.cond({ type, field, schema }));
+      const defaultFn = defaults.find(item =>
+        item.cond({ type, field, schema })
+      );
       if (!defaultFn) {
         return undefined;
       }
       return defaultFn.fn;
     },
     defaultArgs: (type, field) => {
-      let defaultFn = argsDefaults.find(item =>
+      const defaultFn = argsDefaults.find(item =>
         item.cond({ type, field, schema })
       );
       if (!defaultFn) {

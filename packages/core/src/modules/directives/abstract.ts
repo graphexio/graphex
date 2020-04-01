@@ -1,8 +1,8 @@
+import { GraphQLObjectType, isObjectType } from 'graphql';
 import gql from 'graphql-tag';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
-import { getDirective } from '../../utils';
 import SDLSyntaxException from '../../sdlSyntaxException';
-import { isObjectType, GraphQLObjectType } from 'graphql';
+import { getDirective } from '../../utils';
 
 export const SHOULD_BE_MODEL = 'shouldBeModel';
 export const ABSTRACT_WITH_MODEL = 'abstractWithModel';

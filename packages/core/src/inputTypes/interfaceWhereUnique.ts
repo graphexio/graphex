@@ -4,18 +4,16 @@ import {
   isInterfaceType,
 } from 'graphql';
 import R from 'ramda';
-import { AMCreateOperation } from '../execution/operations/createOperation';
 import {
   AMInputFieldConfig,
   AMInputObjectType,
+  AMModelType,
+  AMTypeFactory,
   IAMTypeFactory,
 } from '../definitions';
-import { AMWhereUniqueTypeFactory } from './whereUnique';
-import { AMReadOperation } from '../execution/operations/readOperation';
-import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMListValueContext } from '../execution/contexts/listValue';
-
-import { AMTypeFactory, AMModelType } from '../definitions';
+import { AMObjectFieldContext } from '../execution/contexts/objectField';
+import { AMReadOperation } from '../execution/operations/readOperation';
 
 export class AMInterfaceWhereUniqueTypeFactory extends AMTypeFactory<
   GraphQLInputObjectType

@@ -21,7 +21,7 @@ export class AMUpdateNestedFieldFactory extends AMInputFieldFactory {
   }
   getField(field) {
     const typeWrap = new TypeWrap(field.type);
-    let type = this.configResolver.resolveInputType(
+    const type = this.configResolver.resolveInputType(
       typeWrap.realType() as AMModelType,
       typeWrap.isMany() ? this.links.many : this.links.one
     );

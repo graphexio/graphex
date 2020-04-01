@@ -140,7 +140,7 @@ export const transformSchema = (
   newSchema = visitSchema(newSchema, {
     [VisitSchemaKind.OBJECT_TYPE]: (type: GraphQLObjectType) => {
       const interfaces = type.getInterfaces();
-      let filteredInterfaces = interfaces.filter(iface => iface);
+      const filteredInterfaces = interfaces.filter(iface => iface);
 
       if (filteredInterfaces.length === interfaces.length) {
         return undefined;
@@ -199,7 +199,7 @@ export const transformSchema = (
         //   !newSchema.getTypeMap()[type.name] ||
         //   !newSchema.getTypeMap()[type.name].getFields()[field.name]
         // ) {
-        let defaultFn = defaultFields(type, field);
+        const defaultFn = defaultFields(type, field);
         if (defaultFn) {
           transformContext.defaults.add(type, field, defaultFn);
         }
@@ -215,7 +215,7 @@ export const transformSchema = (
         // }
 
         if (defaultArgs) {
-          let defaultArgsFn = defaultArgs(type, field);
+          const defaultArgsFn = defaultArgs(type, field);
           if (defaultArgsFn) {
             transformContext.defaults.addArg(type, field, defaultArgsFn);
           }

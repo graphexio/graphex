@@ -1,39 +1,34 @@
 import { astFromValue } from '@apollo-model/ast-from-value';
-import TypeWrap from '@apollo-model/type-wrap';
 import {
   ArgumentNode,
   FieldNode,
+  GraphQLType,
   InlineFragmentNode,
   Kind,
-  NamedTypeNode,
   ObjectFieldNode,
   OperationDefinitionNode,
   typeFromAST,
-  TypeNode,
   VariableDefinitionNode,
   VariableNode,
-  GraphQLNamedType,
-  GraphQLType,
 } from 'graphql';
 import * as R from 'ramda';
-import { visit } from './visitor';
-
 import {
   capitalizeFirstLetter,
-  mapTypeForTypeStack,
-  getNameValue,
-  getFragmentTypeName,
-  getFields,
-  mapFieldForTypeStack,
   getArgs,
+  getFields,
+  getFragmentTypeName,
+  getNameValue,
   mapArgForTypeStack,
+  mapFieldForTypeStack,
+  mapTypeForTypeStack,
 } from './utils';
+import { visit } from './visitor';
 
 export const transformRequest = (transformOptions, transformContext) => async (
   request,
   options: { context?: any } = {}
 ) => {
-  let variableTypes = {};
+  const variableTypes = {};
   const { variables } = request;
   const typeStack = [];
   const typeStackPush = item => typeStack.push(item);
@@ -58,13 +53,13 @@ export const transformRequest = (transformOptions, transformContext) => async (
           typeStackPush
         )(node.operation);
       },
-      leave: (node: OperationDefinitionNode) => {
+      leave: () => {
         typeStack.pop();
       },
     },
     [Kind.FIELD]: {
       enter: (node: FieldNode) => {
-        let name = getNameValue(node);
+        const name = getNameValue(node);
 
         if (name == '__typename') return;
 
@@ -83,18 +78,18 @@ export const transformRequest = (transformOptions, transformContext) => async (
         )(R.head(R.takeLast(2, typeStack)), R.last(typeStack));
       },
       leave: (node: FieldNode) => {
-        let name = getNameValue(node);
+        const name = getNameValue(node);
         if (name == '__typename') return;
-        const type = typeStack.pop();
-        // return
+        typeStack.pop();
+        return;
       },
     },
     [Kind.INLINE_FRAGMENT]: {
       enter: (node: InlineFragmentNode) => {
-        let name = getFragmentTypeName(node);
+        const name = getFragmentTypeName(node);
         R.pipe(getType, mapTypeForTypeStack, typeStackPush)(name);
       },
-      leave: (node: InlineFragmentNode) => {
+      leave: () => {
         typeStack.pop();
       },
     },
@@ -164,7 +159,9 @@ export const transformRequest = (transformOptions, transformContext) => async (
 
         return null;
       },
-      leave(node: VariableDefinitionNode) {},
+      leave() {
+        return;
+      },
     },
     [Kind.VARIABLE]: {
       enter(node: VariableNode) {
@@ -185,7 +182,7 @@ export const transformRequest = (transformOptions, transformContext) => async (
   };
 
   try {
-    let newDocument = await visit(request.document, visitor);
+    const newDocument = await visit(request.document, visitor);
 
     return {
       ...request,

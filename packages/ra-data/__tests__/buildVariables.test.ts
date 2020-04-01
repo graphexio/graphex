@@ -1,19 +1,17 @@
+import gql from 'graphql-tag';
 import {
+  CREATE,
+  DELETE,
   GET_LIST,
   GET_MANY,
   GET_MANY_REFERENCE,
   GET_ONE,
-  CREATE,
   UPDATE,
-  DELETE,
 } from 'react-admin';
 import buildVariables from '../src/buildVariables';
-import { TypeKind } from 'graphql/type/introspection';
 import { IntrospectionResultData, Resource } from '../src/definitions';
-
-import { prepareIntrospection } from './utils';
-import gql from 'graphql-tag';
 import { IntrospectionResult } from '../src/introspectionResult';
+import { prepareIntrospection } from './utils';
 
 let introspection: IntrospectionResult;
 beforeAll(async () => {
@@ -474,7 +472,6 @@ describe('buildVariables', () => {
         where: { author: { id: 'author1' } },
       });
     });
-
   });
 
   describe('DELETE', () => {

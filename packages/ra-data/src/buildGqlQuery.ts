@@ -1,21 +1,19 @@
 import {
-  TypeKind,
-  parse,
-  IntrospectionField,
-  DocumentNode,
-  IntrospectionType,
-  IntrospectionObjectType,
-  SelectionNode,
-  VariableDefinitionNode,
   ArgumentNode,
+  DocumentNode,
   FieldNode,
+  IntrospectionField,
+  IntrospectionObjectType,
+  parse,
+  SelectionNode,
+  TypeKind,
+  VariableDefinitionNode,
 } from 'graphql';
 import { QUERY_TYPES } from 'ra-data-graphql';
-import { GET_LIST, GET_MANY, GET_MANY_REFERENCE, DELETE } from 'react-admin';
+import { DELETE, GET_LIST, GET_MANY, GET_MANY_REFERENCE } from 'react-admin';
 import { IntrospectionResultData, Resource } from './definitions';
-
-import * as gqlTypes from './utils/gqlTypes';
 import getFinalType from './utils/getFinalType';
+import * as gqlTypes from './utils/gqlTypes';
 import isList from './utils/isList';
 import isRequired from './utils/isRequired';
 
@@ -204,7 +202,7 @@ export default (introspectionResults: IntrospectionResultData) => (
       gqlTypes.operationDefinition(
         'query',
         gqlTypes.selectionSet([
-          gqlTypes.field(gqlTypes.name(queryType.name!), {
+          gqlTypes.field(gqlTypes.name(queryType.name), {
             alias: gqlTypes.name('items'),
             arguments: args,
             selectionSet: gqlTypes.selectionSet(fields),
@@ -221,7 +219,7 @@ export default (introspectionResults: IntrospectionResultData) => (
             ]),
           }),
         ]),
-        gqlTypes.name(queryType.name!),
+        gqlTypes.name(queryType.name),
         apolloArgs
       ),
     ]);
@@ -232,7 +230,7 @@ export default (introspectionResults: IntrospectionResultData) => (
       gqlTypes.operationDefinition(
         'mutation',
         gqlTypes.selectionSet([
-          gqlTypes.field(gqlTypes.name(queryType.name!), {
+          gqlTypes.field(gqlTypes.name(queryType.name), {
             alias: gqlTypes.name('data'),
             arguments: args,
             selectionSet: gqlTypes.selectionSet([
@@ -240,7 +238,7 @@ export default (introspectionResults: IntrospectionResultData) => (
             ]),
           }),
         ]),
-        gqlTypes.name(queryType.name!),
+        gqlTypes.name(queryType.name),
         apolloArgs
       ),
     ]);
@@ -250,13 +248,13 @@ export default (introspectionResults: IntrospectionResultData) => (
     gqlTypes.operationDefinition(
       QUERY_TYPES.includes(aorFetchType) ? 'query' : 'mutation',
       gqlTypes.selectionSet([
-        gqlTypes.field(gqlTypes.name(queryType.name!), {
+        gqlTypes.field(gqlTypes.name(queryType.name), {
           alias: gqlTypes.name('data'),
           arguments: args,
           selectionSet: gqlTypes.selectionSet(fields),
         }),
       ]),
-      gqlTypes.name(queryType.name!),
+      gqlTypes.name(queryType.name),
       apolloArgs
     ),
   ]);

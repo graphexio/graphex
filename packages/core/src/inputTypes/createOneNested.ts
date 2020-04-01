@@ -1,4 +1,4 @@
-import { GraphQLInputObjectType, isInterfaceType } from 'graphql';
+import { GraphQLInputObjectType } from 'graphql';
 import {
   AMInputObjectType,
   AMModelType,

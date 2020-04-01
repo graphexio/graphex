@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
 
 export class TimestampDirective extends SchemaDirectiveVisitor {

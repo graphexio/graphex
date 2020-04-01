@@ -3,7 +3,7 @@ import {
   IntrospectionTypeRef,
   IntrospectionListTypeRef,
   IntrospectionNonNullTypeRef,
-  IntrospectionNamedTypeRef
+  IntrospectionNamedTypeRef,
 } from 'graphql';
 
 /**
@@ -15,7 +15,7 @@ const getFinalType = (
 ): IntrospectionNamedTypeRef => {
   if (type.kind === TypeKind.NON_NULL || type.kind === TypeKind.LIST) {
     return getFinalType(
-      (type as IntrospectionListTypeRef | IntrospectionNonNullTypeRef).ofType!
+      (type as IntrospectionListTypeRef | IntrospectionNonNullTypeRef).ofType
     );
   }
 

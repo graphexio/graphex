@@ -1,15 +1,13 @@
-import { ApolloServer } from 'apollo-server';
-import AMM from '@apollo-model/core';
-import QueryExecutor from '@apollo-model/mongodb-executor';
-import { MongoClient, ObjectID } from 'mongodb';
-import typeDefs from './model';
-import { MongoMemoryServer } from 'mongodb-memory-server';
+import AMM, { defaultConfig } from '@apollo-model/core';
 import * as DirectiveImplements from '@apollo-model/directive-implements';
-import * as TypeGeoJSON from '../src';
-import { defaultConfig } from '@apollo-model/core';
-
+import QueryExecutor from '@apollo-model/mongodb-executor';
+import { ApolloServer } from 'apollo-server';
+import { createTestClient } from 'apollo-server-testing';
+import { MongoClient } from 'mongodb';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 import * as R from 'ramda';
-const util = require('util');
+import * as TypeGeoJSON from '../src';
+import typeDefs from './model';
 
 export default () => {
   let mongod;
@@ -37,19 +35,17 @@ export default () => {
 
       const QE = QueryExecutor(connectToDatabase);
 
-
-const schema = new AMM({
-  modules: [DirectiveImplements, TypeGeoJSON],
-  options: {
-    config: R.mergeDeepRight(defaultConfig, TypeGeoJSON.config),
-  },
-}).makeExecutableSchema({
-  resolverValidationOptions: {
-    requireResolversForResolveType: false,
-  },
-  typeDefs,
-});
-
+      const schema = new AMM({
+        modules: [DirectiveImplements, TypeGeoJSON],
+        options: {
+          config: R.mergeDeepRight(defaultConfig, TypeGeoJSON.config),
+        },
+      }).makeExecutableSchema({
+        resolverValidationOptions: {
+          requireResolversForResolveType: false,
+        },
+        typeDefs,
+      });
 
       const server = new ApolloServer({
         schema,
@@ -58,7 +54,7 @@ const schema = new AMM({
             queryExecutor: async params => {
               // console.log(util.inspect(params, { showHidden: false, depth: null }));
               // console.log(params);
-              let result = await QE(params);
+              const result = await QE(params);
               // console.log('result', result);
               return result;
             },
@@ -73,8 +69,7 @@ const schema = new AMM({
         },
       });
 
-      const { createTestClient } = require('apollo-server-testing');
-      const { query, mutate } = createTestClient(server);
+      const { query, mutate } = createTestClient(server as any);
       return {
         query,
         mutate,

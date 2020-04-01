@@ -26,7 +26,7 @@ export abstract class AMQuerySelectorComplexFieldFactory extends AMInputFieldFac
   getField(field: AMModelField) {
     const self = this;
     const namedType = getNamedType(field.type);
-    let type = this.getFieldType(field);
+    const type = this.getFieldType(field);
 
     return <AMInputField>{
       name: this.getFieldName(field),

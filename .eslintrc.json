@@ -1,0 +1,43 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint",
+    "prettier"
+  ],
+  "extends": [
+    "plugin:@typescript-eslint/recommended",
+    "prettier",
+    "prettier/@typescript-eslint"
+  ],
+  "rules": {
+    "semi": "off",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/semi": [
+      2,
+      "always"
+    ],
+    "max-len": [
+      2,
+      120
+    ],
+    "comma-dangle": [
+      "error",
+      "always-multiline"
+    ],
+    "@typescript-eslint/no-use-before-define": [
+      "error",
+      {
+        "functions": false,
+        "classes": false
+      }
+    ],
+    "@typescript-eslint/camelcase": [
+      "error",
+      {
+        "properties": "never"
+      }
+    ],
+    "prettier/prettier": "error"
+  }
+}

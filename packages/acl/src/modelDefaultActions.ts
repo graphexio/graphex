@@ -32,12 +32,12 @@ export function modelDefaultActions(modelPattern, access): ACLRule {
   return (schema: GraphQLSchema) => {
     const methodFactoryToSignatures = R.curry(
       (modelType: AMModelType, factory: typeof AMMethodFieldFactory) => {
-        let operation =
+        const operation =
           factory.prototype.getOperationType() === GraphQLOperationType.Query
             ? schema.getQueryType()
             : schema.getMutationType();
 
-        let methodName = factory.prototype.getFieldName(modelType);
+        const methodName = factory.prototype.getFieldName(modelType);
         if (operation.getFields()[methodName]) {
           return [`${operation}.${methodName}`];
         } else {

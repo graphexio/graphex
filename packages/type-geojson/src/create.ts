@@ -1,23 +1,24 @@
 import {
-  AMInputField,
   AMInputFieldFactory,
   defaultObjectFieldVisitorHandler,
+  AMModelField,
 } from '@apollo-model/core';
-import { GraphQLNamedType } from 'graphql';
+import { GraphQLInputType, GraphQLNamedType } from 'graphql';
 
 export class AMGeoJSONCreateFieldFactory extends AMInputFieldFactory {
-  isApplicable(field) {
+  isApplicable() {
     return true;
   }
-  getFieldName(field) {
+  getFieldName(field: AMModelField) {
     return `${field.name}`;
   }
-  getField(field) {
-    return <AMInputField>{
+  getField(field: AMModelField) {
+    return {
       name: this.getFieldName(field),
       type: this.schemaInfo.schema.getType(
         `${(field.type as GraphQLNamedType).name}Input`
-      ),
+      ) as GraphQLInputType,
+      extensions: undefined,
       ...defaultObjectFieldVisitorHandler(field.dbName),
     };
   }

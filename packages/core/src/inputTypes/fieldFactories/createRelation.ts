@@ -21,7 +21,7 @@ export class AMCreateRelationFieldFactory extends AMInputFieldFactory {
     const typeWrap = new TypeWrap(field.type);
     const isMany = typeWrap.isMany();
     const isRequired = typeWrap.isRequired();
-    let type = this.configResolver.resolveInputType(
+    const type = this.configResolver.resolveInputType(
       typeWrap.realType() as AMModelType,
       isMany
         ? this.links.many

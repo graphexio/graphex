@@ -32,7 +32,7 @@ export * from './inputTypes';
 const { printSchema } = require('@apollo/federation');
 
 function isAMModelType(type: GraphQLNamedType): type is AMModelType {
-  let typeWrap = new TypeWrap(type);
+  const typeWrap = new TypeWrap(type);
   return (
     getDirective(type, 'model') || typeWrap.interfaceWithDirective('model')
   );
@@ -77,7 +77,7 @@ export default class ModelMongo {
     const schema = this.makeExecutableSchema(params);
 
     Object.values(schema.getTypeMap()).forEach(type => {
-      let typeWrap = new TypeWrap(type);
+      const typeWrap = new TypeWrap(type);
       if (isAMModelType(type)) {
         if (!typeWrap.isAbstract()) {
           Object.values(type.getFields()).map(field => {
@@ -173,7 +173,7 @@ export default class ModelMongo {
       }
     });
 
-    let modelParams = {
+    const modelParams = {
       ...params,
       typeDefs,
       schemaDirectives,
@@ -184,7 +184,7 @@ export default class ModelMongo {
       },
     };
 
-    let schema = makeGraphQLSchema(modelParams);
+    const schema = makeGraphQLSchema(modelParams);
     // let schema = buildFederatedSchema(modules);
 
     const schemaInfo = makeSchemaInfo(schema, this.options);
@@ -204,7 +204,7 @@ export default class ModelMongo {
     Object.values(schema.getTypeMap()).forEach(type => {
       // this._onSchemaInit(type);
 
-      let typeWrap = new TypeWrap(type);
+      const typeWrap = new TypeWrap(type);
       if (isAMModelType(type)) {
         if (!typeWrap.isAbstract()) {
           // console.log(`Building queries for ${type.name}`);
@@ -245,7 +245,7 @@ export default class ModelMongo {
     } while (initialCount !== Object.values(schema.getTypeMap()).length);
     /* resolve field thunks */
 
-    let typesToRemove = [];
+    const typesToRemove = [];
     Object.entries(schema.getTypeMap()).forEach(([name, type]) => {
       if (hasTypeFields(type) && Object.keys(type.getFields()).length == 0) {
         typesToRemove.push(type);
@@ -254,7 +254,7 @@ export default class ModelMongo {
 
     Object.entries(schema.getTypeMap()).forEach(([name, type]) => {
       if (hasTypeFields(type)) {
-        let fields = type.getFields();
+        const fields = type.getFields();
         Object.entries(fields).forEach(([name, field]) => {
           if (typesToRemove.includes(getNamedType(field.type))) {
             delete fields[name];

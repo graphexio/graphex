@@ -1,8 +1,7 @@
 jest.setTimeout(20000);
 
-import prepare from './integration-prepare';
-const _ = require('lodash');
 import gql from 'graphql-tag';
+import prepare from './integration-prepare';
 
 jest.setTimeout(10000);
 
@@ -15,7 +14,7 @@ beforeAll(async () => {
   mutate = instance.mutate;
   connectToDatabase = instance.connectToDatabase;
 
-  let DB = await connectToDatabase();
+  const DB = await connectToDatabase();
   await DB.collection('pois').createIndex({ place: '2dsphere' });
   await DB.collection('area').createIndex({ place: '2dsphere' });
 });
@@ -31,8 +30,8 @@ test('Poi create', async () => {
     [50, 50],
     [50, 0],
   ].forEach(async coordinates => {
-    let coordsStr = coordinates.join(',');
-    let { errors, data } = await mutate({
+    const coordsStr = coordinates.join(',');
+    const { errors, data } = await mutate({
       mutation: gql`
         mutation {
           createPoi(
@@ -65,7 +64,7 @@ test('Poi create', async () => {
 });
 
 test('Create Poi with area', async () => {
-  let { errors, data } = await mutate({
+  const { errors, data } = await mutate({
     mutation: gql`
       mutation {
         createPoi(
@@ -125,7 +124,7 @@ test('Create Poi with area', async () => {
 });
 
 test('Update Poi with area', async () => {
-  let { errors, data } = await query({
+  const { data } = await query({
     query: gql`
       query {
         pois {
@@ -138,7 +137,7 @@ test('Update Poi with area', async () => {
   const poiId = data.pois[0].id;
 
   {
-    let { errors, data } = await mutate({
+    const { errors, data } = await mutate({
       mutation: gql`
         mutation($poiId: ObjectID!) {
           updatePoi(
@@ -180,7 +179,7 @@ test('Update Poi with area', async () => {
 });
 
 test('Near', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       query {
         pois(
@@ -214,7 +213,7 @@ test('Near', async () => {
 
 test('Within', async () => {
   {
-    let { errors, data } = await query({
+    const { errors, data } = await query({
       query: gql`
         query {
           pois(
@@ -247,7 +246,7 @@ test('Within', async () => {
     `);
   }
   {
-    let { errors, data } = await query({
+    const { errors, data } = await query({
       query: gql`
         query {
           pois(
@@ -281,7 +280,7 @@ test('Within', async () => {
 
 test('Intersects', async () => {
   {
-    let { errors, data } = await query({
+    const { errors, data } = await query({
       query: gql`
         query {
           pois(
@@ -307,7 +306,7 @@ test('Intersects', async () => {
     `);
   }
   {
-    let { errors, data } = await query({
+    const { errors, data } = await query({
       query: gql`
         query {
           pois(
@@ -331,7 +330,7 @@ test('Intersects', async () => {
 });
 
 test('Intersects input error', async () => {
-  let { errors, data } = await query({
+  const { errors } = await query({
     query: gql`
       query {
         pois(

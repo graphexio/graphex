@@ -1,13 +1,9 @@
-import {
-  GraphQLInputObjectType,
-  ObjectFieldNode,
-  isInterfaceType,
-} from 'graphql';
-import R from 'ramda';
-import { AMObjectFieldContext } from '../execution/contexts/objectField';
+import { GraphQLInputObjectType } from 'graphql';
 import {
   AMInputObjectType,
   AMModelField,
+  AMModelType,
+  AMTypeFactory,
   IAMInputFieldFactory,
   IAMTypeFactory,
 } from '../definitions';
@@ -15,8 +11,6 @@ import {
 const isApplicable = (field: AMModelField) => (
   fieldFactory: IAMInputFieldFactory
 ) => fieldFactory.isApplicable(field);
-
-import { AMTypeFactory, AMModelType } from '../definitions';
 
 export class AMUpdateOneNestedTypeFactory extends AMTypeFactory<
   GraphQLInputObjectType

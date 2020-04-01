@@ -1,11 +1,9 @@
-import { isInterfaceType } from 'graphql';
 import R from 'ramda';
 import {
   AMInputFieldConfigMap,
   AMInputObjectType,
   AMModelType,
   AMTypeFactory,
-  IAMTypeFactory,
 } from '../definitions';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMCreateOperation } from '../execution/operations/createOperation';

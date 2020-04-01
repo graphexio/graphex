@@ -28,14 +28,14 @@ export const AMFederationEntityTypeFactory: IAMTypeFactory<GraphQLUnionType> = {
   getType(modelType, schemaInfo) {
     const self: IAMTypeFactory<GraphQLUnionType> = this;
 
-    let keyTypes = [];
+    const keyTypes = [];
     // schema._directives = [...schema._directives, ...federationDirectives];
 
     Object.values(schemaInfo.schema.getTypeMap()).forEach(
       (type: AMModelType) => {
         //   this._onSchemaInit(type);
 
-        let typeWrap = new TypeWrap(type);
+        const typeWrap = new TypeWrap(type);
         if (
           (getDirective(type, 'model') ||
             typeWrap.interfaceWithDirective('model')) &&

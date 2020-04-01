@@ -23,9 +23,8 @@ export const buildQueryFactory = () => (
 
     if (!resource) {
       throw new Error(
-        `Unknown resource ${resourceName}. Make sure it has been declared on your server side schema. Known resources are ${knownResources.join(
-          ', '
-        )}`
+        `Unknown resource ${resourceName}. Make sure it has been declared on your server side schema. 
+Known resources are ${knownResources.join(', ')}`
       );
     }
 
@@ -41,7 +40,7 @@ export const buildQueryFactory = () => (
       resource,
       aorFetchType,
       params
-    )!;
+    );
     const query = buildGqlQuery(introspectionResults)(
       resource,
       aorFetchType,

@@ -69,7 +69,7 @@ export class AMUpdateTypeFactory extends AMTypeFactory<AMInputObjectType> {
           data.addValue('$set', set);
 
           modelType.mmUpdatedAtFields.forEach(updatedAtField => {
-            let newPath = R.pipe(
+            const newPath = R.pipe(
               R.split('.'),
               R.reject(R.equals('')),
               R.append(updatedAtField.dbName),

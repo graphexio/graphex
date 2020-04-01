@@ -1,9 +1,4 @@
-import {
-  GraphQLScalarType,
-  Kind,
-  ObjectValueNode,
-  StringValueNode,
-} from 'graphql';
+import { GraphQLScalarType, StringValueNode } from 'graphql';
 import gql from 'graphql-tag';
 
 export const typeDef = gql`

@@ -1,16 +1,13 @@
-import { GraphQLNonNull, isInterfaceType } from 'graphql';
+import { GraphQLNonNull } from 'graphql';
 import R from 'ramda';
 import {
   AMField,
+  AMMethodFieldFactory,
   AMModelType,
   GraphQLOperationType,
-  IAMMethodFieldFactory,
-  AMMethodFieldFactory,
 } from '../definitions';
 import { AMCreateOperation } from '../execution/operations/createOperation';
-import { AMCreateTypeFactory } from '../inputTypes/create';
 import { resolve } from '../resolve';
-import { AMInterfaceCreateTypeFactory } from '../inputTypes/interfaceCreate';
 
 export class AMModelCreateMutationFieldFactory extends AMMethodFieldFactory {
   getOperationType() {

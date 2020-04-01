@@ -1,36 +1,32 @@
-import { GraphQLInputObjectType, GraphQLList, isInterfaceType } from 'graphql';
+import { GraphQLList } from 'graphql';
+import { DBRef } from 'mongodb';
 import R from 'ramda';
-import { AMObjectFieldContext } from '../execution/contexts/objectField';
-import { AMSelectorContext } from '../execution/contexts/selector';
-import { AMReadOperation } from '../execution/operations/readOperation';
 import {
-  AMModelField,
-  IAMInputFieldFactory,
-  IAMTypeFactory,
-  AMInputFieldMap,
   AMInputFieldConfigMap,
   AMInputObjectType,
+  AMModelField,
+  AMModelType,
+  AMTypeFactory,
+  IAMInputFieldFactory,
 } from '../definitions';
-
-import { AMCreateOperation } from '../execution/operations/createOperation';
-import { AMListValueContext } from '../execution/contexts/listValue';
 import { AMDataContext } from '../execution/contexts/data';
+import { AMListValueContext } from '../execution/contexts/listValue';
+import { AMObjectFieldContext } from '../execution/contexts/objectField';
+import { AMSelectorContext } from '../execution/contexts/selector';
+import { AMCreateOperation } from '../execution/operations/createOperation';
+import { AMDeleteDBRefOperation } from '../execution/operations/deleteDbRefOperation';
+import { AMReadOperation } from '../execution/operations/readOperation';
+import { AMResultPromise } from '../execution/resultPromise';
 import {
-  getLastOperation,
   getFieldPath,
+  getLastOperation,
   getOperationData,
 } from '../execution/utils';
-import { toArray } from '../utils';
-
-import { AMDeleteDBRefOperation } from '../execution/operations/deleteDbRefOperation';
-import { AMResultPromise } from '../execution/resultPromise';
-import { DBRef } from 'mongodb';
 
 const isApplicable = (field: AMModelField) => (
   fieldFactory: IAMInputFieldFactory
 ) => fieldFactory.isApplicable(field);
 
-import { AMTypeFactory, AMModelType } from '../definitions';
 export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
   AMInputObjectType
 > {

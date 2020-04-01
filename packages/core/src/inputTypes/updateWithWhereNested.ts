@@ -1,12 +1,9 @@
-import { GraphQLInputObjectType } from 'graphql';
 import {
   AMInputFieldConfigMap,
   AMInputObjectType,
-  AMModelField,
-  IAMInputFieldFactory,
-  IAMTypeFactory,
-  AMTypeFactory,
   AMModelType,
+  AMTypeFactory,
+  IAMTypeFactory,
 } from '../definitions';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import {
@@ -14,8 +11,6 @@ import {
   ArrayFilter,
 } from '../execution/operations/updateOperation';
 import { getLastOperation } from '../execution/utils';
-import { AMUpdateTypeFactory } from './update';
-import { AMWhereTypeFactory } from './where';
 
 export class AMUpdateWithWhereNestedTypeFactory extends AMTypeFactory<
   AMInputObjectType

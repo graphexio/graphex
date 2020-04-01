@@ -1,11 +1,9 @@
-import { GraphQLInputObjectType, GraphQLList, isInterfaceType } from 'graphql';
+import { GraphQLInputObjectType, GraphQLList } from 'graphql';
 import R from 'ramda';
 import {
   AMInputFieldConfigMap,
-  AMModelField,
   AMModelType,
   AMTypeFactory,
-  IAMInputFieldFactory,
   IAMTypeFactory,
 } from '../definitions';
 import { AMListValueContext } from '../execution/contexts/listValue';

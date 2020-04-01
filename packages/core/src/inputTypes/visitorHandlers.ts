@@ -1,12 +1,12 @@
+import { UserInputError } from 'apollo-server';
 import R from 'ramda';
+import { AMModelField, AMVisitable } from '../definitions';
 import { AMDataContext } from '../execution/contexts/data';
 import { AMListValueContext } from '../execution/contexts/listValue';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMOperation } from '../execution/operation';
-import { AMModelField, AMVisitable } from '../definitions';
-import { getLastOperation, getFieldPath } from '../execution/utils';
-import { UserInputError } from 'apollo-server';
+import { getFieldPath, getLastOperation } from '../execution/utils';
 
 export const defaultObjectFieldVisitorHandler = (
   fieldName: string,

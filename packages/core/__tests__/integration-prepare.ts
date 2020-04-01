@@ -50,7 +50,7 @@ export default () => {
             queryExecutor: async params => {
               // console.log(util.inspect(params, { showHidden: false, depth: null }));
               // console.log(params);
-              let result = await QE(params);
+              const result = await QE(params);
               // console.log('result', result);
               return result;
             },

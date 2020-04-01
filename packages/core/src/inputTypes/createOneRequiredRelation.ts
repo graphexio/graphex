@@ -1,5 +1,4 @@
 import { UserInputError } from 'apollo-server';
-import { isInterfaceType } from 'graphql';
 import R from 'ramda';
 import {
   AMInputFieldConfigMap,
