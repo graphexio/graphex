@@ -1,5 +1,5 @@
+import { GraphQLObjectType } from 'graphql';
 import { AMObjectType, AMTypeFactory } from '../definitions';
-import { AMAggregateTypeFactory } from './aggregate';
 
 export class AMConnectionTypeFactory extends AMTypeFactory<AMObjectType> {
   getTypeName(modelType): string {
@@ -11,7 +11,10 @@ export class AMConnectionTypeFactory extends AMTypeFactory<AMObjectType> {
       fields: () => {
         const fields = {
           aggregate: {
-            type: this.configResolver.resolveType(modelType, 'aggregate'),
+            type: this.configResolver.resolveType(
+              modelType,
+              'aggregate'
+            ) as GraphQLObjectType,
           },
         };
 

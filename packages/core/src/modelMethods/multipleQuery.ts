@@ -1,30 +1,18 @@
-import {
-  GraphQLInt,
-  GraphQLList,
-  GraphQLNonNull,
-  isInterfaceType,
-} from 'graphql';
+import { GraphQLList, GraphQLNonNull } from 'graphql';
 import pluralize from 'pluralize';
 import R from 'ramda';
-import { AMReadOperation } from '../execution/operations/readOperation';
-import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
-import { AMWhereTypeFactory } from '../inputTypes/where';
-import { AMWhereACLTypeFactory } from '../inputTypes/whereACL';
-import { lowercaseFirstLetter } from '../utils';
+import { firstArg } from '../args/first';
+import { skipArg } from '../args/skip';
 import {
   AMField,
-  AMModelType,
-  IAMFieldFactory,
   AMMethodFieldFactory,
+  AMModelType,
   GraphQLOperationType,
 } from '../definitions';
-import { resolve } from '../resolve';
-import { AMObjectFieldContext } from '../execution/contexts/objectField';
-import { AMOperation } from '../execution/operation';
-import { skipArg } from '../args/skip';
-import { firstArg } from '../args/first';
 import { AMSelectorContext } from '../execution/contexts/selector';
-import { AMInterfaceWhereTypeFactory } from '../inputTypes/interfaceWhere';
+import { AMReadOperation } from '../execution/operations/readOperation';
+import { resolve } from '../resolve';
+import { lowercaseFirstLetter } from '../utils';
 
 export class AMModelMultipleQueryFieldFactory extends AMMethodFieldFactory {
   getOperationType() {

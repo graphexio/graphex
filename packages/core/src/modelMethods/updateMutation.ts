@@ -1,21 +1,14 @@
 import { GraphQLNonNull, isInterfaceType } from 'graphql';
 import R from 'ramda';
-import { AMUpdateOperation } from '../execution/operations/updateOperation';
-import { AMUpdateTypeFactory } from '../inputTypes/update';
-import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
-import { AMWhereACLTypeFactory } from '../inputTypes/whereACL';
-import { resolve } from '../resolve';
 import {
   AMField,
-  AMModelType,
-  IAMFieldFactory,
-  IAMMethodFieldFactory,
-  GraphQLOperationType,
   AMMethodFieldFactory,
+  AMModelType,
+  GraphQLOperationType,
 } from '../definitions';
 import { AMSelectorContext } from '../execution/contexts/selector';
-import { AMWhereTypeFactory } from '../inputTypes/where';
-import { AMInterfaceWhereUniqueTypeFactory } from '../inputTypes/interfaceWhereUnique';
+import { AMUpdateOperation } from '../execution/operations/updateOperation';
+import { resolve } from '../resolve';
 
 export class AMModelUpdateMutationFieldFactory extends AMMethodFieldFactory {
   getOperationType() {

@@ -1,5 +1,9 @@
 import TypeWrap from '@apollo-model/type-wrap';
-import { AMInputField, AMInputFieldFactory } from '../../definitions';
+import {
+  AMInputField,
+  AMInputFieldFactory,
+  AMModelType,
+} from '../../definitions';
 import { AMObjectFieldContext } from '../../execution/contexts/objectField';
 import {
   getFieldPath,
@@ -19,7 +23,7 @@ export class AMUpdateRelationFieldFactory extends AMInputFieldFactory {
     const isMany = typeWrap.isMany();
     const isRequired = typeWrap.isRequired();
     let type = this.configResolver.resolveInputType(
-      typeWrap.realType(),
+      typeWrap.realType() as AMModelType,
       isMany
         ? 'updateManyRelation'
         : // : isRequired
