@@ -9,6 +9,9 @@
   "devDependencies": {
     "@types/jest": "^24.0.18",
     "@types/mongodb": "^3.5.0",
+    "@typescript-eslint/eslint-plugin": "^2.21.0",
+    "@typescript-eslint/parser": "^2.21.0",
+    "eslint": "^6.8.0",
     "jest": "^25.1.0",
     "lerna": "^3.13.1",
     "prettier": "^1.19.1"
@@ -22,7 +25,8 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "prepare": "lerna run --stream --sort prepare",
-    "test": "jest"
+    "test": "jest",
+    "lint": "eslint 'packages/**/{src,__tests__}/**/*.ts'"
   },
   "keywords": [],
   "author": "",
