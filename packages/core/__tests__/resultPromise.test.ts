@@ -71,11 +71,8 @@ describe('lookup', () => {
       { id: 'item-id', children: [{ _id: 'child-id', parentId: 'item-id' }] },
     ];
 
-    const lookupResultPromise = resultPromise.lookup(
-      'children',
-      'id',
-      'parentId',
-      data
+    const lookupResultPromise = resultPromise.map(
+      ResultPromiseTransforms.lookup('children', 'id', 'parentId', data)
     );
     expect(lookupResultPromise.getValueSource()).toEqual(
       "Operation-0 -> lookup('children', 'id', 'parentId', AMResultPromise { Static Data }, true)"
@@ -99,12 +96,8 @@ describe('lookup', () => {
       { id: 'item-id', children: { _id: 'child-id', parentId: 'item-id' } },
     ];
 
-    const lookupResultPromise = resultPromise.lookup(
-      'children',
-      'id',
-      'parentId',
-      data,
-      false
+    const lookupResultPromise = resultPromise.map(
+      ResultPromiseTransforms.lookup('children', 'id', 'parentId', data, false)
     );
     expect(lookupResultPromise.getValueSource()).toEqual(
       "Operation-0 -> lookup('children', 'id', 'parentId', AMResultPromise { Static Data }, false)"
@@ -136,12 +129,14 @@ describe('lookup', () => {
       },
     ];
 
-    const lookupResultPromise = resultPromise.lookup(
-      'nested.children',
-      'id',
-      'parentId',
-      data,
-      false
+    const lookupResultPromise = resultPromise.map(
+      ResultPromiseTransforms.lookup(
+        'nested.children',
+        'id',
+        'parentId',
+        data,
+        false
+      )
     );
     expect(lookupResultPromise.getValueSource()).toEqual(
       "Operation-0 -> lookup('nested.children', 'id', 'parentId', AMResultPromise { Static Data }, false)"

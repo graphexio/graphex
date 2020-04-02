@@ -99,13 +99,16 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
               );
             } else {
               lastOperation.setOutput(
-                lastOperation.getOutput().lookup(
-                  path,
-                  field.relation.relationField,
-                  field.relation.storeField,
-                  () => relationOperation.getOutput(),
-                  isListType(field.type) ||
-                    (isNonNullType(field.type) && isListType(field.type.ofType)) //TODO: Add runtime checking for existing unique index on relation field.
+                lastOperation.getOutput().map(
+                  ResultPromiseTransforms.lookup(
+                    path,
+                    field.relation.relationField,
+                    field.relation.storeField,
+                    () => relationOperation.getOutput(),
+                    isListType(field.type) ||
+                      (isNonNullType(field.type) &&
+                        isListType(field.type.ofType)) //TODO: Add runtime checking for existing unique index on relation field.
+                  )
                 )
               );
             }

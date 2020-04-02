@@ -78,21 +78,21 @@ export class AMResultPromise<T> {
   //     });
   //   }
 
-  lookup(
-    path: string,
-    relationField: string,
-    storeField: string,
-    getData: () => AMResultPromise<any>,
-    many = true
-  ) {
-    return new AMLookupResultPromise(this, this.promise, {
-      path,
-      relationField,
-      storeField,
-      getData,
-      many,
-    });
-  }
+  //   lookup(
+  //     path: string,
+  //     relationField: string,
+  //     storeField: string,
+  //     getData: () => AMResultPromise<any>,
+  //     many = true
+  //   ) {
+  //     return new AMLookupResultPromise(this, this.promise, {
+  //       path,
+  //       relationField,
+  //       storeField,
+  //       getData,
+  //       many,
+  //     });
+  //   }
 
   dbRef(collectionName: string) {
     return new AMDBRefResultPromise(this, this.promise, {
@@ -158,118 +158,6 @@ export class AMPathResultPromise<T> extends AMResultPromise<T> {
   getValueSource(): string {
     if (this._valueSource instanceof AMResultPromise) {
       return `${this._valueSource.getValueSource()} -> path('${this._path}')`;
-    }
-  }
-}
-
-//////////////////////////////////////////////////
-
-const groupForLookup = (storeField: string) => (
-  data: { [key: string]: any }[]
-) => {
-  const result = {};
-  const storeValue = (key: string, value: any) => {
-    if (!result[key]) {
-      result[key] = [];
-    }
-    result[key].push(value);
-  };
-
-  data.forEach(item => {
-    const relationValue = item[storeField];
-    if (relationValue) {
-      if (Array.isArray(relationValue)) {
-        relationValue.forEach(relationValueArrayItem => {
-          storeValue(relationValueArrayItem, item);
-        });
-      } else {
-        storeValue(relationValue, item);
-      }
-    }
-  });
-  return result;
-};
-
-const lookup = (
-  pathArr: string[],
-  relationField: string,
-  dataMap: { [key: string]: any[] },
-  many: boolean
-) => (value: any) => {
-  if (value instanceof Array) {
-    return value.map(lookup(pathArr, relationField, dataMap, many));
-  } else {
-    if (pathArr.length === 0) {
-      return null;
-    } else if (pathArr.length === 1) {
-      let val = dataMap[value[relationField]] || [];
-      if (!many) {
-        val = R.head(val);
-      }
-      return {
-        ...value,
-        [pathArr[0]]: val,
-      };
-    } else {
-      return {
-        ...value,
-        [pathArr[0]]: lookup(
-          pathArr.slice(1),
-          relationField,
-          dataMap,
-          many
-        )(value[pathArr[0]]),
-      };
-    }
-  }
-};
-
-export class AMLookupResultPromise<T> extends AMResultPromise<T> {
-  _params: {
-    path: string;
-    relationField: string;
-    storeField: string;
-    getData: () => AMResultPromise<any>;
-    many: boolean;
-  };
-
-  constructor(
-    source: AMResultPromise<any>,
-    promise: Promise<T>,
-    params: {
-      path: string;
-      relationField: string;
-      storeField: string;
-      getData: () => AMResultPromise<any>;
-      many: boolean;
-    }
-  ) {
-    super(source);
-    this._params = params;
-    const pathArr = params.path.split('.');
-    promise.then(async value => {
-      const dataMap = groupForLookup(params.storeField)(
-        await params.getData().getPromise()
-      );
-
-      const newValue = lookup(
-        pathArr,
-        params.relationField,
-        dataMap,
-        params.many
-      )(value);
-      this.resolve(newValue);
-    });
-    promise.catch(this.reject);
-  }
-
-  getValueSource(): string {
-    if (this._valueSource instanceof AMResultPromise) {
-      return `${this._valueSource.getValueSource()} -> lookup('${
-        this._params.path
-      }', '${this._params.relationField}', '${
-        this._params.storeField
-      }', ${this._params.getData().toJSON()}, ${this._params.many})`;
     }
   }
 }
