@@ -125,7 +125,9 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
                     if (lastInStack instanceof AMDataContext) {
                       lastInStack.addValue(
                         'recreate',
-                        opContext.getOutput().path('insertedIds')
+                        opContext
+                          .getOutput()
+                          .map(ResultPromiseTransforms.path('insertedIds'))
                       );
                     }
                   },
@@ -193,8 +195,10 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
                         'connect',
                         opContext
                           .getOutput()
-                          .distinct(
-                            objectFieldContext.field.relation.relationField
+                          .map(
+                            ResultPromiseTransforms.distinct(
+                              objectFieldContext.field.relation.relationField
+                            )
                           )
                       );
                     }

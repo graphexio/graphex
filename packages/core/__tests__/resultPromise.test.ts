@@ -159,7 +159,7 @@ describe('dbRef', () => {
   test('many', () => {
     const result = resultPromise
       .map(ResultPromiseTransforms.path('ids'))
-      .dbRef('admins');
+      .map(ResultPromiseTransforms.dbRef('admins'));
     expect(result.getValueSource()).toEqual(
       "Operation-0 -> path('ids') -> dbRef('admins')"
     );
@@ -173,7 +173,7 @@ describe('dbRef', () => {
   test('single', () => {
     const result = resultPromise
       .map(ResultPromiseTransforms.path('id'))
-      .dbRef('admins');
+      .map(ResultPromiseTransforms.dbRef('admins'));
     expect(result.getValueSource()).toEqual(
       "Operation-0 -> path('id') -> dbRef('admins')"
     );

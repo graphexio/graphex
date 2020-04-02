@@ -4,7 +4,6 @@ import {
   AMInputObjectType,
   AMModelType,
   AMTypeFactory,
-  IAMTypeFactory,
 } from '../definitions';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMCreateOperation } from '../execution/operations/createOperation';

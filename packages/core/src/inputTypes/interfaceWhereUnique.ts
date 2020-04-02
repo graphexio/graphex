@@ -87,14 +87,22 @@ export class AMInterfaceWhereUniqueTypeFactory extends AMTypeFactory<
                           readOp
                             .getOutput()
                             .map(ResultPromiseTransforms.path('_id'))
-                            .dbRef(possibleType.mmCollectionName)
+                            .map(
+                              ResultPromiseTransforms.dbRef(
+                                possibleType.mmCollectionName
+                              )
+                            )
                         );
                       } else if (lastInStack instanceof AMListValueContext) {
                         lastInStack.addValue(
                           readOp
                             .getOutput()
                             .map(ResultPromiseTransforms.path('_id'))
-                            .dbRef(possibleType.mmCollectionName)
+                            .map(
+                              ResultPromiseTransforms.dbRef(
+                                possibleType.mmCollectionName
+                              )
+                            )
                         );
                       }
                     },

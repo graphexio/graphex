@@ -73,14 +73,22 @@ export class AMInterfaceCreateTypeFactory extends AMTypeFactory<
                           createOp
                             .getOutput()
                             .map(ResultPromiseTransforms.path('_id'))
-                            .dbRef(possibleType.mmCollectionName)
+                            .map(
+                              ResultPromiseTransforms.dbRef(
+                                possibleType.mmCollectionName
+                              )
+                            )
                         );
                       } else if (lastInStack instanceof AMListValueContext) {
                         lastInStack.addValue(
                           createOp
                             .getOutput()
                             .map(ResultPromiseTransforms.path('_id'))
-                            .dbRef(possibleType.mmCollectionName)
+                            .map(
+                              ResultPromiseTransforms.dbRef(
+                                possibleType.mmCollectionName
+                              )
+                            )
                         );
                       }
                     },

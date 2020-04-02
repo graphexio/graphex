@@ -1,5 +1,4 @@
-import { DBRef, ObjectID } from 'mongodb';
-import R, { where } from 'ramda';
+import R from 'ramda';
 import { AMOperation } from '../operation';
 export { ResultPromiseTransforms } from './transforms';
 
@@ -94,11 +93,11 @@ export class AMResultPromise<T> {
   //     });
   //   }
 
-  dbRef(collectionName: string) {
-    return new AMDBRefResultPromise(this, this.promise, {
-      collectionName,
-    });
-  }
+  //   dbRef(collectionName: string) {
+  //     return new AMDBRefResultPromise(this, this.promise, {
+  //       collectionName,
+  //     });
+  //   }
 
   dbRefReplace(path: string, getData: () => AMResultPromise<any>) {
     return new AMDBRefReplaceResultPromise(this, this.promise, {
@@ -196,43 +195,6 @@ export class AMDBRefReplaceResultPromise<T> extends AMResultPromise<T> {
       return `${this._valueSource.getValueSource()} -> dbRefReplace('${
         this._params.path
       }', ${this._params.getData().toJSON()})`;
-    }
-  }
-}
-
-//////////////////////////////////////////////////
-
-export class AMDBRefResultPromise<T> extends AMResultPromise<DBRef | DBRef[]> {
-  _params: {
-    collectionName: string;
-  };
-
-  constructor(
-    source: AMResultPromise<any>,
-    promise: Promise<T>,
-    params: {
-      collectionName: string;
-    }
-  ) {
-    super(source);
-    this._params = params;
-    promise.then(async value => {
-      if (Array.isArray(value)) {
-        this.resolve(
-          value.map(id => new DBRef(this._params.collectionName, id))
-        );
-      } else if (value instanceof ObjectID) {
-        this.resolve(new DBRef(this._params.collectionName, value));
-      }
-    });
-    promise.catch(this.reject);
-  }
-
-  getValueSource(): string {
-    if (this._valueSource instanceof AMResultPromise) {
-      return `${this._valueSource.getValueSource()} -> dbRef('${
-        this._params.collectionName
-      }')`;
     }
   }
 }

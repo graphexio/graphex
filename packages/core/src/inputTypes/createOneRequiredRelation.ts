@@ -3,20 +3,13 @@ import R from 'ramda';
 import {
   AMInputFieldConfigMap,
   AMInputObjectType,
-  AMModelField,
   AMModelType,
   AMTypeFactory,
-  IAMInputFieldFactory,
-  IAMTypeFactory,
 } from '../definitions';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMCreateOperation } from '../execution/operations/createOperation';
 import { AMReadOperation } from '../execution/operations/readOperation';
 import { ResultPromiseTransforms } from '../execution/resultPromise';
-
-const isApplicable = (field: AMModelField) => (
-  fieldFactory: IAMInputFieldFactory
-) => fieldFactory.isApplicable(field);
 
 export class AMCreateOneRequiredRelationTypeFactory extends AMTypeFactory<
   AMInputObjectType
@@ -25,11 +18,9 @@ export class AMCreateOneRequiredRelationTypeFactory extends AMTypeFactory<
     return `${modelType.name}CreateOneRequiredRelationInput`;
   }
   getType(modelType: AMModelType) {
-    const self: IAMTypeFactory<AMInputObjectType> = this;
-
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
-      amEnter(node, transaction, stack) {
+      amEnter(node) {
         if (node.fields.length != 1) {
           throw new UserInputError(`'create' or 'connect' needed`);
         }
