@@ -9,6 +9,7 @@ import {
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMCreateOperation } from '../execution/operations/createOperation';
 import { AMReadOperation } from '../execution/operations/readOperation';
+import { ResultPromiseTransforms } from '../execution/resultPromise';
 
 export class AMCreateOneRelationTypeFactory extends AMTypeFactory<
   AMInputObjectType
@@ -17,12 +18,10 @@ export class AMCreateOneRelationTypeFactory extends AMTypeFactory<
     return `${modelType.name}CreateOneRelationInput`;
   }
   getType(modelType: AMModelType) {
-    const self: IAMTypeFactory<AMInputObjectType> = this;
-
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
-        const fields = <AMInputFieldConfigMap>{
+        const fields = {
           create: {
             type: this.configResolver.resolveInputType(modelType, [
               'create',
@@ -46,7 +45,11 @@ export class AMCreateOneRelationTypeFactory extends AMTypeFactory<
                       lastInStack.setValue(
                         opContext
                           .getOutput()
-                          .path(lastInStack.field.relation.relationField)
+                          .map(
+                            ResultPromiseTransforms.path(
+                              lastInStack.field.relation.relationField
+                            )
+                          )
                       );
                     }
                   },
@@ -75,14 +78,18 @@ export class AMCreateOneRelationTypeFactory extends AMTypeFactory<
                       lastInStack.setValue(
                         opContext
                           .getOutput()
-                          .path(lastInStack.field.relation.relationField)
+                          .map(
+                            ResultPromiseTransforms.path(
+                              lastInStack.field.relation.relationField
+                            )
+                          )
                       );
                     }
                   },
                 }
               : null),
           },
-        };
+        } as AMInputFieldConfigMap;
 
         return fields;
       },

@@ -9,11 +9,11 @@ import {
   AMInputObjectType,
   AMModelType,
   AMTypeFactory,
-  IAMTypeFactory,
 } from '../definitions';
 import { AMListValueContext } from '../execution/contexts/listValue';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMCreateOperation } from '../execution/operations/createOperation';
+import { ResultPromiseTransforms } from '../execution/resultPromise';
 
 export class AMInterfaceCreateTypeFactory extends AMTypeFactory<
   GraphQLInputObjectType
@@ -25,8 +25,6 @@ export class AMInterfaceCreateTypeFactory extends AMTypeFactory<
     return `${modelType.name}InterfaceCreateInput`;
   }
   getType(modelType: AMModelType) {
-    const self: IAMTypeFactory<AMInputObjectType> = this;
-
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
@@ -35,7 +33,7 @@ export class AMInterfaceCreateTypeFactory extends AMTypeFactory<
           (this.schemaInfo.schema.getPossibleTypes(
             modelType
           ) as AMModelType[]).forEach((possibleType: AMModelType) => {
-            fields[possibleType.name] = <AMInputFieldConfig>{
+            fields[possibleType.name] = {
               type: this.configResolver.resolveInputType(
                 possibleType,
                 'create'
@@ -74,20 +72,20 @@ export class AMInterfaceCreateTypeFactory extends AMTypeFactory<
                         lastInStack.setValue(
                           createOp
                             .getOutput()
-                            .path('_id')
+                            .map(ResultPromiseTransforms.path('_id'))
                             .dbRef(possibleType.mmCollectionName)
                         );
                       } else if (lastInStack instanceof AMListValueContext) {
                         lastInStack.addValue(
                           createOp
                             .getOutput()
-                            .path('_id')
+                            .map(ResultPromiseTransforms.path('_id'))
                             .dbRef(possibleType.mmCollectionName)
                         );
                       }
                     },
                   }),
-            };
+            } as AMInputFieldConfig;
           });
         }
 

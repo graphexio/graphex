@@ -55,7 +55,9 @@ export class AMCreateManyRelationTypeFactory extends AMTypeFactory<
                     const lastInStack = R.last(stack);
                     if (lastInStack instanceof AMObjectFieldContext) {
                       lastInStack.setValue(
-                        opContext.getOutput().path('insertedIds')
+                        opContext
+                          .getOutput()
+                          .map(ResultPromiseTransforms.path('insertedIds'))
                       );
                     }
                   },

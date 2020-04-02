@@ -12,6 +12,7 @@ import {
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMCreateOperation } from '../execution/operations/createOperation';
 import { AMReadOperation } from '../execution/operations/readOperation';
+import { ResultPromiseTransforms } from '../execution/resultPromise';
 
 const isApplicable = (field: AMModelField) => (
   fieldFactory: IAMInputFieldFactory
@@ -34,7 +35,7 @@ export class AMCreateOneRequiredRelationTypeFactory extends AMTypeFactory<
         }
       },
       fields: () => {
-        const fields = <AMInputFieldConfigMap>{
+        const fields = {
           create: {
             type: this.configResolver.resolveInputType(modelType, [
               'create',
@@ -58,7 +59,11 @@ export class AMCreateOneRequiredRelationTypeFactory extends AMTypeFactory<
                       lastInStack.setValue(
                         opContext
                           .getOutput()
-                          .path(lastInStack.field.relation.relationField)
+                          .map(
+                            ResultPromiseTransforms.path(
+                              lastInStack.field.relation.relationField
+                            )
+                          )
                       );
                     }
                   },
@@ -85,12 +90,16 @@ export class AMCreateOneRequiredRelationTypeFactory extends AMTypeFactory<
                 lastInStack.setValue(
                   opContext
                     .getOutput()
-                    .path(lastInStack.field.relation.relationField)
+                    .map(
+                      ResultPromiseTransforms.path(
+                        lastInStack.field.relation.relationField
+                      )
+                    )
                 );
               }
             },
           },
-        };
+        } as AMInputFieldConfigMap;
 
         return fields;
       },

@@ -14,6 +14,7 @@ import {
 import { AMListValueContext } from '../execution/contexts/listValue';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMReadOperation } from '../execution/operations/readOperation';
+import { ResultPromiseTransforms } from '../execution/resultPromise';
 
 export class AMInterfaceWhereUniqueTypeFactory extends AMTypeFactory<
   GraphQLInputObjectType
@@ -25,8 +26,6 @@ export class AMInterfaceWhereUniqueTypeFactory extends AMTypeFactory<
     return `${modelType.name}InterfaceWhereUniqueInput`;
   }
   getType(modelType: AMModelType) {
-    const self: IAMTypeFactory<AMInputObjectType> = this;
-
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
@@ -38,7 +37,7 @@ export class AMInterfaceWhereUniqueTypeFactory extends AMTypeFactory<
               modelType
             ) as AMModelType[]),
           ].forEach((possibleType: AMModelType) => {
-            fields[possibleType.name] = <AMInputFieldConfig>{
+            fields[possibleType.name] = {
               type: this.configResolver.resolveInputType(
                 possibleType,
                 this.links.whereUnique
@@ -87,20 +86,20 @@ export class AMInterfaceWhereUniqueTypeFactory extends AMTypeFactory<
                         lastInStack.setValue(
                           readOp
                             .getOutput()
-                            .path('_id')
+                            .map(ResultPromiseTransforms.path('_id'))
                             .dbRef(possibleType.mmCollectionName)
                         );
                       } else if (lastInStack instanceof AMListValueContext) {
                         lastInStack.addValue(
                           readOp
                             .getOutput()
-                            .path('_id')
+                            .map(ResultPromiseTransforms.path('_id'))
                             .dbRef(possibleType.mmCollectionName)
                         );
                       }
                     },
                   }),
-            };
+            } as AMInputFieldConfig;
           });
         }
 

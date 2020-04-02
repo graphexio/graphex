@@ -70,7 +70,9 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
                     if (lastInStack instanceof AMDataContext) {
                       lastInStack.addValue(
                         'create',
-                        opContext.getOutput().path('insertedIds')
+                        opContext
+                          .getOutput()
+                          .map(ResultPromiseTransforms.path('insertedIds'))
                       );
                     }
                   },

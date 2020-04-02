@@ -57,9 +57,9 @@ export class AMResultPromise<T> {
   }
 
   /* Pick value at path */
-  path(path: string) {
-    return new AMPathResultPromise(this, this.promise, path);
-  }
+  //   path(path: string) {
+  //     return new AMPathResultPromise(this, this.promise, path);
+  //   }
 
   //   /* Pick all values at path, even inside arrays. */
   //   distinct(path: string) {
@@ -136,29 +136,6 @@ export class AMDataResultPromise<T> extends AMResultPromise<T> {
 
   getValueSource() {
     return 'Static Data';
-  }
-}
-
-//////////////////////////////////////////////////
-
-export class AMPathResultPromise<T> extends AMResultPromise<T> {
-  _path: string;
-
-  constructor(source: AMResultPromise<any>, promise: Promise<T>, path: string) {
-    super(source);
-    this._path = path;
-    const getPath = R.path<any>(path.split('.'));
-    promise.then(async value => {
-      const newValue = getPath(value);
-      this.resolve(newValue);
-    });
-    promise.catch(this.reject);
-  }
-
-  getValueSource(): string {
-    if (this._valueSource instanceof AMResultPromise) {
-      return `${this._valueSource.getValueSource()} -> path('${this._path}')`;
-    }
   }
 }
 
