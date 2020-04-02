@@ -10,11 +10,7 @@ export class AMResultPromise<T> {
   public reject: (error: any) => void;
   public transformationDescription: string;
 
-  _valueSource: AMValueSource;
-
-  constructor(source: AMValueSource) {
-    this._valueSource = source;
-
+  constructor(private valueSource: AMValueSource) {
     this.promise = new Promise<T>((resolve, reject) => {
       this.resolve = resolve;
       this.reject = reject;
@@ -30,10 +26,10 @@ export class AMResultPromise<T> {
   }
 
   getValueSource(): string {
-    if (this._valueSource instanceof AMOperation) {
-      return this._valueSource.getIdentifier();
-    } else if (this._valueSource instanceof AMResultPromise) {
-      return `${this._valueSource.getValueSource()} -> ${
+    if (this.valueSource instanceof AMOperation) {
+      return this.valueSource.getIdentifier();
+    } else if (this.valueSource instanceof AMResultPromise) {
+      return `${this.valueSource.getValueSource()} -> ${
         this.transformationDescription
       }`;
     }
@@ -54,75 +50,13 @@ export class AMResultPromise<T> {
     newResult.transformationDescription = mapFn(this, newResult);
     return newResult;
   }
-
-  /* Pick value at path */
-  //   path(path: string) {
-  //     return new AMPathResultPromise(this, this.promise, path);
-  //   }
-
-  //   /* Pick all values at path, even inside arrays. */
-  //   distinct(path: string) {
-  //     return new AMDistinctResultPromise(this, this.promise, path);
-  //   }
-
-  //   distinctReplace(
-  //     path: string,
-  //     field: string,
-  //     getData: () => AMResultPromise<any>
-  //   ) {
-  //     return new AMDistinctReplaceResultPromise(this, this.promise, {
-  //       path,
-  //       field,
-  //       getData,
-  //     });
-  //   }
-
-  //   lookup(
-  //     path: string,
-  //     relationField: string,
-  //     storeField: string,
-  //     getData: () => AMResultPromise<any>,
-  //     many = true
-  //   ) {
-  //     return new AMLookupResultPromise(this, this.promise, {
-  //       path,
-  //       relationField,
-  //       storeField,
-  //       getData,
-  //       many,
-  //     });
-  //   }
-
-  //   dbRef(collectionName: string) {
-  //     return new AMDBRefResultPromise(this, this.promise, {
-  //       collectionName,
-  //     });
-  //   }
-
-  //   dbRefReplace(path: string, getData: () => AMResultPromise<any>) {
-  //     return new AMDBRefReplaceResultPromise(this, this.promise, {
-  //       path,
-  //       getData,
-  //     });
-  //   }
-
-  //   transformArray(path: string, params: { where: { [key: string]: any } }) {
-  //     return new AMTransformArrayResultPromise(this, this.promise, {
-  //       path,
-  //       where: params.where,
-  //     });
-  //   }
 }
-
-//////////////////////////////////////////////////
 
 export class AMOperationResultPromise<T> extends AMResultPromise<T> {
   constructor(source: AMOperation) {
     super(source);
   }
 }
-
-//////////////////////////////////////////////////
 
 export class AMDataResultPromise<T> extends AMResultPromise<T> {
   _data: any;
@@ -137,7 +71,3 @@ export class AMDataResultPromise<T> extends AMResultPromise<T> {
     return 'Static Data';
   }
 }
-
-//////////////////////////////////////////////////
-
-//////////////////////////////////////////////////
