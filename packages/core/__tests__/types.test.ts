@@ -536,7 +536,9 @@ describe('modelFields', () => {
     const queryStr = printType(schema.getQueryType());
     const mutationStr = printType(schema.getMutationType());
 
-    //TODO: add pagination postsPaged(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, first: Int): PostPagination!
+    //TODO: add pagination
+    //postsPaged(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, first: Int): PostPagination!
+
     expect(queryStr).toMatchInlineSnapshot(`
       "type Query {
         posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, first: Int): [Post!]!
@@ -760,6 +762,28 @@ describe('default', () => {
         "input PostCreateInput {
           message: String
         }"
+    `);
+  });
+});
+
+describe('nested arrays', () => {
+  const schema = generateSchema(gql`
+    type Post @model {
+      id: ID @id @unique @db(name: "_id")
+      comments: [Comment]
+    }
+
+    type Comment @embedded {
+      message: String
+    }
+  `);
+
+  test('Post', () => {
+    expect(printType(schema.getType('Post'))).toMatchInlineSnapshot(`
+          "type Post {
+            id: ID
+            comments(where: CommentWhereInput, orderBy: CommentOrderByInput, skip: Int, first: Int): [Comment]
+          }"
     `);
   });
 });

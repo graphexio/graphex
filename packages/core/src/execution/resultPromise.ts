@@ -1,11 +1,6 @@
-import call from 'ramda/es/call';
-import { AMOperation } from './operation';
-import R from 'ramda';
 import { DBRef, ObjectID } from 'mongodb';
-
-enum AMResultPromiseMethod {
-  map,
-}
+import R, { where } from 'ramda';
+import { AMOperation } from './operation';
 
 type AMValueSource = AMOperation | AMResultPromise<any>;
 
@@ -95,6 +90,13 @@ export class AMResultPromise<T> {
     return new AMDBRefReplaceResultPromise(this, this._promise, {
       path,
       getData,
+    });
+  }
+
+  transformArray(path: string, params: { where: { [key: string]: any } }) {
+    return new AMTransformArrayResultPromise(this, this._promise, {
+      path,
+      where: params.where,
     });
   }
 }
@@ -462,6 +464,48 @@ export class AMDBRefResultPromise<T> extends AMResultPromise<DBRef | DBRef[]> {
       return `${this._valueSource.getValueSource()} -> dbRef('${
         this._params.collectionName
       }')`;
+    }
+  }
+}
+
+//////////////////////////////////////////////////
+
+export class AMTransformArrayResultPromise<T> extends AMResultPromise<T> {
+  constructor(
+    source: AMResultPromise<any>,
+    promise: Promise<T>,
+    private params: {
+      path: string;
+      where: { [key: string]: any };
+    }
+  ) {
+    super(source);
+
+    promise.then(async value => {
+      if (Array.isArray(value)) {
+        this.resolve(
+          value.map(item => {
+            const array = R.path(params.path.split('.'), item) as [];
+            const keys = Object.keys(params.where);
+
+            const filteredArray = R.filter(item => {
+              const picked = R.pick(keys, item);
+              return R.equals(picked, params.where);
+            }, array);
+
+            return R.assocPath(params.path.split('.'), filteredArray, item);
+          }) as any
+        );
+      }
+    });
+    promise.catch(this.reject);
+  }
+
+  getValueSource(): string {
+    if (this._valueSource instanceof AMResultPromise) {
+      return `${this._valueSource.getValueSource()} \n-> transformArray('${
+        this.params.path
+      }', ${JSON.stringify({ where: this.params.where })}')`;
     }
   }
 }

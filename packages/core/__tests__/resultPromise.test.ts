@@ -1,4 +1,4 @@
-import { AMOperation } from '../src/execution/operation';
+import { AMCreateOperation } from '../src/execution/operations/createOperation';
 import {
   AMOperationResultPromise,
   AMDataResultPromise,
@@ -9,8 +9,9 @@ import { ObjectID, DBRef } from 'mongodb';
 describe('simple', () => {
   const arr = [{ test: 'value' }];
   const transaction = new AMTransaction();
-  const operation = new AMOperation(transaction, { collectionName: '' });
+  const operation = new AMCreateOperation(transaction, { collectionName: '' });
   const resultPromise = new AMOperationResultPromise<any>(operation);
+
   resultPromise.resolve(arr);
 
   test('simple', () => {
@@ -56,7 +57,9 @@ describe('lookup', () => {
   test('lookup', () => {
     const arr = [{ id: 'item-id' }];
     const transaction = new AMTransaction();
-    const operation = new AMOperation(transaction, { collectionName: '' });
+    const operation = new AMCreateOperation(transaction, {
+      collectionName: '',
+    });
     const resultPromise = new AMOperationResultPromise<any>(operation);
     resultPromise.resolve(arr);
 
@@ -82,7 +85,9 @@ describe('lookup', () => {
   test('lookup single', () => {
     const arr = [{ id: 'item-id' }];
     const transaction = new AMTransaction();
-    const operation = new AMOperation(transaction, { collectionName: '' });
+    const operation = new AMCreateOperation(transaction, {
+      collectionName: '',
+    });
     const resultPromise = new AMOperationResultPromise<any>(operation);
     resultPromise.resolve(arr);
 
@@ -109,7 +114,9 @@ describe('lookup', () => {
   test('lookup inside nested', () => {
     const arr = [{ id: 'item-id', nested: { id: 'nested-item-id' } }];
     const transaction = new AMTransaction();
-    const operation = new AMOperation(transaction, { collectionName: '' });
+    const operation = new AMCreateOperation(transaction, {
+      collectionName: '',
+    });
     const resultPromise = new AMOperationResultPromise<any>(operation);
     resultPromise.resolve(arr);
 
@@ -148,7 +155,7 @@ describe('dbRef', () => {
   const arr = { ids: [id1, id2], id: id1 };
 
   const transaction = new AMTransaction();
-  const operation = new AMOperation(transaction, { collectionName: '' });
+  const operation = new AMCreateOperation(transaction, { collectionName: '' });
   const resultPromise = new AMOperationResultPromise<any>(operation);
   resultPromise.resolve(arr);
 
@@ -203,7 +210,7 @@ test('dbRef replace', () => {
   };
 
   const transaction = new AMTransaction();
-  const operation = new AMOperation(transaction, { collectionName: '' });
+  const operation = new AMCreateOperation(transaction, { collectionName: '' });
   const resultPromise = new AMOperationResultPromise<any>(operation);
   resultPromise.resolve(doc);
 
@@ -226,5 +233,37 @@ test('dbRef replace', () => {
 
   return expect(result).resolves.toEqual({
     ids: [obj1, obj2, obj3],
+  });
+});
+
+describe('transformArray', () => {
+  const arr = [
+    {
+      comments: [
+        { id: 1, message: 'message1' },
+        { id: 2, message: 'message2' },
+        { id: 3, message: 'message_test' },
+      ],
+    },
+  ];
+  const transaction = new AMTransaction();
+  const operation = new AMCreateOperation(transaction, { collectionName: '' });
+  const resultPromise = new AMOperationResultPromise<any>(operation);
+
+  resultPromise.resolve(arr);
+
+  test('string match', () => {
+    const result = [
+      {
+        comments: [{ id: 3, message: 'message_test' }],
+      },
+    ];
+    const distinctResultPromise = resultPromise.transformArray('comments', {
+      where: {
+        message: 'message_test',
+      },
+    });
+
+    return expect(distinctResultPromise).resolves.toEqual(result);
   });
 });

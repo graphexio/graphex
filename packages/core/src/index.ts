@@ -10,6 +10,7 @@ import {
   isInputObjectType,
   isInterfaceType,
   isObjectType,
+  isEnumType,
 } from 'graphql';
 import { makeExecutableSchema as makeGraphQLSchema } from 'graphql-tools';
 import _ from 'lodash';
@@ -29,7 +30,7 @@ export * from './definitions';
 export * from './execution';
 export * from './inputTypes';
 
-const { printSchema } = require('@apollo/federation');
+import { printSchema } from 'graphql';
 
 function isAMModelType(type: GraphQLNamedType): type is AMModelType {
   const typeWrap = new TypeWrap(type);
@@ -237,7 +238,7 @@ export default class ModelMongo {
     let initialCount;
     do {
       initialCount = Object.values(schema.getTypeMap()).length;
-      Object.entries(schema.getTypeMap()).forEach(([name, type]) => {
+      Object.entries(schema.getTypeMap()).forEach(([, type]) => {
         if (hasTypeFields(type)) {
           type.getFields();
         }
@@ -246,13 +247,17 @@ export default class ModelMongo {
     /* resolve field thunks */
 
     const typesToRemove = [];
-    Object.entries(schema.getTypeMap()).forEach(([name, type]) => {
+    Object.entries(schema.getTypeMap()).forEach(([, type]) => {
       if (hasTypeFields(type) && Object.keys(type.getFields()).length == 0) {
         typesToRemove.push(type);
+      } else if (isEnumType(type)) {
+        if (type.getValues().length === 0) {
+          typesToRemove.push(type);
+        }
       }
     });
 
-    Object.entries(schema.getTypeMap()).forEach(([name, type]) => {
+    Object.entries(schema.getTypeMap()).forEach(([, type]) => {
       if (hasTypeFields(type)) {
         const fields = type.getFields();
         Object.entries(fields).forEach(([name, field]) => {

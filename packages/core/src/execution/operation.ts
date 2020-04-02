@@ -8,7 +8,7 @@ import { AMDataContext } from './contexts/data';
 import { AMListValueContext } from './contexts/listValue';
 import { DBRef } from 'mongodb';
 
-export class AMOperation extends AMContext {
+export abstract class AMOperation extends AMContext {
   collectionName: string;
   fieldsSelection: AMFieldsSelectionContext;
   selector: AMSelectorContext;
@@ -99,7 +99,7 @@ export class AMOperation extends AMContext {
     this.first = first;
   }
 
-  execute(executor: AMDBExecutor) {}
+  abstract execute(executor: AMDBExecutor): void;
 
   getResult() {
     return this._result;

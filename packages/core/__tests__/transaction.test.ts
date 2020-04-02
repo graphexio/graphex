@@ -90,7 +90,7 @@ describe('simple schema', () => {
       }
     `;
 
-    const transaction = prepareTransaction(schema, rq);
+    prepareTransaction(schema, rq);
   });
 
   test('undefined variable object', () => {
@@ -102,7 +102,7 @@ describe('simple schema', () => {
       }
     `;
 
-    const transaction = prepareTransaction(schema, rq);
+    prepareTransaction(schema, rq);
   });
 
   test('single query', () => {
@@ -2717,5 +2717,53 @@ describe('default', () => {
         ],
       }
     `);
+  });
+});
+
+describe('filter nested arrays', () => {
+  const schema = generateSchema(gql`
+    type Post @model {
+      id: ID @id @unique @db(name: "_id")
+      comments: [Comment]
+    }
+
+    type Comment @embedded {
+      message: String
+    }
+  `);
+
+  test('multiple query', () => {
+    const rq = gql`
+      {
+        posts {
+          id
+          comments(where: { message: "test" }) {
+            message
+          }
+        }
+      }
+    `;
+
+    const transaction = prepareTransaction(schema, rq);
+    expect(transaction).toMatchInlineSnapshot(`
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+          "comments.message",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": "AMResultPromise { Operation-0 
+-> transformArray('comments', {\\"where\\":{\\"message\\":\\"test\\"}}') }",
+    },
+  ],
+}
+`);
   });
 });

@@ -11,15 +11,20 @@
   ],
   "rules": {
     "semi": "off",
+    "max-len": [
+      "warn",
+      {
+        "tabWidth": 2,
+        "code": 120,
+        "ignoreStrings": true,
+        "ignoreTemplateLiterals": true
+      }
+    ],
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/semi": [
       2,
       "always"
-    ],
-    "max-len": [
-      2,
-      120
     ],
     "comma-dangle": [
       "error",

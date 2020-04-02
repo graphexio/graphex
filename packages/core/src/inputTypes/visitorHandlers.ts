@@ -8,11 +8,11 @@ import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMOperation } from '../execution/operation';
 import { getFieldPath, getLastOperation } from '../execution/utils';
 
-export const defaultObjectFieldVisitorHandler = (
+export function defaultObjectFieldVisitorHandler(
   fieldName: string,
   field?: AMModelField
-) =>
-  <AMVisitable>{
+): AMVisitable {
+  return {
     amEnter(node, transaction, stack) {
       const action = new AMObjectFieldContext(fieldName, field);
       stack.push(action);
@@ -30,9 +30,12 @@ export const defaultObjectFieldVisitorHandler = (
       }
     },
   };
+}
 
-export const updateObjectFieldVisitorHandler = (fieldName: string) =>
-  <AMVisitable>{
+export function updateObjectFieldVisitorHandler(
+  fieldName: string
+): AMVisitable {
+  return {
     amEnter(node, transaction, stack) {
       const action = new AMObjectFieldContext(fieldName);
       stack.push(action);
@@ -47,9 +50,12 @@ export const updateObjectFieldVisitorHandler = (fieldName: string) =>
       operation.data['$set'] = set;
     },
   };
+}
 
-export const whereTypeVisitorHandler = (options = { emptyAllowed: true }) =>
-  <AMVisitable>{
+export function whereTypeVisitorHandler(
+  options = { emptyAllowed: true }
+): AMVisitable {
+  return {
     amEnter(node, transaction, stack) {
       const context = new AMSelectorContext();
       stack.push(context);
@@ -89,3 +95,4 @@ export const whereTypeVisitorHandler = (options = { emptyAllowed: true }) =>
       }
     },
   };
+}
