@@ -44,10 +44,8 @@ describe('simple', () => {
     const data = () => new AMDataResultPromise([{ _id: 'value' }]);
     const result = [{ test: { _id: 'value' } }];
 
-    const distinctReplaceResultPromise = resultPromise.distinctReplace(
-      'test',
-      '_id',
-      data
+    const distinctReplaceResultPromise = resultPromise.map(
+      ResultPromiseTransforms.distinctReplace('test', '_id', data)
     );
     expect(distinctReplaceResultPromise.getValueSource()).toEqual(
       "Operation-0 -> distinctReplace('test', '_id', AMResultPromise { Static Data })"

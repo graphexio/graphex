@@ -191,7 +191,11 @@ test('read many relation', async () => {
   operation.setOutput(
     operation
       .getOutput()
-      .distinctReplace('commentIds', '_id', () => subOperation.getOutput())
+      .map(
+        ResultPromiseTransforms.distinctReplace('commentIds', '_id', () =>
+          subOperation.getOutput()
+        )
+      )
   );
 
   const result = await transaction.execute(executor);

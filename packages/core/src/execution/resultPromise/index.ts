@@ -66,17 +66,17 @@ export class AMResultPromise<T> {
   //     return new AMDistinctResultPromise(this, this.promise, path);
   //   }
 
-  distinctReplace(
-    path: string,
-    field: string,
-    getData: () => AMResultPromise<any>
-  ) {
-    return new AMDistinctReplaceResultPromise(this, this.promise, {
-      path,
-      field,
-      getData,
-    });
-  }
+  //   distinctReplace(
+  //     path: string,
+  //     field: string,
+  //     getData: () => AMResultPromise<any>
+  //   ) {
+  //     return new AMDistinctReplaceResultPromise(this, this.promise, {
+  //       path,
+  //       field,
+  //       getData,
+  //     });
+  //   }
 
   lookup(
     path: string,
@@ -136,116 +136,6 @@ export class AMDataResultPromise<T> extends AMResultPromise<T> {
 
   getValueSource() {
     return 'Static Data';
-  }
-}
-
-//////////////////////////////////////////////////
-
-const getDistinct = (pathArr: string[]) => (value: any) => {
-  if (!value) {
-    return null;
-  }
-  if (value instanceof Array) {
-    return value.flatMap(getDistinct(pathArr));
-  } else {
-    if (pathArr.length == 0) {
-      return [value];
-    } else {
-      const nextValue = value[pathArr[0]];
-      if (nextValue) {
-        return getDistinct(pathArr.slice(1))(nextValue);
-      } else {
-        return [];
-      }
-    }
-  }
-};
-
-export class AMDistinctResultPromise<T> extends AMResultPromise<T> {
-  _path: string;
-
-  constructor(source: AMResultPromise<any>, promise: Promise<T>, path: string) {
-    super(source);
-    this._path = path;
-    const pathArr = path.split('.');
-    promise.then(value => {
-      const dValue = getDistinct(pathArr)(value);
-      this.resolve(dValue);
-    });
-    promise.catch(this.reject);
-  }
-
-  getValueSource(): string {
-    if (this._valueSource instanceof AMResultPromise) {
-      return `${this._valueSource.getValueSource()} -> distinct('${
-        this._path
-      }')`;
-    }
-  }
-}
-
-//////////////////////////////////////////////////
-
-const replaceDistinct = (
-  pathArr: string[],
-  field: string,
-  dataMap: { [key: string]: any }
-) => (value: any) => {
-  if (!value) return value;
-  if (value instanceof Array) {
-    return value.map(replaceDistinct(pathArr, field, dataMap));
-  } else {
-    if (pathArr.length == 0) {
-      //TODO: Remove this fix for issue with multiple relations on the same field
-      if (
-        typeof value === 'string' ||
-        (typeof value === 'object' && value.constructor.name === 'ObjectID')
-      ) {
-        return dataMap[value];
-      } else {
-        return value;
-      }
-    } else {
-      return {
-        ...value,
-        [pathArr[0]]: replaceDistinct(
-          pathArr.slice(1),
-          field,
-          dataMap
-        )(value[pathArr[0]]),
-      };
-    }
-  }
-};
-
-export class AMDistinctReplaceResultPromise<T> extends AMResultPromise<T> {
-  _params: { path: string; field: string; getData: () => AMResultPromise<any> };
-
-  constructor(
-    source: AMResultPromise<any>,
-    promise: Promise<T>,
-    params: { path: string; field: string; getData: () => AMResultPromise<any> }
-  ) {
-    super(source);
-    this._params = params;
-    const pathArr = params.path.split('.');
-    promise.then(async value => {
-      const dataMap = R.indexBy(
-        R.prop(params.field),
-        await params.getData().getPromise()
-      );
-      const newValue = replaceDistinct(pathArr, params.field, dataMap)(value);
-      this.resolve(newValue);
-    });
-    promise.catch(this.reject);
-  }
-
-  getValueSource(): string {
-    if (this._valueSource instanceof AMResultPromise) {
-      return `${this._valueSource.getValueSource()} -> distinctReplace('${
-        this._params.path
-      }', '${this._params.field}', ${this._params.getData().toJSON()})`;
-    }
   }
 }
 

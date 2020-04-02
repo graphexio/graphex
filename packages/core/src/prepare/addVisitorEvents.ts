@@ -1,22 +1,19 @@
 import {
   GraphQLSchema,
-  isObjectType,
   isInterfaceType,
   isListType,
   isNonNullType,
+  isObjectType,
 } from 'graphql';
 import R from 'ramda';
-import { AMField, AMModelField } from '../definitions';
+import { AMModelField } from '../definitions';
 import { AMFieldsSelectionContext } from '../execution/contexts/fieldsSelection';
-import { AMOperation } from '../execution/operation';
-import { AMReadOperation } from '../execution/operations/readOperation';
 import { AMSelectorContext } from '../execution/contexts/selector';
-import { getLastOperation, getFieldsSelectionPath } from '../execution/utils';
-import { AMObjectFieldContext } from '../execution/contexts/objectField';
-import { start } from 'repl';
-import { Operation } from 'graphql-tools';
+import { AMOperation } from '../execution/operation';
 import { AMReadDBRefOperation } from '../execution/operations/readDbRefOperation';
+import { AMReadOperation } from '../execution/operations/readOperation';
 import { ResultPromiseTransforms } from '../execution/resultPromise';
+import { getFieldsSelectionPath, getLastOperation } from '../execution/utils';
 
 export const addVisitorEvents = (schema: GraphQLSchema) => {
   Object.values(schema.getTypeMap()).forEach(type => {
@@ -92,8 +89,12 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
               lastOperation.setOutput(
                 lastOperation
                   .getOutput()
-                  .distinctReplace(path, field.relation.relationField, () =>
-                    relationOperation.getOutput()
+                  .map(
+                    ResultPromiseTransforms.distinctReplace(
+                      path,
+                      field.relation.relationField,
+                      () => relationOperation.getOutput()
+                    )
                   )
               );
             } else {
@@ -110,7 +111,7 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
             }
           };
           field.amLeave = (node, transaction, stack) => {
-            const relationOperation = stack.pop();
+            stack.pop();
           };
         } else {
           field.amEnter = (node, transaction, stack) => {
