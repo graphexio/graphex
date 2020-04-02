@@ -1,4 +1,4 @@
-import { AMResultPromise } from '.';
+import { AMResultPromise } from './resultPromise';
 
 const getDistinct = (pathArr: string[]) => (value: any) => {
   if (!value) {

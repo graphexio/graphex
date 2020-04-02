@@ -1,4 +1,4 @@
-import { AMResultPromise } from '.';
+import { AMResultPromise } from './resultPromise';
 import * as R from 'ramda';
 
 const groupForLookup = (storeField: string) => (

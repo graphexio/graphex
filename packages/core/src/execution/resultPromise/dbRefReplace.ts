@@ -1,4 +1,4 @@
-import { AMResultPromise } from '.';
+import { AMResultPromise } from './resultPromise';
 
 const replaceDBRef = (pathArr: string[], dataMap: { [key: string]: any }) => (
   value: any

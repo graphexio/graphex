@@ -1,4 +1,4 @@
-import { AMResultPromise } from '.';
+import { AMResultPromise } from './resultPromise';
 import { DBRef, ObjectID } from 'mongodb';
 
 export const dbRef = (collectionName: string) => (

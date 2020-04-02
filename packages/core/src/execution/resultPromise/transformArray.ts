@@ -1,5 +1,5 @@
 import * as R from 'ramda';
-import { AMResultPromise } from '.';
+import { AMResultPromise } from './resultPromise';
 
 export const transformArray = (
   path: string,
