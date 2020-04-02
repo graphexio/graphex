@@ -83,7 +83,11 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
               lastOperation.setOutput(
                 lastOperation
                   .getOutput()
-                  .dbRefReplace(path, () => relationOperation.getOutput())
+                  .map(
+                    ResultPromiseTransforms.dbRefReplace(path, () =>
+                      relationOperation.getOutput()
+                    )
+                  )
               );
             } else if (!field.relation.external) {
               lastOperation.setOutput(

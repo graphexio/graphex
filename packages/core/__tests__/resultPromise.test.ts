@@ -226,7 +226,9 @@ test('dbRef replace', () => {
       },
     });
 
-  const result = resultPromise.dbRefReplace('ids', data);
+  const result = resultPromise.map(
+    ResultPromiseTransforms.dbRefReplace('ids', data)
+  );
 
   expect(result.getValueSource()).toEqual(
     "Operation-0 -> dbRefReplace('ids', AMResultPromise { Static Data })"

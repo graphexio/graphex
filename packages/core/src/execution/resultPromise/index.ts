@@ -99,12 +99,12 @@ export class AMResultPromise<T> {
   //     });
   //   }
 
-  dbRefReplace(path: string, getData: () => AMResultPromise<any>) {
-    return new AMDBRefReplaceResultPromise(this, this.promise, {
-      path,
-      getData,
-    });
-  }
+  //   dbRefReplace(path: string, getData: () => AMResultPromise<any>) {
+  //     return new AMDBRefReplaceResultPromise(this, this.promise, {
+  //       path,
+  //       getData,
+  //     });
+  //   }
 
   transformArray(path: string, params: { where: { [key: string]: any } }) {
     return new AMTransformArrayResultPromise(this, this.promise, {
@@ -139,65 +139,6 @@ export class AMDataResultPromise<T> extends AMResultPromise<T> {
 }
 
 //////////////////////////////////////////////////
-
-const replaceDBRef = (pathArr: string[], dataMap: { [key: string]: any }) => (
-  value: any
-) => {
-  if (value instanceof Array) {
-    return value.map(replaceDBRef(pathArr, dataMap));
-  } else {
-    if (pathArr.length == 0) {
-      return {
-        ...dataMap[value.namespace][value.oid],
-        mmCollectionName: value.namespace,
-      };
-    } else {
-      return {
-        ...value,
-        [pathArr[0]]: replaceDBRef(
-          pathArr.slice(1),
-          dataMap
-        )(value[pathArr[0]]),
-      };
-    }
-  }
-};
-
-export class AMDBRefReplaceResultPromise<T> extends AMResultPromise<T> {
-  _params: {
-    path: string;
-    getData: () => AMResultPromise<any>;
-  };
-
-  constructor(
-    source: AMResultPromise<any>,
-    promise: Promise<T>,
-    params: {
-      path: string;
-      getData: () => AMResultPromise<any>;
-    }
-  ) {
-    super(source);
-    this._params = params;
-    const pathArr = params.path.split('.');
-    promise.then(async value => {
-      const newValue = replaceDBRef(
-        pathArr,
-        await this._params.getData()
-      )(value);
-      this.resolve(newValue);
-    });
-    promise.catch(this.reject);
-  }
-
-  getValueSource(): string {
-    if (this._valueSource instanceof AMResultPromise) {
-      return `${this._valueSource.getValueSource()} -> dbRefReplace('${
-        this._params.path
-      }', ${this._params.getData().toJSON()})`;
-    }
-  }
-}
 
 //////////////////////////////////////////////////
 
