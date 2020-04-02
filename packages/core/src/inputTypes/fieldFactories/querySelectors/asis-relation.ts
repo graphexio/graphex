@@ -10,6 +10,7 @@ import {
 import { AMSelectorContext } from '../../../execution/contexts/selector';
 import { AMObjectFieldContext } from '../../../execution/contexts/objectField';
 import { AMReadOperation } from '../../../execution/operations/readOperation';
+import { ResultPromiseTransforms } from '../../../execution/resultPromise';
 
 export class AsIsRelationSelector extends AMInputFieldFactory {
   isApplicable(field: AMModelField) {
@@ -21,7 +22,7 @@ export class AsIsRelationSelector extends AMInputFieldFactory {
   }
   getField(field: AMModelField) {
     const namedType = getNamedType(field.type);
-    return <AMInputField>{
+    return {
       name: this.getFieldName(field),
       type: this.configResolver.resolveInputType(
         namedType as AMModelType,
@@ -54,11 +55,15 @@ export class AsIsRelationSelector extends AMInputFieldFactory {
             lastInStack instanceof AMObjectFieldContext
           ) {
             lastInStack.addValue(field.relation.storeField, {
-              $in: context.getOutput().distinct(field.relation.relationField),
+              $in: context
+                .getOutput()
+                .map(
+                  ResultPromiseTransforms.distinct(field.relation.relationField)
+                ),
             });
           }
         }
       },
-    };
+    } as AMInputField;
   }
 }

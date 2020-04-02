@@ -3,6 +3,8 @@ import {
   AMOperationResultPromise,
   AMDataResultPromise,
 } from '../src/execution/resultPromise';
+import { ResultPromiseTransforms } from '../src/execution/resultPromise';
+
 import { AMTransaction } from '../src/execution/transaction';
 import { ObjectID, DBRef } from 'mongodb';
 
@@ -28,7 +30,9 @@ describe('simple', () => {
 
   test('distinct', () => {
     const result = ['value'];
-    const distinctResultPromise = resultPromise.distinct('test');
+    const distinctResultPromise = resultPromise.map(
+      ResultPromiseTransforms.distinct('test')
+    );
     expect(distinctResultPromise.getValueSource()).toEqual(
       `Operation-0 -> distinct('test')`
     );

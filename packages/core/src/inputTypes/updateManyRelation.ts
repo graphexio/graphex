@@ -4,10 +4,8 @@ import R from 'ramda';
 import {
   AMInputFieldConfigMap,
   AMInputObjectType,
-  AMModelField,
   AMModelType,
   AMTypeFactory,
-  IAMInputFieldFactory,
 } from '../definitions';
 import { AMDataContext } from '../execution/contexts/data';
 import { AMListValueContext } from '../execution/contexts/listValue';
@@ -16,16 +14,15 @@ import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMCreateOperation } from '../execution/operations/createOperation';
 import { AMDeleteDBRefOperation } from '../execution/operations/deleteDbRefOperation';
 import { AMReadOperation } from '../execution/operations/readOperation';
-import { AMResultPromise } from '../execution/resultPromise';
+import {
+  AMResultPromise,
+  ResultPromiseTransforms,
+} from '../execution/resultPromise';
 import {
   getFieldPath,
   getLastOperation,
   getOperationData,
 } from '../execution/utils';
-
-const isApplicable = (field: AMModelField) => (
-  fieldFactory: IAMInputFieldFactory
-) => fieldFactory.isApplicable(field);
 
 export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
   AMInputObjectType
@@ -39,7 +36,7 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
     return new AMInputObjectType({
       name: typeName,
       fields: () => {
-        const fields = <AMInputFieldConfigMap>{
+        const fields = {
           create: {
             type: new GraphQLList(
               this.configResolver.resolveInputType(modelType, [
@@ -263,8 +260,10 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
                         'reconnect',
                         opContext
                           .getOutput()
-                          .distinct(
-                            objectFieldContext.field.relation.relationField
+                          .map(
+                            ResultPromiseTransforms.distinct(
+                              objectFieldContext.field.relation.relationField
+                            )
                           )
                       );
                     }
@@ -344,7 +343,7 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
                   },
                 }),
           },
-        };
+        } as AMInputFieldConfigMap;
 
         return fields;
       },

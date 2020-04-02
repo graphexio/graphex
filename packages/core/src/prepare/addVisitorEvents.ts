@@ -16,6 +16,7 @@ import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { start } from 'repl';
 import { Operation } from 'graphql-tools';
 import { AMReadDBRefOperation } from '../execution/operations/readDbRefOperation';
+import { ResultPromiseTransforms } from '../execution/resultPromise';
 
 export const addVisitorEvents = (schema: GraphQLSchema) => {
   Object.values(schema.getTypeMap()).forEach(type => {
@@ -52,14 +53,20 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
                   !field.relation.external
                     ? {
                         [field.relation.relationField]: {
-                          $in: lastOperation.getResult().distinct(path),
+                          $in: lastOperation
+                            .getResult()
+                            .map(ResultPromiseTransforms.distinct(path)),
                         },
                       }
                     : {
                         [field.relation.storeField]: {
                           $in: lastOperation
                             .getResult()
-                            .distinct(field.relation.relationField),
+                            .map(
+                              ResultPromiseTransforms.distinct(
+                                field.relation.relationField
+                              )
+                            ),
                         },
                       }
                 ),
@@ -67,7 +74,9 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
             } else {
               relationOperation = new AMReadDBRefOperation(transaction, {
                 many: true,
-                dbRefList: lastOperation.getResult().distinct(path),
+                dbRefList: lastOperation
+                  .getResult()
+                  .map(ResultPromiseTransforms.distinct(path)),
               });
             }
 

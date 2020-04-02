@@ -1,20 +1,22 @@
 import { DBRef, ObjectID } from 'mongodb';
 import R, { where } from 'ramda';
-import { AMOperation } from './operation';
+import { AMOperation } from '../operation';
+export { ResultPromiseTransforms } from './transforms';
 
 type AMValueSource = AMOperation | AMResultPromise<any>;
 
 export class AMResultPromise<T> {
-  _promise: Promise<T>;
-  resolve: (value: T) => void;
-  reject: (error: any) => void;
+  private promise: Promise<T>;
+  public resolve: (value: T) => void;
+  public reject: (error: any) => void;
+  public transformationDescription: string;
 
   _valueSource: AMValueSource;
 
   constructor(source: AMValueSource) {
     this._valueSource = source;
 
-    this._promise = new Promise<T>((resolve, reject) => {
+    this.promise = new Promise<T>((resolve, reject) => {
       this.resolve = resolve;
       this.reject = reject;
     });
@@ -25,39 +27,51 @@ export class AMResultPromise<T> {
   }
 
   getPromise() {
-    return this._promise;
+    return this.promise;
   }
 
   getValueSource(): string {
     if (this._valueSource instanceof AMOperation) {
       return this._valueSource.getIdentifier();
+    } else if (this._valueSource instanceof AMResultPromise) {
+      return `${this._valueSource.getValueSource()} -> ${
+        this.transformationDescription
+      }`;
     }
   }
 
   then(callback: (value: T) => void) {
-    return this._promise.then(callback);
+    return this.promise.then(callback);
   }
 
   catch(callback: (err: Error) => void) {
-    return this._promise.catch(callback);
+    return this.promise.catch(callback);
+  }
+
+  map(
+    mapFn: (source: AMResultPromise<T>, result: AMResultPromise<T>) => string
+  ) {
+    const newResult = new AMResultPromise<T>(this);
+    newResult.transformationDescription = mapFn(this, newResult);
+    return newResult;
   }
 
   /* Pick value at path */
   path(path: string) {
-    return new AMPathResultPromise(this, this._promise, path);
+    return new AMPathResultPromise(this, this.promise, path);
   }
 
-  /* Pick all values at path, even inside arrays. */
-  distinct(path: string) {
-    return new AMDistinctResultPromise(this, this._promise, path);
-  }
+  //   /* Pick all values at path, even inside arrays. */
+  //   distinct(path: string) {
+  //     return new AMDistinctResultPromise(this, this.promise, path);
+  //   }
 
   distinctReplace(
     path: string,
     field: string,
     getData: () => AMResultPromise<any>
   ) {
-    return new AMDistinctReplaceResultPromise(this, this._promise, {
+    return new AMDistinctReplaceResultPromise(this, this.promise, {
       path,
       field,
       getData,
@@ -71,7 +85,7 @@ export class AMResultPromise<T> {
     getData: () => AMResultPromise<any>,
     many = true
   ) {
-    return new AMLookupResultPromise(this, this._promise, {
+    return new AMLookupResultPromise(this, this.promise, {
       path,
       relationField,
       storeField,
@@ -81,20 +95,20 @@ export class AMResultPromise<T> {
   }
 
   dbRef(collectionName: string) {
-    return new AMDBRefResultPromise(this, this._promise, {
+    return new AMDBRefResultPromise(this, this.promise, {
       collectionName,
     });
   }
 
   dbRefReplace(path: string, getData: () => AMResultPromise<any>) {
-    return new AMDBRefReplaceResultPromise(this, this._promise, {
+    return new AMDBRefReplaceResultPromise(this, this.promise, {
       path,
       getData,
     });
   }
 
   transformArray(path: string, params: { where: { [key: string]: any } }) {
-    return new AMTransformArrayResultPromise(this, this._promise, {
+    return new AMTransformArrayResultPromise(this, this.promise, {
       path,
       where: params.where,
     });

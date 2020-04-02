@@ -4,13 +4,13 @@ import {
   AMInputFieldConfigMap,
   AMModelType,
   AMTypeFactory,
-  IAMTypeFactory,
 } from '../definitions';
 import { AMListValueContext } from '../execution/contexts/listValue';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMCreateOperation } from '../execution/operations/createOperation';
 import { AMReadOperation } from '../execution/operations/readOperation';
+import { ResultPromiseTransforms } from '../execution/resultPromise';
 
 export class AMCreateManyRelationTypeFactory extends AMTypeFactory<
   GraphQLInputObjectType
@@ -19,12 +19,10 @@ export class AMCreateManyRelationTypeFactory extends AMTypeFactory<
     return `${modelType.name}CreateManyRelationInput`;
   }
   getType(modelType: AMModelType) {
-    const self: IAMTypeFactory<GraphQLInputObjectType> = this;
-
     return new GraphQLInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
-        const fields = <AMInputFieldConfigMap>{
+        const fields = {
           create: {
             type: new GraphQLList(
               this.configResolver.resolveInputType(modelType, [
@@ -114,12 +112,16 @@ export class AMCreateManyRelationTypeFactory extends AMTypeFactory<
                 lastInStack.setValue(
                   opContext
                     .getOutput()
-                    .distinct(lastInStack.field.relation.relationField)
+                    .map(
+                      ResultPromiseTransforms.distinct(
+                        lastInStack.field.relation.relationField
+                      )
+                    )
                 );
               }
             },
           },
-        };
+        } as AMInputFieldConfigMap;
 
         return fields;
       },
