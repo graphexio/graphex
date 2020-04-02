@@ -2759,8 +2759,7 @@ Object {
       "identifier": "Operation-0",
       "kind": "AMReadOperation",
       "many": true,
-      "output": "AMResultPromise { Operation-0 
--> transformArray('comments', {\\"where\\":{\\"message\\":\\"test\\"}}') }",
+      "output": "AMResultPromise { Operation-0 -> transformArray('comments', {\\"where\\":{\\"message\\":\\"test\\"}}') }",
     },
   ],
 }

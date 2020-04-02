@@ -261,11 +261,13 @@ describe('transformArray', () => {
         comments: [{ id: 3, message: 'message_test' }],
       },
     ];
-    const distinctResultPromise = resultPromise.transformArray('comments', {
-      where: {
-        message: 'message_test',
-      },
-    });
+    const distinctResultPromise = resultPromise.map(
+      ResultPromiseTransforms.transformArray('comments', {
+        where: {
+          message: 'message_test',
+        },
+      })
+    );
 
     return expect(distinctResultPromise).resolves.toEqual(result);
   });

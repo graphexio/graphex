@@ -4,6 +4,7 @@ import { lookup } from './lookup';
 import { path } from './path';
 import { dbRef } from './dbref';
 import { dbRefReplace } from './dbRefReplace';
+import { transformArray } from './transformArray';
 
 export const ResultPromiseTransforms = {
   distinct,
@@ -12,4 +13,5 @@ export const ResultPromiseTransforms = {
   path,
   dbRef,
   dbRefReplace,
+  transformArray,
 };

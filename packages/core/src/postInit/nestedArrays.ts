@@ -6,6 +6,7 @@ import { AMConfigResolver } from '../config/resolver';
 import { AMModelField, AMModelType } from '../definitions';
 import { AMObjectFieldContext } from '../execution';
 import { getFieldPath, getLastOperation } from '../execution/utils';
+import { ResultPromiseTransforms } from '../execution/resultPromise';
 
 export const nestedArrays = (
   schema: GraphQLSchema,
@@ -38,9 +39,11 @@ export const nestedArrays = (
                 const path = getFieldPath(stack, operation);
                 // console.log(path, context.value);
                 operation.setOutput(
-                  operation
-                    .getOutput()
-                    .transformArray(path, { where: context.value as {} })
+                  operation.getOutput().map(
+                    ResultPromiseTransforms.transformArray(path, {
+                      where: context.value as {},
+                    })
+                  )
                 );
                 return;
               },

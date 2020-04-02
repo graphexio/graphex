@@ -106,12 +106,12 @@ export class AMResultPromise<T> {
   //     });
   //   }
 
-  transformArray(path: string, params: { where: { [key: string]: any } }) {
-    return new AMTransformArrayResultPromise(this, this.promise, {
-      path,
-      where: params.where,
-    });
-  }
+  //   transformArray(path: string, params: { where: { [key: string]: any } }) {
+  //     return new AMTransformArrayResultPromise(this, this.promise, {
+  //       path,
+  //       where: params.where,
+  //     });
+  //   }
 }
 
 //////////////////////////////////////////////////
@@ -141,43 +141,3 @@ export class AMDataResultPromise<T> extends AMResultPromise<T> {
 //////////////////////////////////////////////////
 
 //////////////////////////////////////////////////
-
-export class AMTransformArrayResultPromise<T> extends AMResultPromise<T> {
-  constructor(
-    source: AMResultPromise<any>,
-    promise: Promise<T>,
-    private params: {
-      path: string;
-      where: { [key: string]: any };
-    }
-  ) {
-    super(source);
-
-    promise.then(async value => {
-      if (Array.isArray(value)) {
-        this.resolve(
-          value.map(item => {
-            const array = R.path(params.path.split('.'), item) as [];
-            const keys = Object.keys(params.where);
-
-            const filteredArray = R.filter(item => {
-              const picked = R.pick(keys, item);
-              return R.equals(picked, params.where);
-            }, array);
-
-            return R.assocPath(params.path.split('.'), filteredArray, item);
-          }) as any
-        );
-      }
-    });
-    promise.catch(this.reject);
-  }
-
-  getValueSource(): string {
-    if (this._valueSource instanceof AMResultPromise) {
-      return `${this._valueSource.getValueSource()} \n-> transformArray('${
-        this.params.path
-      }', ${JSON.stringify({ where: this.params.where })}')`;
-    }
-  }
-}
