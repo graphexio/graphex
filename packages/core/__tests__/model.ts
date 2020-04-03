@@ -84,4 +84,19 @@ export default gql`
   type Hotel implements Poi @model {
     stars: Int
   }
+
+
+  enum PetType{
+    cat
+    dog
+  }
+
+  interface Pet @implements(name: "Node & Timestamp") @discriminator(value:"type") @inherit @model {
+    id: ID @id
+    type: PetType @db(name:"type") @readonly
+    name: String
+  }
+
+  type PetCat implements Pet @discriminator(value:"cat")
+  type PetDog implements Pet @discriminator(value:"dog")
 `;
