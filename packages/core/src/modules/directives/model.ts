@@ -88,9 +88,11 @@ class Model extends SchemaDirectiveVisitor {
       .forEach((type: AMModelType & AMObjectType) => {
         if (!type.mmDiscriminator) {
           type.mmDiscriminator = lowercaseFirstLetter(type.name);
-          type.mmDiscriminatorField = iface.mmDiscriminatorField;
-          iface.mmDiscriminatorMap[type.mmDiscriminator] = type.name;
         }
+
+        type.mmDiscriminatorField = iface.mmDiscriminatorField;
+        iface.mmDiscriminatorMap[type.mmDiscriminator] = type.name;
+
       });
 
     // iface.mmOnSchemaInit = () => {

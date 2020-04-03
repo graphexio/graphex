@@ -1698,3 +1698,55 @@ test('Create interface', async () => {
     }
   `);
 });
+
+test('Custom discriminator', async () => {
+  {
+    let { data, errors } = await query({
+      query: gql`
+        mutation {
+          createPetDog(data: { name: "New dog" }) {
+            __typename
+            name
+          }
+        }
+      `,
+      variables: {},
+    });
+    expect(errors).toBeUndefined();
+    expect(data).toMatchInlineSnapshot(`
+Object {
+  "createPetDog": Object {
+    "__typename": "PetDog",
+    "name": "New dog",
+  },
+}
+`);
+  }
+
+  {
+    let { data, errors } = await query({
+      query: gql`
+        query {
+          pets {
+            __typename
+            name
+            type
+          }
+        }
+      `,
+      variables: {},
+    });
+    expect(errors).toBeUndefined();
+    expect(data).toMatchInlineSnapshot(`
+Object {
+  "pets": Array [
+    Object {
+      "__typename": "PetDog",
+      "name": "New dog",
+      "type": "dog",
+    },
+  ],
+}
+`);
+  }
+});
