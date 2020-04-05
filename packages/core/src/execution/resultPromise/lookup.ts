@@ -1,5 +1,6 @@
 import { AMResultPromise } from './resultPromise';
 import * as R from 'ramda';
+import { mapPath } from './utils';
 
 const groupForLookup = (storeField: string) => (
   data: { [key: string]: any }[]
@@ -27,40 +28,6 @@ const groupForLookup = (storeField: string) => (
   return result;
 };
 
-const lookupReplace = (
-  pathArr: string[],
-  relationField: string,
-  dataMap: { [key: string]: any[] },
-  many: boolean
-) => (value: any) => {
-  if (value instanceof Array) {
-    return value.map(lookupReplace(pathArr, relationField, dataMap, many));
-  } else {
-    if (pathArr.length === 0) {
-      return null;
-    } else if (pathArr.length === 1) {
-      let val = dataMap[value[relationField]] || [];
-      if (!many) {
-        val = R.head(val);
-      }
-      return {
-        ...value,
-        [pathArr[0]]: val,
-      };
-    } else {
-      return {
-        ...value,
-        [pathArr[0]]: lookupReplace(
-          pathArr.slice(1),
-          relationField,
-          dataMap,
-          many
-        )(value[pathArr[0]]),
-      };
-    }
-  }
-};
-
 export const lookup = (
   path: string,
   relationField: string,
@@ -69,15 +36,21 @@ export const lookup = (
   many = true
 ) => (source: AMResultPromise<any>, dest: AMResultPromise<any>) => {
   const pathArr = path.split('.');
+  const lookupFieldName = pathArr.pop();
+
   source.getPromise().then(async value => {
     const dataMap = groupForLookup(storeField)(await getData().getPromise());
-
-    const newValue = lookupReplace(
-      pathArr,
-      relationField,
-      dataMap,
-      many
-    )(value);
+    const mapItem = (item: any) => {
+      let val = dataMap[item[relationField]] || [];
+      if (!many) {
+        val = R.head(val);
+      }
+      return {
+        ...item,
+        [lookupFieldName]: val,
+      };
+    };
+    const newValue = mapPath(pathArr, mapItem)(value);
     dest.resolve(newValue);
   });
   source.getPromise().catch(dest.reject);

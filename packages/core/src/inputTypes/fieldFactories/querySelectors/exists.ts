@@ -1,4 +1,3 @@
-import TypeWrap from '@apollo-model/type-wrap';
 import { GraphQLBoolean } from 'graphql';
 import { AMModelField } from '../../../definitions';
 import { AMQuerySelectorFieldFactory } from '../querySelector';

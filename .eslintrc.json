@@ -1,9 +1,6 @@
 {
   "parser": "@typescript-eslint/parser",
-  "plugins": [
-    "@typescript-eslint",
-    "prettier"
-  ],
+  "plugins": ["@typescript-eslint", "prettier"],
   "extends": [
     "plugin:@typescript-eslint/recommended",
     "prettier",
@@ -22,19 +19,14 @@
     ],
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/no-explicit-any": "off",
-    "@typescript-eslint/semi": [
-      2,
-      "always"
-    ],
-    "comma-dangle": [
-      "error",
-      "always-multiline"
-    ],
+    "@typescript-eslint/semi": [2, "always"],
+    "comma-dangle": ["error", "always-multiline"],
     "@typescript-eslint/no-use-before-define": [
       "error",
       {
         "functions": false,
-        "classes": false
+        "classes": false,
+        "variables": false
       }
     ],
     "@typescript-eslint/camelcase": [

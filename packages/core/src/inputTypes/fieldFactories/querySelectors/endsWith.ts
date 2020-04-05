@@ -1,13 +1,6 @@
-import TypeWrap from '@apollo-model/type-wrap';
-import { getNamedType, GraphQLList, isCompositeType } from 'graphql';
-import {
-  IAMQuerySelector,
-  AMModelField,
-  AMModelType,
-} from '../../../definitions';
+import { getNamedType, isCompositeType } from 'graphql';
+import { AMModelField } from '../../../definitions';
 import { AMQuerySelectorFieldFactory } from '../querySelector';
-import { AMWhereCleanTypeFactory } from '../../whereClean';
-import { makeArray } from '../utils';
 
 export class EndsWithSelector extends AMQuerySelectorFieldFactory {
   isApplicable(field: AMModelField) {

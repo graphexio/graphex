@@ -1,27 +1,6 @@
 import { AMResultPromise } from './resultPromise';
-
-const replaceDBRef = (pathArr: string[], dataMap: { [key: string]: any }) => (
-  value: any
-) => {
-  if (value instanceof Array) {
-    return value.map(replaceDBRef(pathArr, dataMap));
-  } else {
-    if (pathArr.length == 0) {
-      return {
-        ...dataMap[value.namespace][value.oid],
-        mmCollectionName: value.namespace,
-      };
-    } else {
-      return {
-        ...value,
-        [pathArr[0]]: replaceDBRef(
-          pathArr.slice(1),
-          dataMap
-        )(value[pathArr[0]]),
-      };
-    }
-  }
-};
+import { mapPath } from './utils';
+import { DBRef } from 'mongodb';
 
 export const dbRefReplace = (
   path: string,
@@ -29,7 +8,12 @@ export const dbRefReplace = (
 ) => (source: AMResultPromise<any>, dest: AMResultPromise<any>) => {
   const pathArr = path.split('.');
   source.then(async value => {
-    const newValue = replaceDBRef(pathArr, await getData())(value);
+    const dataMap = await getData();
+    const mapItem = (item: DBRef) => ({
+      ...dataMap[item.namespace][item.oid.toHexString()],
+      mmCollectionName: item.namespace,
+    });
+    const newValue = mapPath(pathArr, mapItem)(value);
     dest.resolve(newValue);
   });
   source.catch(dest.reject);

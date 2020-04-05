@@ -1,24 +1,5 @@
 import { AMResultPromise } from './resultPromise';
-
-const getDistinct = (pathArr: string[]) => (value: any) => {
-  if (!value) {
-    return null;
-  }
-  if (value instanceof Array) {
-    return value.flatMap(getDistinct(pathArr));
-  } else {
-    if (pathArr.length == 0) {
-      return [value];
-    } else {
-      const nextValue = value[pathArr[0]];
-      if (nextValue) {
-        return getDistinct(pathArr.slice(1))(nextValue);
-      } else {
-        return [];
-      }
-    }
-  }
-};
+import { getPath } from './utils';
 
 export const distinct = (path: string) => (
   source: AMResultPromise<any>,
@@ -26,7 +7,8 @@ export const distinct = (path: string) => (
 ) => {
   const pathArr = path.split('.');
   source.getPromise().then(value => {
-    const dValue = getDistinct(pathArr)(value);
+    let dValue = getPath(pathArr)(value) || [];
+    if (!Array.isArray(dValue)) dValue = [dValue];
     dest.resolve(dValue);
   });
   source.getPromise().catch(dest.reject);

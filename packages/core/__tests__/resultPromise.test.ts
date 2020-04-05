@@ -246,6 +246,31 @@ describe('transformArray', () => {
         { id: 1, message: 'message1' },
         { id: 2, message: 'message2' },
         { id: 3, message: 'message_test' },
+        {
+          id: 4,
+          message: 'message_with_nested_arr',
+          comments: [
+            {
+              id: 5,
+              message: 'message_nested',
+            },
+          ],
+        },
+        {
+          id: 6,
+          message: 'message_with_tags1',
+          tags: ['a'],
+        },
+        {
+          id: 7,
+          message: 'message_with_tags2',
+          tags: ['a', 'b'],
+        },
+        {
+          id: 8,
+          message: 'message_with_tags2',
+          tags: ['a', 'b', 'c'],
+        },
       ],
     },
   ];
@@ -261,7 +286,7 @@ describe('transformArray', () => {
         comments: [{ id: 3, message: 'message_test' }],
       },
     ];
-    const distinctResultPromise = resultPromise.map(
+    const transformResultPromise = resultPromise.map(
       ResultPromiseTransforms.transformArray('comments', {
         where: {
           message: 'message_test',
@@ -269,6 +294,231 @@ describe('transformArray', () => {
       })
     );
 
-    return expect(distinctResultPromise).resolves.toEqual(result);
+    return expect(transformResultPromise).resolves.toEqual(result);
+  });
+
+  test('regex match', () => {
+    const result = [
+      {
+        comments: [{ id: 3, message: 'message_test' }],
+      },
+    ];
+    const transformResultPromise = resultPromise.map(
+      ResultPromiseTransforms.transformArray('comments', {
+        where: {
+          message: {
+            $regex: /test/,
+          },
+        },
+      })
+    );
+
+    return expect(transformResultPromise).resolves.toEqual(result);
+  });
+
+  test('elemMatch', () => {
+    const result = [
+      {
+        comments: [
+          {
+            id: 4,
+            message: 'message_with_nested_arr',
+            comments: [
+              {
+                id: 5,
+                message: 'message_nested',
+              },
+            ],
+          },
+        ],
+      },
+    ];
+    const transformResultPromise = resultPromise.map(
+      ResultPromiseTransforms.transformArray('comments', {
+        where: {
+          comments: {
+            $elemMatch: {
+              message: 'message_nested',
+            },
+          },
+        },
+      })
+    );
+
+    return expect(transformResultPromise).resolves.toEqual(result);
+  });
+
+  test('all', () => {
+    const result = [
+      {
+        comments: [
+          {
+            id: 7,
+            message: 'message_with_tags2',
+            tags: ['a', 'b'],
+          },
+          {
+            id: 8,
+            message: 'message_with_tags2',
+            tags: ['a', 'b', 'c'],
+          },
+        ],
+      },
+    ];
+    const transformResultPromise = resultPromise.map(
+      ResultPromiseTransforms.transformArray('comments', {
+        where: {
+          tags: {
+            $all: ['a', 'b'],
+          },
+        },
+      })
+    );
+
+    return expect(transformResultPromise).resolves.toEqual(result);
+  });
+
+  test('exists', () => {
+    const result = [
+      {
+        comments: [
+          {
+            id: 4,
+            message: 'message_with_nested_arr',
+            comments: [
+              {
+                id: 5,
+                message: 'message_nested',
+              },
+            ],
+          },
+        ],
+      },
+    ];
+    const transformResultPromise = resultPromise.map(
+      ResultPromiseTransforms.transformArray('comments', {
+        where: {
+          comments: {
+            $exists: true,
+          },
+        },
+      })
+    );
+
+    return expect(transformResultPromise).resolves.toEqual(result);
+  });
+
+  test('gt', () => {
+    const result = [
+      {
+        comments: [
+          {
+            id: 8,
+            message: 'message_with_tags2',
+            tags: ['a', 'b', 'c'],
+          },
+        ],
+      },
+    ];
+    const transformResultPromise = resultPromise.map(
+      ResultPromiseTransforms.transformArray('comments', {
+        where: {
+          id: {
+            $gt: 7,
+          },
+        },
+      })
+    );
+
+    return expect(transformResultPromise).resolves.toEqual(result);
+  });
+  test('gte', () => {
+    const result = [
+      {
+        comments: [
+          {
+            id: 7,
+            message: 'message_with_tags2',
+            tags: ['a', 'b'],
+          },
+          {
+            id: 8,
+            message: 'message_with_tags2',
+            tags: ['a', 'b', 'c'],
+          },
+        ],
+      },
+    ];
+    const transformResultPromise = resultPromise.map(
+      ResultPromiseTransforms.transformArray('comments', {
+        where: {
+          id: {
+            $gte: 7,
+          },
+        },
+      })
+    );
+
+    return expect(transformResultPromise).resolves.toEqual(result);
+  });
+  test('in', () => {
+    const result = [
+      {
+        comments: [
+          {
+            id: 7,
+            message: 'message_with_tags2',
+            tags: ['a', 'b'],
+          },
+          {
+            id: 8,
+            message: 'message_with_tags2',
+            tags: ['a', 'b', 'c'],
+          },
+        ],
+      },
+    ];
+    const transformResultPromise = resultPromise.map(
+      ResultPromiseTransforms.transformArray('comments', {
+        where: {
+          id: {
+            $in: [7, 8],
+          },
+        },
+      })
+    );
+
+    return expect(transformResultPromise).resolves.toEqual(result);
+  });
+  test('not', () => {
+    const result = [
+      {
+        comments: [
+          {
+            id: 4,
+            message: 'message_with_nested_arr',
+            comments: [
+              {
+                id: 5,
+                message: 'message_nested',
+              },
+            ],
+          },
+        ],
+      },
+    ];
+    const transformResultPromise = resultPromise.map(
+      ResultPromiseTransforms.transformArray('comments', {
+        where: {
+          comments: {
+            $not: {
+              $exists: false,
+            },
+          },
+        },
+      })
+    );
+
+    return expect(transformResultPromise).resolves.toEqual(result);
   });
 });

@@ -2729,10 +2729,11 @@ describe('filter nested arrays', () => {
 
     type Comment @embedded {
       message: String
+      comments: [Comment]
     }
   `);
 
-  test('multiple query', () => {
+  test('string match', () => {
     const rq = gql`
       {
         posts {
