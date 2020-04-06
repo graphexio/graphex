@@ -85,6 +85,7 @@ class Model extends SchemaDirectiveVisitor {
         type => isObjectType(type) && type.getInterfaces().includes(iface)
       )
       .forEach((type: AMModelType & AMObjectType) => {
+        type.mmModelInherited = true;
         if (!type.mmDiscriminator) {
           type.mmDiscriminator = lowercaseFirstLetter(type.name);
           type.mmDiscriminatorField = iface.mmDiscriminatorField;

@@ -41,52 +41,52 @@ describe('orderBy', () => {
 
   test('values', () => {
     expect(orderByType.toConfig()).toMatchInlineSnapshot(`
-Object {
-  "astNode": undefined,
-  "description": undefined,
-  "extensionASTNodes": Array [],
-  "extensions": undefined,
-  "name": "PostOrderByInput",
-  "values": Object {
-    "id_ASC": Object {
-      "astNode": undefined,
-      "deprecationReason": undefined,
-      "description": undefined,
-      "extensions": undefined,
-      "value": Object {
-        "_id": 1,
-      },
-    },
-    "id_DESC": Object {
-      "astNode": undefined,
-      "deprecationReason": undefined,
-      "description": undefined,
-      "extensions": undefined,
-      "value": Object {
-        "_id": -1,
-      },
-    },
-    "title_ASC": Object {
-      "astNode": undefined,
-      "deprecationReason": undefined,
-      "description": undefined,
-      "extensions": undefined,
-      "value": Object {
-        "title": 1,
-      },
-    },
-    "title_DESC": Object {
-      "astNode": undefined,
-      "deprecationReason": undefined,
-      "description": undefined,
-      "extensions": undefined,
-      "value": Object {
-        "title": -1,
-      },
-    },
-  },
-}
-`);
+      Object {
+        "astNode": undefined,
+        "description": undefined,
+        "extensionASTNodes": Array [],
+        "extensions": undefined,
+        "name": "PostOrderByInput",
+        "values": Object {
+          "id_ASC": Object {
+            "astNode": undefined,
+            "deprecationReason": undefined,
+            "description": undefined,
+            "extensions": undefined,
+            "value": Object {
+              "_id": 1,
+            },
+          },
+          "id_DESC": Object {
+            "astNode": undefined,
+            "deprecationReason": undefined,
+            "description": undefined,
+            "extensions": undefined,
+            "value": Object {
+              "_id": -1,
+            },
+          },
+          "title_ASC": Object {
+            "astNode": undefined,
+            "deprecationReason": undefined,
+            "description": undefined,
+            "extensions": undefined,
+            "value": Object {
+              "title": 1,
+            },
+          },
+          "title_DESC": Object {
+            "astNode": undefined,
+            "deprecationReason": undefined,
+            "description": undefined,
+            "extensions": undefined,
+            "value": Object {
+              "title": -1,
+            },
+          },
+        },
+      }
+    `);
   });
 });
 
@@ -776,6 +776,19 @@ describe('nested arrays', () => {
     type Comment @embedded {
       message: String
     }
+
+    type Review @embedded {
+      message: String
+    }
+
+    interface Poi @inherit @model {
+      id: ID @id @unique @db(name: "_id")
+      reviews: [Review]
+    }
+
+    type Hotel implements Poi {
+      title: String
+    }
   `);
 
   test('Post', () => {
@@ -785,5 +798,24 @@ describe('nested arrays', () => {
             comments(where: CommentWhereInput, orderBy: CommentOrderByInput, skip: Int, first: Int): [Comment]
           }"
     `);
+  });
+
+  test('Poi', () => {
+    expect(printType(schema.getType('Poi'))).toMatchInlineSnapshot(`
+    "interface Poi {
+      id: ID
+      reviews(where: ReviewWhereInput, orderBy: ReviewOrderByInput, skip: Int, first: Int): [Review]
+    }"
+`);
+  });
+
+  test('Hotel', () => {
+    expect(printType(schema.getType('Hotel'))).toMatchInlineSnapshot(`
+      "type Hotel implements Poi {
+        id: ID
+        reviews(where: ReviewWhereInput, orderBy: ReviewOrderByInput, skip: Int, first: Int): [Review]
+        title: String
+      }"
+`);
   });
 });
