@@ -1276,7 +1276,7 @@ test('test empty object instead array', async () => {
           data: {
             title: "Empty comments post title"
             body: "Empty comments post body"
-            comments: { create: [] }
+            comments: { create: [{ body: "comment1" }, { body: "comment2" }] }
           }
         ) {
           id
@@ -1303,6 +1303,59 @@ test('where nested', async () => {
     variables: { where: { comments_some: { body_contains: 'test' } } },
   });
   expect(errors).toBeUndefined();
+});
+
+test('nested array filter', async () => {
+  {
+    const { data, errors } = await query({
+      query: gql`
+        query posts {
+          posts(where: { comments_exists: true }) {
+            comments {
+              body
+            }
+          }
+        }
+      `,
+    });
+    expect(errors).toBeUndefined();
+    expect(data.posts[0]).toMatchInlineSnapshot(`
+      Object {
+        "comments": Array [
+          Object {
+            "body": "comment1",
+          },
+          Object {
+            "body": "comment2",
+          },
+        ],
+      }
+      `);
+  }
+
+  {
+    const { data, errors } = await query({
+      query: gql`
+        query posts {
+          posts(where: { comments_exists: true }) {
+            comments(where: { body_contains: "2" }) {
+              body
+            }
+          }
+        }
+      `,
+    });
+    expect(errors).toBeUndefined();
+    expect(data.posts[0]).toMatchInlineSnapshot(`
+      Object {
+        "comments": Array [
+          Object {
+            "body": "comment2",
+          },
+        ],
+      }
+      `);
+  }
 });
 
 test('federation entities', async () => {
