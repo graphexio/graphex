@@ -1,29 +1,23 @@
 import { GraphQLNonNull, isInterfaceType } from 'graphql';
 import R from 'ramda';
-import { AMUpdateOperation } from '../execution/operations/updateOperation';
-import { AMUpdateTypeFactory } from '../inputTypes/update';
-import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
-import { AMWhereACLTypeFactory } from '../inputTypes/whereACL';
-import { resolve } from '../resolve';
 import {
   AMField,
+  AMMethodFieldFactory,
   AMModelType,
-  IAMFieldFactory,
-  IAMMethodFieldFactory,
   GraphQLOperationType,
 } from '../definitions';
 import { AMSelectorContext } from '../execution/contexts/selector';
-import { AMWhereTypeFactory } from '../inputTypes/where';
-import { AMInterfaceWhereUniqueTypeFactory } from '../inputTypes/interfaceWhereUnique';
+import { AMUpdateOperation } from '../execution/operations/updateOperation';
+import { resolve } from '../resolve';
 
-export const AMModelUpdateMutationFieldFactory: IAMMethodFieldFactory = {
+export class AMModelUpdateMutationFieldFactory extends AMMethodFieldFactory {
   getOperationType() {
     return GraphQLOperationType.Mutation;
-  },
+  }
   getFieldName(modelType: AMModelType): string {
     return R.concat('update')(modelType.name);
-  },
-  getField(modelType: AMModelType, schemaInfo) {
+  }
+  getField(modelType: AMModelType) {
     return <AMField>{
       name: this.getFieldName(modelType),
       description: '',
@@ -33,17 +27,17 @@ export const AMModelUpdateMutationFieldFactory: IAMMethodFieldFactory = {
         {
           name: 'data',
           type: new GraphQLNonNull(
-            schemaInfo.resolveFactoryType(modelType, AMUpdateTypeFactory)
+            this.configResolver.resolveInputType(modelType, this.links.data)
           ),
         },
         {
           name: 'where',
           type: new GraphQLNonNull(
-            schemaInfo.resolveFactoryType(
+            this.configResolver.resolveInputType(
               modelType,
               isInterfaceType(modelType)
-                ? AMInterfaceWhereUniqueTypeFactory
-                : AMWhereUniqueTypeFactory
+                ? this.links.whereInterface
+                : this.links.where
             )
           ),
         },
@@ -70,5 +64,5 @@ export const AMModelUpdateMutationFieldFactory: IAMMethodFieldFactory = {
       },
       resolve: resolve,
     };
-  },
-};
+  }
+}

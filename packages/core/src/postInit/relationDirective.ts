@@ -1,30 +1,21 @@
+import TypeWrap from '@apollo-model/type-wrap';
 import {
-  GraphQLInt,
   GraphQLSchema,
   isInterfaceType,
   isObjectType,
-  GraphQLInputField,
-  GraphQLInputType,
-  GraphQLNamedType,
   isOutputType,
 } from 'graphql';
-import {
-  AMModelField,
-  AMModelType,
-  AMResolveFactoryType,
-  IAMTypeFactory,
-  AMField,
-} from '../definitions';
-import TypeWrap from '@apollo-model/type-wrap';
-import { AMWhereTypeFactory } from '../inputTypes/where';
-import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
-import { skipArg } from '../args/skip';
 import { firstArg } from '../args/first';
+import { skipArg } from '../args/skip';
+import { AMConfigResolver } from '../config/resolver';
+import { AMField, AMModelField, AMModelType } from '../definitions';
 import { AMAggregateOperation } from '../execution/operations/aggregateOperation';
 import { makeSchemaInfo } from '../schemaInfo';
-import { AMConnectionTypeFactory } from '../types/connection';
 
-export const relationDirective = (schema: GraphQLSchema) => {
+export const relationDirective = (
+  schema: GraphQLSchema,
+  configResolver: AMConfigResolver
+) => {
   const schemaInfo = makeSchemaInfo(schema);
 
   Object.values(schema.getTypeMap()).forEach(type => {
@@ -40,7 +31,7 @@ export const relationDirective = (schema: GraphQLSchema) => {
               description: null,
               extensions: undefined,
               astNode: undefined,
-              type: schemaInfo.resolveFactoryType(realType, AMWhereTypeFactory),
+              type: configResolver.resolveInputType(realType, 'where'),
               defaultValue: undefined,
             },
             ...(!realType.mmAbstract
@@ -50,10 +41,7 @@ export const relationDirective = (schema: GraphQLSchema) => {
                     description: null,
                     extensions: undefined,
                     astNode: undefined,
-                    type: schemaInfo.resolveFactoryType(
-                      realType,
-                      AMOrderByTypeFactory
-                    ),
+                    type: configResolver.resolveInputType(realType, 'orderBy'),
                     defaultValue: undefined,
                   },
                 ]
@@ -69,17 +57,11 @@ export const relationDirective = (schema: GraphQLSchema) => {
               description: '',
               extensions: undefined,
               astNode: undefined,
-              type: schemaInfo.resolveFactoryType(
-                realType,
-                AMConnectionTypeFactory
-              ),
+              type: configResolver.resolveType(realType, 'connection'),
               args: [
                 {
                   name: 'where',
-                  type: schemaInfo.resolveFactoryType(
-                    realType,
-                    AMWhereTypeFactory
-                  ),
+                  type: configResolver.resolveInputType(realType, 'where'),
                 },
                 skipArg,
                 firstArg,

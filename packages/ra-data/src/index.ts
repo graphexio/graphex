@@ -26,7 +26,7 @@ export default (options: {
       ): Promise<any> => {
         // Temporary work-around until we make use of updateMany and deleteMany mutations
         if (fetchType === DELETE_MANY) {
-          const { ids, ...otherParams } = params;
+          const { ...otherParams } = params;
           return Promise.all(
             params.ids.map((id: string) =>
               graphQLDataProvider(DELETE, resource, {
@@ -40,7 +40,7 @@ export default (options: {
         }
 
         if (fetchType === UPDATE_MANY) {
-          const { ids, ...otherParams } = params;
+          const { ...otherParams } = params;
           return Promise.all(
             params.ids.map((id: string) =>
               graphQLDataProvider(UPDATE, resource, {

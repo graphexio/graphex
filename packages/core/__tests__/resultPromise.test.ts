@@ -1,16 +1,19 @@
-import { AMOperation } from '../src/execution/operation';
+import { AMCreateOperation } from '../src/execution/operations/createOperation';
 import {
   AMOperationResultPromise,
   AMDataResultPromise,
 } from '../src/execution/resultPromise';
+import { ResultPromiseTransforms } from '../src/execution/resultPromise';
+
 import { AMTransaction } from '../src/execution/transaction';
 import { ObjectID, DBRef } from 'mongodb';
 
 describe('simple', () => {
   const arr = [{ test: 'value' }];
   const transaction = new AMTransaction();
-  const operation = new AMOperation(transaction, { collectionName: '' });
+  const operation = new AMCreateOperation(transaction, { collectionName: '' });
   const resultPromise = new AMOperationResultPromise<any>(operation);
+
   resultPromise.resolve(arr);
 
   test('simple', () => {
@@ -27,7 +30,9 @@ describe('simple', () => {
 
   test('distinct', () => {
     const result = ['value'];
-    const distinctResultPromise = resultPromise.distinct('test');
+    const distinctResultPromise = resultPromise.map(
+      ResultPromiseTransforms.distinct('test')
+    );
     expect(distinctResultPromise.getValueSource()).toEqual(
       `Operation-0 -> distinct('test')`
     );
@@ -39,10 +44,8 @@ describe('simple', () => {
     const data = () => new AMDataResultPromise([{ _id: 'value' }]);
     const result = [{ test: { _id: 'value' } }];
 
-    const distinctReplaceResultPromise = resultPromise.distinctReplace(
-      'test',
-      '_id',
-      data
+    const distinctReplaceResultPromise = resultPromise.map(
+      ResultPromiseTransforms.distinctReplace('test', '_id', data)
     );
     expect(distinctReplaceResultPromise.getValueSource()).toEqual(
       "Operation-0 -> distinctReplace('test', '_id', AMResultPromise { Static Data })"
@@ -56,7 +59,9 @@ describe('lookup', () => {
   test('lookup', () => {
     const arr = [{ id: 'item-id' }];
     const transaction = new AMTransaction();
-    const operation = new AMOperation(transaction, { collectionName: '' });
+    const operation = new AMCreateOperation(transaction, {
+      collectionName: '',
+    });
     const resultPromise = new AMOperationResultPromise<any>(operation);
     resultPromise.resolve(arr);
 
@@ -66,11 +71,8 @@ describe('lookup', () => {
       { id: 'item-id', children: [{ _id: 'child-id', parentId: 'item-id' }] },
     ];
 
-    const lookupResultPromise = resultPromise.lookup(
-      'children',
-      'id',
-      'parentId',
-      data
+    const lookupResultPromise = resultPromise.map(
+      ResultPromiseTransforms.lookup('children', 'id', 'parentId', data)
     );
     expect(lookupResultPromise.getValueSource()).toEqual(
       "Operation-0 -> lookup('children', 'id', 'parentId', AMResultPromise { Static Data }, true)"
@@ -82,7 +84,9 @@ describe('lookup', () => {
   test('lookup single', () => {
     const arr = [{ id: 'item-id' }];
     const transaction = new AMTransaction();
-    const operation = new AMOperation(transaction, { collectionName: '' });
+    const operation = new AMCreateOperation(transaction, {
+      collectionName: '',
+    });
     const resultPromise = new AMOperationResultPromise<any>(operation);
     resultPromise.resolve(arr);
 
@@ -92,12 +96,8 @@ describe('lookup', () => {
       { id: 'item-id', children: { _id: 'child-id', parentId: 'item-id' } },
     ];
 
-    const lookupResultPromise = resultPromise.lookup(
-      'children',
-      'id',
-      'parentId',
-      data,
-      false
+    const lookupResultPromise = resultPromise.map(
+      ResultPromiseTransforms.lookup('children', 'id', 'parentId', data, false)
     );
     expect(lookupResultPromise.getValueSource()).toEqual(
       "Operation-0 -> lookup('children', 'id', 'parentId', AMResultPromise { Static Data }, false)"
@@ -109,7 +109,9 @@ describe('lookup', () => {
   test('lookup inside nested', () => {
     const arr = [{ id: 'item-id', nested: { id: 'nested-item-id' } }];
     const transaction = new AMTransaction();
-    const operation = new AMOperation(transaction, { collectionName: '' });
+    const operation = new AMCreateOperation(transaction, {
+      collectionName: '',
+    });
     const resultPromise = new AMOperationResultPromise<any>(operation);
     resultPromise.resolve(arr);
 
@@ -127,12 +129,14 @@ describe('lookup', () => {
       },
     ];
 
-    const lookupResultPromise = resultPromise.lookup(
-      'nested.children',
-      'id',
-      'parentId',
-      data,
-      false
+    const lookupResultPromise = resultPromise.map(
+      ResultPromiseTransforms.lookup(
+        'nested.children',
+        'id',
+        'parentId',
+        data,
+        false
+      )
     );
     expect(lookupResultPromise.getValueSource()).toEqual(
       "Operation-0 -> lookup('nested.children', 'id', 'parentId', AMResultPromise { Static Data }, false)"
@@ -148,12 +152,14 @@ describe('dbRef', () => {
   const arr = { ids: [id1, id2], id: id1 };
 
   const transaction = new AMTransaction();
-  const operation = new AMOperation(transaction, { collectionName: '' });
+  const operation = new AMCreateOperation(transaction, { collectionName: '' });
   const resultPromise = new AMOperationResultPromise<any>(operation);
   resultPromise.resolve(arr);
 
   test('many', () => {
-    let result = resultPromise.path('ids').dbRef('admins');
+    const result = resultPromise
+      .map(ResultPromiseTransforms.path('ids'))
+      .map(ResultPromiseTransforms.dbRef('admins'));
     expect(result.getValueSource()).toEqual(
       "Operation-0 -> path('ids') -> dbRef('admins')"
     );
@@ -165,7 +171,9 @@ describe('dbRef', () => {
   });
 
   test('single', () => {
-    let result = resultPromise.path('id').dbRef('admins');
+    const result = resultPromise
+      .map(ResultPromiseTransforms.path('id'))
+      .map(ResultPromiseTransforms.dbRef('admins'));
     expect(result.getValueSource()).toEqual(
       "Operation-0 -> path('id') -> dbRef('admins')"
     );
@@ -203,7 +211,7 @@ test('dbRef replace', () => {
   };
 
   const transaction = new AMTransaction();
-  const operation = new AMOperation(transaction, { collectionName: '' });
+  const operation = new AMCreateOperation(transaction, { collectionName: '' });
   const resultPromise = new AMOperationResultPromise<any>(operation);
   resultPromise.resolve(doc);
 
@@ -218,7 +226,9 @@ test('dbRef replace', () => {
       },
     });
 
-  const result = resultPromise.dbRefReplace('ids', data);
+  const result = resultPromise.map(
+    ResultPromiseTransforms.dbRefReplace('ids', data)
+  );
 
   expect(result.getValueSource()).toEqual(
     "Operation-0 -> dbRefReplace('ids', AMResultPromise { Static Data })"
@@ -226,5 +236,289 @@ test('dbRef replace', () => {
 
   return expect(result).resolves.toEqual({
     ids: [obj1, obj2, obj3],
+  });
+});
+
+describe('transformArray', () => {
+  const arr = [
+    {
+      comments: [
+        { id: 1, message: 'message1' },
+        { id: 2, message: 'message2' },
+        { id: 3, message: 'message_test' },
+        {
+          id: 4,
+          message: 'message_with_nested_arr',
+          comments: [
+            {
+              id: 5,
+              message: 'message_nested',
+            },
+          ],
+        },
+        {
+          id: 6,
+          message: 'message_with_tags1',
+          tags: ['a'],
+        },
+        {
+          id: 7,
+          message: 'message_with_tags2',
+          tags: ['a', 'b'],
+        },
+        {
+          id: 8,
+          message: 'message_with_tags2',
+          tags: ['a', 'b', 'c'],
+        },
+      ],
+    },
+  ];
+  const transaction = new AMTransaction();
+  const operation = new AMCreateOperation(transaction, { collectionName: '' });
+  const resultPromise = new AMOperationResultPromise<any>(operation);
+
+  resultPromise.resolve(arr);
+
+  test('string match', () => {
+    const result = [
+      {
+        comments: [{ id: 3, message: 'message_test' }],
+      },
+    ];
+    const transformResultPromise = resultPromise.map(
+      ResultPromiseTransforms.transformArray('comments', {
+        where: {
+          message: 'message_test',
+        },
+      })
+    );
+
+    return expect(transformResultPromise).resolves.toEqual(result);
+  });
+
+  test('regex match', () => {
+    const result = [
+      {
+        comments: [{ id: 3, message: 'message_test' }],
+      },
+    ];
+    const transformResultPromise = resultPromise.map(
+      ResultPromiseTransforms.transformArray('comments', {
+        where: {
+          message: {
+            $regex: /test/,
+          },
+        },
+      })
+    );
+
+    return expect(transformResultPromise).resolves.toEqual(result);
+  });
+
+  test('elemMatch', () => {
+    const result = [
+      {
+        comments: [
+          {
+            id: 4,
+            message: 'message_with_nested_arr',
+            comments: [
+              {
+                id: 5,
+                message: 'message_nested',
+              },
+            ],
+          },
+        ],
+      },
+    ];
+    const transformResultPromise = resultPromise.map(
+      ResultPromiseTransforms.transformArray('comments', {
+        where: {
+          comments: {
+            $elemMatch: {
+              message: 'message_nested',
+            },
+          },
+        },
+      })
+    );
+
+    return expect(transformResultPromise).resolves.toEqual(result);
+  });
+
+  test('all', () => {
+    const result = [
+      {
+        comments: [
+          {
+            id: 7,
+            message: 'message_with_tags2',
+            tags: ['a', 'b'],
+          },
+          {
+            id: 8,
+            message: 'message_with_tags2',
+            tags: ['a', 'b', 'c'],
+          },
+        ],
+      },
+    ];
+    const transformResultPromise = resultPromise.map(
+      ResultPromiseTransforms.transformArray('comments', {
+        where: {
+          tags: {
+            $all: ['a', 'b'],
+          },
+        },
+      })
+    );
+
+    return expect(transformResultPromise).resolves.toEqual(result);
+  });
+
+  test('exists', () => {
+    const result = [
+      {
+        comments: [
+          {
+            id: 4,
+            message: 'message_with_nested_arr',
+            comments: [
+              {
+                id: 5,
+                message: 'message_nested',
+              },
+            ],
+          },
+        ],
+      },
+    ];
+    const transformResultPromise = resultPromise.map(
+      ResultPromiseTransforms.transformArray('comments', {
+        where: {
+          comments: {
+            $exists: true,
+          },
+        },
+      })
+    );
+
+    return expect(transformResultPromise).resolves.toEqual(result);
+  });
+
+  test('gt', () => {
+    const result = [
+      {
+        comments: [
+          {
+            id: 8,
+            message: 'message_with_tags2',
+            tags: ['a', 'b', 'c'],
+          },
+        ],
+      },
+    ];
+    const transformResultPromise = resultPromise.map(
+      ResultPromiseTransforms.transformArray('comments', {
+        where: {
+          id: {
+            $gt: 7,
+          },
+        },
+      })
+    );
+
+    return expect(transformResultPromise).resolves.toEqual(result);
+  });
+  test('gte', () => {
+    const result = [
+      {
+        comments: [
+          {
+            id: 7,
+            message: 'message_with_tags2',
+            tags: ['a', 'b'],
+          },
+          {
+            id: 8,
+            message: 'message_with_tags2',
+            tags: ['a', 'b', 'c'],
+          },
+        ],
+      },
+    ];
+    const transformResultPromise = resultPromise.map(
+      ResultPromiseTransforms.transformArray('comments', {
+        where: {
+          id: {
+            $gte: 7,
+          },
+        },
+      })
+    );
+
+    return expect(transformResultPromise).resolves.toEqual(result);
+  });
+  test('in', () => {
+    const result = [
+      {
+        comments: [
+          {
+            id: 7,
+            message: 'message_with_tags2',
+            tags: ['a', 'b'],
+          },
+          {
+            id: 8,
+            message: 'message_with_tags2',
+            tags: ['a', 'b', 'c'],
+          },
+        ],
+      },
+    ];
+    const transformResultPromise = resultPromise.map(
+      ResultPromiseTransforms.transformArray('comments', {
+        where: {
+          id: {
+            $in: [7, 8],
+          },
+        },
+      })
+    );
+
+    return expect(transformResultPromise).resolves.toEqual(result);
+  });
+  test('not', () => {
+    const result = [
+      {
+        comments: [
+          {
+            id: 4,
+            message: 'message_with_nested_arr',
+            comments: [
+              {
+                id: 5,
+                message: 'message_nested',
+              },
+            ],
+          },
+        ],
+      },
+    ];
+    const transformResultPromise = resultPromise.map(
+      ResultPromiseTransforms.transformArray('comments', {
+        where: {
+          comments: {
+            $not: {
+              $exists: false,
+            },
+          },
+        },
+      })
+    );
+
+    return expect(transformResultPromise).resolves.toEqual(result);
   });
 });

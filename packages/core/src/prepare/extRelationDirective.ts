@@ -17,7 +17,7 @@ export const extRelationDirective = (schema: GraphQLSchema) => {
         const relationDirective = schema.getDirective('extRelation');
         if (!relationDirectiveAST) return;
 
-        let relationField = getArgValueFromDirectiveAST(
+        const relationField = getArgValueFromDirectiveAST(
           relationDirectiveAST,
           relationDirective,
           'field'

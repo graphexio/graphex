@@ -1,46 +1,31 @@
 import R from 'ramda';
-import { AMReadOperation } from '../execution/operations/readOperation';
 import {
   AMInputFieldConfigMap,
   AMInputObjectType,
-  AMModelField,
-  IAMInputFieldFactory,
-  IAMTypeFactory,
+  AMModelType,
+  AMTypeFactory,
 } from '../definitions';
-import { AMCreateTypeFactory } from './create';
-import { AMWhereUniqueTypeFactory } from './whereUnique';
-import { AMDataContext } from '../execution/contexts/data';
-import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
-import { isInterfaceType } from 'graphql';
-import { AMInterfaceCreateTypeFactory } from './interfaceCreate';
 import { AMCreateOperation } from '../execution/operations/createOperation';
-import { AMInterfaceWhereUniqueTypeFactory } from './interfaceWhereUnique';
+import { AMReadOperation } from '../execution/operations/readOperation';
+import { ResultPromiseTransforms } from '../execution/resultPromise';
 
-const isApplicable = (field: AMModelField) => (
-  fieldFactory: IAMInputFieldFactory
-) => fieldFactory.isApplicable(field);
-
-export const AMUpdateOneRelationTypeFactory: IAMTypeFactory<AMInputObjectType> = {
-  getTypeName(modelType): string {
+export class AMUpdateOneRelationTypeFactory extends AMTypeFactory<
+  AMInputObjectType
+> {
+  getTypeName(modelType: AMModelType): string {
     return `${modelType.name}UpdateOneRelationInput`;
-  },
-  getType(modelType, schemaInfo) {
-    const self: IAMTypeFactory<AMInputObjectType> = this;
-    const createTypeFactory = !isInterfaceType(modelType)
-      ? AMCreateTypeFactory
-      : AMInterfaceCreateTypeFactory;
-
-    const whereTypeFactory = !isInterfaceType(modelType)
-      ? AMWhereUniqueTypeFactory
-      : AMInterfaceWhereUniqueTypeFactory;
-
+  }
+  getType(modelType: AMModelType) {
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
-        const fields = <AMInputFieldConfigMap>{
+        const fields = {
           create: {
-            type: schemaInfo.resolveFactoryType(modelType, createTypeFactory),
+            type: this.configResolver.resolveInputType(modelType, [
+              'create',
+              'interfaceCreate',
+            ]),
             amEnter(node, transaction, stack) {
               const opContext = new AMCreateOperation(transaction, {
                 many: false,
@@ -56,13 +41,20 @@ export const AMUpdateOneRelationTypeFactory: IAMTypeFactory<AMInputObjectType> =
                 lastInStack.setValue(
                   opContext
                     .getOutput()
-                    .path(lastInStack.field.relation.relationField)
+                    .map(
+                      ResultPromiseTransforms.path(
+                        lastInStack.field.relation.relationField
+                      )
+                    )
                 );
               }
             },
           },
           connect: {
-            type: schemaInfo.resolveFactoryType(modelType, whereTypeFactory),
+            type: this.configResolver.resolveInputType(modelType, [
+              'whereUnique',
+              'interfaceWhereUnique',
+            ]),
             amEnter(node, transaction, stack) {
               const opContext = new AMReadOperation(transaction, {
                 many: false,
@@ -78,15 +70,19 @@ export const AMUpdateOneRelationTypeFactory: IAMTypeFactory<AMInputObjectType> =
                 lastInStack.setValue(
                   opContext
                     .getOutput()
-                    .path(lastInStack.field.relation.relationField)
+                    .map(
+                      ResultPromiseTransforms.path(
+                        lastInStack.field.relation.relationField
+                      )
+                    )
                 );
               }
             },
           },
-        };
+        } as AMInputFieldConfigMap;
 
         return fields;
       },
     });
-  },
-};
+  }
+}

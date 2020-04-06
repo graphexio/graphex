@@ -1,60 +1,48 @@
-import { GraphQLInputObjectType, GraphQLList, isInterfaceType } from 'graphql';
+import { GraphQLList } from 'graphql';
+import { DBRef } from 'mongodb';
 import R from 'ramda';
-import { AMObjectFieldContext } from '../execution/contexts/objectField';
-import { AMSelectorContext } from '../execution/contexts/selector';
-import { AMReadOperation } from '../execution/operations/readOperation';
 import {
-  AMModelField,
-  IAMInputFieldFactory,
-  IAMTypeFactory,
-  AMInputFieldMap,
   AMInputFieldConfigMap,
   AMInputObjectType,
+  AMModelType,
+  AMTypeFactory,
 } from '../definitions';
-import { AMCreateTypeFactory } from './create';
-import { AMWhereUniqueTypeFactory } from './whereUnique';
-import { AMInterfaceCreateTypeFactory } from './interfaceCreate';
-import { AMCreateOperation } from '../execution/operations/createOperation';
-import { AMListValueContext } from '../execution/contexts/listValue';
 import { AMDataContext } from '../execution/contexts/data';
+import { AMListValueContext } from '../execution/contexts/listValue';
+import { AMObjectFieldContext } from '../execution/contexts/objectField';
+import { AMSelectorContext } from '../execution/contexts/selector';
+import { AMCreateOperation } from '../execution/operations/createOperation';
+import { AMDeleteDBRefOperation } from '../execution/operations/deleteDbRefOperation';
+import { AMReadOperation } from '../execution/operations/readOperation';
 import {
-  getLastOperation,
+  AMResultPromise,
+  ResultPromiseTransforms,
+} from '../execution/resultPromise';
+import {
   getFieldPath,
+  getLastOperation,
   getOperationData,
 } from '../execution/utils';
-import { toArray } from '../utils';
-import { AMInterfaceWhereUniqueTypeFactory } from './interfaceWhereUnique';
-import { AMDeleteDBRefOperation } from '../execution/operations/deleteDbRefOperation';
-import { AMResultPromise } from '../execution/resultPromise';
-import { DBRef } from 'mongodb';
 
-const isApplicable = (field: AMModelField) => (
-  fieldFactory: IAMInputFieldFactory
-) => fieldFactory.isApplicable(field);
-
-export const AMUpdateManyRelationTypeFactory: IAMTypeFactory<AMInputObjectType> = {
-  getTypeName(modelType): string {
+export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
+  AMInputObjectType
+> {
+  getTypeName(modelType: AMModelType): string {
     return `${modelType.name}UpdateManyRelationInput`;
-  },
-  getType(modelType, schemaInfo) {
-    const self: IAMTypeFactory<AMInputObjectType> = this;
-    const createTypeFactory = !isInterfaceType(modelType)
-      ? AMCreateTypeFactory
-      : AMInterfaceCreateTypeFactory;
-
-    const whereTypeFactory = !isInterfaceType(modelType)
-      ? AMWhereUniqueTypeFactory
-      : AMInterfaceWhereUniqueTypeFactory;
-
+  }
+  getType(modelType: AMModelType) {
     const typeName = this.getTypeName(modelType);
 
     return new AMInputObjectType({
       name: typeName,
       fields: () => {
-        const fields = <AMInputFieldConfigMap>{
+        const fields = {
           create: {
             type: new GraphQLList(
-              schemaInfo.resolveFactoryType(modelType, createTypeFactory)
+              this.configResolver.resolveInputType(modelType, [
+                'create',
+                'interfaceCreate',
+              ])
             ),
             /* For abstract interface we make separate operation for each document */
             ...(!modelType.mmAbstract
@@ -82,7 +70,9 @@ export const AMUpdateManyRelationTypeFactory: IAMTypeFactory<AMInputObjectType> 
                     if (lastInStack instanceof AMDataContext) {
                       lastInStack.addValue(
                         'create',
-                        opContext.getOutput().path('insertedIds')
+                        opContext
+                          .getOutput()
+                          .map(ResultPromiseTransforms.path('insertedIds'))
                       );
                     }
                   },
@@ -104,7 +94,10 @@ export const AMUpdateManyRelationTypeFactory: IAMTypeFactory<AMInputObjectType> 
           },
           recreate: {
             type: new GraphQLList(
-              schemaInfo.resolveFactoryType(modelType, createTypeFactory)
+              this.configResolver.resolveInputType(modelType, [
+                'create',
+                'interfaceCreate',
+              ])
             ),
             /* For abstract interface we make separate operation for each document */
             ...(!modelType.mmAbstract
@@ -132,7 +125,9 @@ export const AMUpdateManyRelationTypeFactory: IAMTypeFactory<AMInputObjectType> 
                     if (lastInStack instanceof AMDataContext) {
                       lastInStack.addValue(
                         'recreate',
-                        opContext.getOutput().path('insertedIds')
+                        opContext
+                          .getOutput()
+                          .map(ResultPromiseTransforms.path('insertedIds'))
                       );
                     }
                   },
@@ -154,7 +149,10 @@ export const AMUpdateManyRelationTypeFactory: IAMTypeFactory<AMInputObjectType> 
           },
           connect: {
             type: new GraphQLList(
-              schemaInfo.resolveFactoryType(modelType, whereTypeFactory)
+              this.configResolver.resolveInputType(modelType, [
+                'whereUnique',
+                'interfaceWhereUnique',
+              ])
             ),
             /* For abstract interface we make separate operation for each document */
             ...(!modelType.mmAbstract
@@ -197,8 +195,10 @@ export const AMUpdateManyRelationTypeFactory: IAMTypeFactory<AMInputObjectType> 
                         'connect',
                         opContext
                           .getOutput()
-                          .distinct(
-                            objectFieldContext.field.relation.relationField
+                          .map(
+                            ResultPromiseTransforms.distinct(
+                              objectFieldContext.field.relation.relationField
+                            )
                           )
                       );
                     }
@@ -220,7 +220,10 @@ export const AMUpdateManyRelationTypeFactory: IAMTypeFactory<AMInputObjectType> 
           },
           reconnect: {
             type: new GraphQLList(
-              schemaInfo.resolveFactoryType(modelType, whereTypeFactory)
+              this.configResolver.resolveInputType(modelType, [
+                'whereUnique',
+                'interfaceWhereUnique',
+              ])
             ),
             /* For abstract interface we make separate operation for each document */
             ...(!modelType.mmAbstract
@@ -263,8 +266,10 @@ export const AMUpdateManyRelationTypeFactory: IAMTypeFactory<AMInputObjectType> 
                         'reconnect',
                         opContext
                           .getOutput()
-                          .distinct(
-                            objectFieldContext.field.relation.relationField
+                          .map(
+                            ResultPromiseTransforms.distinct(
+                              objectFieldContext.field.relation.relationField
+                            )
                           )
                       );
                     }
@@ -286,7 +291,10 @@ export const AMUpdateManyRelationTypeFactory: IAMTypeFactory<AMInputObjectType> 
           },
           disconnect: {
             type: new GraphQLList(
-              schemaInfo.resolveFactoryType(modelType, whereTypeFactory)
+              this.configResolver.resolveInputType(modelType, [
+                'whereUnique',
+                'interfaceWhereUnique',
+              ])
             ),
             ...(!modelType.mmAbstract
               ? {
@@ -308,7 +316,10 @@ export const AMUpdateManyRelationTypeFactory: IAMTypeFactory<AMInputObjectType> 
           },
           delete: {
             type: new GraphQLList(
-              schemaInfo.resolveFactoryType(modelType, whereTypeFactory)
+              this.configResolver.resolveInputType(modelType, [
+                'whereUnique',
+                'interfaceWhereUnique',
+              ])
             ),
             ...(!modelType.mmAbstract
               ? {
@@ -338,7 +349,7 @@ export const AMUpdateManyRelationTypeFactory: IAMTypeFactory<AMInputObjectType> 
                   },
                 }),
           },
-        };
+        } as AMInputFieldConfigMap;
 
         return fields;
       },
@@ -394,5 +405,5 @@ export const AMUpdateManyRelationTypeFactory: IAMTypeFactory<AMInputObjectType> 
         }
       },
     });
-  },
-};
+  }
+}

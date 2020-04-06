@@ -16,7 +16,7 @@ beforeAll(async () => {
   mutate = instance.mutate;
   connectToDatabase = instance.connectToDatabase;
 
-  let DB = await connectToDatabase();
+  const DB = await connectToDatabase();
   await DB.collection('posts').createIndex({ place: '2dsphere' });
 });
 
@@ -32,7 +32,7 @@ test('Introspection', async () => {
 });
 
 test('QueryCategories empty', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       query {
         categories {
@@ -51,7 +51,7 @@ test('QueryCategories empty', async () => {
 });
 
 test('Empty WhereUnique', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       query {
         category(where: {}) {
@@ -83,7 +83,7 @@ Array [
 });
 
 test('CreateCategory', async () => {
-  let { errors, data } = await mutate({
+  const { errors, data } = await mutate({
     mutation: gql`
       mutation createCategory($title: String) {
         createCategory(data: { title: $title }) {
@@ -104,7 +104,7 @@ test('CreateCategory', async () => {
 });
 
 test('QuerySingleCategory', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       {
         category(where: { title: "root" }) {
@@ -124,7 +124,7 @@ test('QuerySingleCategory', async () => {
 });
 
 test('QueryCategories after create', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       query {
         categories {
@@ -147,7 +147,7 @@ test('QueryCategories after create', async () => {
 });
 
 test('CreateChildCategory "JS"', async () => {
-  let { errors, data } = await mutate({
+  const { errors, data } = await mutate({
     mutation: gql`
       mutation createChildCategory($title: String!, $parentTitle: String!) {
         createCategory(
@@ -179,7 +179,7 @@ test('CreateChildCategory "JS"', async () => {
 });
 
 test('CreateChildCategory "MongoDB"', async () => {
-  let { errors, data } = await mutate({
+  const { errors, data } = await mutate({
     mutation: gql`
       mutation createChildCategory($title: String!, $parentTitle: String!) {
         createCategory(
@@ -211,7 +211,7 @@ test('CreateChildCategory "MongoDB"', async () => {
 });
 
 test('CreateChildCategory "React"', async () => {
-  let { errors, data } = await mutate({
+  const { errors, data } = await mutate({
     mutation: gql`
       mutation createChildCategory($title: String!, $parentTitle: String!) {
         createCategory(
@@ -243,7 +243,7 @@ test('CreateChildCategory "React"', async () => {
 });
 
 test('Update category', async () => {
-  let { errors, data } = await mutate({
+  const { errors, data } = await mutate({
     mutation: gql`
       mutation update($oldTitle: String!, $newTitle: String!) {
         updateCategory(
@@ -267,7 +267,7 @@ test('Update category', async () => {
 });
 
 test('Query categories after renaming', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       {
         categories {
@@ -298,7 +298,7 @@ test('Query categories after renaming', async () => {
 });
 
 test('Query categories pagination', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       {
         categories(skip: 2, first: 1) {
@@ -320,7 +320,7 @@ test('Query categories pagination', async () => {
 });
 
 test('Rename category back', async () => {
-  let { errors, data } = await mutate({
+  const { errors, data } = await mutate({
     mutation: gql`
       mutation update($oldTitle: String!, $newTitle: String!) {
         updateCategory(
@@ -344,7 +344,7 @@ test('Rename category back', async () => {
 });
 
 test('Query Category with parent relation', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       {
         category(where: { title: "JS" }) {
@@ -371,7 +371,7 @@ test('Query Category with parent relation', async () => {
 });
 
 test('QueryCategoriesExtRelation', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       query {
         categories {
@@ -431,7 +431,7 @@ test('QueryCategoriesExtRelation', async () => {
 });
 
 test('Categories aggregate count', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       query {
         categoriesConnection {
@@ -456,7 +456,7 @@ test('Categories aggregate count', async () => {
 });
 
 test('Categories aggregate count with where', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       query {
         categoriesConnection(where: { title: "JS" }) {
@@ -482,7 +482,7 @@ test('Categories aggregate count with where', async () => {
 
 test('ExtRelation OrderBy', async () => {
   {
-    let { errors, data } = await query({
+    const { errors, data } = await query({
       query: gql`
         query {
           categories(where: { title: "root" }) {
@@ -515,7 +515,7 @@ test('ExtRelation OrderBy', async () => {
   `);
   }
   {
-    let { errors, data } = await query({
+    const { errors, data } = await query({
       query: gql`
         query {
           categories(where: { title: "root" }) {
@@ -550,7 +550,7 @@ test('ExtRelation OrderBy', async () => {
 });
 
 test('QueryCategoriesByTitle', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       query filterByTitle($title: String) {
         categories(where: { title: $title }) {
@@ -573,7 +573,7 @@ test('QueryCategoriesByTitle', async () => {
 });
 
 test('CategoriesComplexFilterOr', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       query {
         categories(where: { OR: [{ title: "root" }, { title: "JS" }] }) {
@@ -599,7 +599,7 @@ test('CategoriesComplexFilterOr', async () => {
 });
 
 test('CategoriesRelationFilter', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       query subcategories($title: String) {
         categories(where: { parentCategory: { title: $title } }) {
@@ -625,7 +625,7 @@ test('CategoriesRelationFilter', async () => {
 });
 
 test('CreateSubscriberWithEmbeddedDocument', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       mutation {
         createSubscriber(
@@ -659,7 +659,7 @@ test('CreateSubscriberWithEmbeddedDocument', async () => {
 });
 
 test('Find users by interface where', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       query {
         users(
@@ -702,7 +702,7 @@ test('Find users by interface where', async () => {
 });
 
 test('Update subscriber nested field', async () => {
-  let { data, errors } = await mutate({
+  const { data, errors } = await mutate({
     mutation: gql`
       mutation updateSubscribersName($username: String!, $firstName: String!) {
         updateSubscriber(
@@ -735,7 +735,7 @@ test('Update subscriber nested field', async () => {
 });
 
 test('Rename subscriber back', async () => {
-  let { data, errors } = await mutate({
+  const { data, errors } = await mutate({
     mutation: gql`
       mutation updateSubscribersName($username: String!, $firstName: String!) {
         updateSubscriber(
@@ -768,7 +768,7 @@ test('Rename subscriber back', async () => {
 });
 
 test('CreateAdmin', async () => {
-  let { data, errors } = await query({
+  const { data, errors } = await query({
     query: gql`
       mutation {
         createAdmin(data: { username: "admin" }) {
@@ -790,7 +790,7 @@ test('CreateAdmin', async () => {
 
 let postId = '';
 test('CreatePostWithInterfaceRelation', async () => {
-  let res = await query({
+  const res = await query({
     query: gql`
       mutation {
         createPost(
@@ -808,7 +808,7 @@ test('CreatePostWithInterfaceRelation', async () => {
     `,
     variables: {},
   });
-  let { data, errors } = res;
+  const { data, errors } = res;
   expect(errors).toBeUndefined();
   postId = data.createPost.id;
   delete data.createPost.id;
@@ -822,7 +822,7 @@ test('CreatePostWithInterfaceRelation', async () => {
 });
 
 test('Query posts with owner relation', async () => {
-  let res = await query({
+  const res = await query({
     query: gql`
       query {
         posts {
@@ -834,7 +834,7 @@ test('Query posts with owner relation', async () => {
     `,
     variables: {},
   });
-  let { data, errors } = res;
+  const { data, errors } = res;
   expect(errors).toBeUndefined();
   expect(data).toMatchInlineSnapshot(`
     Object {
@@ -850,7 +850,7 @@ test('Query posts with owner relation', async () => {
 });
 
 test('QueryUsersInterface', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       query {
         users {
@@ -894,7 +894,7 @@ test('QueryUsersInterface', async () => {
 });
 
 test('CategoriesSameFieldFilter', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       query {
         categories(where: { title_gt: "A", title_lt: "L" }) {
@@ -917,7 +917,7 @@ test('CategoriesSameFieldFilter', async () => {
 });
 
 test('CategoriesOrderByFieldWithDBDirective', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       query {
         categories(orderBy: createdAt_DESC) {
@@ -949,7 +949,7 @@ test('CategoriesOrderByFieldWithDBDirective', async () => {
 });
 
 test('CategoryDelete', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       mutation deleteCategory($title: String) {
         deleteCategory(where: { title: $title }) {
@@ -970,7 +970,7 @@ test('CategoryDelete', async () => {
 });
 
 test('QueryCategories after delete', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       query {
         categories {
@@ -1000,7 +1000,7 @@ test('QueryCategories after delete', async () => {
 
 let shopId = '';
 test('CreateShop abstract interface', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       mutation createShop($title: String!) {
         createShop(data: { title: $title }) {
@@ -1025,7 +1025,7 @@ test('CreateShop abstract interface', async () => {
 });
 
 test('QueryShops', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       {
         shops {
@@ -1048,7 +1048,7 @@ test('QueryShops', async () => {
 });
 
 test('QueryShopById', async () => {
-  let { data, errors } = await query({
+  const { data, errors } = await query({
     query: gql`
       query shop($id: ObjectID!) {
         shop(where: { id: $id }) {
@@ -1069,7 +1069,7 @@ test('QueryShopById', async () => {
 });
 
 test('Update Post create abstract relation Hotel ', async () => {
-  let { data, errors } = await query({
+  const { data, errors } = await query({
     query: gql`
       mutation updatePost($postId: ObjectID) {
         updatePost(
@@ -1099,7 +1099,7 @@ test('Update Post create abstract relation Hotel ', async () => {
 });
 
 test('QueryHotels', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       {
         hotels {
@@ -1124,7 +1124,7 @@ test('QueryHotels', async () => {
 });
 
 test('UpdatePostConnectShop', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       mutation updatePost($postId: ObjectID, $shopId: ObjectID) {
         updatePost(
@@ -1157,7 +1157,7 @@ test('UpdatePostConnectShop', async () => {
 });
 
 test('UpdatePostDisconnectShop', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       mutation updatePost($postId: ObjectID, $shopId: ObjectID) {
         updatePost(
@@ -1187,7 +1187,7 @@ test('UpdatePostDisconnectShop', async () => {
 });
 
 test('UpdatePostConnectShop', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       mutation updatePost($postId: ObjectID, $shopId: ObjectID) {
         updatePost(
@@ -1220,7 +1220,7 @@ test('UpdatePostConnectShop', async () => {
 });
 
 test('UpdatePostDeleteShop', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       mutation updatePost($postId: ObjectID, $shopId: ObjectID) {
         updatePost(
@@ -1250,7 +1250,7 @@ test('UpdatePostDeleteShop', async () => {
 });
 
 test('QueryShopById after updates', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       query shop($id: ObjectID!) {
         shop(where: { id: $id }) {
@@ -1269,14 +1269,14 @@ test('QueryShopById after updates', async () => {
 });
 
 test('test empty object instead array', async () => {
-  let { data, errors } = await query({
+  const { data, errors } = await query({
     query: gql`
       mutation {
         createPost(
           data: {
             title: "Empty comments post title"
             body: "Empty comments post body"
-            comments: { create: [] }
+            comments: { create: [{ body: "comment1" }, { body: "comment2" }] }
           }
         ) {
           id
@@ -1292,7 +1292,7 @@ test('test empty object instead array', async () => {
 });
 
 test('where nested', async () => {
-  let { data, errors } = await query({
+  const { data, errors } = await query({
     query: gql`
       query posts($where: PostWhereInput) {
         posts(where: $where) {
@@ -1305,8 +1305,61 @@ test('where nested', async () => {
   expect(errors).toBeUndefined();
 });
 
+test('nested array filter', async () => {
+  {
+    const { data, errors } = await query({
+      query: gql`
+        query posts {
+          posts(where: { comments_exists: true }) {
+            comments {
+              body
+            }
+          }
+        }
+      `,
+    });
+    expect(errors).toBeUndefined();
+    expect(data.posts[0]).toMatchInlineSnapshot(`
+      Object {
+        "comments": Array [
+          Object {
+            "body": "comment1",
+          },
+          Object {
+            "body": "comment2",
+          },
+        ],
+      }
+      `);
+  }
+
+  {
+    const { data, errors } = await query({
+      query: gql`
+        query posts {
+          posts(where: { comments_exists: true }) {
+            comments(where: { body_contains: "2" }) {
+              body
+            }
+          }
+        }
+      `,
+    });
+    expect(errors).toBeUndefined();
+    expect(data.posts[0]).toMatchInlineSnapshot(`
+      Object {
+        "comments": Array [
+          Object {
+            "body": "comment2",
+          },
+        ],
+      }
+      `);
+  }
+});
+
 test('federation entities', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       query($representations: [_Any!]!) {
         _entities(representations: $representations) {
@@ -1345,7 +1398,7 @@ test('federation entities', async () => {
 });
 
 test('relation on null item', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       query($representations: [_Any!]!) {
         _entities(representations: $representations) {
@@ -1384,7 +1437,7 @@ test('relation on null item', async () => {
 });
 
 test('Entities custom scalar inside _Any', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       query($representations: [_Any!]!) {
         _entities(representations: $representations) {
@@ -1419,7 +1472,7 @@ test('Entities custom scalar inside _Any', async () => {
 });
 
 test('Test createdAt, updatedAt', async () => {
-  let result = await query({
+  const result = await query({
     query: gql`
       mutation {
         createCategory1: createCategory(
@@ -1458,7 +1511,7 @@ test('Test createdAt, updatedAt', async () => {
   expect(result.errors).toBeUndefined();
 
   {
-    let { errors, data } = await query({
+    const { errors, data } = await query({
       query: gql`
         query {
           categories(
@@ -1475,7 +1528,7 @@ test('Test createdAt, updatedAt', async () => {
     //Date shouldn't be stored as string
 
     //check user defined values
-    let DB = await connectToDatabase();
+    const DB = await connectToDatabase();
     let record = await DB.collection('categories').findOne({
       title: 'Category 1',
     });
@@ -1511,7 +1564,7 @@ test('Test createdAt, updatedAt', async () => {
   `);
   }
   {
-    let { errors, data } = await query({
+    const { errors, data } = await query({
       query: gql`
         query {
           categories(
@@ -1545,7 +1598,7 @@ test('Test createdAt, updatedAt', async () => {
 
 test('relation some', async () => {
   {
-    let { errors, data } = await query({
+    const { errors, data } = await query({
       query: gql`
         mutation {
           createPost(
@@ -1565,10 +1618,10 @@ test('relation some', async () => {
   }
 
   {
-    let { errors, data } = await query({
+    const { errors, data } = await query({
       query: gql`
         query {
-          posts(where: { likes_some: { username: "admin" } }) {
+          posts(where: { likes_some: { User: { username: "admin" } } }) {
             title
           }
         }
@@ -1590,7 +1643,7 @@ test('relation some', async () => {
 test('relation reconnect', async () => {
   let postId;
   {
-    let { errors, data } = await query({
+    const { errors, data } = await query({
       query: gql`
         mutation {
           createPost(
@@ -1613,7 +1666,7 @@ test('relation reconnect', async () => {
   }
 
   {
-    let { errors, data } = await query({
+    const { errors, data } = await query({
       query: gql`
         mutation($postId: ObjectID) {
           updatePost(
@@ -1649,7 +1702,7 @@ test('relation reconnect', async () => {
 });
 
 test('extRelation single', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       query {
         users(where: { User: { username: "admin" } }) {
@@ -1675,7 +1728,7 @@ test('extRelation single', async () => {
 });
 
 test('Create interface', async () => {
-  let { data, errors } = await query({
+  const { data, errors } = await query({
     query: gql`
       mutation {
         createUser(

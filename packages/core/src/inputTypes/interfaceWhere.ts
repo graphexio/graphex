@@ -1,24 +1,24 @@
-import { GraphQLInputObjectType, GraphQLInterfaceType } from 'graphql';
+import { GraphQLInterfaceType, isInterfaceType } from 'graphql';
 import R from 'ramda';
-import { AMCreateOperation } from '../execution/operations/createOperation';
 import {
   AMInputFieldConfig,
   AMInputObjectType,
   AMModelType,
-  IAMTypeFactory,
+  AMTypeFactory,
 } from '../definitions';
-import { AMWhereTypeFactory } from './where';
-import { AMOperation } from '../execution/operation';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMReadOperation } from '../execution/operations/readOperation';
 
-export const AMInterfaceWhereTypeFactory: IAMTypeFactory<GraphQLInputObjectType> = {
-  getTypeName(modelType): string {
+export class AMInterfaceWhereTypeFactory extends AMTypeFactory<
+  AMInputObjectType
+> {
+  isApplicable(type: AMModelType) {
+    return isInterfaceType(type);
+  }
+  getTypeName(modelType: AMModelType): string {
     return `${modelType.name}InterfaceWhereInput`;
-  },
-  getType(modelType, schemaInfo) {
-    const self: IAMTypeFactory<AMInputObjectType> = this;
-
+  }
+  getType(modelType: AMModelType) {
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
@@ -26,12 +26,14 @@ export const AMInterfaceWhereTypeFactory: IAMTypeFactory<GraphQLInputObjectType>
         if (modelType instanceof GraphQLInterfaceType) {
           [
             modelType,
-            ...(schemaInfo.schema.getPossibleTypes(modelType) as AMModelType[]),
+            ...(this.schemaInfo.schema.getPossibleTypes(
+              modelType
+            ) as AMModelType[]),
           ].forEach((possibleType: AMModelType) => {
             fields[possibleType.name] = <AMInputFieldConfig>{
-              type: schemaInfo.resolveFactoryType(
+              type: this.configResolver.resolveInputType(
                 possibleType,
-                AMWhereTypeFactory
+                this.links.where
               ),
               ...(!modelType.mmAbstract
                 ? {
@@ -99,5 +101,5 @@ export const AMInterfaceWhereTypeFactory: IAMTypeFactory<GraphQLInputObjectType>
         return fields;
       },
     });
-  },
-};
+  }
+}

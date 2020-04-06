@@ -1,33 +1,29 @@
 import TypeWrap from '@apollo-model/type-wrap';
 import { getNamedType, isCompositeType } from 'graphql';
-import { AMInputField, IAMInputFieldFactory } from '../../definitions';
-import { AMUpdateManyNestedTypeFactory } from '../updateManyNested';
-import { AMUpdateOneNestedTypeFactory } from '../updateOneNested';
-import { updateObjectFieldVisitorHandler } from '../visitorHandlers';
-import { AMObjectFieldContext } from '../../execution/contexts/objectField';
-import R from 'ramda';
-import { AMDataContext } from '../../execution/contexts/data';
-import { AMSelectorContext } from '../../execution/contexts/selector';
 import {
-  getLastOperation,
+  AMInputField,
+  AMInputFieldFactory,
+  AMModelType,
+} from '../../definitions';
+import { AMObjectFieldContext } from '../../execution/contexts/objectField';
+import {
   getFieldPath,
+  getLastOperation,
   getOperationData,
 } from '../../execution/utils';
 
-export const AMUpdateNestedFieldFactory: IAMInputFieldFactory = {
+export class AMUpdateNestedFieldFactory extends AMInputFieldFactory {
   isApplicable(field) {
     return isCompositeType(getNamedType(field.type)) && !field.relation;
-  },
+  }
   getFieldName(field) {
     return field.name;
-  },
-  getField(field, schemaInfo) {
+  }
+  getField(field) {
     const typeWrap = new TypeWrap(field.type);
-    let type = schemaInfo.resolveFactoryType(
-      typeWrap.realType(),
-      typeWrap.isMany()
-        ? AMUpdateManyNestedTypeFactory
-        : AMUpdateOneNestedTypeFactory
+    const type = this.configResolver.resolveInputType(
+      typeWrap.realType() as AMModelType,
+      typeWrap.isMany() ? this.links.many : this.links.one
     );
 
     return <AMInputField>{
@@ -50,5 +46,5 @@ export const AMUpdateNestedFieldFactory: IAMInputFieldFactory = {
         }
       },
     };
-  },
-};
+  }
+}

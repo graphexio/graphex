@@ -1,25 +1,22 @@
-import {
-  DocumentNode,
-  execute,
-  introspectionQuery,
-  printSchema,
-} from 'graphql';
-import AMM, { AMOptions } from '@apollo-model/core';
-import gql from 'graphql-tag';
-
-import makeIntrospection from 'ra-data-graphql/lib/introspection';
-import { IntrospectionResultData } from '../src/definitions';
-import introspectionOptions from '../src/introspectionOptions';
-import { createTestClient } from 'apollo-server-testing';
+import AMM, { defaultConfig } from '@apollo-model/core';
+import * as DirectiveImplements from '@apollo-model/directive-implements';
+import * as TypeGeoJSON from '@apollo-model/type-geojson';
 import { ApolloServer } from 'apollo-server';
+import { createTestClient } from 'apollo-server-testing';
+import { DocumentNode } from 'graphql';
+import makeIntrospection from 'ra-data-graphql/lib/introspection';
+import * as R from 'ramda';
+import introspectionOptions from '../src/introspectionOptions';
 import { IntrospectionResult } from '../src/introspectionResult';
-import * as GeoJSON from '@apollo-model/type-geojson';
 
 export const prepareIntrospection = async (
   typeDefs: DocumentNode
 ): Promise<IntrospectionResult> => {
   const schema = new AMM({
-    modules: [GeoJSON],
+    modules: [DirectiveImplements, TypeGeoJSON],
+    options: {
+      config: R.mergeDeepRight(defaultConfig, TypeGeoJSON.config),
+    },
   }).makeExecutableSchema({
     resolverValidationOptions: {
       requireResolversForResolveType: false,
@@ -32,7 +29,7 @@ export const prepareIntrospection = async (
     schema,
   });
 
-  const testClient = createTestClient(server);
+  const testClient = createTestClient(server as any);
 
   const introspection = await makeIntrospection(
     testClient,

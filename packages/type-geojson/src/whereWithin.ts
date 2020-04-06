@@ -1,25 +1,22 @@
+import { AMInputFieldFactory, AMModelField } from '@apollo-model/core';
+import { AMDataContext } from '@apollo-model/core/lib/execution/contexts/data';
+import { AMObjectFieldContext } from '@apollo-model/core/lib/execution/contexts/objectField';
+import { AMSelectorContext } from '@apollo-model/core/lib/execution/contexts/selector';
+import { AMInputField } from '@apollo-model/core/src/definitions';
 import { ObjectFieldNode } from 'graphql';
 import R from 'ramda';
-import { defaultObjectFieldVisitorHandler } from '@apollo-model/core/lib/inputTypes/visitorHandlers';
-import {
-  AMInputField,
-  IAMInputFieldFactory,
-} from '@apollo-model/core/src/definitions';
-import { AMObjectFieldContext } from '@apollo-model/core/lib/execution/contexts/objectField';
-import { AMDataContext } from '@apollo-model/core/lib/execution/contexts/data';
-import { AMSelectorContext } from '@apollo-model/core/lib/execution/contexts/selector';
 
-export const AMGeoJSONWithinFieldFactory: IAMInputFieldFactory = {
-  isApplicable(field) {
+export class AMGeoJSONWithinFieldFactory extends AMInputFieldFactory {
+  isApplicable() {
     return true;
-  },
-  getFieldName(field) {
+  }
+  getFieldName(field: AMModelField) {
     return `${field.name}_within`;
-  },
-  getField(field, schemaInfo) {
-    return <AMInputField>{
+  }
+  getField(field: AMModelField) {
+    return {
       name: this.getFieldName(field),
-      type: schemaInfo.schema.getTypeMap().GeoJSONPointWithinInput,
+      type: this.schemaInfo.schema.getTypeMap().GeoJSONPointWithinInput,
 
       amEnter(node: ObjectFieldNode, transaction, stack) {
         const action = new AMObjectFieldContext(field.dbName);
@@ -33,7 +30,7 @@ export const AMGeoJSONWithinFieldFactory: IAMInputFieldFactory = {
           lastInStack instanceof AMDataContext ||
           lastInStack instanceof AMSelectorContext
         ) {
-          let value = context.value as {
+          const value = context.value as {
             geometry: number[][][];
           };
 
@@ -44,6 +41,6 @@ export const AMGeoJSONWithinFieldFactory: IAMInputFieldFactory = {
           });
         }
       },
-    };
-  },
-};
+    } as AMInputField;
+  }
+}

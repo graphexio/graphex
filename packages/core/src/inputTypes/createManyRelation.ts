@@ -1,51 +1,34 @@
-import { GraphQLInputObjectType, GraphQLList, isInterfaceType } from 'graphql';
+import { GraphQLInputObjectType, GraphQLList } from 'graphql';
 import R from 'ramda';
+import {
+  AMInputFieldConfigMap,
+  AMModelType,
+  AMTypeFactory,
+} from '../definitions';
+import { AMListValueContext } from '../execution/contexts/listValue';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMSelectorContext } from '../execution/contexts/selector';
-import { AMReadOperation } from '../execution/operations/readOperation';
-import {
-  AMModelField,
-  IAMInputFieldFactory,
-  IAMTypeFactory,
-  AMInputFieldMap,
-  AMInputFieldConfigMap,
-} from '../definitions';
-import { AMCreateTypeFactory } from './create';
-import { AMWhereUniqueTypeFactory } from './whereUnique';
-import { AMInterfaceCreateTypeFactory } from './interfaceCreate';
 import { AMCreateOperation } from '../execution/operations/createOperation';
-import { AMDataContext } from '../execution/contexts/data';
-import { AMListValueContext } from '../execution/contexts/listValue';
-import { toArray } from '../utils';
-import { AMWhereTypeFactory } from './where';
-import { AMInterfaceWhereUniqueTypeFactory } from './interfaceWhereUnique';
+import { AMReadOperation } from '../execution/operations/readOperation';
+import { ResultPromiseTransforms } from '../execution/resultPromise';
 
-const isApplicable = (field: AMModelField) => (
-  fieldFactory: IAMInputFieldFactory
-) => fieldFactory.isApplicable(field);
-
-export const AMCreateManyRelationTypeFactory: IAMTypeFactory<GraphQLInputObjectType> = {
-  getTypeName(modelType): string {
+export class AMCreateManyRelationTypeFactory extends AMTypeFactory<
+  GraphQLInputObjectType
+> {
+  getTypeName(modelType: AMModelType): string {
     return `${modelType.name}CreateManyRelationInput`;
-  },
-  getType(modelType, schemaInfo) {
-    const self: IAMTypeFactory<GraphQLInputObjectType> = this;
-
-    const createTypeFactory = !isInterfaceType(modelType)
-      ? AMCreateTypeFactory
-      : AMInterfaceCreateTypeFactory;
-
-    const whereTypeFactory = !isInterfaceType(modelType)
-      ? AMWhereUniqueTypeFactory
-      : AMInterfaceWhereUniqueTypeFactory;
-
+  }
+  getType(modelType: AMModelType) {
     return new GraphQLInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
-        const fields = <AMInputFieldConfigMap>{
+        const fields = {
           create: {
             type: new GraphQLList(
-              schemaInfo.resolveFactoryType(modelType, createTypeFactory)
+              this.configResolver.resolveInputType(modelType, [
+                'create',
+                'interfaceCreate',
+              ])
             ),
             /* For abstract interface we create operations inside AMInterfaceCreateTypeFactory */
             ...(!modelType.mmAbstract
@@ -72,7 +55,9 @@ export const AMCreateManyRelationTypeFactory: IAMTypeFactory<GraphQLInputObjectT
                     const lastInStack = R.last(stack);
                     if (lastInStack instanceof AMObjectFieldContext) {
                       lastInStack.setValue(
-                        opContext.getOutput().path('insertedIds')
+                        opContext
+                          .getOutput()
+                          .map(ResultPromiseTransforms.path('insertedIds'))
                       );
                     }
                   },
@@ -94,7 +79,10 @@ export const AMCreateManyRelationTypeFactory: IAMTypeFactory<GraphQLInputObjectT
           },
           connect: {
             type: new GraphQLList(
-              schemaInfo.resolveFactoryType(modelType, whereTypeFactory)
+              this.configResolver.resolveInputType(modelType, [
+                'whereUnique',
+                'interfaceWhereUnique',
+              ])
             ),
             amEnter(node, transaction, stack) {
               const opContext = new AMReadOperation(transaction, {
@@ -126,15 +114,19 @@ export const AMCreateManyRelationTypeFactory: IAMTypeFactory<GraphQLInputObjectT
                 lastInStack.setValue(
                   opContext
                     .getOutput()
-                    .distinct(lastInStack.field.relation.relationField)
+                    .map(
+                      ResultPromiseTransforms.distinct(
+                        lastInStack.field.relation.relationField
+                      )
+                    )
                 );
               }
             },
           },
-        };
+        } as AMInputFieldConfigMap;
 
         return fields;
       },
     });
-  },
-};
+  }
+}

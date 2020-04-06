@@ -56,7 +56,7 @@ const execute = (
       queryExecutor: async params => {
         // console.log(util.inspect(params, { showHidden: false, depth: null }));
         // console.log(params);
-        let result = await QE(params);
+        const result = await QE(params);
         // console.log('result', result);
         return result;
       },
@@ -69,7 +69,7 @@ describe('accessRules', () => {
   jest.setTimeout(10000);
 
   afterEach(async () => {
-    let DB = await connectToDatabase();
+    const DB = await connectToDatabase();
     DB.dropDatabase();
   });
 
@@ -86,11 +86,11 @@ describe('accessRules', () => {
       }
     `);
 
-    let aclSchema = applyRules(schema, {
+    const aclSchema = applyRules(schema, {
       allow: [allQueries, allMutations, anyField],
     });
 
-    let result = await execute(
+    const result = await execute(
       aclSchema,
       gql`
         mutation {
@@ -112,7 +112,7 @@ describe('accessRules', () => {
     `);
 
     const DEFAULT_BODY = 'TEST DEFAULT BODY';
-    let aclSchema = applyRules(schema, {
+    const aclSchema = applyRules(schema, {
       allow: [allQueries, allMutations, anyField],
       deny: [modelField('Post', 'body', 'C')],
       defaults: [
@@ -123,7 +123,7 @@ describe('accessRules', () => {
       ],
     });
 
-    let createResult = await execute(
+    const createResult = await execute(
       aclSchema,
       gql`
         mutation {
@@ -138,7 +138,7 @@ describe('accessRules', () => {
     expect(createResult.errors).toBeUndefined();
     const createdPost = createResult.data.createPost;
 
-    let readResult = await execute(
+    const readResult = await execute(
       aclSchema,
       gql`
         query read($id: ObjectID) {
@@ -188,7 +188,7 @@ describe('accessRules', () => {
     );
     const createdUser = createUserResult.data.createUser;
 
-    let aclSchema = applyRules(schema, {
+    const aclSchema = applyRules(schema, {
       allow: [allQueries, allMutations, anyField],
       deny: [modelField('Post', 'user', 'C')],
       defaults: [
@@ -198,7 +198,7 @@ describe('accessRules', () => {
       ],
     });
 
-    let createResult = await execute(
+    const createResult = await execute(
       aclSchema,
       gql`
         mutation {
@@ -215,7 +215,7 @@ describe('accessRules', () => {
     );
     const createdPost = createResult.data.createPost;
 
-    let readResult = await execute(
+    const readResult = await execute(
       aclSchema,
       gql`
         query read($id: ObjectID) {
@@ -291,7 +291,7 @@ describe('accessRules', () => {
 
     //default aclWhere = user1 => no items
     {
-      let aclSchema = applyRules(schema, {
+      const aclSchema = applyRules(schema, {
         allow: [allQueries, allMutations, anyField],
         deny: [allACLTypes, modelField('Post', 'user', 'CR')],
         defaults: [
@@ -309,7 +309,7 @@ describe('accessRules', () => {
         ],
       });
 
-      let readResult = await execute(
+      const readResult = await execute(
         aclSchema,
         gql`
           query($postId: ObjectID) {
@@ -331,7 +331,7 @@ describe('accessRules', () => {
 
     //default aclWhere = user2 => one item
     {
-      let aclSchema = applyRules(schema, {
+      const aclSchema = applyRules(schema, {
         allow: [allQueries, allMutations, anyField],
         deny: [allACLTypes, modelField('Post', 'user', 'CR')],
         defaults: [
@@ -345,7 +345,7 @@ describe('accessRules', () => {
 
       //simple read
       {
-        let readResult = await execute(
+        const readResult = await execute(
           aclSchema,
           gql`
             query($postId: ObjectID) {
@@ -369,7 +369,7 @@ describe('accessRules', () => {
 
       //connect
       {
-        let readResult = await execute(
+        const readResult = await execute(
           aclSchema,
           gql`
             mutation($postId: ObjectID!) {
@@ -415,7 +415,7 @@ describe('accessRules', () => {
 
     const SLUG = 'test_slug';
 
-    let aclSchema = applyRules(schema, {
+    const aclSchema = applyRules(schema, {
       allow: [allQueries, allMutations, anyField],
       deny: [
         modelField('Meta', 'slug', 'CRUD'),
@@ -428,7 +428,7 @@ describe('accessRules', () => {
     });
     // console.log(printSchema(schema));
 
-    let createResult = await execute(
+    const createResult = await execute(
       aclSchema,
       gql`
         mutation {
@@ -442,7 +442,7 @@ describe('accessRules', () => {
 
     const createdPost = createResult.data.createPost;
 
-    let readResult = await execute(
+    const readResult = await execute(
       schema,
       gql`
         query read($id: ObjectID) {

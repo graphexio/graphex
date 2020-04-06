@@ -16,7 +16,7 @@ export class AMReadDBRefOperation extends AMOperation {
       const result = Object.fromEntries(
         await Promise.all(
           Object.entries(groupedRefs).map(async ([collectionName, refs]) => {
-            let data = await executor({
+            const data = await executor({
               type: AMDBExecutorOperationType.FIND,
               collection: collectionName,
               selector: { _id: { $in: refs.map(ref => ref.oid) } },

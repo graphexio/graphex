@@ -9,14 +9,14 @@ import gql from 'graphql-tag';
 import { getIntrospectionQuery } from 'graphql';
 
 beforeAll(async () => {
-  let instance = await testInstance.start({
+  const instance = await testInstance.start({
     aclWhere: true,
   });
   query = instance.query;
   mutate = instance.mutate;
   connectToDatabase = instance.connectToDatabase;
 
-  let DB = await connectToDatabase();
+  const DB = await connectToDatabase();
   await DB.collection('posts').createIndex({ place: '2dsphere' });
 });
 
@@ -26,7 +26,7 @@ afterAll(async () => {
 
 let admin1, admin2;
 test('Create admins', async () => {
-  let { errors, data } = await query({
+  const { errors, data } = await query({
     query: gql`
       mutation {
         admin1: createAdmin(data: { username: "admin1" }) {

@@ -1,22 +1,11 @@
-import R from 'ramda';
-import { AMDataContext } from '../execution/contexts/data';
-import { AMListValueContext } from '../execution/contexts/listValue';
-import { AMOperation } from '../execution/operation';
-import {
-  AMInputObjectType,
-  AMModelField,
-  IAMInputFieldFactory,
-  IAMTypeFactory,
-  AMObjectType,
-} from '../definitions';
 import { GraphQLInt, GraphQLNonNull } from 'graphql';
+import { AMObjectType, AMTypeFactory } from '../definitions';
 
-export const AMAggregateTypeFactory: IAMTypeFactory<AMObjectType> = {
+export class AMAggregateTypeFactory extends AMTypeFactory<AMObjectType> {
   getTypeName(modelType): string {
     return `Aggregate${modelType.name}`;
-  },
-  getType(modelType, schemaInfo) {
-    const self: IAMTypeFactory<AMInputObjectType> = this;
+  }
+  getType(modelType) {
     return new AMObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
@@ -29,5 +18,5 @@ export const AMAggregateTypeFactory: IAMTypeFactory<AMObjectType> = {
         return fields;
       },
     });
-  },
-};
+  }
+}

@@ -1,29 +1,27 @@
-import { GraphQLInputObjectType } from 'graphql';
+import {
+  AMInputFieldConfigMap,
+  AMInputObjectType,
+  AMModelType,
+  AMTypeFactory,
+  IAMTypeFactory,
+} from '../definitions';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import {
   AMUpdateOperation,
   ArrayFilter,
 } from '../execution/operations/updateOperation';
 import { getLastOperation } from '../execution/utils';
-import {
-  AMInputFieldConfigMap,
-  AMInputObjectType,
-  AMModelField,
-  IAMInputFieldFactory,
-  IAMTypeFactory,
-} from '../definitions';
-import { AMUpdateTypeFactory } from './update';
-import { AMWhereTypeFactory } from './where';
 
-const isApplicable = (field: AMModelField) => (
-  fieldFactory: IAMInputFieldFactory
-) => fieldFactory.isApplicable(field);
-
-export const AMUpdateWithWhereNestedTypeFactory: IAMTypeFactory<GraphQLInputObjectType> = {
-  getTypeName(modelType): string {
+export class AMUpdateWithWhereNestedTypeFactory extends AMTypeFactory<
+  AMInputObjectType
+> {
+  isApplicable(modelType: AMModelType) {
+    return true;
+  }
+  getTypeName(modelType: AMModelType): string {
     return `${modelType.name}UpdateWithWhereNestedInput`;
-  },
-  getType(modelType, schemaInfo) {
+  }
+  getType(modelType: AMModelType) {
     const self: IAMTypeFactory<AMInputObjectType> = this;
     let arrayFilter: ArrayFilter;
 
@@ -32,7 +30,10 @@ export const AMUpdateWithWhereNestedTypeFactory: IAMTypeFactory<GraphQLInputObje
       fields: () => {
         const fields = <AMInputFieldConfigMap>{
           where: {
-            type: schemaInfo.resolveFactoryType(modelType, AMWhereTypeFactory),
+            type: this.configResolver.resolveInputType(
+              modelType,
+              this.links.where
+            ),
             amEnter(node, transaction, stack) {
               const context = new AMObjectFieldContext('where');
               stack.push(context);
@@ -43,7 +44,10 @@ export const AMUpdateWithWhereNestedTypeFactory: IAMTypeFactory<GraphQLInputObje
             },
           },
           data: {
-            type: schemaInfo.resolveFactoryType(modelType, AMUpdateTypeFactory),
+            type: this.configResolver.resolveInputType(
+              modelType,
+              this.links.data
+            ),
           },
         };
 
@@ -65,5 +69,5 @@ export const AMUpdateWithWhereNestedTypeFactory: IAMTypeFactory<GraphQLInputObje
         stack.pop();
       },
     });
-  },
-};
+  }
+}

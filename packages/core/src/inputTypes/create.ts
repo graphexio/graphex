@@ -1,27 +1,24 @@
+import { getNamedType, isInterfaceType } from 'graphql';
 import R from 'ramda';
-import { AMDataContext } from '../execution/contexts/data';
-import { AMListValueContext } from '../execution/contexts/listValue';
-import { AMOperation } from '../execution/operation';
 import {
   AMInputObjectType,
-  AMModelField,
-  IAMInputFieldFactory,
+  AMModelType,
+  AMTypeFactory,
   IAMTypeFactory,
 } from '../definitions';
-import { AMCreateFieldFactory } from './fieldFactories/create';
-import { AMCreateNestedFieldFactory } from './fieldFactories/createNested';
-import { AMCreateRelationFieldFactory } from './fieldFactories/createRelation';
+import { AMDataContext } from '../execution/contexts/data';
+import { AMListValueContext } from '../execution/contexts/listValue';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
+import { AMOperation } from '../execution/operation';
 
-const isApplicable = (field: AMModelField) => (
-  fieldFactory: IAMInputFieldFactory
-) => fieldFactory.isApplicable(field);
-
-export const AMCreateTypeFactory: IAMTypeFactory<AMInputObjectType> = {
-  getTypeName(modelType): string {
+export class AMCreateTypeFactory extends AMTypeFactory<AMInputObjectType> {
+  isApplicable(modelType: AMModelType) {
+    return !isInterfaceType(modelType);
+  }
+  getTypeName(modelType: AMModelType): string {
     return `${modelType.name}CreateInput`;
-  },
-  getType(modelType, schemaInfo) {
+  }
+  getType(modelType: AMModelType) {
     const self: IAMTypeFactory<AMInputObjectType> = this;
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
@@ -29,17 +26,18 @@ export const AMCreateTypeFactory: IAMTypeFactory<AMInputObjectType> = {
         const fields = {};
 
         Object.values(modelType.getFields()).forEach(field => {
-          const fieldFactories = field?.mmFieldFactories?.AMCreateTypeFactory
-            ? field.mmFieldFactories.AMCreateTypeFactory
-            : [
-                AMCreateFieldFactory,
-                AMCreateNestedFieldFactory,
-                AMCreateRelationFieldFactory,
-              ].filter(isApplicable(field));
+          const fieldType = getNamedType(field.type) as AMModelType;
+          let links = this.getDynamicLinksForType(fieldType.name)
+            .fieldFactories;
+          if (!Array.isArray(links)) links = [links];
+
+          const fieldFactories = this.configResolver
+            .resolveInputFieldFactories(fieldType, links)
+            .filter(factory => factory.isApplicable(field));
 
           fieldFactories.forEach(fieldFactory => {
             const fieldName = fieldFactory.getFieldName(field);
-            fields[fieldName] = fieldFactory.getField(field, schemaInfo);
+            fields[fieldName] = fieldFactory.getField(field);
           });
         });
 
@@ -89,5 +87,5 @@ export const AMCreateTypeFactory: IAMTypeFactory<AMInputObjectType> = {
         }
       },
     });
-  },
-};
+  }
+}

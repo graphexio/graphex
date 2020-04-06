@@ -17,7 +17,7 @@ export const relationDirective = (schema: GraphQLSchema) => {
         const relationDirective = schema.getDirective('relation');
         if (!relationDirectiveAST) return;
 
-        let relationField = getArgValueFromDirectiveAST(
+        const relationField = getArgValueFromDirectiveAST(
           relationDirectiveAST,
           relationDirective,
           'field'

@@ -1,26 +1,25 @@
+import TypeWrap from '@apollo-model/type-wrap';
 import { getNamedType, isCompositeType } from 'graphql';
-import { AMInputField, IAMInputFieldFactory } from '../../definitions';
-import { updateObjectFieldVisitorHandler } from '../visitorHandlers';
+import { AMInputField, AMInputFieldFactory } from '../../definitions';
 import { AMObjectFieldContext } from '../../execution/contexts/objectField';
 import {
-  getLastOperation,
   getFieldPath,
+  getLastOperation,
   getOperationData,
 } from '../../execution/utils';
-import TypeWrap from '@apollo-model/type-wrap';
 
-export const AMUpdateFieldFactory: IAMInputFieldFactory = {
+export class AMUpdateFieldFactory extends AMInputFieldFactory {
   isApplicable(field) {
     return (
       !isCompositeType(getNamedType(field.type)) &&
       !field.isID &&
       !field.isReadOnly
     );
-  },
+  }
   getFieldName(field) {
     return field.name;
-  },
-  getField(field, schemaInfo) {
+  }
+  getField(field) {
     return <AMInputField>{
       name: this.getFieldName(field),
       type: new TypeWrap(field.type).setRequired(false).type(),
@@ -39,5 +38,5 @@ export const AMUpdateFieldFactory: IAMInputFieldFactory = {
         set[path] = context.value;
       },
     };
-  },
-};
+  }
+}

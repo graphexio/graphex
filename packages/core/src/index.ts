@@ -10,30 +10,30 @@ import {
   isInputObjectType,
   isInterfaceType,
   isObjectType,
+  isEnumType,
 } from 'graphql';
 import { makeExecutableSchema as makeGraphQLSchema } from 'graphql-tools';
 import _ from 'lodash';
 import appendField from './appendField';
-import { AMModelType, GraphQLOperationType, AMOptions } from './definitions';
+import { defaultConfig } from './config/defaultConfig';
+import { AMConfigResolver } from './config/resolver';
+import { AMModelType, AMOptions, GraphQLOperationType } from './definitions';
 import { AMFederationEntitiesFieldFactory } from './federation/entitiesField';
 import InitialScheme from './initialScheme';
-import { AMModelCreateMutationFieldFactory } from './modelMethods/createMutation';
-import { AMModelDeleteManyMutationFieldFactory } from './modelMethods/deleteManyMutation';
-import { AMModelDeleteOneMutationFieldFactory } from './modelMethods/deleteOneMutation';
-import { AMModelUpdateMutationFieldFactory } from './modelMethods/updateMutation';
-import { AMModelConnectionQueryFieldFactory } from './modelMethods/connectionQuery';
-import { AMModelMultipleQueryFieldFactory } from './modelMethods/multipleQuery';
-import { AMModelSingleQueryFieldFactory } from './modelMethods/singleQuery';
 import Modules from './modules';
 import { postInit } from './postInit';
 import { prepare } from './prepare/prepare';
+import { makeSchemaInfo } from './schemaInfo';
 import { getDirective } from './utils';
+export * from './config/defaultConfig';
 export * from './definitions';
+export * from './execution';
+export * from './inputTypes';
 
-const { printSchema } = require('@apollo/federation');
+import { printSchema } from 'graphql';
 
 function isAMModelType(type: GraphQLNamedType): type is AMModelType {
-  let typeWrap = new TypeWrap(type);
+  const typeWrap = new TypeWrap(type);
   return (
     getDirective(type, 'model') || typeWrap.interfaceWithDirective('model')
   );
@@ -78,7 +78,7 @@ export default class ModelMongo {
     const schema = this.makeExecutableSchema(params);
 
     Object.values(schema.getTypeMap()).forEach(type => {
-      let typeWrap = new TypeWrap(type);
+      const typeWrap = new TypeWrap(type);
       if (isAMModelType(type)) {
         if (!typeWrap.isAbstract()) {
           Object.values(type.getFields()).map(field => {
@@ -174,7 +174,7 @@ export default class ModelMongo {
       }
     });
 
-    let modelParams = {
+    const modelParams = {
       ...params,
       typeDefs,
       schemaDirectives,
@@ -185,26 +185,38 @@ export default class ModelMongo {
       },
     };
 
-    let schema = makeGraphQLSchema(modelParams);
+    const schema = makeGraphQLSchema(modelParams);
     // let schema = buildFederatedSchema(modules);
 
-    prepare(schema, { fieldFactoriesMap, fieldVisitorEventsMap });
+    const schemaInfo = makeSchemaInfo(schema, this.options);
+    const configResolver = new AMConfigResolver({
+      configs: [this?.options?.config ? this.options.config : defaultConfig],
+      schemaInfo,
+    });
+
+    prepare({
+      schema,
+      schemaInfo,
+      configResolver,
+      fieldFactoriesMap,
+      fieldVisitorEventsMap,
+    });
 
     Object.values(schema.getTypeMap()).forEach(type => {
       // this._onSchemaInit(type);
 
-      let typeWrap = new TypeWrap(type);
+      const typeWrap = new TypeWrap(type);
       if (isAMModelType(type)) {
         if (!typeWrap.isAbstract()) {
           // console.log(`Building queries for ${type.name}`);
           [
-            AMModelMultipleQueryFieldFactory,
-            AMModelSingleQueryFieldFactory,
-            AMModelConnectionQueryFieldFactory,
-            AMModelCreateMutationFieldFactory,
-            AMModelDeleteOneMutationFieldFactory,
-            AMModelDeleteManyMutationFieldFactory,
-            AMModelUpdateMutationFieldFactory,
+            configResolver.resolveMethodFactory(type, 'multipleQuery'),
+            configResolver.resolveMethodFactory(type, 'singleQuery'),
+            configResolver.resolveMethodFactory(type, 'connectionQuery'),
+            configResolver.resolveMethodFactory(type, 'createMutation'),
+            configResolver.resolveMethodFactory(type, 'deleteOneMutation'),
+            configResolver.resolveMethodFactory(type, 'deleteManyMutation'),
+            configResolver.resolveMethodFactory(type, 'updateMutation'),
           ].forEach(fieldFactory => {
             appendField(
               schema,
@@ -220,13 +232,13 @@ export default class ModelMongo {
       }
     });
 
-    postInit(schema);
+    postInit({ schema, schemaInfo, configResolver });
 
     /* resolve field thunks */
     let initialCount;
     do {
       initialCount = Object.values(schema.getTypeMap()).length;
-      Object.entries(schema.getTypeMap()).forEach(([name, type]) => {
+      Object.entries(schema.getTypeMap()).forEach(([, type]) => {
         if (hasTypeFields(type)) {
           type.getFields();
         }
@@ -234,16 +246,20 @@ export default class ModelMongo {
     } while (initialCount !== Object.values(schema.getTypeMap()).length);
     /* resolve field thunks */
 
-    let typesToRemove = [];
-    Object.entries(schema.getTypeMap()).forEach(([name, type]) => {
+    const typesToRemove = [];
+    Object.entries(schema.getTypeMap()).forEach(([, type]) => {
       if (hasTypeFields(type) && Object.keys(type.getFields()).length == 0) {
         typesToRemove.push(type);
+      } else if (isEnumType(type)) {
+        if (type.getValues().length === 0) {
+          typesToRemove.push(type);
+        }
       }
     });
 
-    Object.entries(schema.getTypeMap()).forEach(([name, type]) => {
+    Object.entries(schema.getTypeMap()).forEach(([, type]) => {
       if (hasTypeFields(type)) {
-        let fields = type.getFields();
+        const fields = type.getFields();
         Object.entries(fields).forEach(([name, field]) => {
           if (typesToRemove.includes(getNamedType(field.type))) {
             delete fields[name];

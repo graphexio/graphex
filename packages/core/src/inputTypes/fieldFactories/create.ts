@@ -1,19 +1,19 @@
 import { getNamedType, isCompositeType } from 'graphql';
-import { AMInputField, IAMInputFieldFactory } from '../../definitions';
+import { AMInputField, AMInputFieldFactory } from '../../definitions';
 import { defaultObjectFieldVisitorHandler } from '../visitorHandlers';
 
-export const AMCreateFieldFactory: IAMInputFieldFactory = {
+export class AMCreateFieldFactory extends AMInputFieldFactory {
   isApplicable(field) {
     return (
       !isCompositeType(getNamedType(field.type)) &&
       !field.isID &&
       !field.isReadOnly
     );
-  },
+  }
   getFieldName(field) {
     return field.name;
-  },
-  getField(field, schemaInfo) {
+  }
+  getField(field) {
     return <AMInputField>{
       name: this.getFieldName(field),
       type: field.defaultValue ? getNamedType(field.type) : field.type,
@@ -31,5 +31,5 @@ export const AMCreateFieldFactory: IAMInputFieldFactory = {
       //   }
       // },
     };
-  },
-};
+  }
+}

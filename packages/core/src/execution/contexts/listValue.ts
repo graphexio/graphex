@@ -4,7 +4,7 @@ import { toArray } from '../../utils';
 
 export class AMListValueContext extends AMContext {
   values: AMObjectFieldValueType[] = [];
-  proxy: boolean = false;
+  proxy = false;
 
   constructor(values?: AMObjectFieldValueType[]) {
     super();

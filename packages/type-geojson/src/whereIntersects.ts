@@ -1,26 +1,23 @@
+import { AMInputFieldFactory, AMModelField } from '@apollo-model/core';
+import { AMDataContext } from '@apollo-model/core/lib/execution/contexts/data';
+import { AMObjectFieldContext } from '@apollo-model/core/lib/execution/contexts/objectField';
+import { AMSelectorContext } from '@apollo-model/core/lib/execution/contexts/selector';
+import { AMInputField } from '@apollo-model/core/src/definitions';
+import { UserInputError } from 'apollo-server';
 import { ObjectFieldNode } from 'graphql';
 import R from 'ramda';
-import { defaultObjectFieldVisitorHandler } from '@apollo-model/core/lib/inputTypes/visitorHandlers';
-import {
-  AMInputField,
-  IAMInputFieldFactory,
-} from '@apollo-model/core/src/definitions';
-import { AMObjectFieldContext } from '@apollo-model/core/lib/execution/contexts/objectField';
-import { AMDataContext } from '@apollo-model/core/lib/execution/contexts/data';
-import { AMSelectorContext } from '@apollo-model/core/lib/execution/contexts/selector';
-import { UserInputError } from 'apollo-server';
 
-export const AMGeoJSONIntersectsFieldFactory: IAMInputFieldFactory = {
-  isApplicable(field) {
+export class AMGeoJSONIntersectsFieldFactory extends AMInputFieldFactory {
+  isApplicable() {
     return true;
-  },
-  getFieldName(field) {
+  }
+  getFieldName(field: AMModelField) {
     return `${field.name}_intersects`;
-  },
-  getField(field, schemaInfo) {
-    return <AMInputField>{
+  }
+  getField(field) {
+    return {
       name: this.getFieldName(field),
-      type: schemaInfo.schema.getTypeMap().GeoJSONIntersectsInput,
+      type: this.schemaInfo.schema.getTypeMap().GeoJSONIntersectsInput,
 
       amEnter(node: ObjectFieldNode, transaction, stack) {
         const action = new AMObjectFieldContext(field.dbName);
@@ -45,6 +42,6 @@ export const AMGeoJSONIntersectsFieldFactory: IAMInputFieldFactory = {
           });
         }
       },
-    };
-  },
-};
+    } as AMInputField;
+  }
+}

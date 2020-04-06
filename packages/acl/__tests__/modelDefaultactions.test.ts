@@ -1,10 +1,4 @@
-import { AMModelCreateMutationFieldFactory } from '@apollo-model/core/lib/modelMethods/createMutation';
-import { AMModelDeleteManyMutationFieldFactory } from '@apollo-model/core/lib/modelMethods/deleteManyMutation';
-import { AMModelDeleteOneMutationFieldFactory } from '@apollo-model/core/lib/modelMethods/deleteOneMutation';
-import { AMModelUpdateMutationFieldFactory } from '@apollo-model/core/lib/modelMethods/updateMutation';
-import { AMModelConnectionQueryFieldFactory } from '@apollo-model/core/lib/modelMethods/connectionQuery';
-import { AMModelMultipleQueryFieldFactory } from '@apollo-model/core/lib/modelMethods/multipleQuery';
-import { AMModelSingleQueryFieldFactory } from '@apollo-model/core/lib/modelMethods/singleQuery';
+import { defaultConfig } from '@apollo-model/core';
 
 import AMM from '@apollo-model/core';
 
@@ -30,25 +24,27 @@ test.each([
   ['U', [false, false, false, false, false, false, true]],
   ['D', [false, false, false, false, true, true, false]],
 ])('modelAccess %s', (permission, resultmask) => {
-  let modelName = 'Brand';
-  let rule = modelDefaultActions(modelName, permission)(schema);
-  let modelType = schema.getType(modelName) as AMModelType;
+  const modelName = 'Brand';
+  const rule = modelDefaultActions(modelName, permission)(schema);
+  const modelType = schema.getType(modelName) as AMModelType;
 
   [
-    AMModelSingleQueryFieldFactory,
-    AMModelMultipleQueryFieldFactory,
-    AMModelConnectionQueryFieldFactory,
-    AMModelCreateMutationFieldFactory,
-    AMModelDeleteOneMutationFieldFactory,
-    AMModelDeleteManyMutationFieldFactory,
-    AMModelUpdateMutationFieldFactory,
+    defaultConfig._default.methodFactories.singleQuery.factory,
+    defaultConfig._default.methodFactories.multipleQuery.factory,
+    defaultConfig._default.methodFactories.connectionQuery.factory,
+    defaultConfig._default.methodFactories.createMutation.factory,
+    defaultConfig._default.methodFactories.deleteOneMutation.factory,
+    defaultConfig._default.methodFactories.deleteManyMutation.factory,
+    defaultConfig._default.methodFactories.updateMutation.factory,
   ].forEach((methodFactory, i) => {
     const type =
-      methodFactory.getOperationType() === GraphQLOperationType.Query
+      methodFactory.prototype.getOperationType() === GraphQLOperationType.Query
         ? schema.getQueryType()
         : schema.getMutationType();
 
-    const field = type.getFields()[methodFactory.getFieldName(modelType)];
+    const field = type.getFields()[
+      methodFactory.prototype.getFieldName(modelType)
+    ];
 
     expect(
       rule({

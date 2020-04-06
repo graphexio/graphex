@@ -8,12 +8,11 @@ const sanitizeResource = (
   resource: Resource
 ) => (data: { [key: string]: any }): any => {
   return Object.keys(data).reduce((acc, key) => {
-
     const field = (resource.type as IntrospectionObjectType).fields.find(
       (f: any) => f.name === key
-    )!;
+    );
     if (!field) {
-      return  {...acc, [key]: data[key] ? data[key] : undefined}
+      return { ...acc, [key]: data[key] ? data[key] : undefined };
     }
     const type = getFinalType(field.type);
 
@@ -21,7 +20,8 @@ const sanitizeResource = (
       return { ...acc, [field.name]: data[field.name] };
     }
 
-    // FIXME: We might have to handle linked types which are not resources but will have to be careful about endless circular dependencies
+    // FIXME: We might have to handle linked types which are not resources but will have to be careful
+    //        about endless circular dependencies
     const linkedResource = introspectionResults.resources.find(
       r => r.type.name === type.name
     );

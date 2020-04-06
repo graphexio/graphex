@@ -1,17 +1,13 @@
 import {
-  getNamedType,
   GraphQLInputObjectType,
-  GraphQLScalarType,
+  GraphQLInputType,
   IntrospectionInputObjectType,
   IntrospectionNamedTypeRef,
   IntrospectionObjectType,
   isEnumType,
-  isScalarType,
-  GraphQLInputType,
-  GraphQLNamedType,
-  GraphQLEnumType,
   isListType,
   isNonNullType,
+  isScalarType,
 } from 'graphql';
 import isObject from 'lodash/isObject';
 import * as R from 'ramda';
@@ -99,7 +95,7 @@ const buildGetListVariables = (
 
       const resourceField = (resource.type as IntrospectionObjectType).fields.find(
         (f: any) => f.name === parts[0]
-      )!;
+      );
       if ((resourceField.type as IntrospectionNamedTypeRef).name === 'Int') {
         return { ...acc, [key]: parseInt(params.filter[key]) };
       }
@@ -125,7 +121,7 @@ interface UpdateParams {
   previousData: { [key: string]: any };
 }
 
-const transformInput = (value, type: GraphQLInputType) => {
+function transformInput(value, type: GraphQLInputType) {
   if (isNonNullType(type)) {
     return transformInput(value, type.ofType);
   }
@@ -167,13 +163,16 @@ const transformInput = (value, type: GraphQLInputType) => {
     return transformInputObject({ recreate: value }, type);
   }
 
-  if (type.name.endsWith('InterfaceWhereUniqueInput') ||
-    type.name.endsWith('InterfaceWhereInput')) {
-    let { __typename, ...restValue } = value;
-    if (!__typename) {
-      __typename = Object.keys(type.getFields())[0];
+  if (
+    type.name.endsWith('InterfaceWhereUniqueInput') ||
+    type.name.endsWith('InterfaceWhereInput')
+  ) {
+    const { __typename, ...restValue } = value;
+    let typeName = __typename;
+    if (!typeName) {
+      typeName = Object.keys(type.getFields())[0];
     }
-    return transformInputObject({ [__typename]: restValue }, type);
+    return transformInputObject({ [typeName]: restValue }, type);
   }
 
   if (
@@ -194,12 +193,12 @@ const transformInput = (value, type: GraphQLInputType) => {
   ) {
     return transformInputObject(value, type);
   }
-};
+}
 
-const transformInputObject = (
+function transformInputObject(
   data: { [key: string]: any },
   type: GraphQLInputObjectType
-) => {
+) {
   return Object.entries(data).reduce((acc, [key, value]) => {
     try {
       const field = type.getFields()[key];
@@ -208,7 +207,7 @@ const transformInputObject = (
         return acc;
       }
 
-      let resultValue = transformInput(value, field.type);
+      const resultValue = transformInput(value, field.type);
 
       if (resultValue !== undefined) {
         return {
@@ -227,15 +226,15 @@ const transformInputObject = (
       return acc;
     }
   }, {} as { [key: string]: any });
-};
+}
 
 const buildUpdateVariables = (
   introspectionResults: IntrospectionResultData,
   introspection: IntrospectionResult
-) => (resource: Resource, aorFetchType: String, params: UpdateParams) => {
-  const type = R.find(R.propEq('name', resource.type.name))(
-    introspectionResults.types
-  ) as IntrospectionObjectType;
+) => (resource: Resource, aorFetchType: string, params: UpdateParams) => {
+  // const type = R.find(R.propEq('name', resource.type.name))(
+  //   introspectionResults.types
+  // ) as IntrospectionObjectType;
 
   const updateDataType = introspection.getUpdateType(
     resource.type.name,
@@ -269,10 +268,10 @@ interface CreateParams {
 const buildCreateVariables = (
   introspectionResults: IntrospectionResultData,
   introspection: IntrospectionResult
-) => (resource: Resource, aorFetchType: String, params: UpdateParams) => {
-  const type = R.find(R.propEq('name', resource.type.name))(
-    introspectionResults.types
-  ) as IntrospectionObjectType;
+) => (resource: Resource, aorFetchType: string, params: UpdateParams) => {
+  // const type = R.find(R.propEq('name', resource.type.name))(
+  //   introspectionResults.types
+  // ) as IntrospectionObjectType;
 
   const createType = introspection.getCreateDataType(resource.type.name);
 
@@ -284,7 +283,8 @@ const buildCreateVariables = (
 };
 
 const renameKey = R.curry((oldKey, newKey, obj) =>
-  R.assoc(newKey, R.prop(oldKey, obj), R.dissoc(oldKey, obj)));
+  R.assoc(newKey, R.prop(oldKey, obj), R.dissoc(oldKey, obj))
+);
 
 export default (
   introspectionResults: IntrospectionResultData,
@@ -300,16 +300,20 @@ export default (
     }
     case GET_MANY:
       if (introspection) {
-        const getManyType = introspection.getGetManyWhereType(resource.type.name);
-        const paramsIdsToIdIn = params.ids ? renameKey('ids', 'id_in', params) : params;
+        const getManyType = introspection.getGetManyWhereType(
+          resource.type.name
+        );
+        const paramsIdsToIdIn = params.ids
+          ? renameKey('ids', 'id_in', params)
+          : params;
         const getManyWhere = transformInput(paramsIdsToIdIn, getManyType);
         return {
           where: getManyWhere,
-        }
+        };
       } else {
         return {
           where: { id_in: params.ids },
-        }
+        };
       }
     case GET_MANY_REFERENCE: {
       const parts = params.target.split('.');

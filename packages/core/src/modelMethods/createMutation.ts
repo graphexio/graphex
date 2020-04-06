@@ -1,24 +1,22 @@
-import { GraphQLNonNull, isInterfaceType } from 'graphql';
+import { GraphQLNonNull } from 'graphql';
 import R from 'ramda';
 import {
   AMField,
+  AMMethodFieldFactory,
   AMModelType,
   GraphQLOperationType,
-  IAMMethodFieldFactory,
 } from '../definitions';
 import { AMCreateOperation } from '../execution/operations/createOperation';
-import { AMCreateTypeFactory } from '../inputTypes/create';
 import { resolve } from '../resolve';
-import { AMInterfaceCreateTypeFactory } from '../inputTypes/interfaceCreate';
 
-export const AMModelCreateMutationFieldFactory: IAMMethodFieldFactory = {
+export class AMModelCreateMutationFieldFactory extends AMMethodFieldFactory {
   getOperationType() {
     return GraphQLOperationType.Mutation;
-  },
+  }
   getFieldName(modelType: AMModelType): string {
     return R.concat('create')(modelType.name);
-  },
-  getField(modelType: AMModelType, schemaInfo) {
+  }
+  getField(modelType: AMModelType) {
     return <AMField>{
       name: this.getFieldName(modelType),
       description: '',
@@ -28,12 +26,7 @@ export const AMModelCreateMutationFieldFactory: IAMMethodFieldFactory = {
         {
           name: 'data',
           type: new GraphQLNonNull(
-            schemaInfo.resolveFactoryType(
-              modelType,
-              isInterfaceType(modelType)
-                ? AMInterfaceCreateTypeFactory
-                : AMCreateTypeFactory
-            )
+            this.configResolver.resolveInputType(modelType, this.links.data)
           ),
         },
       ],
@@ -49,5 +42,5 @@ export const AMModelCreateMutationFieldFactory: IAMMethodFieldFactory = {
       },
       resolve: resolve,
     };
-  },
-};
+  }
+}

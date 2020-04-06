@@ -70,6 +70,52 @@ export const QueryDocumentKeys = {
   EnumTypeExtension: ['name', 'directives', 'values'],
   InputObjectTypeExtension: ['name', 'directives', 'fields'],
 };
+
+function isNode(maybeNode) {
+  return Boolean(maybeNode && typeof maybeNode.kind === 'string');
+}
+
+/**
+ * Given a visitor instance, if it is leaving or not, and a node kind, return
+ * the function the visitor runtime should call.
+ */
+
+export function getVisitFn(visitor, kind, isLeaving) {
+  const kindVisitor = visitor[kind];
+
+  if (kindVisitor) {
+    if (!isLeaving && typeof kindVisitor === 'function') {
+      // { Kind() {} }
+      return kindVisitor;
+    }
+
+    const kindSpecificVisitor = isLeaving
+      ? kindVisitor.leave
+      : kindVisitor.enter;
+
+    if (typeof kindSpecificVisitor === 'function') {
+      // { Kind: { enter() {}, leave() {} } }
+      return kindSpecificVisitor;
+    }
+  } else {
+    const specificVisitor = isLeaving ? visitor.leave : visitor.enter;
+
+    if (specificVisitor) {
+      if (typeof specificVisitor === 'function') {
+        // { enter() {}, leave() {} }
+        return specificVisitor;
+      }
+
+      const specificKindVisitor = specificVisitor[kind];
+
+      if (typeof specificKindVisitor === 'function') {
+        // { enter: { Kind() {} }, leave: { Kind() {} } }
+        return specificKindVisitor;
+      }
+    }
+  }
+}
+
 export const BREAK = Object.freeze({});
 /**
  * visit() will walk through an AST using a depth first traversal, calling
@@ -310,9 +356,6 @@ export async function visit(root, visitor, visitorKeys = QueryDocumentKeys) {
   return newRoot;
 }
 
-function isNode(maybeNode) {
-  return Boolean(maybeNode && typeof maybeNode.kind === 'string');
-}
 /**
  * Creates a new visitor instance which delegates to many visitors to run in
  * parallel. Each visitor will be visited for each node before moving on.
@@ -323,7 +366,7 @@ function isNode(maybeNode) {
 export function visitInParallel(visitors) {
   const skipping = new Array(visitors.length);
   return {
-    enter(node) {
+    enter(node, ...rest) {
       for (let i = 0; i < visitors.length; i++) {
         if (!skipping[i]) {
           const fn = getVisitFn(
@@ -334,7 +377,7 @@ export function visitInParallel(visitors) {
           );
 
           if (fn) {
-            const result = fn.apply(visitors[i], arguments);
+            const result = fn.apply(visitors[i], [node, ...rest]);
 
             if (result === false) {
               skipping[i] = node;
@@ -348,7 +391,7 @@ export function visitInParallel(visitors) {
       }
     },
 
-    leave(node) {
+    leave(node, ...rest) {
       for (let i = 0; i < visitors.length; i++) {
         if (!skipping[i]) {
           const fn = getVisitFn(
@@ -359,7 +402,7 @@ export function visitInParallel(visitors) {
           );
 
           if (fn) {
-            const result = fn.apply(visitors[i], arguments);
+            const result = fn.apply(visitors[i], [node, ...rest]);
 
             if (result === BREAK) {
               skipping[i] = BREAK;
@@ -381,7 +424,7 @@ export function visitInParallel(visitors) {
 
 export function visitWithTypeInfo(typeInfo, visitor) {
   return {
-    enter(node) {
+    enter(node, ...rest) {
       typeInfo.enter(node);
       const fn = getVisitFn(
         visitor,
@@ -391,7 +434,7 @@ export function visitWithTypeInfo(typeInfo, visitor) {
       );
 
       if (fn) {
-        const result = fn.apply(visitor, arguments);
+        const result = fn.apply(visitor, [node, ...rest]);
 
         if (result !== undefined) {
           typeInfo.leave(node);
@@ -405,7 +448,7 @@ export function visitWithTypeInfo(typeInfo, visitor) {
       }
     },
 
-    leave(node) {
+    leave(node, ...rest) {
       const fn = getVisitFn(
         visitor,
         node.kind,
@@ -415,51 +458,11 @@ export function visitWithTypeInfo(typeInfo, visitor) {
       let result;
 
       if (fn) {
-        result = fn.apply(visitor, arguments);
+        result = fn.apply(visitor, [node, ...rest]);
       }
 
       typeInfo.leave(node);
       return result;
     },
   };
-}
-/**
- * Given a visitor instance, if it is leaving or not, and a node kind, return
- * the function the visitor runtime should call.
- */
-
-export function getVisitFn(visitor, kind, isLeaving) {
-  const kindVisitor = visitor[kind];
-
-  if (kindVisitor) {
-    if (!isLeaving && typeof kindVisitor === 'function') {
-      // { Kind() {} }
-      return kindVisitor;
-    }
-
-    const kindSpecificVisitor = isLeaving
-      ? kindVisitor.leave
-      : kindVisitor.enter;
-
-    if (typeof kindSpecificVisitor === 'function') {
-      // { Kind: { enter() {}, leave() {} } }
-      return kindSpecificVisitor;
-    }
-  } else {
-    const specificVisitor = isLeaving ? visitor.leave : visitor.enter;
-
-    if (specificVisitor) {
-      if (typeof specificVisitor === 'function') {
-        // { enter() {}, leave() {} }
-        return specificVisitor;
-      }
-
-      const specificKindVisitor = specificVisitor[kind];
-
-      if (typeof specificKindVisitor === 'function') {
-        // { enter: { Kind() {} }, leave: { Kind() {} } }
-        return specificKindVisitor;
-      }
-    }
-  }
 }

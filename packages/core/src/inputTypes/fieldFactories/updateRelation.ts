@@ -1,35 +1,34 @@
 import TypeWrap from '@apollo-model/type-wrap';
-import R from 'ramda';
-import { AMDataContext } from '../../execution/contexts/data';
-import { AMObjectFieldContext } from '../../execution/contexts/objectField';
-import { AMResultPromise } from '../../execution/resultPromise';
-import { AMInputField, IAMInputFieldFactory } from '../../definitions';
-import { AMUpdateManyRelationTypeFactory } from '../updateManyRelation';
-import { AMUpdateOneRelationTypeFactory } from '../updateOneRelation';
 import {
-  getLastOperation,
+  AMInputField,
+  AMInputFieldFactory,
+  AMModelType,
+} from '../../definitions';
+import { AMObjectFieldContext } from '../../execution/contexts/objectField';
+import {
   getFieldPath,
+  getLastOperation,
   getOperationData,
 } from '../../execution/utils';
 
-export const AMUpdateRelationFieldFactory: IAMInputFieldFactory = {
+export class AMUpdateRelationFieldFactory extends AMInputFieldFactory {
   isApplicable(field) {
     return Boolean(field.relation);
-  },
+  }
   getFieldName(field) {
     return field.name;
-  },
-  getField(field, schemaInfo) {
+  }
+  getField(field) {
     const typeWrap = new TypeWrap(field.type);
     const isMany = typeWrap.isMany();
     const isRequired = typeWrap.isRequired();
-    let type = schemaInfo.resolveFactoryType(
-      typeWrap.realType(),
+    const type = this.configResolver.resolveInputType(
+      typeWrap.realType() as AMModelType,
       isMany
-        ? AMUpdateManyRelationTypeFactory
+        ? 'updateManyRelation'
         : // : isRequired
           // ? AMUpdateOneRequiredRelationTypeFactory
-          AMUpdateOneRelationTypeFactory
+          'updateOneRelation'
     );
 
     return <AMInputField>{
@@ -69,5 +68,5 @@ export const AMUpdateRelationFieldFactory: IAMInputFieldFactory = {
         // }
       },
     };
-  },
-};
+  }
+}

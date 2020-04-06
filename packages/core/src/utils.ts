@@ -60,7 +60,9 @@ export function getDirective(field, name) {
 }
 
 export function getDirectiveArg(directive, name, defaultValue) {
-  let arg = directive.arguments.find(argument => argument.name.value === name);
+  const arg = directive.arguments.find(
+    argument => argument.name.value === name
+  );
   if (arg) return arg.value.value;
   else {
     return defaultValue;

@@ -1,37 +1,25 @@
-import R from 'ramda';
-import { AMDataContext } from '../execution/contexts/data';
-import { AMListValueContext } from '../execution/contexts/listValue';
-import { AMOperation } from '../execution/operation';
-import {
-  AMInputObjectType,
-  AMModelField,
-  IAMInputFieldFactory,
-  IAMTypeFactory,
-  AMObjectType,
-} from '../definitions';
-import { GraphQLInt } from 'graphql';
-import { AMAggregateTypeFactory } from './aggregate';
+import { GraphQLObjectType } from 'graphql';
+import { AMObjectType, AMTypeFactory } from '../definitions';
 
-export const AMConnectionTypeFactory: IAMTypeFactory<AMObjectType> = {
+export class AMConnectionTypeFactory extends AMTypeFactory<AMObjectType> {
   getTypeName(modelType): string {
     return `${modelType.name}Connection`;
-  },
-  getType(modelType, schemaInfo) {
-    const self: IAMTypeFactory<AMInputObjectType> = this;
+  }
+  getType(modelType) {
     return new AMObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
         const fields = {
           aggregate: {
-            type: schemaInfo.resolveFactoryType(
+            type: this.configResolver.resolveType(
               modelType,
-              AMAggregateTypeFactory
-            ),
+              'aggregate'
+            ) as GraphQLObjectType,
           },
         };
 
         return fields;
       },
     });
-  },
-};
+  }
+}

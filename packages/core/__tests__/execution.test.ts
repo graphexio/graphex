@@ -9,6 +9,7 @@ import { AMUpdateOperation } from '../src/execution/operations/updateOperation';
 import { AMListValueContext } from '../src/execution/contexts/listValue';
 import { AMReadDBRefOperation } from '../src/execution/operations/readDbRefOperation';
 import { DBRef, ObjectID, ObjectId } from 'mongodb';
+import { ResultPromiseTransforms } from '../src/execution/resultPromise';
 
 test('read many', () => {
   const executor = (params: AMDBExecutorParams) => {
@@ -179,14 +180,22 @@ test('read many relation', async () => {
     many: true,
     collectionName: 'comments',
     selector: new AMSelectorContext({
-      _id: { $in: operation.getResult().distinct('commentIds') },
+      _id: {
+        $in: operation
+          .getResult()
+          .map(ResultPromiseTransforms.distinct('commentIds')),
+      },
     }),
   });
 
   operation.setOutput(
     operation
       .getOutput()
-      .distinctReplace('commentIds', '_id', () => subOperation.getOutput())
+      .map(
+        ResultPromiseTransforms.distinctReplace('commentIds', '_id', () =>
+          subOperation.getOutput()
+        )
+      )
   );
 
   const result = await transaction.execute(executor);

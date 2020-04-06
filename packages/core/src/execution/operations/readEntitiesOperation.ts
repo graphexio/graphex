@@ -28,7 +28,7 @@ export class AMReadEntitiesOperation extends AMOperation {
         await Promise.all(
           Object.entries(groupedRefs).map(
             async ([collectionName, representations]) => {
-              let data = await executor({
+              const data = await executor({
                 type: AMDBExecutorOperationType.FIND,
                 collection: collectionName,
                 selector: { $or: representations.map(rep => rep.selector) },

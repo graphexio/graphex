@@ -1,17 +1,12 @@
-import {
-  getNamedType,
-  GraphQLEnumType,
-  isCompositeType,
-  EnumValueNode,
-} from 'graphql';
-import { AMModelType, IAMTypeFactory, AMEnumType } from '../definitions';
+import { EnumValueNode, getNamedType, isCompositeType } from 'graphql';
 import R from 'ramda';
+import { AMEnumType, AMModelType, AMTypeFactory } from '../definitions';
 import { AMOperation } from '../execution/operation';
 
-export const AMOrderByTypeFactory: IAMTypeFactory<AMEnumType> = {
+export class AMOrderByTypeFactory extends AMTypeFactory<AMEnumType> {
   getTypeName(modelType: AMModelType): string {
     return `${modelType.name}OrderByInput`;
-  },
+  }
   getType(modelType: AMModelType, resolveModelType) {
     const values = {};
     Object.values(modelType.getFields()).forEach(field => {
@@ -32,5 +27,5 @@ export const AMOrderByTypeFactory: IAMTypeFactory<AMEnumType> = {
         }
       },
     });
-  },
-};
+  }
+}

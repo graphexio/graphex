@@ -1,24 +1,31 @@
-import { GraphQLInputObjectType, GraphQLInterfaceType } from 'graphql';
+import {
+  GraphQLInputObjectType,
+  GraphQLInterfaceType,
+  isInterfaceType,
+} from 'graphql';
 import R from 'ramda';
-import { AMCreateOperation } from '../execution/operations/createOperation';
 import {
   AMInputFieldConfig,
   AMInputObjectType,
   AMModelType,
+  AMTypeFactory,
   IAMTypeFactory,
 } from '../definitions';
-import { AMWhereUniqueTypeFactory } from './whereUnique';
-import { AMReadOperation } from '../execution/operations/readOperation';
-import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMListValueContext } from '../execution/contexts/listValue';
+import { AMObjectFieldContext } from '../execution/contexts/objectField';
+import { AMReadOperation } from '../execution/operations/readOperation';
+import { ResultPromiseTransforms } from '../execution/resultPromise';
 
-export const AMInterfaceWhereUniqueTypeFactory: IAMTypeFactory<GraphQLInputObjectType> = {
-  getTypeName(modelType): string {
+export class AMInterfaceWhereUniqueTypeFactory extends AMTypeFactory<
+  GraphQLInputObjectType
+> {
+  isApplicable(type: AMModelType) {
+    return isInterfaceType(type);
+  }
+  getTypeName(modelType: AMModelType): string {
     return `${modelType.name}InterfaceWhereUniqueInput`;
-  },
-  getType(modelType, schemaInfo) {
-    const self: IAMTypeFactory<AMInputObjectType> = this;
-
+  }
+  getType(modelType: AMModelType) {
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
@@ -26,12 +33,14 @@ export const AMInterfaceWhereUniqueTypeFactory: IAMTypeFactory<GraphQLInputObjec
         if (modelType instanceof GraphQLInterfaceType) {
           [
             modelType,
-            ...(schemaInfo.schema.getPossibleTypes(modelType) as AMModelType[]),
+            ...(this.schemaInfo.schema.getPossibleTypes(
+              modelType
+            ) as AMModelType[]),
           ].forEach((possibleType: AMModelType) => {
-            fields[possibleType.name] = <AMInputFieldConfig>{
-              type: schemaInfo.resolveFactoryType(
+            fields[possibleType.name] = {
+              type: this.configResolver.resolveInputType(
                 possibleType,
-                AMWhereUniqueTypeFactory
+                this.links.whereUnique
               ),
               ...(!modelType.mmAbstract
                 ? {
@@ -77,25 +86,33 @@ export const AMInterfaceWhereUniqueTypeFactory: IAMTypeFactory<GraphQLInputObjec
                         lastInStack.setValue(
                           readOp
                             .getOutput()
-                            .path('_id')
-                            .dbRef(possibleType.mmCollectionName)
+                            .map(ResultPromiseTransforms.path('_id'))
+                            .map(
+                              ResultPromiseTransforms.dbRef(
+                                possibleType.mmCollectionName
+                              )
+                            )
                         );
                       } else if (lastInStack instanceof AMListValueContext) {
                         lastInStack.addValue(
                           readOp
                             .getOutput()
-                            .path('_id')
-                            .dbRef(possibleType.mmCollectionName)
+                            .map(ResultPromiseTransforms.path('_id'))
+                            .map(
+                              ResultPromiseTransforms.dbRef(
+                                possibleType.mmCollectionName
+                              )
+                            )
                         );
                       }
                     },
                   }),
-            };
+            } as AMInputFieldConfig;
           });
         }
 
         return fields;
       },
     });
-  },
-};
+  }
+}

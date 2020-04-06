@@ -4,12 +4,11 @@ import {
   GraphQLInputObjectType,
   GraphQLInterfaceType,
   GraphQLNamedType,
-  GraphQLObjectType,
   GraphQLSchema,
 } from 'graphql';
+import _ from 'lodash';
 import * as R from 'ramda';
 import { IntrospectionResultData } from './definitions';
-import _ from 'lodash';
 
 export class IntrospectionResult {
   data: IntrospectionResultData;

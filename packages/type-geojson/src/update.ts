@@ -1,27 +1,27 @@
-import { defaultObjectFieldVisitorHandler } from '@apollo-model/core/lib/inputTypes/visitorHandlers';
 import {
-  AMInputField,
-  IAMInputFieldFactory,
-} from '@apollo-model/core/src/definitions';
-import { GraphQLNamedType } from 'graphql';
-import { AMObjectFieldContext } from '@apollo-model/core/lib/execution/contexts/objectField';
-import {
-  getLastOperation,
   getFieldPath,
+  getLastOperation,
   getOperationData,
 } from '@apollo-model/core/lib/execution/utils';
+import {
+  AMInputField,
+  AMInputFieldFactory,
+  AMObjectFieldContext,
+  AMModelField,
+} from '@apollo-model/core';
+import { GraphQLNamedType } from 'graphql';
 
-export const AMGeoJSONUpdateFieldFactory: IAMInputFieldFactory = {
-  isApplicable(field) {
+export class AMGeoJSONUpdateFieldFactory extends AMInputFieldFactory {
+  isApplicable() {
     return true;
-  },
-  getFieldName(field) {
+  }
+  getFieldName(field: AMModelField) {
     return `${field.name}`;
-  },
-  getField(field, schemaInfo) {
-    return <AMInputField>{
+  }
+  getField(field) {
+    return {
       name: this.getFieldName(field),
-      type: schemaInfo.schema.getType(
+      type: this.schemaInfo.schema.getType(
         `${(field.type as GraphQLNamedType).name}Input`
       ),
       amEnter(node, transaction, stack) {
@@ -38,6 +38,6 @@ export const AMGeoJSONUpdateFieldFactory: IAMInputFieldFactory = {
         data.addValue('$set', set);
         set[path] = context.value;
       },
-    };
-  },
-};
+    } as AMInputField;
+  }
+}

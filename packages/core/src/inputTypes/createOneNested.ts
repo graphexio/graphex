@@ -1,39 +1,28 @@
-import {
-  GraphQLInputObjectType,
-  ObjectFieldNode,
-  isInterfaceType,
-} from 'graphql';
-import R from 'ramda';
-import { AMObjectFieldContext } from '../execution/contexts/objectField';
+import { GraphQLInputObjectType } from 'graphql';
 import {
   AMInputObjectType,
-  AMModelField,
-  IAMInputFieldFactory,
+  AMModelType,
+  AMTypeFactory,
   IAMTypeFactory,
 } from '../definitions';
-import { AMCreateTypeFactory } from './create';
-import { AMInterfaceCreateTypeFactory } from './interfaceCreate';
 
-const isApplicable = (field: AMModelField) => (
-  fieldFactory: IAMInputFieldFactory
-) => fieldFactory.isApplicable(field);
-
-export const AMCreateOneNestedTypeFactory: IAMTypeFactory<GraphQLInputObjectType> = {
-  getTypeName(modelType): string {
+export class AMCreateOneNestedTypeFactory extends AMTypeFactory<
+  GraphQLInputObjectType
+> {
+  getTypeName(modelType: AMModelType): string {
     return `${modelType.name}CreateOneNestedInput`;
-  },
-  getType(modelType, schemaInfo) {
-    const createTypeFactory = !isInterfaceType(modelType)
-      ? AMCreateTypeFactory
-      : AMInterfaceCreateTypeFactory;
-
+  }
+  getType(modelType: AMModelType) {
     const self: IAMTypeFactory<AMInputObjectType> = this;
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
         const fields = {
           create: {
-            type: schemaInfo.resolveFactoryType(modelType, createTypeFactory),
+            type: this.configResolver.resolveInputType(modelType, [
+              'create',
+              'interfaceCreate',
+            ]),
           },
         };
 
@@ -41,5 +30,5 @@ export const AMCreateOneNestedTypeFactory: IAMTypeFactory<GraphQLInputObjectType
       },
       // we can keep this empty because child object will pass value to parent directly
     });
-  },
-};
+  }
+}

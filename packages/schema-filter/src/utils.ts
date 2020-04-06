@@ -28,9 +28,9 @@ export const mapArgForTypeStack = arg => ({
 });
 
 export const groupFields = (predicate, object) => {
-  let result = {};
-  for (let key in object) {
-    let predicateValue = predicate(object[key]);
+  const result = {};
+  for (const key in object) {
+    const predicateValue = predicate(object[key]);
     if (!result[predicateValue]) result[predicateValue] = {};
     result[predicateValue][key] = object[key];
   }

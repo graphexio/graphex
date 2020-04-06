@@ -39,7 +39,7 @@ export default () => {
   };
 
   const applyDefaults = (node, variables, context) => async ({ type }) => {
-    let defaultValues = defaults[type.name];
+    const defaultValues = defaults[type.name];
 
     // let defaultValues = get(type);
 
@@ -89,7 +89,7 @@ export default () => {
         })
       );
 
-      let newNode = {
+      const newNode = {
         ...node,
         value: astFromValue(input, type),
       };
@@ -99,7 +99,7 @@ export default () => {
     return undefined;
   };
 
-  const applyDefaultArgs = (node, variables, context) => (parent, field) => {
+  const applyDefaultArgs = (node, variables, context) => parent => {
     if (
       defaultArgs[parent.type.name] &&
       defaultArgs[parent.type.name][node.name.value]
@@ -138,7 +138,9 @@ export default () => {
             name: { kind: 'Name', value: argName },
             value: astValue,
           });
-        } catch (err) {}
+        } catch (err) {
+          return;
+        }
       });
 
       return {

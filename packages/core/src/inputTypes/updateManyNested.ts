@@ -1,49 +1,38 @@
-import {
-  GraphQLInputObjectType,
-  ObjectFieldNode,
-  GraphQLList,
-  isInterfaceType,
-} from 'graphql';
+import { GraphQLInputObjectType, GraphQLList } from 'graphql';
 import R from 'ramda';
-import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import {
+  AMInputFieldConfigMap,
   AMInputObjectType,
   AMModelField,
+  AMModelType,
+  AMTypeFactory,
   IAMInputFieldFactory,
   IAMTypeFactory,
-  AMInputFieldConfigMap,
 } from '../definitions';
-import { AMCreateTypeFactory } from './create';
-import { AMUpdateTypeFactory } from './update';
-import { AMWhereTypeFactory } from './where';
-import { AMUpdateWithWhereNestedTypeFactory } from './updateWithWhereNested';
 import { AMDataContext } from '../execution/contexts/data';
+import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import {
-  getLastOperation,
   getFieldPath,
+  getLastOperation,
   getOperationData,
 } from '../execution/utils';
-import { defaultObjectFieldVisitorHandler } from './visitorHandlers';
-import { AMContext } from '../execution/context';
 import { toArray } from '../utils';
-import { AMInterfaceCreateTypeFactory } from './interfaceCreate';
+import { defaultObjectFieldVisitorHandler } from './visitorHandlers';
 
 const isApplicable = (field: AMModelField) => (
   fieldFactory: IAMInputFieldFactory
 ) => fieldFactory.isApplicable(field);
 
-export const AMUpdateManyNestedTypeFactory: IAMTypeFactory<GraphQLInputObjectType> = {
-  getTypeName(modelType): string {
+export class AMUpdateManyNestedTypeFactory extends AMTypeFactory<
+  GraphQLInputObjectType
+> {
+  getTypeName(modelType: AMModelType): string {
     return `${modelType.name}UpdateManyNestedInput`;
-  },
-  getType(modelType, schemaInfo) {
+  }
+  getType(modelType: AMModelType) {
     const typeName = this.getTypeName(modelType);
 
     const self: IAMTypeFactory<AMInputObjectType> = this;
-
-    const createTypeFactory = !isInterfaceType(modelType)
-      ? AMCreateTypeFactory
-      : AMInterfaceCreateTypeFactory;
 
     return new AMInputObjectType({
       name: typeName,
@@ -51,21 +40,24 @@ export const AMUpdateManyNestedTypeFactory: IAMTypeFactory<GraphQLInputObjectTyp
         const fields = <AMInputFieldConfigMap>{
           create: {
             type: new GraphQLList(
-              schemaInfo.resolveFactoryType(modelType, createTypeFactory)
+              this.configResolver.resolveInputType(modelType, this.links.create)
             ),
             ...defaultObjectFieldVisitorHandler('create'),
           },
           recreate: {
             type: new GraphQLList(
-              schemaInfo.resolveFactoryType(modelType, createTypeFactory)
+              this.configResolver.resolveInputType(
+                modelType,
+                this.links.recreate
+              )
             ),
             ...defaultObjectFieldVisitorHandler('recreate'),
           },
           updateMany: {
             type: new GraphQLList(
-              schemaInfo.resolveFactoryType(
+              this.configResolver.resolveInputType(
                 modelType,
-                AMUpdateWithWhereNestedTypeFactory
+                this.links.updateMany //AMUpdateWithWhereNestedTypeFactory
               )
             ),
             amEnter(node, transaction, stack) {
@@ -81,7 +73,10 @@ export const AMUpdateManyNestedTypeFactory: IAMTypeFactory<GraphQLInputObjectTyp
           },
           deleteMany: {
             type: new GraphQLList(
-              schemaInfo.resolveFactoryType(modelType, AMWhereTypeFactory)
+              this.configResolver.resolveInputType(
+                modelType,
+                this.links.deleteMany //AMWhereTypeFactory
+              )
             ),
             ...defaultObjectFieldVisitorHandler('deleteMany'),
           },
@@ -121,5 +116,5 @@ export const AMUpdateManyNestedTypeFactory: IAMTypeFactory<GraphQLInputObjectTyp
         }
       },
     });
-  },
-};
+  }
+}

@@ -1,5 +1,3 @@
-import { buildQueryFactory } from '../src/buildQuery';
-
 describe('buildQuery', () => {
   // const queryType = 'query_type';
 
@@ -37,5 +35,7 @@ describe('buildQuery', () => {
   //   );
   // });
 
-  it('', () => {});
+  it('', () => {
+    return;
+  });
 });

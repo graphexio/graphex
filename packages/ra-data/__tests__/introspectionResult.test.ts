@@ -34,7 +34,7 @@ beforeAll(async () => {
 });
 
 test('getUpdateType', () => {
-  const resource = {};
+  // const resource = {};
   expect(introspection.getUpdateType('Admin', 'data').name).toMatch(
     'AdminUpdateInput'
   );

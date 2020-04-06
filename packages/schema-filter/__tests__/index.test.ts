@@ -2,15 +2,15 @@ import {
   makeExecutableSchema,
   transformSchema,
 } from '@apollo-model/graphql-tools';
-const { ApolloServer, gql } = require('apollo-server');
-const { createTestClient } = require('apollo-server-testing');
-import { printSchema, GraphQLObjectType, GraphQLEnumType } from 'graphql';
-
+import { ApolloServer } from 'apollo-server';
+import { createTestClient } from 'apollo-server-testing';
+import { GraphQLEnumType, GraphQLObjectType } from 'graphql';
+import gql from 'graphql-tag';
 import { SchemaFilter } from '../src';
-import { mapFieldForTypeStack, groupFields, reduceValues } from '../src/utils';
+import { groupFields, mapFieldForTypeStack, reduceValues } from '../src/utils';
 
 test('mapFieldForTypeStack', () => {
-  let input = {
+  const input = {
     type: 'type',
     args: [
       {
@@ -24,7 +24,7 @@ test('mapFieldForTypeStack', () => {
     ],
   };
 
-  let output = {
+  const output = {
     type: input.type,
     args: {
       arg1: input.args[0],
@@ -51,7 +51,7 @@ test('reduceValues', () => {
 });
 
 describe('SchemaFilter', () => {
-  let filterFields = SchemaFilter({
+  const filterFields = SchemaFilter({
     filterFields: (type, field) => {
       return !/^.*\.removeField$/.test(`${type.name}.${field.name}`);
     },
@@ -76,13 +76,13 @@ describe('SchemaFilter', () => {
   });
 
   const makeSchema = params => {
-    let schema = makeExecutableSchema(params);
+    const schema = makeExecutableSchema(params);
     return transformSchema(schema, [filterFields]);
   };
 
   const testClient = params => {
     const server = new ApolloServer(params);
-    return createTestClient(server);
+    return createTestClient(server as any);
   };
 
   const FIELD_VALUE = 'fieldValue';
@@ -110,14 +110,14 @@ describe('SchemaFilter', () => {
     };
 
     test('schema', () => {
-      let schema = makeSchema({ typeDefs, resolvers });
+      const schema = makeSchema({ typeDefs, resolvers });
       expect(schema.getTypeMap().Test).toBeUndefined();
     });
 
     test('wrong request', async () => {
-      let schema = makeSchema({ typeDefs, resolvers });
+      const schema = makeSchema({ typeDefs, resolvers });
       const { query } = testClient({ schema });
-      const { data, errors } = await query({
+      const { errors } = await query({
         query: gql`
           {
             getMethod {
@@ -154,16 +154,16 @@ describe('SchemaFilter', () => {
     };
 
     test('schema', () => {
-      let schema = makeSchema({ typeDefs, resolvers });
+      const schema = makeSchema({ typeDefs, resolvers });
       expect(
         (schema.getTypeMap().Test as GraphQLObjectType).getFields().removeField
       ).toBeUndefined();
     });
 
     test('right request', async () => {
-      let schema = makeSchema({ typeDefs, resolvers });
+      const schema = makeSchema({ typeDefs, resolvers });
       const { query } = testClient({ schema });
-      const { data, errors } = await query({
+      const { errors } = await query({
         query: gql`
           {
             getMethod {
@@ -177,9 +177,9 @@ describe('SchemaFilter', () => {
     });
 
     test('wrong request', async () => {
-      let schema = makeSchema({ typeDefs, resolvers });
+      const schema = makeSchema({ typeDefs, resolvers });
       const { query } = testClient({ schema });
-      const { data, errors } = await query({
+      const { errors } = await query({
         query: gql`
           {
             getMethod {
@@ -211,15 +211,15 @@ describe('SchemaFilter', () => {
     `;
 
     test('schema', () => {
-      let schema = makeSchema({ typeDefs });
+      const schema = makeSchema({ typeDefs });
       expect(schema.getTypeMap().Test).toBeUndefined();
     });
 
     test('wrong request', async () => {
-      let schema = makeSchema({ typeDefs });
+      const schema = makeSchema({ typeDefs });
       const { mutate } = testClient({ schema });
-      const { data, errors } = await mutate({
-        query: gql`
+      const { errors } = await mutate({
+        mutation: gql`
           mutation {
             updateMethod(data: { removeField: "123" })
           }
@@ -269,17 +269,17 @@ describe('SchemaFilter', () => {
     };
 
     test('schema', () => {
-      let schema = makeSchema({ typeDefs });
+      const schema = makeSchema({ typeDefs });
       expect(
         (schema.getTypeMap().Test as GraphQLObjectType).getFields().removeField
       ).toBeUndefined();
     });
 
     test('right request', async () => {
-      let schema = makeSchema({ typeDefs, resolvers });
+      const schema = makeSchema({ typeDefs, resolvers });
       const { mutate } = testClient({ schema });
       const { data, errors } = await mutate({
-        query: gql`
+        mutation: gql`
           mutation {
             updateMethod(data: { field: "123" })
           }
@@ -292,10 +292,10 @@ describe('SchemaFilter', () => {
     });
 
     test('right request with variable', async () => {
-      let schema = makeSchema({ typeDefs, resolvers });
+      const schema = makeSchema({ typeDefs, resolvers });
       const { mutate } = testClient({ schema });
       const { data, errors } = await mutate({
-        query: gql`
+        mutation: gql`
           mutation($id: ID!) {
             updateMethod(data: { field: $id })
           }
@@ -309,10 +309,10 @@ describe('SchemaFilter', () => {
     });
 
     test('right request with arg variable', async () => {
-      let schema = makeSchema({ typeDefs, resolvers });
+      const schema = makeSchema({ typeDefs, resolvers });
       const { mutate } = testClient({ schema });
       const { data, errors } = await mutate({
-        query: gql`
+        mutation: gql`
           mutation($data: Test) {
             updateMethod(data: $data)
           }
@@ -326,10 +326,10 @@ describe('SchemaFilter', () => {
     });
 
     test('undefined scalar arg variable', async () => {
-      let schema = makeSchema({ typeDefs, resolvers });
+      const schema = makeSchema({ typeDefs, resolvers });
       const { mutate } = testClient({ schema });
       const { data, errors } = await mutate({
-        query: gql`
+        mutation: gql`
           mutation($data: Int) {
             methodWithScalarArg(data: $data)
           }
@@ -340,10 +340,10 @@ describe('SchemaFilter', () => {
     });
 
     test('scalar array arg variable', async () => {
-      let schema = makeSchema({ typeDefs, resolvers });
+      const schema = makeSchema({ typeDefs, resolvers });
       const { mutate } = testClient({ schema });
       const { data, errors } = await mutate({
-        query: gql`
+        mutation: gql`
           mutation($data: [Int]) {
             methodWithScalarArrayArg(data: $data)
           }
@@ -357,10 +357,10 @@ describe('SchemaFilter', () => {
     });
 
     test('undefined scalar array arg variable', async () => {
-      let schema = makeSchema({ typeDefs, resolvers });
+      const schema = makeSchema({ typeDefs, resolvers });
       const { mutate } = testClient({ schema });
       const { data, errors } = await mutate({
-        query: gql`
+        mutation: gql`
           mutation($data: [Int]) {
             methodWithScalarArrayArg(data: $data)
           }
@@ -371,10 +371,10 @@ describe('SchemaFilter', () => {
     });
 
     test('wrong type scalar array arg variable', async () => {
-      let schema = makeSchema({ typeDefs, resolvers });
+      const schema = makeSchema({ typeDefs, resolvers });
       const { mutate } = testClient({ schema });
-      const { data, errors } = await mutate({
-        query: gql`
+      const { errors } = await mutate({
+        mutation: gql`
           mutation($data: Int) {
             methodWithScalarArrayArg(data: $data)
           }
@@ -388,10 +388,10 @@ describe('SchemaFilter', () => {
     });
 
     test('right request with undefined arg variable', async () => {
-      let schema = makeSchema({ typeDefs, resolvers });
+      const schema = makeSchema({ typeDefs, resolvers });
       const { mutate } = testClient({ schema });
       const { data, errors } = await mutate({
-        query: gql`
+        mutation: gql`
           mutation($data: Test) {
             updateMethod(data: $data)
           }
@@ -403,10 +403,10 @@ describe('SchemaFilter', () => {
     });
 
     test('right request with undefined nested variable', async () => {
-      let schema = makeSchema({ typeDefs, resolvers });
+      const schema = makeSchema({ typeDefs, resolvers });
       const { mutate } = testClient({ schema });
       const { data, errors } = await mutate({
-        query: gql`
+        mutation: gql`
           mutation($data: TestNestedInput) {
             updateMethod(data: { nestedInput: $data })
           }
@@ -418,10 +418,10 @@ describe('SchemaFilter', () => {
     });
 
     test('wrong request', async () => {
-      let schema = makeSchema({ typeDefs });
+      const schema = makeSchema({ typeDefs });
       const { mutate } = testClient({ schema });
-      const { data, errors } = await mutate({
-        query: gql`
+      const { errors } = await mutate({
+        mutation: gql`
           mutation {
             updateMethod(data: { removeField: "123" })
           }
@@ -455,7 +455,7 @@ describe('SchemaFilter', () => {
     `;
 
     test('schema', () => {
-      let schema = makeSchema({ typeDefs });
+      const schema = makeSchema({ typeDefs });
       expect(schema.getTypeMap().TestEnum).toBeUndefined();
       expect(
         (schema.getTypeMap().Test as GraphQLObjectType).getFields().enumInput
@@ -501,7 +501,7 @@ describe('SchemaFilter', () => {
     `;
 
     test('schema', () => {
-      let schema = makeSchema({ typeDefs });
+      const schema = makeSchema({ typeDefs });
 
       expect(
         (schema.getTypeMap().TestEnum as GraphQLEnumType)
@@ -511,10 +511,10 @@ describe('SchemaFilter', () => {
     });
 
     test('wrong request', async () => {
-      let schema = makeSchema({ typeDefs });
+      const schema = makeSchema({ typeDefs });
       const { mutate } = testClient({ schema });
-      const { data, errors } = await mutate({
-        query: gql`
+      const { errors } = await mutate({
+        mutation: gql`
           mutation {
             updateMethod(data: { defaultField: removeField })
           }
@@ -527,10 +527,10 @@ describe('SchemaFilter', () => {
     });
 
     test('right request', async () => {
-      let schema = makeSchema({ typeDefs });
+      const schema = makeSchema({ typeDefs });
       const { mutate } = testClient({ schema });
-      const { data, errors } = await mutate({
-        query: gql`
+      const { errors } = await mutate({
+        mutation: gql`
           mutation {
             updateMethod(data: { defaultField: DefaultValue })
           }
@@ -563,7 +563,7 @@ describe('SchemaFilter', () => {
     `;
 
     test('schema', async () => {
-      let schema = makeSchema({ typeDefs });
+      const schema = makeSchema({ typeDefs });
 
       expect(schema.getTypeMap().Meta).toBeUndefined();
     });
@@ -604,16 +604,16 @@ describe('SchemaFilter', () => {
     `;
 
     test('schema', async () => {
-      let schema = makeSchema({ typeDefs });
+      const schema = makeSchema({ typeDefs });
 
       expect(schema.getTypeMap().MetaCreateOneNestedInput).toBeUndefined();
     });
 
     test('right request', async () => {
-      let schema = makeSchema({ typeDefs });
+      const schema = makeSchema({ typeDefs });
       const { mutate } = testClient({ schema });
-      const { data, errors } = await mutate({
-        query: gql`
+      const { errors } = await mutate({
+        mutation: gql`
           mutation {
             createPost(data: { title: "123" }) {
               id

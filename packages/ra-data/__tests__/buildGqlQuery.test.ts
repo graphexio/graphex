@@ -1,27 +1,12 @@
+import { IntrospectionField, print, TypeKind } from 'graphql';
 import {
-  TypeKind,
-  print,
-  IntrospectionField,
-  FieldNode,
-  DocumentNode,
-} from 'graphql';
-import {
-  GET_LIST,
-  GET_ONE,
-  GET_MANY,
-  GET_MANY_REFERENCE,
-  UPDATE,
-  CREATE,
-  DELETE,
-} from 'react-admin';
-import buildGqlQuery, {
   buildApolloArgs,
   buildArgs,
   buildFields,
   getArgType,
   Query,
 } from '../src/buildGqlQuery';
-import { IntrospectionResultData, Resource } from '../src/constants/interfaces';
+import { IntrospectionResultData } from '../src/constants/interfaces';
 
 describe('getArgType', () => {
   it('returns the arg type', () => {

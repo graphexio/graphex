@@ -1,35 +1,19 @@
+import { GraphQLList } from 'graphql';
 import {
-  GraphQLInputObjectType,
-  GraphQLList,
-  ObjectFieldNode,
-  isInterfaceType,
-} from 'graphql';
-import {
-  AMModelField,
-  IAMInputFieldFactory,
-  IAMTypeFactory,
-  AMInputObjectType,
-  AMInputField,
   AMInputFieldConfigMap,
+  AMInputObjectType,
+  AMModelType,
+  AMTypeFactory,
+  IAMTypeFactory,
 } from '../definitions';
-import { AMCreateTypeFactory } from './create';
-import { AMObjectFieldContext } from '../execution/contexts/objectField';
-import R from 'ramda';
-import { AMInterfaceCreateTypeFactory } from './interfaceCreate';
 
-const isApplicable = (field: AMModelField) => (
-  fieldFactory: IAMInputFieldFactory
-) => fieldFactory.isApplicable(field);
-
-export const AMCreateManyNestedTypeFactory: IAMTypeFactory<AMInputObjectType> = {
-  getTypeName(modelType): string {
+export class AMCreateManyNestedTypeFactory extends AMTypeFactory<
+  AMInputObjectType
+> {
+  getTypeName(modelType: AMModelType): string {
     return `${modelType.name}CreateManyNestedInput`;
-  },
-  getType(modelType, schemaInfo) {
-    const createTypeFactory = !isInterfaceType(modelType)
-      ? AMCreateTypeFactory
-      : AMInterfaceCreateTypeFactory;
-
+  }
+  getType(modelType: AMModelType) {
     const self: IAMTypeFactory<AMInputObjectType> = this;
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
@@ -37,7 +21,10 @@ export const AMCreateManyNestedTypeFactory: IAMTypeFactory<AMInputObjectType> = 
         const fields = <AMInputFieldConfigMap>{
           create: {
             type: new GraphQLList(
-              schemaInfo.resolveFactoryType(modelType, createTypeFactory)
+              this.configResolver.resolveInputType(modelType, [
+                'create',
+                'interfaceCreate',
+              ])
             ),
             // we can keep amEnter and amLeave empty because child object will pass value to parent directly
           },
@@ -46,5 +33,5 @@ export const AMCreateManyNestedTypeFactory: IAMTypeFactory<AMInputObjectType> = 
         return fields;
       },
     });
-  },
-};
+  }
+}

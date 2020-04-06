@@ -11,24 +11,29 @@ import { updatedAtDirective } from './updatedAtDirective';
 import { embeddedDirective } from './embeddedDirective';
 import { defaultDirective } from './defaultDirective';
 import { validations } from './validations';
+import { AMConfigResolver } from '../config/resolver';
+import { AMSchemaInfo } from '../definitions';
 
-export const prepare = (
-  schema: GraphQLSchema,
-  options: { fieldFactoriesMap: {}; fieldVisitorEventsMap: {} }
-) => {
-  fillDbName(schema);
-  relationDirective(schema);
-  extRelationDirective(schema);
-  addVisitorEvents(schema);
-  fieldFactories(schema, options.fieldFactoriesMap);
-  fieldVisitorEvents(schema, options.fieldVisitorEventsMap);
+export const prepare = (options: {
+  schema: GraphQLSchema;
+  schemaInfo: AMSchemaInfo;
+  configResolver: AMConfigResolver;
+  fieldFactoriesMap: {};
+  fieldVisitorEventsMap: {};
+}) => {
+  fillDbName(options.schema);
+  relationDirective(options.schema);
+  extRelationDirective(options.schema);
+  addVisitorEvents(options.schema);
+  fieldFactories(options.schema, options.fieldFactoriesMap);
+  fieldVisitorEvents(options.schema, options.fieldVisitorEventsMap);
 
   /* validations */
-  validations(schema);
+  validations(options.schema);
 
   /* directives */
-  createdAtDirective(schema);
-  updatedAtDirective(schema);
-  embeddedDirective(schema);
-  defaultDirective(schema);
+  createdAtDirective(options.schema);
+  updatedAtDirective(options.schema);
+  embeddedDirective(options.schema);
+  defaultDirective(options.schema);
 };

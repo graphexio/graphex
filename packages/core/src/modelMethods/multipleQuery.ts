@@ -1,39 +1,27 @@
-import {
-  GraphQLInt,
-  GraphQLList,
-  GraphQLNonNull,
-  isInterfaceType,
-} from 'graphql';
+import { GraphQLList, GraphQLNonNull } from 'graphql';
 import pluralize from 'pluralize';
 import R from 'ramda';
-import { AMReadOperation } from '../execution/operations/readOperation';
-import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
-import { AMWhereTypeFactory } from '../inputTypes/where';
-import { AMWhereACLTypeFactory } from '../inputTypes/whereACL';
-import { lowercaseFirstLetter } from '../utils';
+import { firstArg } from '../args/first';
+import { skipArg } from '../args/skip';
 import {
   AMField,
+  AMMethodFieldFactory,
   AMModelType,
-  IAMFieldFactory,
-  IAMMethodFieldFactory,
   GraphQLOperationType,
 } from '../definitions';
-import { resolve } from '../resolve';
-import { AMObjectFieldContext } from '../execution/contexts/objectField';
-import { AMOperation } from '../execution/operation';
-import { skipArg } from '../args/skip';
-import { firstArg } from '../args/first';
 import { AMSelectorContext } from '../execution/contexts/selector';
-import { AMInterfaceWhereTypeFactory } from '../inputTypes/interfaceWhere';
+import { AMReadOperation } from '../execution/operations/readOperation';
+import { resolve } from '../resolve';
+import { lowercaseFirstLetter } from '../utils';
 
-export const AMModelMultipleQueryFieldFactory: IAMMethodFieldFactory = {
+export class AMModelMultipleQueryFieldFactory extends AMMethodFieldFactory {
   getOperationType() {
     return GraphQLOperationType.Query;
-  },
+  }
   getFieldName(modelType: AMModelType): string {
     return R.pipe(pluralize, lowercaseFirstLetter)(modelType.name);
-  },
-  getField(modelType: AMModelType, schemaInfo) {
+  }
+  getField(modelType: AMModelType) {
     return <AMField>{
       name: this.getFieldName(modelType),
       description: '',
@@ -42,16 +30,20 @@ export const AMModelMultipleQueryFieldFactory: IAMMethodFieldFactory = {
       args: [
         {
           name: 'where',
-          type: schemaInfo.resolveFactoryType(
+          type: this.configResolver.resolveInputType(
             modelType,
-            isInterfaceType(modelType)
-              ? AMInterfaceWhereTypeFactory
-              : AMWhereTypeFactory
+            this.links.where
           ),
+          // isInterfaceType(modelType)
+          //   ? AMInterfaceWhereTypeFactory
+          //   : AMWhereTypeFactory
         },
         {
           name: 'orderBy',
-          type: schemaInfo.resolveFactoryType(modelType, AMOrderByTypeFactory),
+          type: this.configResolver.resolveInputType(
+            modelType,
+            this.links.orderBy
+          ),
         },
         skipArg,
         firstArg,
@@ -78,5 +70,5 @@ export const AMModelMultipleQueryFieldFactory: IAMMethodFieldFactory = {
       },
       resolve: resolve,
     };
-  },
-};
+  }
+}

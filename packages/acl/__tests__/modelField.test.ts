@@ -34,7 +34,7 @@ test('fieldAccessRule Wildcard', () => {
   const Mutation = schema.getType('Mutation');
   //   const Subscription = schema.getType('Subscription');
 
-  let rule = modelField('.*', '.*', 'R')(schema);
+  const rule = modelField('.*', '.*', 'R')(schema);
 
   expect(rule({ type, field })).toBe(true);
   expect(rule({ type: Query, field })).toBe(false);

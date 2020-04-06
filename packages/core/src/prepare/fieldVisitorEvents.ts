@@ -24,7 +24,7 @@ export const fieldVisitorEvents = (
           fieldVisitorEventsMap[type.name] &&
           fieldVisitorEventsMap[type.name][field.name]
         ) {
-          let events = fieldVisitorEventsMap[type.name][field.name];
+          const events = fieldVisitorEventsMap[type.name][field.name];
 
           field.amEnter = events.amEnter;
           field.amLeave = events.amLeave;
