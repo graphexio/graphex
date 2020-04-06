@@ -213,6 +213,7 @@ export type AMModelType = (
   mmAbstract: boolean;
   mmEmbedded: boolean;
   mmModel: boolean;
+  mmModelInherited?: boolean;
   mmCreatedAtFields?: AMModelField[];
   mmUpdatedAtFields?: AMModelField[];
   mmDefaultFields?: AMModelField[];

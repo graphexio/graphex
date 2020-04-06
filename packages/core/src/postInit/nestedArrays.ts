@@ -13,7 +13,7 @@ export const nestedArrays = (
   configResolver: AMConfigResolver
 ) => {
   Object.values(schema.getTypeMap()).forEach((type: AMModelType) => {
-    if (type.mmModel || type.mmEmbedded) {
+    if (type.mmModel || type.mmEmbedded || type.mmModelInherited) {
       Object.values(type.getFields()).forEach((field: AMModelField) => {
         const typeWrap = new TypeWrap(field.type);
         const realType = typeWrap.realType() as AMModelType;
