@@ -192,7 +192,6 @@ export const transformRequest = (transformOptions, transformContext) => async (
       document: newDocument,
     };
   } catch (err) {
-    console.log(err);
     throw err;
   }
 };
