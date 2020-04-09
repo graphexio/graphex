@@ -30,7 +30,7 @@ export * from './definitions';
 export * from './execution';
 export * from './inputTypes';
 
-import { printSchema } from 'graphql';
+import { printSchema } from '@apollo/federation';
 
 function isAMModelType(type: GraphQLNamedType): type is AMModelType {
   const typeWrap = new TypeWrap(type);
