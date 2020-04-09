@@ -232,7 +232,7 @@ export default class ModelMongo {
       }
     });
 
-    postInit({ schema, schemaInfo, configResolver });
+    postInit({ schema, schemaInfo, configResolver, amOptions: this.options });
 
     /* resolve field thunks */
     let initialCount;

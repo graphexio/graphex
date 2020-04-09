@@ -767,34 +767,37 @@ describe('default', () => {
 });
 
 describe('nested arrays', () => {
-  const schema = generateSchema(gql`
-    type Post @model {
-      id: ID @id @unique @db(name: "_id")
-      comments: [Comment]
-    }
+  const schema = generateSchema(
+    gql`
+      type Post @model {
+        id: ID @id @unique @db(name: "_id")
+        comments: [Comment]
+      }
 
-    type Comment @embedded {
-      message: String
-    }
+      type Comment @embedded {
+        message: String
+      }
 
-    interface Review @inherit @embedded {
-      message: String
-    }
+      interface Review @inherit @embedded {
+        message: String
+      }
 
-    type HotelReview implements Review {
-      rating: Int
-    }
+      type HotelReview implements Review {
+        rating: Int
+      }
 
-    interface Poi @inherit @model {
-      id: ID @id @unique @db(name: "_id")
-      reviews: [Review]
-    }
+      interface Poi @inherit @model {
+        id: ID @id @unique @db(name: "_id")
+        reviews: [Review]
+      }
 
-    type Hotel implements Poi {
-      title: String
-      reviews: [HotelReview]
-    }
-  `);
+      type Hotel implements Poi {
+        title: String
+        reviews: [HotelReview]
+      }
+    `,
+    { nestedArraysFilter: true }
+  );
 
   test('validate', () => {
     expect(validateSchema(schema)).toMatchObject([]);

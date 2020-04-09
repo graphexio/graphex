@@ -52,6 +52,7 @@ export abstract class AMFactory {
 export type AMOptions = {
   aclWhere?: boolean;
   config?: AMConfig;
+  nestedArraysFilter?: boolean;
 };
 
 export type mmTransformType = (input: {

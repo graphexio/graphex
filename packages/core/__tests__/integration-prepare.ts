@@ -1,12 +1,12 @@
 import { ApolloServer } from 'apollo-server';
 import AMM from '../src';
 import QueryExecutor from '@apollo-model/mongodb-executor';
-import { MongoClient, ObjectID } from 'mongodb';
+import { MongoClient } from 'mongodb';
 import typeDefs from './model';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import * as DirectiveImplements from '@apollo-model/directive-implements';
 import { AMOptions } from '../src/definitions';
-const util = require('util');
+import { createTestClient } from 'apollo-server-testing';
 
 export default () => {
   let mongod;
@@ -36,6 +36,7 @@ export default () => {
 
       const schema = new AMM({
         modules: [DirectiveImplements],
+        options,
       }).buildFederatedSchema({
         resolverValidationOptions: {
           requireResolversForResolveType: false,
@@ -65,7 +66,6 @@ export default () => {
         },
       });
 
-      const { createTestClient } = require('apollo-server-testing');
       const { query, mutate } = createTestClient(server);
       return {
         query,

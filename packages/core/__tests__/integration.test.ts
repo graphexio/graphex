@@ -2,16 +2,15 @@ jest.setTimeout(20000);
 
 import prepare from './integration-prepare';
 
-const _ = require('lodash');
 import gql from 'graphql-tag';
 import { getIntrospectionQuery } from 'graphql';
 
-let testInstance;
+let testInstance: ReturnType<typeof prepare>;
 let query, mutate, connectToDatabase;
 
 beforeAll(async () => {
   testInstance = prepare();
-  const instance = await testInstance.start();
+  const instance = await testInstance.start({ nestedArraysFilter: true });
   query = instance.query;
   mutate = instance.mutate;
   connectToDatabase = instance.connectToDatabase;
