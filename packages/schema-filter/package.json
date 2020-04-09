@@ -30,7 +30,6 @@
     "@babel/preset-env": "^7.5.5",
     "apollo-server": "^2.8.1",
     "apollo-server-testing": "^2.8.1",
-    "graphql": "^14.6.0",
     "jest": "^25.1.0",
     "nodemon": "^1.19.1",
     "rimraf": "^2.6.3",

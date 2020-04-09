@@ -76,7 +76,7 @@
     "babel-jest": "^24.0.0",
     "babel-plugin-import-graphql": "^2.6.2",
     "babel-plugin-root-import": "^6.1.0",
-    "graphql": "14.6.0",
+    "graphql": "git+https://github.com/apollo-model/graphql-js.git#4d89c0fe20a34256d90b63397782893c5820e145",
     "husky": "^1.3.1",
     "jest": "^25.1.0",
     "lint-staged": "^8.1.3",

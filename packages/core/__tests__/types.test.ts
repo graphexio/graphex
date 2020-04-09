@@ -1,4 +1,4 @@
-import { printType } from 'graphql';
+import { printType, validateSchema } from 'graphql';
 import gql from 'graphql-tag';
 import AMM from '../src';
 import { AMOptions } from '../src/definitions';
@@ -777,8 +777,12 @@ describe('nested arrays', () => {
       message: String
     }
 
-    type Review @embedded {
+    interface Review @inherit @embedded {
       message: String
+    }
+
+    type HotelReview implements Review {
+      rating: Int
     }
 
     interface Poi @inherit @model {
@@ -788,8 +792,13 @@ describe('nested arrays', () => {
 
     type Hotel implements Poi {
       title: String
+      reviews: [HotelReview]
     }
   `);
+
+  test('validate', () => {
+    expect(validateSchema(schema)).toMatchObject([]);
+  });
 
   test('Post', () => {
     expect(printType(schema.getType('Post'))).toMatchInlineSnapshot(`
@@ -811,11 +820,11 @@ describe('nested arrays', () => {
 
   test('Hotel', () => {
     expect(printType(schema.getType('Hotel'))).toMatchInlineSnapshot(`
-      "type Hotel implements Poi {
-        id: ID
-        reviews(where: ReviewWhereInput, orderBy: ReviewOrderByInput, skip: Int, first: Int): [Review]
-        title: String
-      }"
+"type Hotel implements Poi {
+  id: ID
+  reviews(where: HotelReviewWhereInput, orderBy: HotelReviewOrderByInput, skip: Int, first: Int): [HotelReview]
+  title: String
+}"
 `);
   });
 });

@@ -16,7 +16,8 @@
     "eslint-plugin-prettier": "^3.1.2",
     "jest": "^25.1.0",
     "lerna": "^3.13.1",
-    "prettier": "^1.19.1"
+    "prettier": "^1.19.1",
+    "graphql": "git+https://github.com/apollo-model/graphql-js.git#4d89c0fe20a34256d90b63397782893c5820e145"
   },
   "private": true,
   "workspaces": {
