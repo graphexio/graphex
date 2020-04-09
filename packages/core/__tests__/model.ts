@@ -16,9 +16,17 @@ export default gql`
     posts: [Post!] @extRelation
   }
 
+  enum HighlightColor {
+    red
+    green
+    blue
+  }
+
   type Comment @embedded {
     body: String
     user: User! @relation
+    color: HighlightColor
+    tags: [String]
   }
 
   type Post implements Node & Timestamp @model {

@@ -1,4 +1,4 @@
-import { printType } from 'graphql';
+import { printType, validateSchema } from 'graphql';
 import gql from 'graphql-tag';
 import AMM from '../src';
 import { AMOptions } from '../src/definitions';
@@ -767,29 +767,41 @@ describe('default', () => {
 });
 
 describe('nested arrays', () => {
-  const schema = generateSchema(gql`
-    type Post @model {
-      id: ID @id @unique @db(name: "_id")
-      comments: [Comment]
-    }
+  const schema = generateSchema(
+    gql`
+      type Post @model {
+        id: ID @id @unique @db(name: "_id")
+        comments: [Comment]
+      }
 
-    type Comment @embedded {
-      message: String
-    }
+      type Comment @embedded {
+        message: String
+      }
 
-    type Review @embedded {
-      message: String
-    }
+      interface Review @inherit @embedded {
+        message: String
+      }
 
-    interface Poi @inherit @model {
-      id: ID @id @unique @db(name: "_id")
-      reviews: [Review]
-    }
+      type HotelReview implements Review {
+        rating: Int
+      }
 
-    type Hotel implements Poi {
-      title: String
-    }
-  `);
+      interface Poi @inherit @model {
+        id: ID @id @unique @db(name: "_id")
+        reviews: [Review]
+      }
+
+      type Hotel implements Poi {
+        title: String
+        reviews: [HotelReview]
+      }
+    `,
+    { nestedArraysFilter: true }
+  );
+
+  test('validate', () => {
+    expect(validateSchema(schema)).toMatchObject([]);
+  });
 
   test('Post', () => {
     expect(printType(schema.getType('Post'))).toMatchInlineSnapshot(`
@@ -811,11 +823,11 @@ describe('nested arrays', () => {
 
   test('Hotel', () => {
     expect(printType(schema.getType('Hotel'))).toMatchInlineSnapshot(`
-      "type Hotel implements Poi {
-        id: ID
-        reviews(where: ReviewWhereInput, orderBy: ReviewOrderByInput, skip: Int, first: Int): [Review]
-        title: String
-      }"
+"type Hotel implements Poi {
+  id: ID
+  reviews(where: HotelReviewWhereInput, orderBy: HotelReviewOrderByInput, skip: Int, first: Int): [HotelReview]
+  title: String
+}"
 `);
   });
 });

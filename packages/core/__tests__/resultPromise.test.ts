@@ -461,7 +461,7 @@ describe('transformArray', () => {
 
     return expect(transformResultPromise).resolves.toEqual(result);
   });
-  test('in', () => {
+  test('in for single', () => {
     const result = [
       {
         comments: [
@@ -483,6 +483,36 @@ describe('transformArray', () => {
         where: {
           id: {
             $in: [7, 8],
+          },
+        },
+      })
+    );
+
+    return expect(transformResultPromise).resolves.toEqual(result);
+  });
+
+  test('in for array', () => {
+    const result = [
+      {
+        comments: [
+          {
+            id: 7,
+            message: 'message_with_tags2',
+            tags: ['a', 'b'],
+          },
+          {
+            id: 8,
+            message: 'message_with_tags2',
+            tags: ['a', 'b', 'c'],
+          },
+        ],
+      },
+    ];
+    const transformResultPromise = resultPromise.map(
+      ResultPromiseTransforms.transformArray('comments', {
+        where: {
+          tags: {
+            $in: ['b', 'c'],
           },
         },
       })

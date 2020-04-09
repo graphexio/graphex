@@ -1,9 +1,6 @@
-import { AMOperation } from '../operation';
-import { AMDBExecutor, AMDBExecutorOperationType } from '../../definitions';
-import { completeAMResultPromise } from '../utils';
-import { AMTransaction } from '../transaction';
 import R from 'ramda';
-import { DBRef } from 'mongodb';
+import { AMDBExecutor, AMDBExecutorOperationType } from '../../definitions';
+import { AMOperation } from '../operation';
 
 type NormalizedRepresentation = {
   collectionName: string;

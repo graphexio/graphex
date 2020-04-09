@@ -2,16 +2,15 @@ jest.setTimeout(20000);
 
 import prepare from './integration-prepare';
 
-const _ = require('lodash');
 import gql from 'graphql-tag';
 import { getIntrospectionQuery } from 'graphql';
 
-let testInstance;
+let testInstance: ReturnType<typeof prepare>;
 let query, mutate, connectToDatabase;
 
 beforeAll(async () => {
   testInstance = prepare();
-  const instance = await testInstance.start();
+  const instance = await testInstance.start({ nestedArraysFilter: true });
   query = instance.query;
   mutate = instance.mutate;
   connectToDatabase = instance.connectToDatabase;
@@ -1276,7 +1275,22 @@ test('test empty object instead array', async () => {
           data: {
             title: "Empty comments post title"
             body: "Empty comments post body"
-            comments: { create: [{ body: "comment1" }, { body: "comment2" }] }
+            comments: {
+              create: [
+                {
+                  body: "comment1"
+                  user: { create: { Admin: { username: "UserForComments1" } } }
+                  color: red
+                  tags: ["tag1", "tag2"]
+                }
+                {
+                  body: "comment2"
+                  user: { create: { Admin: { username: "UserForComments2" } } }
+                  color: blue
+                  tags: ["tag2", "tag3"]
+                }
+              ]
+            }
           }
         ) {
           id
@@ -1291,28 +1305,32 @@ test('test empty object instead array', async () => {
   expect(errors).toBeUndefined();
 });
 
-test('where nested', async () => {
-  const { data, errors } = await query({
-    query: gql`
-      query posts($where: PostWhereInput) {
-        posts(where: $where) {
-          id
+describe('nested', () => {
+  test('where', async () => {
+    const { data, errors } = await query({
+      query: gql`
+        query posts($where: PostWhereInput) {
+          posts(where: $where) {
+            id
+          }
         }
-      }
-    `,
-    variables: { where: { comments_some: { body_contains: 'test' } } },
+      `,
+      variables: { where: { comments_some: { body_contains: 'test' } } },
+    });
+    expect(errors).toBeUndefined();
   });
-  expect(errors).toBeUndefined();
-});
 
-test('nested array filter', async () => {
-  {
+  test('unfiltered', async () => {
     const { data, errors } = await query({
       query: gql`
         query posts {
           posts(where: { comments_exists: true }) {
             comments {
               body
+              user {
+                username
+              }
+              color
             }
           }
         }
@@ -1320,20 +1338,28 @@ test('nested array filter', async () => {
     });
     expect(errors).toBeUndefined();
     expect(data.posts[0]).toMatchInlineSnapshot(`
-      Object {
-        "comments": Array [
-          Object {
-            "body": "comment1",
-          },
-          Object {
-            "body": "comment2",
-          },
-        ],
-      }
-      `);
-  }
+Object {
+  "comments": Array [
+    Object {
+      "body": "comment1",
+      "color": "red",
+      "user": Object {
+        "username": "UserForComments1",
+      },
+    },
+    Object {
+      "body": "comment2",
+      "color": "blue",
+      "user": Object {
+        "username": "UserForComments2",
+      },
+    },
+  ],
+}
+`);
+  });
 
-  {
+  test('filter string contains', async () => {
     const { data, errors } = await query({
       query: gql`
         query posts {
@@ -1355,7 +1381,81 @@ test('nested array filter', async () => {
         ],
       }
       `);
-  }
+  });
+
+  test('filter enum match', async () => {
+    const { data, errors } = await query({
+      query: gql`
+        query posts {
+          posts(where: { comments_exists: true }) {
+            comments(where: { color: red }) {
+              body
+            }
+          }
+        }
+      `,
+    });
+    expect(errors).toBeUndefined();
+    expect(data.posts[0]).toMatchInlineSnapshot(`
+      Object {
+        "comments": Array [
+          Object {
+            "body": "comment1",
+          },
+        ],
+      }
+      `);
+  });
+
+  test('filter in', async () => {
+    const { data, errors } = await query({
+      query: gql`
+        query posts {
+          posts(where: { comments_exists: true }) {
+            comments(where: { tags_in: ["tag1"] }) {
+              body
+            }
+          }
+        }
+      `,
+    });
+    expect(errors).toBeUndefined();
+    expect(data.posts[0]).toMatchInlineSnapshot(`
+      Object {
+        "comments": Array [
+          Object {
+            "body": "comment1",
+          },
+        ],
+      }
+      `);
+  });
+
+  test('filter relation', async () => {
+    const { data, errors } = await query({
+      query: gql`
+        query posts {
+          posts(where: { comments_exists: true }) {
+            comments(
+              where: { user: { User: { username: "UserForComments1" } } }
+            ) {
+              body
+            }
+          }
+        }
+      `,
+    });
+    expect(errors).toBeUndefined();
+    expect(data.posts[0]).toMatchInlineSnapshot(`
+      Object {
+        "comments": Array [
+          Object {
+            "body": "comment1",
+          },
+        ],
+      }
+      `);
+  });
 });
 
 test('federation entities', async () => {

@@ -1,6 +1,6 @@
 import { AMOperation } from '../operation';
 import { AMDBExecutor, AMDBExecutorOperationType } from '../../definitions';
-import { completeAMResultPromise } from '../utils';
+import { completeAMResultPromise } from '../resultPromise/utils';
 
 export class AMDeleteOperation extends AMOperation {
   async execute(executor: AMDBExecutor) {

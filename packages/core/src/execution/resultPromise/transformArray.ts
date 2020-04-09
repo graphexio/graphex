@@ -1,6 +1,6 @@
 import * as R from 'ramda';
 import { AMResultPromise } from './resultPromise';
-import { mapPath } from './utils';
+import { mapPath, completeAMResultPromise } from './utils';
 
 const makeSimplePredicate = (key: string, value: any) => item => {
   return item[key] === value;
@@ -77,7 +77,35 @@ const makeComparisonPredicate = (
 
 const makeInPredicate = (key: string, arr: any) => item => {
   if (Array.isArray(arr)) {
-    return arr.includes(item[key]);
+    const searchMap = new Map<any, true>();
+
+    arr.forEach(arrItem => {
+      if (typeof arrItem === 'object') {
+        searchMap.set(JSON.stringify(arrItem), true);
+      } else {
+        searchMap.set(arrItem, true);
+      }
+    });
+
+    const value = item[key];
+    if (Array.isArray(value)) {
+      for (const valueItem of value) {
+        let searchValue = valueItem;
+        if (typeof valueItem === 'object') {
+          searchValue = JSON.stringify(valueItem);
+        }
+        if (searchMap.has(searchValue)) {
+          return true;
+        }
+      }
+      return false;
+    } else {
+      let searchValue = value;
+      if (typeof value === 'object') {
+        searchValue = JSON.stringify(value);
+      }
+      return searchMap.has(searchValue);
+    }
   } else {
     return false;
   }
@@ -136,9 +164,12 @@ export const transformArray = (
 ) => (source: AMResultPromise<any>, dest: AMResultPromise<any>) => {
   const pathArr = path.split('.');
   const arrFieldName = pathArr.pop();
-  const filter = makeCondFilter(filterParams.where);
 
   source.then(async value => {
+    const filter = makeCondFilter(
+      await completeAMResultPromise(filterParams.where)
+    );
+
     const mapItem = item => {
       const arr = item[arrFieldName];
       if (Array.isArray(arr)) {

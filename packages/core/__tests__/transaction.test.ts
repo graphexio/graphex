@@ -2721,17 +2721,20 @@ describe('default', () => {
 });
 
 describe('filter nested arrays', () => {
-  const schema = generateSchema(gql`
-    type Post @model {
-      id: ID @id @unique @db(name: "_id")
-      comments: [Comment]
-    }
+  const schema = generateSchema(
+    gql`
+      type Post @model {
+        id: ID @id @unique @db(name: "_id")
+        comments: [Comment]
+      }
 
-    type Comment @embedded {
-      message: String
-      comments: [Comment]
-    }
-  `);
+      type Comment @embedded {
+        message: String
+        comments: [Comment]
+      }
+    `,
+    { nestedArraysFilter: true }
+  );
 
   test('string match', () => {
     const rq = gql`

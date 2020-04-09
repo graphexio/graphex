@@ -13,7 +13,9 @@ export const distinctReplace = (
     const mapItem = item => {
       if (
         typeof item === 'string' ||
-        (typeof item === 'object' && item.constructor.name === 'ObjectID')
+        (item !== null &&
+          typeof item === 'object' &&
+          item.constructor.name === 'ObjectID')
       ) {
         return dataMap[item];
       } else {
