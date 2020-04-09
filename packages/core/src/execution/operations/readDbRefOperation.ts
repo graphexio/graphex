@@ -1,7 +1,7 @@
 import { AMOperation } from '../operation';
 import { AMDBExecutor, AMDBExecutorOperationType } from '../../definitions';
-import { completeAMResultPromise } from '../utils';
-import { AMTransaction } from '../transaction';
+import { completeAMResultPromise } from '../resultPromise/utils';
+
 import R from 'ramda';
 import { DBRef } from 'mongodb';
 

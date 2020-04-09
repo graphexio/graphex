@@ -1,3 +1,5 @@
+import { AMResultPromise } from './resultPromise';
+
 export const getPath = (path: string[]) => (value: any) => {
   if (path.length !== 0 && !value) {
     return value;
@@ -32,3 +34,25 @@ export const mapPath = <T>(path: string[], mapFn: (item: T) => T) => (
     }
   }
 };
+
+export async function completeAMResultPromise(obj: any) {
+  if (obj instanceof AMResultPromise) {
+    return await obj.getPromise();
+  } else if (obj && obj.constructor && obj.constructor.name == 'Object') {
+    return Object.fromEntries(
+      await Promise.all(
+        Object.entries(obj).map(async ([k, v]) => {
+          return [k, await completeAMResultPromise(v)];
+        })
+      )
+    );
+  } else if (obj && obj.constructor && obj.constructor.name == 'Array') {
+    return await Promise.all(
+      obj.map(v => {
+        return completeAMResultPromise(v);
+      })
+    );
+  } else {
+    return obj;
+  }
+}

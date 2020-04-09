@@ -1,6 +1,6 @@
 import { AMOperation } from '../operation';
 import { AMDBExecutor, AMDBExecutorOperationType } from '../../definitions';
-import { completeAMResultPromise } from '../utils';
+import { completeAMResultPromise } from '../resultPromise/utils';
 
 export interface ArrayFilter {
   name: string;
@@ -35,9 +35,9 @@ export class AMUpdateOperation extends AMOperation {
 
   createArrayFilter() {
     if (!this.arrayFilters) this.arrayFilters = [];
-    const newFilter = <ArrayFilter>{
+    const newFilter = {
       name: `arrFltr${this.arrayFilters.length}`,
-    };
+    } as ArrayFilter;
     this.arrayFilters.push(newFilter);
     return newFilter;
   }

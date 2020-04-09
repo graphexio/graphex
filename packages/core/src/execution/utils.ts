@@ -59,25 +59,3 @@ export const getFieldsSelectionPath = (
   }
   return path.join('.');
 };
-
-export async function completeAMResultPromise(obj: any) {
-  if (obj instanceof AMResultPromise) {
-    return await obj.getPromise();
-  } else if (obj && obj.constructor && obj.constructor.name == 'Object') {
-    return Object.fromEntries(
-      await Promise.all(
-        Object.entries(obj).map(async ([k, v]) => {
-          return [k, await completeAMResultPromise(v)];
-        })
-      )
-    );
-  } else if (obj && obj.constructor && obj.constructor.name == 'Array') {
-    return await Promise.all(
-      obj.map(v => {
-        return completeAMResultPromise(v);
-      })
-    );
-  } else {
-    return obj;
-  }
-}
