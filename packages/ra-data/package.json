@@ -1,6 +1,6 @@
 {
   "name": "@apollo-model/ra-data-apollo-model",
-  "version": "0.6.2-alpha.0",
+  "version": "0.6.2-alpha.2",
   "description": "An apollo-model data provider for react-admin",
   "main": "lib/index.js",
   "sideEffects": false,
