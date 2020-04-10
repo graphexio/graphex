@@ -1,17 +1,17 @@
-import { distinct } from './distinct';
-import { distinctReplace } from './distinctReplace';
-import { lookup } from './lookup';
-import { path } from './path';
-import { dbRef } from './dbref';
-import { dbRefReplace } from './dbRefReplace';
-import { transformArray } from './transformArray';
+import { Distinct } from './distinct';
+import { DistinctReplace } from './distinctReplace';
+import { Lookup } from './lookup';
+import { Path } from './path';
+import { ToDbRef } from './toDbRef';
+import { DbRefReplace } from './dbRefReplace';
+import { TransformArray } from './transformArray';
 
 export const ResultPromiseTransforms = {
-  distinct,
-  distinctReplace,
-  lookup,
-  path,
-  dbRef,
-  dbRefReplace,
-  transformArray,
+  Distinct,
+  DistinctReplace,
+  Lookup,
+  Path,
+  ToDbRef,
+  DbRefReplace,
+  TransformArray,
 };

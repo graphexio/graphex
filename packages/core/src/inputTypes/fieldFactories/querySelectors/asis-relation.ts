@@ -58,7 +58,9 @@ export class AsIsRelationSelector extends AMInputFieldFactory {
               $in: context
                 .getOutput()
                 .map(
-                  ResultPromiseTransforms.distinct(field.relation.relationField)
+                  new ResultPromiseTransforms.Distinct(
+                    field.relation.relationField
+                  )
                 ),
             });
           }

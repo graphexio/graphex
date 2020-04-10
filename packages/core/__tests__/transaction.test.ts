@@ -61,24 +61,28 @@ describe('simple schema', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-                Object {
-                  "operations": Array [
-                    Object {
-                      "collectionName": "posts",
-                      "fieldsSelection": Object {
-                        "fields": Array [
-                          "_id",
-                          "title",
-                        ],
-                      },
-                      "identifier": "Operation-0",
-                      "kind": "AMReadOperation",
-                      "many": true,
-                      "output": "AMResultPromise { Operation-0 }",
-                    },
-                  ],
-                }
-            `);
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "title",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+          },
+        ],
+      }
+    `);
   });
 
   test('undefined variable', () => {
@@ -117,27 +121,31 @@ describe('simple schema', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-                  Object {
-                    "operations": Array [
-                      Object {
-                        "collectionName": "posts",
-                        "fieldsSelection": Object {
-                          "fields": Array [
-                            "_id",
-                            "title",
-                          ],
-                        },
-                        "identifier": "Operation-0",
-                        "kind": "AMReadOperation",
-                        "many": false,
-                        "output": "AMResultPromise { Operation-0 }",
-                        "selector": Object {
-                          "_id": "post-id",
-                        },
-                      },
-                    ],
-                  }
-            `);
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "title",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+            "selector": Object {
+              "_id": "post-id",
+            },
+          },
+        ],
+      }
+    `);
   });
 
   test('create', () => {
@@ -152,27 +160,31 @@ describe('simple schema', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-                Object {
-                  "operations": Array [
-                    Object {
-                      "collectionName": "posts",
-                      "data": Object {
-                        "title": "test-title",
-                      },
-                      "fieldsSelection": Object {
-                        "fields": Array [
-                          "_id",
-                          "title",
-                        ],
-                      },
-                      "identifier": "Operation-0",
-                      "kind": "AMCreateOperation",
-                      "many": false,
-                      "output": "AMResultPromise { Operation-0 }",
-                    },
-                  ],
-                }
-        `);
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "data": Object {
+              "title": "test-title",
+            },
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "title",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMCreateOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+          },
+        ],
+      }
+    `);
   });
 
   test('orderBy', () => {
@@ -187,27 +199,31 @@ describe('simple schema', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-              Object {
-                "operations": Array [
-                  Object {
-                    "collectionName": "posts",
-                    "fieldsSelection": Object {
-                      "fields": Array [
-                        "_id",
-                        "title",
-                      ],
-                    },
-                    "identifier": "Operation-0",
-                    "kind": "AMReadOperation",
-                    "many": true,
-                    "orderBy": Object {
-                      "title": 1,
-                    },
-                    "output": "AMResultPromise { Operation-0 }",
-                  },
-                ],
-              }
-          `);
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "title",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "orderBy": Object {
+              "title": 1,
+            },
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+          },
+        ],
+      }
+    `);
   });
 
   test('orderBy dbname', () => {
@@ -222,27 +238,31 @@ describe('simple schema', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-              Object {
-                "operations": Array [
-                  Object {
-                    "collectionName": "posts",
-                    "fieldsSelection": Object {
-                      "fields": Array [
-                        "_id",
-                        "title",
-                      ],
-                    },
-                    "identifier": "Operation-0",
-                    "kind": "AMReadOperation",
-                    "many": true,
-                    "orderBy": Object {
-                      "_id": 1,
-                    },
-                    "output": "AMResultPromise { Operation-0 }",
-                  },
-                ],
-              }
-          `);
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "title",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "orderBy": Object {
+              "_id": 1,
+            },
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+          },
+        ],
+      }
+    `);
   });
 
   test('update', () => {
@@ -257,32 +277,36 @@ describe('simple schema', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-                  Object {
-                    "operations": Array [
-                      Object {
-                        "collectionName": "posts",
-                        "data": Object {
-                          "$set": Object {
-                            "title": "new title",
-                          },
-                        },
-                        "fieldsSelection": Object {
-                          "fields": Array [
-                            "_id",
-                            "title",
-                          ],
-                        },
-                        "identifier": "Operation-0",
-                        "kind": "AMUpdateOperation",
-                        "many": false,
-                        "output": "AMResultPromise { Operation-0 }",
-                        "selector": Object {
-                          "_id": "PostID",
-                        },
-                      },
-                    ],
-                  }
-          `);
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "data": Object {
+              "$set": Object {
+                "title": "new title",
+              },
+            },
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "title",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMUpdateOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+            "selector": Object {
+              "_id": "PostID",
+            },
+          },
+        ],
+      }
+    `);
   });
 
   test('connection', () => {
@@ -298,23 +322,27 @@ describe('simple schema', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-                Object {
-                  "operations": Array [
-                    Object {
-                      "collectionName": "posts",
-                      "fieldsSelection": Object {
-                        "fields": Array [],
-                      },
-                      "first": 1,
-                      "identifier": "Operation-0",
-                      "kind": "AMAggregateOperation",
-                      "many": false,
-                      "output": "AMResultPromise { Operation-0 }",
-                      "skip": 2,
-                    },
-                  ],
-                }
-            `);
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [],
+            },
+            "first": 1,
+            "identifier": "Operation-0",
+            "kind": "AMAggregateOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+            "skip": 2,
+          },
+        ],
+      }
+    `);
   });
 });
 
@@ -349,30 +377,34 @@ describe('nested objects', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-                  Object {
-                    "operations": Array [
-                      Object {
-                        "collectionName": "posts",
-                        "data": Object {
-                          "pinnedComment": Object {
-                            "message": "comment-1",
-                          },
-                          "title": "test-title",
-                        },
-                        "fieldsSelection": Object {
-                          "fields": Array [
-                            "_id",
-                            "title",
-                          ],
-                        },
-                        "identifier": "Operation-0",
-                        "kind": "AMCreateOperation",
-                        "many": false,
-                        "output": "AMResultPromise { Operation-0 }",
-                      },
-                    ],
-                  }
-            `);
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "data": Object {
+              "pinnedComment": Object {
+                "message": "comment-1",
+              },
+              "title": "test-title",
+            },
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "title",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMCreateOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+          },
+        ],
+      }
+    `);
   });
 
   test('where nested', () => {
@@ -388,32 +420,36 @@ describe('nested objects', () => {
       where: { comments_some: { message_contains: 'test' } },
     });
     expect(transaction).toMatchInlineSnapshot(`
-Object {
-  "operations": Array [
-    Object {
-      "collectionName": "posts",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-        ],
-      },
-      "identifier": "Operation-0",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": "AMResultPromise { Operation-0 }",
-      "selector": Object {
-        "comments": Object {
-          "$elemMatch": Object {
-            "message": Object {
-              "$regex": /test/,
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+            "selector": Object {
+              "comments": Object {
+                "$elemMatch": Object {
+                  "message": Object {
+                    "$regex": /test/,
+                  },
+                },
+              },
             },
           },
-        },
-      },
-    },
-  ],
-}
-`);
+        ],
+      }
+    `);
   });
 
   test('create nested list', () => {
@@ -435,35 +471,39 @@ Object {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-                  Object {
-                    "operations": Array [
-                      Object {
-                        "collectionName": "posts",
-                        "data": Object {
-                          "comments": Array [
-                            Object {
-                              "message": "comment-1",
-                            },
-                            Object {
-                              "message": "comment-2",
-                            },
-                          ],
-                          "title": "test-title",
-                        },
-                        "fieldsSelection": Object {
-                          "fields": Array [
-                            "_id",
-                            "title",
-                          ],
-                        },
-                        "identifier": "Operation-0",
-                        "kind": "AMCreateOperation",
-                        "many": false,
-                        "output": "AMResultPromise { Operation-0 }",
-                      },
-                    ],
-                  }
-            `);
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "data": Object {
+              "comments": Array [
+                Object {
+                  "message": "comment-1",
+                },
+                Object {
+                  "message": "comment-2",
+                },
+              ],
+              "title": "test-title",
+            },
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "title",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMCreateOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+          },
+        ],
+      }
+    `);
   });
 
   test('update nested', async () => {
@@ -483,32 +523,36 @@ Object {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-                    Object {
-                      "operations": Array [
-                        Object {
-                          "collectionName": "posts",
-                          "data": Object {
-                            "$set": Object {
-                              "pinnedComment.message": "test-title",
-                            },
-                          },
-                          "fieldsSelection": Object {
-                            "fields": Array [
-                              "_id",
-                              "pinnedComment.message",
-                            ],
-                          },
-                          "identifier": "Operation-0",
-                          "kind": "AMUpdateOperation",
-                          "many": false,
-                          "output": "AMResultPromise { Operation-0 }",
-                          "selector": Object {
-                            "_id": "PostId",
-                          },
-                        },
-                      ],
-                    }
-          `);
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "data": Object {
+              "$set": Object {
+                "pinnedComment.message": "test-title",
+              },
+            },
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "pinnedComment.message",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMUpdateOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+            "selector": Object {
+              "_id": "PostId",
+            },
+          },
+        ],
+      }
+    `);
   });
 
   test('update nested list create', async () => {
@@ -601,45 +645,49 @@ Object {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-                  Object {
-                    "operations": Array [
-                      Object {
-                        "arrayFilters": Array [
-                          Object {
-                            "arrFltr0": Object {
-                              "message": "test-title",
-                            },
-                          },
-                          Object {
-                            "arrFltr1": Object {
-                              "message": "test-title2",
-                            },
-                          },
-                        ],
-                        "collectionName": "posts",
-                        "data": Object {
-                          "$set": Object {
-                            "comments.$[arrFltr0].message": "new-title ",
-                            "comments.$[arrFltr1].message": "new-title2 ",
-                          },
-                        },
-                        "fieldsSelection": Object {
-                          "fields": Array [
-                            "_id",
-                            "comments.message",
-                          ],
-                        },
-                        "identifier": "Operation-0",
-                        "kind": "AMUpdateOperation",
-                        "many": false,
-                        "output": "AMResultPromise { Operation-0 }",
-                        "selector": Object {
-                          "_id": "PostId",
-                        },
-                      },
-                    ],
-                  }
-        `);
+      Object {
+        "operations": Array [
+          Object {
+            "arrayFilters": Array [
+              Object {
+                "arrFltr0": Object {
+                  "message": "test-title",
+                },
+              },
+              Object {
+                "arrFltr1": Object {
+                  "message": "test-title2",
+                },
+              },
+            ],
+            "collectionName": "posts",
+            "data": Object {
+              "$set": Object {
+                "comments.$[arrFltr0].message": "new-title ",
+                "comments.$[arrFltr1].message": "new-title2 ",
+              },
+            },
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "comments.message",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMUpdateOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+            "selector": Object {
+              "_id": "PostId",
+            },
+          },
+        ],
+      }
+    `);
   });
 
   test('update nested create', async () => {
@@ -659,34 +707,38 @@ Object {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-                  Object {
-                    "operations": Array [
-                      Object {
-                        "collectionName": "posts",
-                        "data": Object {
-                          "$set": Object {
-                            "pinnedComment": Object {
-                              "message": "test-title",
-                            },
-                          },
-                        },
-                        "fieldsSelection": Object {
-                          "fields": Array [
-                            "_id",
-                            "pinnedComment.message",
-                          ],
-                        },
-                        "identifier": "Operation-0",
-                        "kind": "AMUpdateOperation",
-                        "many": false,
-                        "output": "AMResultPromise { Operation-0 }",
-                        "selector": Object {
-                          "_id": "PostId",
-                        },
-                      },
-                    ],
-                  }
-          `);
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "data": Object {
+              "$set": Object {
+                "pinnedComment": Object {
+                  "message": "test-title",
+                },
+              },
+            },
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "pinnedComment.message",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMUpdateOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+            "selector": Object {
+              "_id": "PostId",
+            },
+          },
+        ],
+      }
+    `);
   });
 });
 
@@ -730,41 +782,65 @@ describe('relation', () => {
     const transaction = prepareTransaction(schema, rq);
 
     expect(transaction).toMatchInlineSnapshot(`
-                  Object {
-                    "operations": Array [
-                      Object {
-                        "collectionName": "comments",
-                        "fieldsSelection": Object {
-                          "fields": Array [
-                            "_id",
-                            "postId",
-                          ],
-                        },
-                        "identifier": "Operation-0",
-                        "kind": "AMReadOperation",
-                        "many": true,
-                        "output": "AMResultPromise { Operation-0 -> distinctReplace('postId', '_id', AMResultPromise { Operation-1 }) }",
-                      },
-                      Object {
-                        "collectionName": "posts",
-                        "fieldsSelection": Object {
-                          "fields": Array [
-                            "_id",
-                          ],
-                        },
-                        "identifier": "Operation-1",
-                        "kind": "AMReadOperation",
-                        "many": true,
-                        "output": "AMResultPromise { Operation-1 }",
-                        "selector": Object {
-                          "_id": Object {
-                            "$in": "AMResultPromise { Operation-0 -> distinct('postId') }",
-                          },
-                        },
-                      },
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "comments",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "postId",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+                DistinctReplace {
+                  "data": ResultPromise {
+                    "source": Array [
+                      "Operation-1",
                     ],
-                  }
-          `);
+                  },
+                  "field": "_id",
+                  "path": "postId",
+                },
+              ],
+            },
+          },
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+              ],
+            },
+            "identifier": "Operation-1",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+            "selector": Object {
+              "_id": Object {
+                "$in": ResultPromise {
+                  "source": Array [
+                    "Operation-0",
+                    Distinct {
+                      "path": "postId",
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        ],
+      }
+    `);
   });
 
   test('connect', () => {
@@ -786,56 +862,82 @@ describe('relation', () => {
     const transaction = prepareTransaction(schema, rq);
 
     expect(transaction).toMatchInlineSnapshot(`
-              Object {
-                "operations": Array [
-                  Object {
-                    "collectionName": "comments",
-                    "data": Object {
-                      "message": "comment-1",
-                      "postId": "AMResultPromise { Operation-1 -> path('_id') }",
-                      "userIds": "AMResultPromise { Operation-2 -> distinct('_id') }",
-                    },
-                    "fieldsSelection": Object {
-                      "fields": Array [
-                        "_id",
-                        "message",
-                      ],
-                    },
-                    "identifier": "Operation-0",
-                    "kind": "AMCreateOperation",
-                    "many": false,
-                    "output": "AMResultPromise { Operation-0 }",
-                  },
-                  Object {
-                    "collectionName": "posts",
-                    "identifier": "Operation-1",
-                    "kind": "AMReadOperation",
-                    "many": false,
-                    "output": "AMResultPromise { Operation-1 }",
-                    "selector": Object {
-                      "_id": "post-id",
-                    },
-                  },
-                  Object {
-                    "collectionName": "users",
-                    "identifier": "Operation-2",
-                    "kind": "AMReadOperation",
-                    "many": true,
-                    "output": "AMResultPromise { Operation-2 }",
-                    "selector": Object {
-                      "$or": Array [
-                        Object {
-                          "_id": "user-1",
-                        },
-                        Object {
-                          "_id": "user-2",
-                        },
-                      ],
-                    },
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "comments",
+            "data": Object {
+              "message": "comment-1",
+              "postId": ResultPromise {
+                "source": Array [
+                  "Operation-1",
+                  Path {
+                    "path": "_id",
                   },
                 ],
-              }
-          `);
+              },
+              "userIds": ResultPromise {
+                "source": Array [
+                  "Operation-2",
+                  Distinct {
+                    "path": "_id",
+                  },
+                ],
+              },
+            },
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "message",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMCreateOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+          },
+          Object {
+            "collectionName": "posts",
+            "identifier": "Operation-1",
+            "kind": "AMReadOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+            "selector": Object {
+              "_id": "post-id",
+            },
+          },
+          Object {
+            "collectionName": "users",
+            "identifier": "Operation-2",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-2",
+              ],
+            },
+            "selector": Object {
+              "$or": Array [
+                Object {
+                  "_id": "user-1",
+                },
+                Object {
+                  "_id": "user-2",
+                },
+              ],
+            },
+          },
+        ],
+      }
+    `);
   });
 
   test('connect in variable', () => {
@@ -856,36 +958,51 @@ describe('relation', () => {
     );
 
     expect(transaction).toMatchInlineSnapshot(`
-              Object {
-                "operations": Array [
-                  Object {
-                    "collectionName": "comments",
-                    "data": Object {
-                      "postId": "AMResultPromise { Operation-1 -> path('_id') }",
-                    },
-                    "fieldsSelection": Object {
-                      "fields": Array [
-                        "_id",
-                      ],
-                    },
-                    "identifier": "Operation-0",
-                    "kind": "AMCreateOperation",
-                    "many": false,
-                    "output": "AMResultPromise { Operation-0 }",
-                  },
-                  Object {
-                    "collectionName": "posts",
-                    "identifier": "Operation-1",
-                    "kind": "AMReadOperation",
-                    "many": false,
-                    "output": "AMResultPromise { Operation-1 }",
-                    "selector": Object {
-                      "_id": "post-id",
-                    },
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "comments",
+            "data": Object {
+              "postId": ResultPromise {
+                "source": Array [
+                  "Operation-1",
+                  Path {
+                    "path": "_id",
                   },
                 ],
-              }
-          `);
+              },
+            },
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMCreateOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+          },
+          Object {
+            "collectionName": "posts",
+            "identifier": "Operation-1",
+            "kind": "AMReadOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+            "selector": Object {
+              "_id": "post-id",
+            },
+          },
+        ],
+      }
+    `);
   });
 
   test('create', () => {
@@ -906,38 +1023,53 @@ describe('relation', () => {
     const transaction = prepareTransaction(schema, rq);
 
     expect(transaction).toMatchInlineSnapshot(`
-                    Object {
-                      "operations": Array [
-                        Object {
-                          "collectionName": "comments",
-                          "data": Object {
-                            "message": "comment-1",
-                            "postId": "AMResultPromise { Operation-1 -> path('_id') }",
-                          },
-                          "fieldsSelection": Object {
-                            "fields": Array [
-                              "_id",
-                              "message",
-                            ],
-                          },
-                          "identifier": "Operation-0",
-                          "kind": "AMCreateOperation",
-                          "many": false,
-                          "output": "AMResultPromise { Operation-0 }",
-                        },
-                        Object {
-                          "collectionName": "posts",
-                          "data": Object {
-                            "title": "new post",
-                          },
-                          "identifier": "Operation-1",
-                          "kind": "AMCreateOperation",
-                          "many": false,
-                          "output": "AMResultPromise { Operation-1 }",
-                        },
-                      ],
-                    }
-        `);
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "comments",
+            "data": Object {
+              "message": "comment-1",
+              "postId": ResultPromise {
+                "source": Array [
+                  "Operation-1",
+                  Path {
+                    "path": "_id",
+                  },
+                ],
+              },
+            },
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "message",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMCreateOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+          },
+          Object {
+            "collectionName": "posts",
+            "data": Object {
+              "title": "new post",
+            },
+            "identifier": "Operation-1",
+            "kind": "AMCreateOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+          },
+        ],
+      }
+    `);
   });
 
   test('create many', () => {
@@ -958,40 +1090,55 @@ describe('relation', () => {
     const transaction = prepareTransaction(schema, rq);
 
     expect(transaction).toMatchInlineSnapshot(`
-                              Object {
-                                "operations": Array [
-                                  Object {
-                                    "collectionName": "comments",
-                                    "data": Object {
-                                      "message": "comment-1",
-                                      "userIds": "AMResultPromise { Operation-1 -> path('insertedIds') }",
-                                    },
-                                    "fieldsSelection": Object {
-                                      "fields": Array [
-                                        "_id",
-                                        "message",
-                                      ],
-                                    },
-                                    "identifier": "Operation-0",
-                                    "kind": "AMCreateOperation",
-                                    "many": false,
-                                    "output": "AMResultPromise { Operation-0 }",
-                                  },
-                                  Object {
-                                    "collectionName": "users",
-                                    "dataList": Array [
-                                      Object {
-                                        "username": "new user",
-                                      },
-                                    ],
-                                    "identifier": "Operation-1",
-                                    "kind": "AMCreateOperation",
-                                    "many": true,
-                                    "output": "AMResultPromise { Operation-1 }",
-                                  },
-                                ],
-                              }
-          `);
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "comments",
+            "data": Object {
+              "message": "comment-1",
+              "userIds": ResultPromise {
+                "source": Array [
+                  "Operation-1",
+                  Path {
+                    "path": "insertedIds",
+                  },
+                ],
+              },
+            },
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "message",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMCreateOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+          },
+          Object {
+            "collectionName": "users",
+            "dataList": Array [
+              Object {
+                "username": "new user",
+              },
+            ],
+            "identifier": "Operation-1",
+            "kind": "AMCreateOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+          },
+        ],
+      }
+    `);
   });
 
   test('where relation', () => {
@@ -1007,39 +1154,54 @@ describe('relation', () => {
     const transaction = prepareTransaction(schema, rq);
 
     expect(transaction).toMatchInlineSnapshot(`
-                Object {
-                  "operations": Array [
-                    Object {
-                      "collectionName": "comments",
-                      "fieldsSelection": Object {
-                        "fields": Array [
-                          "_id",
-                          "message",
-                        ],
-                      },
-                      "identifier": "Operation-0",
-                      "kind": "AMReadOperation",
-                      "many": true,
-                      "output": "AMResultPromise { Operation-0 }",
-                      "selector": Object {
-                        "postId": Object {
-                          "$in": "AMResultPromise { Operation-1 -> distinct('_id') }",
-                        },
-                      },
-                    },
-                    Object {
-                      "collectionName": "posts",
-                      "identifier": "Operation-1",
-                      "kind": "AMReadOperation",
-                      "many": true,
-                      "output": "AMResultPromise { Operation-1 }",
-                      "selector": Object {
-                        "title": "search-title",
-                      },
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "comments",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "message",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+            "selector": Object {
+              "postId": Object {
+                "$in": ResultPromise {
+                  "source": Array [
+                    "Operation-1",
+                    Distinct {
+                      "path": "_id",
                     },
                   ],
-                }
-          `);
+                },
+              },
+            },
+          },
+          Object {
+            "collectionName": "posts",
+            "identifier": "Operation-1",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+            "selector": Object {
+              "title": "search-title",
+            },
+          },
+        ],
+      }
+    `);
   });
 
   test('where relation null', () => {
@@ -1055,27 +1217,31 @@ describe('relation', () => {
     const transaction = prepareTransaction(schema, rq);
 
     expect(transaction).toMatchInlineSnapshot(`
-                Object {
-                  "operations": Array [
-                    Object {
-                      "collectionName": "comments",
-                      "fieldsSelection": Object {
-                        "fields": Array [
-                          "_id",
-                          "message",
-                        ],
-                      },
-                      "identifier": "Operation-0",
-                      "kind": "AMReadOperation",
-                      "many": true,
-                      "output": "AMResultPromise { Operation-0 }",
-                      "selector": Object {
-                        "postId": null,
-                      },
-                    },
-                  ],
-                }
-          `);
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "comments",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "message",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+            "selector": Object {
+              "postId": null,
+            },
+          },
+        ],
+      }
+    `);
   });
 
   test('required relation exceptions', () => {
@@ -1117,7 +1283,14 @@ describe('relation', () => {
             "data": Object {
               "$push": Object {
                 "userIds": Object {
-                  "$each": "AMResultPromise { Operation-1 -> path('insertedIds') }",
+                  "$each": ResultPromise {
+                    "source": Array [
+                      "Operation-1",
+                      Path {
+                        "path": "insertedIds",
+                      },
+                    ],
+                  },
                 },
               },
             },
@@ -1129,7 +1302,11 @@ describe('relation', () => {
             "identifier": "Operation-0",
             "kind": "AMUpdateOperation",
             "many": false,
-            "output": "AMResultPromise { Operation-0 }",
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
             "selector": Object {
               "_id": "test-id",
             },
@@ -1144,7 +1321,11 @@ describe('relation', () => {
             "identifier": "Operation-1",
             "kind": "AMCreateOperation",
             "many": true,
-            "output": "AMResultPromise { Operation-1 }",
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
           },
         ],
       }
@@ -1191,40 +1372,66 @@ describe('extRelation', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-                  Object {
-                    "operations": Array [
-                      Object {
-                        "collectionName": "posts",
-                        "fieldsSelection": Object {
-                          "fields": Array [
-                            "_id",
-                          ],
-                        },
-                        "identifier": "Operation-0",
-                        "kind": "AMReadOperation",
-                        "many": true,
-                        "output": "AMResultPromise { Operation-0 -> lookup('comments', '_id', 'postId', AMResultPromise { Operation-1 }, true) }",
-                      },
-                      Object {
-                        "collectionName": "comments",
-                        "fieldsSelection": Object {
-                          "fields": Array [
-                            "message",
-                          ],
-                        },
-                        "identifier": "Operation-1",
-                        "kind": "AMReadOperation",
-                        "many": true,
-                        "output": "AMResultPromise { Operation-1 }",
-                        "selector": Object {
-                          "postId": Object {
-                            "$in": "AMResultPromise { Operation-0 -> distinct('_id') }",
-                          },
-                        },
-                      },
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+                Lookup {
+                  "data": ResultPromise {
+                    "source": Array [
+                      "Operation-1",
                     ],
-                  }
-            `);
+                  },
+                  "many": true,
+                  "path": "comments",
+                  "relationField": "_id",
+                  "storeField": "postId",
+                },
+              ],
+            },
+          },
+          Object {
+            "collectionName": "comments",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "message",
+              ],
+            },
+            "identifier": "Operation-1",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+            "selector": Object {
+              "postId": Object {
+                "$in": ResultPromise {
+                  "source": Array [
+                    "Operation-0",
+                    Distinct {
+                      "path": "_id",
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        ],
+      }
+    `);
   });
 
   test('extRelation single', () => {
@@ -1240,40 +1447,66 @@ describe('extRelation', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-       Object {
-         "operations": Array [
-           Object {
-             "collectionName": "posts",
-             "fieldsSelection": Object {
-               "fields": Array [
-                 "_id",
-               ],
-             },
-             "identifier": "Operation-0",
-             "kind": "AMReadOperation",
-             "many": true,
-             "output": "AMResultPromise { Operation-0 -> lookup('lastComment', '_id', 'postId', AMResultPromise { Operation-1 }, false) }",
-           },
-           Object {
-             "collectionName": "comments",
-             "fieldsSelection": Object {
-               "fields": Array [
-                 "_id",
-               ],
-             },
-             "identifier": "Operation-1",
-             "kind": "AMReadOperation",
-             "many": true,
-             "output": "AMResultPromise { Operation-1 }",
-             "selector": Object {
-               "postId": Object {
-                 "$in": "AMResultPromise { Operation-0 -> distinct('_id') }",
-               },
-             },
-           },
-         ],
-       }
-            `);
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+                Lookup {
+                  "data": ResultPromise {
+                    "source": Array [
+                      "Operation-1",
+                    ],
+                  },
+                  "many": false,
+                  "path": "lastComment",
+                  "relationField": "_id",
+                  "storeField": "postId",
+                },
+              ],
+            },
+          },
+          Object {
+            "collectionName": "comments",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+              ],
+            },
+            "identifier": "Operation-1",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+            "selector": Object {
+              "postId": Object {
+                "$in": ResultPromise {
+                  "source": Array [
+                    "Operation-0",
+                    Distinct {
+                      "path": "_id",
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        ],
+      }
+    `);
   });
 
   test('extRelation nested single', () => {
@@ -1291,41 +1524,86 @@ describe('extRelation', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
+Object {
+  "operations": Array [
     Object {
-      "operations": Array [
-        Object {
-          "collectionName": "favorites",
-          "fieldsSelection": Object {
-            "fields": Array [
-              "nested._id",
-            ],
-          },
-          "identifier": "Operation-0",
-          "kind": "AMReadOperation",
-          "many": false,
-          "output": "AMResultPromise { Operation-0 -> lookup('nested.comment', '_id', 'postId', AMResultPromise { Operation-1 }, false) }",
-        },
-        Object {
-          "collectionName": "comments",
-          "fieldsSelection": Object {
-            "fields": Array [
-              "_id",
-            ],
-          },
-          "identifier": "Operation-1",
-          "kind": "AMReadOperation",
-          "many": true,
-          "output": "AMResultPromise { Operation-1 }",
-          "selector": Object {
-            "postId": Object {
-              "$in": "AMResultPromise { Operation-0 -> distinct('_id') }",
+      "collectionName": "favorites",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "nested._id",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMReadOperation",
+      "many": false,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+          Lookup {
+            "data": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
             },
+            "many": false,
+            "path": "nested.comment",
+            "relationField": "_id",
+            "storeField": "postId",
+          },
+        ],
+      },
+    },
+    Object {
+      "collectionName": "comments",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-1",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+      "selector": Object {
+        "postId": Object {
+          "$in": ResultPromise {
+            "source": Array [
+              "Operation-0",
+              Distinct {
+                "path": "_id",
+              },
+            ],
           },
         },
-      ],
-    }
-  `);
+      },
+    },
+  ],
+}
+`);
   });
+
+  // test('request parent collection from extRelation', () => {
+  //   const rq = gql`
+  //     {
+  //       posts {
+  //         comments {
+  //           post {
+  //             id
+  //           }
+  //         }
+  //       }
+  //     }
+  //   `;
+
+  //   const transaction = prepareTransaction(schema, rq);
+  //   expect(transaction).toMatchInlineSnapshot(`
+
+  // `);
+  // });
 });
 
 describe('interfaces', () => {
@@ -1389,7 +1667,11 @@ describe('interfaces', () => {
             "identifier": "Operation-0",
             "kind": "AMReadOperation",
             "many": true,
-            "output": "AMResultPromise { Operation-0 }",
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
             "selector": Object {
               "_type": "admin",
             },
@@ -1422,7 +1704,11 @@ describe('interfaces', () => {
             "identifier": "Operation-0",
             "kind": "AMReadOperation",
             "many": false,
-            "output": "AMResultPromise { Operation-0 }",
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
             "selector": Object {
               "_type": "admin",
             },
@@ -1455,7 +1741,11 @@ describe('interfaces', () => {
             "identifier": "Operation-0",
             "kind": "AMReadOperation",
             "many": false,
-            "output": "AMResultPromise { Operation-0 }",
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
             "selector": Object {
               "_type": "admin",
             },
@@ -1489,7 +1779,11 @@ describe('interfaces', () => {
             "identifier": "Operation-0",
             "kind": "AMReadOperation",
             "many": true,
-            "output": "AMResultPromise { Operation-0 }",
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
             "selector": Object {
               "profile._type": "subscriberProfile",
               "profile.name": "test",
@@ -1497,7 +1791,7 @@ describe('interfaces', () => {
           },
         ],
       }
-      `);
+    `);
   });
 
   test('interface where specific type', () => {
@@ -1523,7 +1817,11 @@ describe('interfaces', () => {
             "identifier": "Operation-0",
             "kind": "AMReadOperation",
             "many": true,
-            "output": "AMResultPromise { Operation-0 }",
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
             "selector": Object {
               "_type": "subscriber",
               "profile.name": "test",
@@ -1531,7 +1829,7 @@ describe('interfaces', () => {
           },
         ],
       }
-      `);
+    `);
   });
 
   test('update query', () => {
@@ -1565,7 +1863,11 @@ describe('interfaces', () => {
             "identifier": "Operation-0",
             "kind": "AMUpdateOperation",
             "many": false,
-            "output": "AMResultPromise { Operation-0 }",
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
             "selector": Object {
               "_id": "admin-1",
               "_type": "admin",
@@ -1607,7 +1909,11 @@ describe('interfaces', () => {
             "identifier": "Operation-0",
             "kind": "AMUpdateOperation",
             "many": false,
-            "output": "AMResultPromise { Operation-0 }",
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
             "selector": Object {
               "_id": "admin-1",
               "_type": "admin",
@@ -1641,7 +1947,11 @@ describe('interfaces', () => {
             "identifier": "Operation-0",
             "kind": "AMDeleteOperation",
             "many": false,
-            "output": "AMResultPromise { Operation-0 }",
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
             "selector": Object {
               "_id": "admin-1",
               "_type": "admin",
@@ -1668,7 +1978,11 @@ describe('interfaces', () => {
             "identifier": "Operation-0",
             "kind": "AMDeleteOperation",
             "many": true,
-            "output": "AMResultPromise { Operation-0 }",
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
             "selector": Object {
               "_id": "admin-1",
               "_type": "admin",
@@ -1696,50 +2010,76 @@ describe('interfaces', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-            Object {
-              "operations": Array [
-                Object {
-                  "collectionName": "posts",
-                  "data": Object {
-                    "ownerRequiredUserId": "AMResultPromise { Operation-2 -> path('_id') }",
-                    "title": "post title",
-                    "userId": "AMResultPromise { Operation-1 -> path('_id') }",
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "data": Object {
+              "ownerRequiredUserId": ResultPromise {
+                "source": Array [
+                  "Operation-2",
+                  Path {
+                    "path": "_id",
                   },
-                  "fieldsSelection": Object {
-                    "fields": Array [
-                      "_id",
-                    ],
+                ],
+              },
+              "title": "post title",
+              "userId": ResultPromise {
+                "source": Array [
+                  "Operation-1",
+                  Path {
+                    "path": "_id",
                   },
-                  "identifier": "Operation-0",
-                  "kind": "AMCreateOperation",
-                  "many": false,
-                  "output": "AMResultPromise { Operation-0 }",
-                },
-                Object {
-                  "collectionName": "users",
-                  "data": Object {
-                    "_type": "admin",
-                    "username": "new admin",
-                  },
-                  "identifier": "Operation-1",
-                  "kind": "AMCreateOperation",
-                  "many": false,
-                  "output": "AMResultPromise { Operation-1 }",
-                },
-                Object {
-                  "collectionName": "users",
-                  "data": Object {
-                    "_type": "admin",
-                    "username": "new admin",
-                  },
-                  "identifier": "Operation-2",
-                  "kind": "AMCreateOperation",
-                  "many": false,
-                  "output": "AMResultPromise { Operation-2 }",
-                },
+                ],
+              },
+            },
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
               ],
-            }
-      `);
+            },
+            "identifier": "Operation-0",
+            "kind": "AMCreateOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+          },
+          Object {
+            "collectionName": "users",
+            "data": Object {
+              "_type": "admin",
+              "username": "new admin",
+            },
+            "identifier": "Operation-1",
+            "kind": "AMCreateOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+          },
+          Object {
+            "collectionName": "users",
+            "data": Object {
+              "_type": "admin",
+              "username": "new admin",
+            },
+            "identifier": "Operation-2",
+            "kind": "AMCreateOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-2",
+              ],
+            },
+          },
+        ],
+      }
+    `);
   });
 
   test('connect relation', () => {
@@ -1759,48 +2099,74 @@ describe('interfaces', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-            Object {
-              "operations": Array [
-                Object {
-                  "collectionName": "posts",
-                  "data": Object {
-                    "ownerRequiredUserId": "AMResultPromise { Operation-2 -> path('_id') }",
-                    "title": "post title",
-                    "userId": "AMResultPromise { Operation-1 -> path('_id') }",
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "data": Object {
+              "ownerRequiredUserId": ResultPromise {
+                "source": Array [
+                  "Operation-2",
+                  Path {
+                    "path": "_id",
                   },
-                  "fieldsSelection": Object {
-                    "fields": Array [
-                      "_id",
-                    ],
+                ],
+              },
+              "title": "post title",
+              "userId": ResultPromise {
+                "source": Array [
+                  "Operation-1",
+                  Path {
+                    "path": "_id",
                   },
-                  "identifier": "Operation-0",
-                  "kind": "AMCreateOperation",
-                  "many": false,
-                  "output": "AMResultPromise { Operation-0 }",
-                },
-                Object {
-                  "collectionName": "users",
-                  "identifier": "Operation-1",
-                  "kind": "AMReadOperation",
-                  "many": false,
-                  "output": "AMResultPromise { Operation-1 }",
-                  "selector": Object {
-                    "_id": "admin-id",
-                  },
-                },
-                Object {
-                  "collectionName": "users",
-                  "identifier": "Operation-2",
-                  "kind": "AMReadOperation",
-                  "many": false,
-                  "output": "AMResultPromise { Operation-2 }",
-                  "selector": Object {
-                    "_id": "admin-id",
-                  },
-                },
+                ],
+              },
+            },
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
               ],
-            }
-      `);
+            },
+            "identifier": "Operation-0",
+            "kind": "AMCreateOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+          },
+          Object {
+            "collectionName": "users",
+            "identifier": "Operation-1",
+            "kind": "AMReadOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+            "selector": Object {
+              "_id": "admin-id",
+            },
+          },
+          Object {
+            "collectionName": "users",
+            "identifier": "Operation-2",
+            "kind": "AMReadOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-2",
+              ],
+            },
+            "selector": Object {
+              "_id": "admin-id",
+            },
+          },
+        ],
+      }
+    `);
   });
 
   test('fragments', () => {
@@ -1838,7 +2204,11 @@ describe('interfaces', () => {
             "identifier": "Operation-0",
             "kind": "AMReadOperation",
             "many": true,
-            "output": "AMResultPromise { Operation-0 }",
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
           },
         ],
       }
@@ -1867,59 +2237,103 @@ describe('interfaces', () => {
     //TODO: Fix filtering distinct and distinctReplace
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-    Object {
-      "operations": Array [
-        Object {
-          "collectionName": "users",
-          "fieldsSelection": Object {
-            "fields": Array [
-              "_id",
-              "approvesPostIds",
-              "likesPostIds",
-            ],
-          },
-          "identifier": "Operation-0",
-          "kind": "AMReadOperation",
-          "many": true,
-          "output": "AMResultPromise { Operation-0 -> distinctReplace('approvesPostIds', '_id', AMResultPromise { Operation-1 }) -> distinctReplace('likesPostIds', '_id', AMResultPromise { Operation-2 }) }",
-        },
-        Object {
-          "collectionName": "posts",
-          "fieldsSelection": Object {
-            "fields": Array [
-              "_id",
-            ],
-          },
-          "identifier": "Operation-1",
-          "kind": "AMReadOperation",
-          "many": true,
-          "output": "AMResultPromise { Operation-1 }",
-          "selector": Object {
-            "_id": Object {
-              "$in": "AMResultPromise { Operation-0 -> distinct('approvesPostIds') }",
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "users",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "approvesPostIds",
+                "likesPostIds",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+                DistinctReplace {
+                  "data": ResultPromise {
+                    "source": Array [
+                      "Operation-1",
+                    ],
+                  },
+                  "field": "_id",
+                  "path": "approvesPostIds",
+                },
+                DistinctReplace {
+                  "data": ResultPromise {
+                    "source": Array [
+                      "Operation-2",
+                    ],
+                  },
+                  "field": "_id",
+                  "path": "likesPostIds",
+                },
+              ],
             },
           },
-        },
-        Object {
-          "collectionName": "posts",
-          "fieldsSelection": Object {
-            "fields": Array [
-              "_id",
-            ],
-          },
-          "identifier": "Operation-2",
-          "kind": "AMReadOperation",
-          "many": true,
-          "output": "AMResultPromise { Operation-2 }",
-          "selector": Object {
-            "_id": Object {
-              "$in": "AMResultPromise { Operation-0 -> distinct('likesPostIds') }",
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+              ],
+            },
+            "identifier": "Operation-1",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+            "selector": Object {
+              "_id": Object {
+                "$in": ResultPromise {
+                  "source": Array [
+                    "Operation-0",
+                    Distinct {
+                      "path": "approvesPostIds",
+                    },
+                  ],
+                },
+              },
             },
           },
-        },
-      ],
-    }
-  `);
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+              ],
+            },
+            "identifier": "Operation-2",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-2",
+              ],
+            },
+            "selector": Object {
+              "_id": Object {
+                "$in": ResultPromise {
+                  "source": Array [
+                    "Operation-0",
+                    Distinct {
+                      "path": "likesPostIds",
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        ],
+      }
+    `);
   });
 
   test('relations in embedded interfaces', () => {
@@ -1938,40 +2352,64 @@ describe('interfaces', () => {
     //TODO: Fix filtering distinct and distinctReplace
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-    Object {
-      "operations": Array [
-        Object {
-          "collectionName": "users",
-          "fieldsSelection": Object {
-            "fields": Array [
-              "profile.userId",
-            ],
-          },
-          "identifier": "Operation-0",
-          "kind": "AMReadOperation",
-          "many": true,
-          "output": "AMResultPromise { Operation-0 -> distinctReplace('profile.userId', '_id', AMResultPromise { Operation-1 }) }",
-        },
-        Object {
-          "collectionName": "users",
-          "fieldsSelection": Object {
-            "fields": Array [
-              "_id",
-            ],
-          },
-          "identifier": "Operation-1",
-          "kind": "AMReadOperation",
-          "many": true,
-          "output": "AMResultPromise { Operation-1 }",
-          "selector": Object {
-            "_id": Object {
-              "$in": "AMResultPromise { Operation-0 -> distinct('profile.userId') }",
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "users",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "profile.userId",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+                DistinctReplace {
+                  "data": ResultPromise {
+                    "source": Array [
+                      "Operation-1",
+                    ],
+                  },
+                  "field": "_id",
+                  "path": "profile.userId",
+                },
+              ],
             },
           },
-        },
-      ],
-    }
-  `);
+          Object {
+            "collectionName": "users",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+              ],
+            },
+            "identifier": "Operation-1",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+            "selector": Object {
+              "_id": Object {
+                "$in": ResultPromise {
+                  "source": Array [
+                    "Operation-0",
+                    Distinct {
+                      "path": "profile.userId",
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        ],
+      }
+    `);
   });
 });
 
@@ -2020,51 +2458,88 @@ describe('abstract interface', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-                Object {
-                  "operations": Array [
-                    Object {
-                      "collectionName": "posts",
-                      "data": Object {
-                        "title": "post title",
-                        "userId": "AMResultPromise { Operation-1 -> path('_id') -> dbRef('admins') }",
-                      },
-                      "fieldsSelection": Object {
-                        "fields": Array [
-                          "_id",
-                          "userId",
-                        ],
-                      },
-                      "identifier": "Operation-0",
-                      "kind": "AMCreateOperation",
-                      "many": false,
-                      "output": "AMResultPromise { Operation-0 -> dbRefReplace('userId', AMResultPromise { Operation-2 }) }",
-                    },
-                    Object {
-                      "collectionName": "admins",
-                      "data": Object {
-                        "username": "new admin",
-                      },
-                      "identifier": "Operation-1",
-                      "kind": "AMCreateOperation",
-                      "many": false,
-                      "output": "AMResultPromise { Operation-1 }",
-                    },
-                    Object {
-                      "collectionName": undefined,
-                      "dbRefList": "AMResultPromise { Operation-0 -> distinct('userId') }",
-                      "fieldsSelection": Object {
-                        "fields": Array [
-                          "_id",
-                        ],
-                      },
-                      "identifier": "Operation-2",
-                      "kind": "AMReadDBRefOperation",
-                      "many": true,
-                      "output": "AMResultPromise { Operation-2 }",
-                    },
-                  ],
-                }
-        `);
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "data": Object {
+              "title": "post title",
+              "userId": ResultPromise {
+                "source": Array [
+                  "Operation-1",
+                  Path {
+                    "path": "_id",
+                  },
+                  ToDbRef {
+                    "collectionName": "admins",
+                  },
+                ],
+              },
+            },
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "userId",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMCreateOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+                DbRefReplace {
+                  "data": ResultPromise {
+                    "source": Array [
+                      "Operation-2",
+                    ],
+                  },
+                  "path": "userId",
+                },
+              ],
+            },
+          },
+          Object {
+            "collectionName": "admins",
+            "data": Object {
+              "username": "new admin",
+            },
+            "identifier": "Operation-1",
+            "kind": "AMCreateOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+          },
+          Object {
+            "collectionName": undefined,
+            "dbRefList": ResultPromise {
+              "source": Array [
+                "Operation-0",
+                Distinct {
+                  "path": "userId",
+                },
+              ],
+            },
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+              ],
+            },
+            "identifier": "Operation-2",
+            "kind": "AMReadDBRefOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-2",
+              ],
+            },
+          },
+        ],
+      }
+    `);
   });
 
   test('create relation many', () => {
@@ -2086,53 +2561,90 @@ describe('abstract interface', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-                    Object {
-                      "operations": Array [
-                        Object {
-                          "collectionName": "posts",
-                          "data": Object {
-                            "title": "post title",
-                            "userIds": Array [
-                              "AMResultPromise { Operation-1 -> path('_id') -> dbRef('admins') }",
-                            ],
-                          },
-                          "fieldsSelection": Object {
-                            "fields": Array [
-                              "_id",
-                              "userId",
-                            ],
-                          },
-                          "identifier": "Operation-0",
-                          "kind": "AMCreateOperation",
-                          "many": false,
-                          "output": "AMResultPromise { Operation-0 -> dbRefReplace('userId', AMResultPromise { Operation-2 }) }",
-                        },
-                        Object {
-                          "collectionName": "admins",
-                          "data": Object {
-                            "username": "new admin",
-                          },
-                          "identifier": "Operation-1",
-                          "kind": "AMCreateOperation",
-                          "many": false,
-                          "output": "AMResultPromise { Operation-1 }",
-                        },
-                        Object {
-                          "collectionName": undefined,
-                          "dbRefList": "AMResultPromise { Operation-0 -> distinct('userId') }",
-                          "fieldsSelection": Object {
-                            "fields": Array [
-                              "_id",
-                            ],
-                          },
-                          "identifier": "Operation-2",
-                          "kind": "AMReadDBRefOperation",
-                          "many": true,
-                          "output": "AMResultPromise { Operation-2 }",
-                        },
-                      ],
-                    }
-            `);
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "data": Object {
+              "title": "post title",
+              "userIds": Array [
+                ResultPromise {
+                  "source": Array [
+                    "Operation-1",
+                    Path {
+                      "path": "_id",
+                    },
+                    ToDbRef {
+                      "collectionName": "admins",
+                    },
+                  ],
+                },
+              ],
+            },
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "userId",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMCreateOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+                DbRefReplace {
+                  "data": ResultPromise {
+                    "source": Array [
+                      "Operation-2",
+                    ],
+                  },
+                  "path": "userId",
+                },
+              ],
+            },
+          },
+          Object {
+            "collectionName": "admins",
+            "data": Object {
+              "username": "new admin",
+            },
+            "identifier": "Operation-1",
+            "kind": "AMCreateOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+          },
+          Object {
+            "collectionName": undefined,
+            "dbRefList": ResultPromise {
+              "source": Array [
+                "Operation-0",
+                Distinct {
+                  "path": "userId",
+                },
+              ],
+            },
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+              ],
+            },
+            "identifier": "Operation-2",
+            "kind": "AMReadDBRefOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-2",
+              ],
+            },
+          },
+        ],
+      }
+    `);
   });
 
   test('create relation many with single item', () => {
@@ -2154,13 +2666,23 @@ describe('abstract interface', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction.operations[0].data).toMatchInlineSnapshot(`
-                  Object {
-                    "title": "post title",
-                    "userIds": Array [
-                      "AMResultPromise { Operation-1 -> path('_id') -> dbRef('admins') }",
-                    ],
-                  }
-            `);
+      Object {
+        "title": "post title",
+        "userIds": Array [
+          ResultPromise {
+            "source": Array [
+              "Operation-1",
+              Path {
+                "path": "_id",
+              },
+              ToDbRef {
+                "collectionName": "admins",
+              },
+            ],
+          },
+        ],
+      }
+    `);
   });
 
   test('update relation many create', () => {
@@ -2191,7 +2713,17 @@ describe('abstract interface', () => {
               "$push": Object {
                 "userIds": Object {
                   "$each": Array [
-                    "AMResultPromise { Operation-1 -> path('_id') -> dbRef('admins') }",
+                    ResultPromise {
+                      "source": Array [
+                        "Operation-1",
+                        Path {
+                          "path": "_id",
+                        },
+                        ToDbRef {
+                          "collectionName": "admins",
+                        },
+                      ],
+                    },
                   ],
                 },
               },
@@ -2206,7 +2738,27 @@ describe('abstract interface', () => {
             "identifier": "Operation-0",
             "kind": "AMUpdateOperation",
             "many": false,
-            "output": "AMResultPromise { Operation-0 -> dbRefReplace('userId', AMResultPromise { Operation-2 }) -> dbRefReplace('userIds', AMResultPromise { Operation-3 }) }",
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+                DbRefReplace {
+                  "data": ResultPromise {
+                    "source": Array [
+                      "Operation-2",
+                    ],
+                  },
+                  "path": "userId",
+                },
+                DbRefReplace {
+                  "data": ResultPromise {
+                    "source": Array [
+                      "Operation-3",
+                    ],
+                  },
+                  "path": "userIds",
+                },
+              ],
+            },
             "selector": Object {
               "_id": "post-id",
             },
@@ -2219,11 +2771,22 @@ describe('abstract interface', () => {
             "identifier": "Operation-1",
             "kind": "AMCreateOperation",
             "many": false,
-            "output": "AMResultPromise { Operation-1 }",
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
           },
           Object {
             "collectionName": undefined,
-            "dbRefList": "AMResultPromise { Operation-0 -> distinct('userId') }",
+            "dbRefList": ResultPromise {
+              "source": Array [
+                "Operation-0",
+                Distinct {
+                  "path": "userId",
+                },
+              ],
+            },
             "fieldsSelection": Object {
               "fields": Array [
                 "_id",
@@ -2232,11 +2795,22 @@ describe('abstract interface', () => {
             "identifier": "Operation-2",
             "kind": "AMReadDBRefOperation",
             "many": true,
-            "output": "AMResultPromise { Operation-2 }",
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-2",
+              ],
+            },
           },
           Object {
             "collectionName": undefined,
-            "dbRefList": "AMResultPromise { Operation-0 -> distinct('userIds') }",
+            "dbRefList": ResultPromise {
+              "source": Array [
+                "Operation-0",
+                Distinct {
+                  "path": "userIds",
+                },
+              ],
+            },
             "fieldsSelection": Object {
               "fields": Array [
                 "_id",
@@ -2245,7 +2819,11 @@ describe('abstract interface', () => {
             "identifier": "Operation-3",
             "kind": "AMReadDBRefOperation",
             "many": true,
-            "output": "AMResultPromise { Operation-3 }",
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-3",
+              ],
+            },
           },
         ],
       }
@@ -2296,7 +2874,11 @@ describe('federated', () => {
             "collectionName": undefined,
             "identifier": "Operation-0",
             "kind": "AMReadEntitiesOperation",
-            "output": "AMResultPromise { Operation-0 }",
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
             "representations": Array [
               Object {
                 "collectionName": "posts",
@@ -2413,7 +2995,11 @@ describe('variables', () => {
             "identifier": "Operation-0",
             "kind": "AMCreateOperation",
             "many": false,
-            "output": "AMResultPromise { Operation-0 }",
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
           },
         ],
       }
@@ -2454,7 +3040,11 @@ describe('variables', () => {
             "identifier": "Operation-0",
             "kind": "AMCreateOperation",
             "many": false,
-            "output": "AMResultPromise { Operation-0 }",
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
           },
         ],
       }
@@ -2497,7 +3087,11 @@ describe('variables', () => {
             "identifier": "Operation-0",
             "kind": "AMCreateOperation",
             "many": false,
-            "output": "AMResultPromise { Operation-0 }",
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
           },
         ],
       }
@@ -2541,31 +3135,35 @@ describe('nested interfaces', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-                  Object {
-                    "operations": Array [
-                      Object {
-                        "collectionName": "posts",
-                        "data": Object {
-                          "pinnedComment": Object {
-                            "_type": "textComment",
-                            "message": "comment-1",
-                          },
-                          "title": "test-title",
-                        },
-                        "fieldsSelection": Object {
-                          "fields": Array [
-                            "_id",
-                            "title",
-                          ],
-                        },
-                        "identifier": "Operation-0",
-                        "kind": "AMCreateOperation",
-                        "many": false,
-                        "output": "AMResultPromise { Operation-0 }",
-                      },
-                    ],
-                  }
-            `);
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "data": Object {
+              "pinnedComment": Object {
+                "_type": "textComment",
+                "message": "comment-1",
+              },
+              "title": "test-title",
+            },
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "title",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMCreateOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+          },
+        ],
+      }
+    `);
   });
 });
 
@@ -2614,7 +3212,11 @@ describe('aclWhere', () => {
             "identifier": "Operation-0",
             "kind": "AMReadOperation",
             "many": true,
-            "output": "AMResultPromise { Operation-0 }",
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
             "selector": Object {
               "$and": Array [
                 Object {
@@ -2677,7 +3279,11 @@ describe('default', () => {
             "identifier": "Operation-0",
             "kind": "AMCreateOperation",
             "many": false,
-            "output": "AMResultPromise { Operation-0 }",
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
           },
         ],
       }
@@ -2695,28 +3301,32 @@ describe('default', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-      Object {
-        "operations": Array [
-          Object {
-            "collectionName": "posts",
-            "data": Object {
-              "column": "right",
-              "priority": 0,
-              "title": "Post",
-            },
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-              ],
-            },
-            "identifier": "Operation-0",
-            "kind": "AMCreateOperation",
-            "many": false,
-            "output": "AMResultPromise { Operation-0 }",
-          },
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "posts",
+      "data": Object {
+        "column": "right",
+        "priority": 0,
+        "title": "Post",
+      },
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
         ],
-      }
-    `);
+      },
+      "identifier": "Operation-0",
+      "kind": "AMCreateOperation",
+      "many": false,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+        ],
+      },
+    },
+  ],
+}
+`);
   });
 });
 
@@ -2762,7 +3372,19 @@ Object {
       "identifier": "Operation-0",
       "kind": "AMReadOperation",
       "many": true,
-      "output": "AMResultPromise { Operation-0 -> transformArray('comments', {\\"where\\":{\\"message\\":\\"test\\"}}') }",
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+          TransformArray {
+            "filterParams": Object {
+              "where": Object {
+                "message": "test",
+              },
+            },
+            "path": "comments",
+          },
+        ],
+      },
     },
   ],
 }

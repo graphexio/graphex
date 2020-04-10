@@ -57,7 +57,7 @@ export class AMCreateManyRelationTypeFactory extends AMTypeFactory<
                       lastInStack.setValue(
                         opContext
                           .getOutput()
-                          .map(ResultPromiseTransforms.path('insertedIds'))
+                          .map(new ResultPromiseTransforms.Path('insertedIds'))
                       );
                     }
                   },
@@ -115,7 +115,7 @@ export class AMCreateManyRelationTypeFactory extends AMTypeFactory<
                   opContext
                     .getOutput()
                     .map(
-                      ResultPromiseTransforms.distinct(
+                      new ResultPromiseTransforms.Distinct(
                         lastInStack.field.relation.relationField
                       )
                     )

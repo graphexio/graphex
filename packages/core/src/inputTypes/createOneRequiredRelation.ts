@@ -51,7 +51,7 @@ export class AMCreateOneRequiredRelationTypeFactory extends AMTypeFactory<
                         opContext
                           .getOutput()
                           .map(
-                            ResultPromiseTransforms.path(
+                            new ResultPromiseTransforms.Path(
                               lastInStack.field.relation.relationField
                             )
                           )
@@ -82,7 +82,7 @@ export class AMCreateOneRequiredRelationTypeFactory extends AMTypeFactory<
                   opContext
                     .getOutput()
                     .map(
-                      ResultPromiseTransforms.path(
+                      new ResultPromiseTransforms.Path(
                         lastInStack.field.relation.relationField
                       )
                     )

@@ -72,9 +72,9 @@ export class AMInterfaceCreateTypeFactory extends AMTypeFactory<
                         lastInStack.setValue(
                           createOp
                             .getOutput()
-                            .map(ResultPromiseTransforms.path('_id'))
+                            .map(new ResultPromiseTransforms.Path('_id'))
                             .map(
-                              ResultPromiseTransforms.dbRef(
+                              new ResultPromiseTransforms.ToDbRef(
                                 possibleType.mmCollectionName
                               )
                             )
@@ -83,9 +83,9 @@ export class AMInterfaceCreateTypeFactory extends AMTypeFactory<
                         lastInStack.addValue(
                           createOp
                             .getOutput()
-                            .map(ResultPromiseTransforms.path('_id'))
+                            .map(new ResultPromiseTransforms.Path('_id'))
                             .map(
-                              ResultPromiseTransforms.dbRef(
+                              new ResultPromiseTransforms.ToDbRef(
                                 possibleType.mmCollectionName
                               )
                             )

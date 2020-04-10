@@ -17,38 +17,62 @@ describe('simple', () => {
   resultPromise.resolve(arr);
 
   test('simple', () => {
-    expect(resultPromise.getValueSource()).toMatchInlineSnapshot(
-      `"Operation-0"`
-    );
+    expect(resultPromise.getValueSource()).toMatchInlineSnapshot(`
+      Array [
+        "Operation-0",
+      ]
+    `);
     return expect(resultPromise).resolves.toEqual(arr);
   });
 
   test('data', () => {
     const dataPromise = new AMDataResultPromise({ data: 'test-value' });
-    expect(dataPromise.getValueSource()).toEqual(`Static Data`);
+    expect(dataPromise.getValueSource()).toMatchInlineSnapshot(`
+      Array [
+        "Static Data",
+      ]
+    `);
   });
 
   test('distinct', () => {
     const result = ['value'];
     const distinctResultPromise = resultPromise.map(
-      ResultPromiseTransforms.distinct('test')
+      new ResultPromiseTransforms.Distinct('test')
     );
-    expect(distinctResultPromise.getValueSource()).toEqual(
-      `Operation-0 -> distinct('test')`
-    );
+    expect(distinctResultPromise.getValueSource()).toMatchInlineSnapshot(`
+      Array [
+        "Operation-0",
+        Distinct {
+          "path": "test",
+        },
+      ]
+    `);
 
     return expect(distinctResultPromise).resolves.toEqual(result);
   });
 
   test('distinctReplace', () => {
-    const data = () => new AMDataResultPromise([{ _id: 'value' }]);
+    const data = new AMDataResultPromise([{ _id: 'value' }]);
     const result = [{ test: { _id: 'value' } }];
 
     const distinctReplaceResultPromise = resultPromise.map(
-      ResultPromiseTransforms.distinctReplace('test', '_id', data)
+      new ResultPromiseTransforms.DistinctReplace('test', '_id', data)
     );
-    expect(distinctReplaceResultPromise.getValueSource()).toEqual(
-      "Operation-0 -> distinctReplace('test', '_id', AMResultPromise { Static Data })"
+    expect(distinctReplaceResultPromise.getValueSource()).toMatchInlineSnapshot(
+      `
+      Array [
+        "Operation-0",
+        DistinctReplace {
+          "data": ResultPromise {
+            "source": Array [
+              "Static Data",
+            ],
+          },
+          "field": "_id",
+          "path": "test",
+        },
+      ]
+    `
     );
 
     return expect(distinctReplaceResultPromise).resolves.toEqual(result);
@@ -65,17 +89,33 @@ describe('lookup', () => {
     const resultPromise = new AMOperationResultPromise<any>(operation);
     resultPromise.resolve(arr);
 
-    const data = () =>
-      new AMDataResultPromise([{ _id: 'child-id', parentId: 'item-id' }]);
+    const data = new AMDataResultPromise([
+      { _id: 'child-id', parentId: 'item-id' },
+    ]);
     const result = [
       { id: 'item-id', children: [{ _id: 'child-id', parentId: 'item-id' }] },
     ];
 
     const lookupResultPromise = resultPromise.map(
-      ResultPromiseTransforms.lookup('children', 'id', 'parentId', data)
+      new ResultPromiseTransforms.Lookup('children', 'id', 'parentId', data)
     );
-    expect(lookupResultPromise.getValueSource()).toEqual(
-      "Operation-0 -> lookup('children', 'id', 'parentId', AMResultPromise { Static Data }, true)"
+    expect(lookupResultPromise.getValueSource()).toMatchInlineSnapshot(
+      `
+      Array [
+        "Operation-0",
+        Lookup {
+          "data": ResultPromise {
+            "source": Array [
+              "Static Data",
+            ],
+          },
+          "many": true,
+          "path": "children",
+          "relationField": "id",
+          "storeField": "parentId",
+        },
+      ]
+    `
     );
 
     return expect(lookupResultPromise).resolves.toEqual(result);
@@ -90,17 +130,39 @@ describe('lookup', () => {
     const resultPromise = new AMOperationResultPromise<any>(operation);
     resultPromise.resolve(arr);
 
-    const data = () =>
-      new AMDataResultPromise([{ _id: 'child-id', parentId: 'item-id' }]);
+    const data = new AMDataResultPromise([
+      { _id: 'child-id', parentId: 'item-id' },
+    ]);
     const result = [
       { id: 'item-id', children: { _id: 'child-id', parentId: 'item-id' } },
     ];
 
     const lookupResultPromise = resultPromise.map(
-      ResultPromiseTransforms.lookup('children', 'id', 'parentId', data, false)
+      new ResultPromiseTransforms.Lookup(
+        'children',
+        'id',
+        'parentId',
+        data,
+        false
+      )
     );
-    expect(lookupResultPromise.getValueSource()).toEqual(
-      "Operation-0 -> lookup('children', 'id', 'parentId', AMResultPromise { Static Data }, false)"
+    expect(lookupResultPromise.getValueSource()).toMatchInlineSnapshot(
+      `
+      Array [
+        "Operation-0",
+        Lookup {
+          "data": ResultPromise {
+            "source": Array [
+              "Static Data",
+            ],
+          },
+          "many": false,
+          "path": "children",
+          "relationField": "id",
+          "storeField": "parentId",
+        },
+      ]
+    `
     );
 
     return expect(lookupResultPromise).resolves.toEqual(result);
@@ -115,10 +177,9 @@ describe('lookup', () => {
     const resultPromise = new AMOperationResultPromise<any>(operation);
     resultPromise.resolve(arr);
 
-    const data = () =>
-      new AMDataResultPromise([
-        { _id: 'child-id', parentId: 'nested-item-id' },
-      ]);
+    const data = new AMDataResultPromise([
+      { _id: 'child-id', parentId: 'nested-item-id' },
+    ]);
     const result = [
       {
         id: 'item-id',
@@ -130,7 +191,7 @@ describe('lookup', () => {
     ];
 
     const lookupResultPromise = resultPromise.map(
-      ResultPromiseTransforms.lookup(
+      new ResultPromiseTransforms.Lookup(
         'nested.children',
         'id',
         'parentId',
@@ -138,8 +199,23 @@ describe('lookup', () => {
         false
       )
     );
-    expect(lookupResultPromise.getValueSource()).toEqual(
-      "Operation-0 -> lookup('nested.children', 'id', 'parentId', AMResultPromise { Static Data }, false)"
+    expect(lookupResultPromise.getValueSource()).toMatchInlineSnapshot(
+      `
+      Array [
+        "Operation-0",
+        Lookup {
+          "data": ResultPromise {
+            "source": Array [
+              "Static Data",
+            ],
+          },
+          "many": false,
+          "path": "nested.children",
+          "relationField": "id",
+          "storeField": "parentId",
+        },
+      ]
+    `
     );
 
     return expect(lookupResultPromise).resolves.toEqual(result);
@@ -158,10 +234,20 @@ describe('dbRef', () => {
 
   test('many', () => {
     const result = resultPromise
-      .map(ResultPromiseTransforms.path('ids'))
-      .map(ResultPromiseTransforms.dbRef('admins'));
-    expect(result.getValueSource()).toEqual(
-      "Operation-0 -> path('ids') -> dbRef('admins')"
+      .map(new ResultPromiseTransforms.Path('ids'))
+      .map(new ResultPromiseTransforms.ToDbRef('admins'));
+    expect(result.getValueSource()).toMatchInlineSnapshot(
+      `
+      Array [
+        "Operation-0",
+        Path {
+          "path": "ids",
+        },
+        ToDbRef {
+          "collectionName": "admins",
+        },
+      ]
+    `
     );
 
     return expect(result).resolves.toEqual([
@@ -172,10 +258,20 @@ describe('dbRef', () => {
 
   test('single', () => {
     const result = resultPromise
-      .map(ResultPromiseTransforms.path('id'))
-      .map(ResultPromiseTransforms.dbRef('admins'));
-    expect(result.getValueSource()).toEqual(
-      "Operation-0 -> path('id') -> dbRef('admins')"
+      .map(new ResultPromiseTransforms.Path('id'))
+      .map(new ResultPromiseTransforms.ToDbRef('admins'));
+    expect(result.getValueSource()).toMatchInlineSnapshot(
+      `
+      Array [
+        "Operation-0",
+        Path {
+          "path": "id",
+        },
+        ToDbRef {
+          "collectionName": "admins",
+        },
+      ]
+    `
     );
 
     return expect(result).resolves.toEqual(new DBRef('admins', id1));
@@ -215,23 +311,34 @@ test('dbRef replace', () => {
   const resultPromise = new AMOperationResultPromise<any>(operation);
   resultPromise.resolve(doc);
 
-  const data = () =>
-    new AMDataResultPromise({
-      [collection1]: {
-        [id1.toHexString()]: obj1,
-        [id2.toHexString()]: obj2,
-      },
-      [collection2]: {
-        [id3.toHexString()]: obj3,
-      },
-    });
+  const data = new AMDataResultPromise({
+    [collection1]: {
+      [id1.toHexString()]: obj1,
+      [id2.toHexString()]: obj2,
+    },
+    [collection2]: {
+      [id3.toHexString()]: obj3,
+    },
+  });
 
   const result = resultPromise.map(
-    ResultPromiseTransforms.dbRefReplace('ids', data)
+    new ResultPromiseTransforms.DbRefReplace('ids', data)
   );
 
-  expect(result.getValueSource()).toEqual(
-    "Operation-0 -> dbRefReplace('ids', AMResultPromise { Static Data })"
+  expect(result.getValueSource()).toMatchInlineSnapshot(
+    `
+    Array [
+      "Operation-0",
+      DbRefReplace {
+        "data": ResultPromise {
+          "source": Array [
+            "Static Data",
+          ],
+        },
+        "path": "ids",
+      },
+    ]
+  `
   );
 
   return expect(result).resolves.toEqual({
@@ -287,7 +394,7 @@ describe('transformArray', () => {
       },
     ];
     const transformResultPromise = resultPromise.map(
-      ResultPromiseTransforms.transformArray('comments', {
+      new ResultPromiseTransforms.TransformArray('comments', {
         where: {
           message: 'message_test',
         },
@@ -304,7 +411,7 @@ describe('transformArray', () => {
       },
     ];
     const transformResultPromise = resultPromise.map(
-      ResultPromiseTransforms.transformArray('comments', {
+      new ResultPromiseTransforms.TransformArray('comments', {
         where: {
           message: {
             $regex: /test/,
@@ -334,7 +441,7 @@ describe('transformArray', () => {
       },
     ];
     const transformResultPromise = resultPromise.map(
-      ResultPromiseTransforms.transformArray('comments', {
+      new ResultPromiseTransforms.TransformArray('comments', {
         where: {
           comments: {
             $elemMatch: {
@@ -366,7 +473,7 @@ describe('transformArray', () => {
       },
     ];
     const transformResultPromise = resultPromise.map(
-      ResultPromiseTransforms.transformArray('comments', {
+      new ResultPromiseTransforms.TransformArray('comments', {
         where: {
           tags: {
             $all: ['a', 'b'],
@@ -396,7 +503,7 @@ describe('transformArray', () => {
       },
     ];
     const transformResultPromise = resultPromise.map(
-      ResultPromiseTransforms.transformArray('comments', {
+      new ResultPromiseTransforms.TransformArray('comments', {
         where: {
           comments: {
             $exists: true,
@@ -421,7 +528,7 @@ describe('transformArray', () => {
       },
     ];
     const transformResultPromise = resultPromise.map(
-      ResultPromiseTransforms.transformArray('comments', {
+      new ResultPromiseTransforms.TransformArray('comments', {
         where: {
           id: {
             $gt: 7,
@@ -450,7 +557,7 @@ describe('transformArray', () => {
       },
     ];
     const transformResultPromise = resultPromise.map(
-      ResultPromiseTransforms.transformArray('comments', {
+      new ResultPromiseTransforms.TransformArray('comments', {
         where: {
           id: {
             $gte: 7,
@@ -479,7 +586,7 @@ describe('transformArray', () => {
       },
     ];
     const transformResultPromise = resultPromise.map(
-      ResultPromiseTransforms.transformArray('comments', {
+      new ResultPromiseTransforms.TransformArray('comments', {
         where: {
           id: {
             $in: [7, 8],
@@ -509,7 +616,7 @@ describe('transformArray', () => {
       },
     ];
     const transformResultPromise = resultPromise.map(
-      ResultPromiseTransforms.transformArray('comments', {
+      new ResultPromiseTransforms.TransformArray('comments', {
         where: {
           tags: {
             $in: ['b', 'c'],
@@ -538,7 +645,7 @@ describe('transformArray', () => {
       },
     ];
     const transformResultPromise = resultPromise.map(
-      ResultPromiseTransforms.transformArray('comments', {
+      new ResultPromiseTransforms.TransformArray('comments', {
         where: {
           comments: {
             $not: {

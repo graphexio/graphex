@@ -86,9 +86,9 @@ export class AMInterfaceWhereUniqueTypeFactory extends AMTypeFactory<
                         lastInStack.setValue(
                           readOp
                             .getOutput()
-                            .map(ResultPromiseTransforms.path('_id'))
+                            .map(new ResultPromiseTransforms.Path('_id'))
                             .map(
-                              ResultPromiseTransforms.dbRef(
+                              new ResultPromiseTransforms.ToDbRef(
                                 possibleType.mmCollectionName
                               )
                             )
@@ -97,9 +97,9 @@ export class AMInterfaceWhereUniqueTypeFactory extends AMTypeFactory<
                         lastInStack.addValue(
                           readOp
                             .getOutput()
-                            .map(ResultPromiseTransforms.path('_id'))
+                            .map(new ResultPromiseTransforms.Path('_id'))
                             .map(
-                              ResultPromiseTransforms.dbRef(
+                              new ResultPromiseTransforms.ToDbRef(
                                 possibleType.mmCollectionName
                               )
                             )

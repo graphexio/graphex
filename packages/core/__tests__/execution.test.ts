@@ -183,7 +183,7 @@ test('read many relation', async () => {
       _id: {
         $in: operation
           .getResult()
-          .map(ResultPromiseTransforms.distinct('commentIds')),
+          .map(new ResultPromiseTransforms.Distinct('commentIds')),
       },
     }),
   });
@@ -192,7 +192,9 @@ test('read many relation', async () => {
     operation
       .getOutput()
       .map(
-        ResultPromiseTransforms.distinctReplace('commentIds', '_id', () =>
+        new ResultPromiseTransforms.DistinctReplace(
+          'commentIds',
+          '_id',
           subOperation.getOutput()
         )
       )

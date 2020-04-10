@@ -1906,7 +1906,7 @@ test('Create interface', async () => {
 
 test('Custom discriminator', async () => {
   {
-    let { data, errors } = await query({
+    const { data, errors } = await query({
       query: gql`
         mutation {
           createPetDog(data: { name: "New dog" }) {
@@ -1929,7 +1929,7 @@ Object {
   }
 
   {
-    let { data, errors } = await query({
+    const { data, errors } = await query({
       query: gql`
         query {
           pets {

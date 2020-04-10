@@ -1,33 +1,30 @@
 import {
   ASTNode,
-  ObjectValueNode,
+  EnumTypeDefinitionNode,
+  EnumTypeExtensionNode,
+  GraphQLArgument,
+  GraphQLEnumType,
+  GraphQLEnumValueConfigMap,
   GraphQLField,
   GraphQLInputField,
+  GraphQLInputFieldConfig,
   GraphQLInputObjectType,
-  GraphQLInputType,
   GraphQLInterfaceType,
   GraphQLNamedType,
   GraphQLObjectType,
+  GraphQLObjectTypeConfig,
+  GraphQLOutputType,
+  GraphQLScalarType,
   GraphQLSchema,
   InputObjectTypeDefinitionNode,
   InputObjectTypeExtensionNode,
-  InputValueDefinitionNode,
+  ObjectValueNode,
   Thunk,
-  GraphQLFieldConfig,
-  GraphQLInputFieldConfig,
-  GraphQLEnumType,
-  GraphQLEnumValueConfigMap,
-  EnumTypeDefinitionNode,
-  EnumTypeExtensionNode,
-  GraphQLOutputType,
-  GraphQLObjectTypeConfig,
-  GraphQLArgument,
-  GraphQLScalarType,
 } from 'graphql';
 import Maybe from 'graphql/tsutils/Maybe';
+import { AMConfigResolver } from './config/resolver';
 import { AMContext } from './execution/context';
 import { AMTransaction } from './execution/transaction';
-import { AMConfigResolver } from './config/resolver';
 
 export abstract class AMFactory {
   links: { [key: string]: string | string[] };

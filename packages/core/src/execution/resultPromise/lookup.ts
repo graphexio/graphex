@@ -1,4 +1,4 @@
-import { AMResultPromise } from './resultPromise';
+import { AMResultPromise, Transformation } from './resultPromise';
 import * as R from 'ramda';
 import { mapPath } from './utils';
 
@@ -28,32 +28,38 @@ const groupForLookup = (storeField: string) => (
   return result;
 };
 
-export const lookup = (
-  path: string,
-  relationField: string,
-  storeField: string,
-  getData: () => AMResultPromise<any>,
-  many = true
-) => (source: AMResultPromise<any>, dest: AMResultPromise<any>) => {
-  const pathArr = path.split('.');
-  const lookupFieldName = pathArr.pop();
+export class Lookup extends Transformation {
+  constructor(
+    public path: string,
+    public relationField: string,
+    public storeField: string,
+    public data: AMResultPromise<any>,
+    public many = true
+  ) {
+    super();
+  }
 
-  source.getPromise().then(async value => {
-    const dataMap = groupForLookup(storeField)(await getData().getPromise());
-    const mapItem = (item: any) => {
-      let val = dataMap[item[relationField]] || [];
-      if (!many) {
-        val = R.head(val);
-      }
-      return {
-        ...item,
-        [lookupFieldName]: val,
+  transform(source: AMResultPromise<any>, dest: AMResultPromise<any>) {
+    const pathArr = this.path.split('.');
+    const lookupFieldName = pathArr.pop();
+
+    source.getPromise().then(async value => {
+      const dataMap = groupForLookup(this.storeField)(
+        await this.data.getPromise()
+      );
+      const mapItem = (item: any) => {
+        let val = dataMap[item[this.relationField]] || [];
+        if (!this.many) {
+          val = R.head(val);
+        }
+        return {
+          ...item,
+          [lookupFieldName]: val,
+        };
       };
-    };
-    const newValue = mapPath(pathArr, mapItem)(value);
-    dest.resolve(newValue);
-  });
-  source.getPromise().catch(dest.reject);
-
-  return `lookup('${path}', '${relationField}', '${storeField}', ${getData().toJSON()}, ${many})`;
-};
+      const newValue = mapPath(pathArr, mapItem)(value);
+      dest.resolve(newValue);
+    });
+    source.getPromise().catch(dest.reject);
+  }
+}

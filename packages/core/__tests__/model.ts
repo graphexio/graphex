@@ -93,18 +93,21 @@ export default gql`
     stars: Int
   }
 
-
-  enum PetType{
+  enum PetType {
     cat
     dog
   }
 
-  interface Pet @implements(name: "Node & Timestamp") @discriminator(value:"type") @inherit @model {
+  interface Pet
+    @implements(name: "Node & Timestamp")
+    @discriminator(value: "type")
+    @inherit
+    @model {
     id: ID @id
-    type: PetType @db(name:"type") @readonly
+    type: PetType @db(name: "type") @readonly
     name: String
   }
 
-  type PetCat implements Pet @discriminator(value:"cat")
-  type PetDog implements Pet @discriminator(value:"dog")
+  type PetCat implements Pet @discriminator(value: "cat")
+  type PetDog implements Pet @discriminator(value: "dog")
 `;

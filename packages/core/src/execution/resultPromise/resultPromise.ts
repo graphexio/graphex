@@ -1,11 +1,25 @@
 import { AMOperation } from '../operation';
+
 type AMValueSource = AMOperation | AMResultPromise<any>;
+
+export abstract class Transformation {
+  abstract transform(
+    source: AMResultPromise<any>,
+    result: AMResultPromise<any>
+  ): void;
+}
+
+export type MakeTransformation = (...args: any[]) => Transformation;
+
+export class ResultPromise {
+  constructor(public source) {}
+}
 
 export class AMResultPromise<T> {
   private promise: Promise<T>;
   public resolve: (value: T) => void;
   public reject: (error: any) => void;
-  public transformationDescription: string;
+  public transformation: Transformation;
 
   constructor(private valueSource: AMValueSource) {
     this.promise = new Promise<T>((resolve, reject) => {
@@ -15,20 +29,18 @@ export class AMResultPromise<T> {
   }
 
   toJSON() {
-    return `AMResultPromise { ${this.getValueSource()} }`;
+    return new ResultPromise(this.getValueSource());
   }
 
   getPromise() {
     return this.promise;
   }
 
-  getValueSource(): string {
+  getValueSource(): any[] {
     if (this.valueSource instanceof AMOperation) {
-      return this.valueSource.getIdentifier();
+      return [this.valueSource.getIdentifier()];
     } else if (this.valueSource instanceof AMResultPromise) {
-      return `${this.valueSource.getValueSource()} -> ${
-        this.transformationDescription
-      }`;
+      return [...this.valueSource.getValueSource(), this.transformation];
     }
   }
 
@@ -40,11 +52,10 @@ export class AMResultPromise<T> {
     return this.promise.catch(callback);
   }
 
-  map(
-    mapFn: (source: AMResultPromise<T>, result: AMResultPromise<T>) => string
-  ) {
+  map(transformation: Transformation) {
     const newResult = new AMResultPromise<T>(this);
-    newResult.transformationDescription = mapFn(this, newResult);
+    newResult.transformation = transformation;
+    transformation.transform(this, newResult);
     return newResult;
   }
 }
@@ -65,6 +76,6 @@ export class AMDataResultPromise<T> extends AMResultPromise<T> {
   }
 
   getValueSource() {
-    return 'Static Data';
+    return ['Static Data'];
   }
 }

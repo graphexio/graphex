@@ -41,7 +41,7 @@ export const nestedArrays = (
                 // console.log(path, context.value);
                 operation.setOutput(
                   operation.getOutput().map(
-                    ResultPromiseTransforms.transformArray(path, {
+                    new ResultPromiseTransforms.TransformArray(path, {
                       where: context.value as {},
                     })
                   )

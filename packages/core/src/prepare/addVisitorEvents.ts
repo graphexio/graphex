@@ -52,7 +52,7 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
                         [field.relation.relationField]: {
                           $in: lastOperation
                             .getResult()
-                            .map(ResultPromiseTransforms.distinct(path)),
+                            .map(new ResultPromiseTransforms.Distinct(path)),
                         },
                       }
                     : {
@@ -60,7 +60,7 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
                           $in: lastOperation
                             .getResult()
                             .map(
-                              ResultPromiseTransforms.distinct(
+                              new ResultPromiseTransforms.Distinct(
                                 field.relation.relationField
                               )
                             ),
@@ -73,7 +73,7 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
                 many: true,
                 dbRefList: lastOperation
                   .getResult()
-                  .map(ResultPromiseTransforms.distinct(path)),
+                  .map(new ResultPromiseTransforms.Distinct(path)),
               });
             }
 
@@ -84,7 +84,8 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
                 lastOperation
                   .getOutput()
                   .map(
-                    ResultPromiseTransforms.dbRefReplace(path, () =>
+                    new ResultPromiseTransforms.DbRefReplace(
+                      path,
                       relationOperation.getOutput()
                     )
                   )
@@ -94,21 +95,21 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
                 lastOperation
                   .getOutput()
                   .map(
-                    ResultPromiseTransforms.distinctReplace(
+                    new ResultPromiseTransforms.DistinctReplace(
                       path,
                       field.relation.relationField,
-                      () => relationOperation.getOutput()
+                      relationOperation.getOutput()
                     )
                   )
               );
             } else {
               lastOperation.setOutput(
                 lastOperation.getOutput().map(
-                  ResultPromiseTransforms.lookup(
+                  new ResultPromiseTransforms.Lookup(
                     path,
                     field.relation.relationField,
                     field.relation.storeField,
-                    () => relationOperation.getOutput(),
+                    relationOperation.getOutput(),
                     isListType(field.type) ||
                       (isNonNullType(field.type) &&
                         isListType(field.type.ofType)) //TODO: Add runtime checking for existing unique index on relation field.

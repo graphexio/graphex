@@ -1,15 +1,16 @@
-import { AMResultPromise } from './resultPromise';
+import { AMResultPromise, Transformation } from './resultPromise';
 import { getPath } from './utils';
 
-export const path = (path: string) => (
-  source: AMResultPromise<any>,
-  dest: AMResultPromise<any>
-) => {
-  source.getPromise().then(async value => {
-    const newValue = getPath(path.split('.'))(value);
-    dest.resolve(newValue);
-  });
-  source.getPromise().catch(dest.reject);
+export class Path extends Transformation {
+  constructor(public path: string) {
+    super();
+  }
 
-  return `path('${path}')`;
-};
+  transform(source: AMResultPromise<any>, dest: AMResultPromise<any>) {
+    source.getPromise().then(async value => {
+      const newValue = getPath(this.path.split('.'))(value);
+      dest.resolve(newValue);
+    });
+    source.getPromise().catch(dest.reject);
+  }
+}

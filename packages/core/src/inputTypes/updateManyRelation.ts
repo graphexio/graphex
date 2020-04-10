@@ -72,7 +72,7 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
                         'create',
                         opContext
                           .getOutput()
-                          .map(ResultPromiseTransforms.path('insertedIds'))
+                          .map(new ResultPromiseTransforms.Path('insertedIds'))
                       );
                     }
                   },
@@ -127,7 +127,7 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
                         'recreate',
                         opContext
                           .getOutput()
-                          .map(ResultPromiseTransforms.path('insertedIds'))
+                          .map(new ResultPromiseTransforms.Path('insertedIds'))
                       );
                     }
                   },
@@ -196,7 +196,7 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
                         opContext
                           .getOutput()
                           .map(
-                            ResultPromiseTransforms.distinct(
+                            new ResultPromiseTransforms.Distinct(
                               objectFieldContext.field.relation.relationField
                             )
                           )
@@ -267,7 +267,7 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
                         opContext
                           .getOutput()
                           .map(
-                            ResultPromiseTransforms.distinct(
+                            new ResultPromiseTransforms.Distinct(
                               objectFieldContext.field.relation.relationField
                             )
                           )
