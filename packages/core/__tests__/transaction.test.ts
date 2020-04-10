@@ -2732,8 +2732,7 @@ describe('filter nested arrays', () => {
         message: String
         comments: [Comment]
       }
-    `,
-    { nestedArraysFilter: true }
+    `
   );
 
   test('string match', () => {

@@ -2,16 +2,24 @@ import * as R from 'ramda';
 import { AMResultPromise } from './resultPromise';
 import { mapPath, completeAMResultPromise } from './utils';
 
-const makeSimplePredicate = (key: string, value: any) => item => {
+type MakePredicate = (...args) => R.Pred;
+
+const makeSimplePredicate: MakePredicate = (
+  key: string,
+  value: any
+) => item => {
   return item[key] === value;
 };
 
-const makeRegExPredicate = (key: string, regex: RegExp) => item => {
+const makeRegExPredicate: MakePredicate = (
+  key: string,
+  regex: RegExp
+) => item => {
   return regex.test(item[key]);
 };
 
-const makeElemMatchPredicate = (key: string, cond: RegExp) => {
-  const predicate = makeCondFilter(cond);
+const makeElemMatchPredicate: MakePredicate = (key: string, cond: RegExp) => {
+  const predicate = makeObjectPredicate(cond);
   return item => {
     const arr = item[key];
     if (Array.isArray(arr)) {
@@ -22,7 +30,10 @@ const makeElemMatchPredicate = (key: string, cond: RegExp) => {
   };
 };
 
-const makeAllPredicate = (key: string, matchingItems: any[]) => item => {
+const makeAllPredicate: MakePredicate = (
+  key: string,
+  matchingItems: any[]
+) => item => {
   const arr = item[key];
   if (Array.isArray(arr) && Array.isArray(matchingItems)) {
     const arrMap = new Map<string, true>();
@@ -40,7 +51,10 @@ const makeAllPredicate = (key: string, matchingItems: any[]) => item => {
   }
 };
 
-const makeExistsPredicate = (key: string, exists: boolean) => item => {
+const makeExistsPredicate: MakePredicate = (
+  key: string,
+  exists: boolean
+) => item => {
   if (exists) {
     return item[key] !== undefined;
   } else {
@@ -54,11 +68,11 @@ enum Condition {
   lt,
   lte,
 }
-const makeEqPredicate = (key: string, value: any) => item => {
+const makeEqPredicate: MakePredicate = (key: string, value: any) => item => {
   return R.equals(item[key], value);
 };
 
-const makeComparisonPredicate = (
+const makeComparisonPredicate: MakePredicate = (
   key: string,
   value: any,
   condition: Condition
@@ -75,7 +89,7 @@ const makeComparisonPredicate = (
   }
 };
 
-const makeInPredicate = (key: string, arr: any) => item => {
+const makeInPredicate: MakePredicate = (key: string, arr: any) => item => {
   if (Array.isArray(arr)) {
     const searchMap = new Map<any, true>();
 
@@ -111,23 +125,37 @@ const makeInPredicate = (key: string, arr: any) => item => {
   }
 };
 
-const makeSizePredicate = (key: string, value: any) => item => {
+const makeSizePredicate: MakePredicate = (key: string, value: any) => item => {
   return item[key]?.length === value;
 };
 
-const makeNotPredicate = (key: string, value: any) => {
+const makeNotPredicate: MakePredicate = (key: string, value: any) => {
   return R.complement(makePredicate(key, value));
 };
 
-const makeCondFilter = (cond: { [key: string]: any }) => {
-  const predicates = Object.entries(cond).map(([key, value]) =>
-    makePredicate(key, value)
-  );
-
+const makeAndPredicate: MakePredicate = (values: any) => {
+  const predicates = values.map(value => makeObjectPredicate(value));
   return R.allPass(predicates);
 };
 
-const makePredicate = (key, value) => {
+const makeOrPredicate: MakePredicate = (values: any) => {
+  const predicates = values.map(value => makeObjectPredicate(value));
+  return R.anyPass(predicates);
+};
+
+const makeObjectPredicate: MakePredicate = (cond: { [key: string]: any }) => {
+  const predicates = Object.entries(cond).map(([key, value]) =>
+    makePredicate(key, value)
+  );
+  return R.allPass(predicates);
+};
+
+const makePredicate: MakePredicate = (key, value) => {
+  if (key === '$and') {
+    return makeAndPredicate(value);
+  } else if (key === '$or') {
+    return makeOrPredicate(value);
+  }
   if (typeof value === 'object') {
     if (value.$regex !== undefined) {
       return makeRegExPredicate(key, value.$regex);
@@ -166,7 +194,7 @@ export const transformArray = (
   const arrFieldName = pathArr.pop();
 
   source.then(async value => {
-    const filter = makeCondFilter(
+    const filter = makeObjectPredicate(
       await completeAMResultPromise(filterParams.where)
     );
 
