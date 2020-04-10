@@ -1,5 +1,5 @@
 import { AMModelType } from '@apollo-model/core/lib/definitions';
-import { AMInputTypeFactory, defaultConfig } from '@apollo-model/core/src';
+import { AMInputTypeFactory, defaultConfig } from '@apollo-model/core';
 import { GraphQLSchema } from 'graphql';
 import R from 'ramda';
 import { ACLRule } from './definitions';
