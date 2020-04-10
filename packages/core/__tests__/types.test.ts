@@ -795,8 +795,7 @@ describe('nested arrays', () => {
         title: String
         reviews: [HotelReview]
       }
-    `,
-    { nestedArraysFilter: true }
+    `
   );
 
   test('validate', () => {

@@ -10,7 +10,7 @@ let query, mutate, connectToDatabase;
 
 beforeAll(async () => {
   testInstance = prepare();
-  const instance = await testInstance.start({ nestedArraysFilter: true });
+  const instance = await testInstance.start();
   query = instance.query;
   mutate = instance.mutate;
   connectToDatabase = instance.connectToDatabase;
@@ -1438,6 +1438,58 @@ Object {
           posts(where: { comments_exists: true }) {
             comments(
               where: { user: { User: { username: "UserForComments1" } } }
+            ) {
+              body
+            }
+          }
+        }
+      `,
+    });
+    expect(errors).toBeUndefined();
+    expect(data.posts[0]).toMatchInlineSnapshot(`
+      Object {
+        "comments": Array [
+          Object {
+            "body": "comment1",
+          },
+        ],
+      }
+      `);
+  });
+
+  test('filter and', async () => {
+    const { data, errors } = await query({
+      query: gql`
+        query posts {
+          posts(where: { comments_exists: true }) {
+            comments(
+              where: { AND: [{ tags_in: ["tag1"] }, { tags_in: ["tag2"] }] }
+            ) {
+              body
+            }
+          }
+        }
+      `,
+    });
+    expect(errors).toBeUndefined();
+    expect(data.posts[0]).toMatchInlineSnapshot(`
+      Object {
+        "comments": Array [
+          Object {
+            "body": "comment1",
+          },
+        ],
+      }
+      `);
+  });
+
+  test('filter or', async () => {
+    const { data, errors } = await query({
+      query: gql`
+        query posts {
+          posts(where: { comments_exists: true }) {
+            comments(
+              where: { OR: [{ tags_in: ["tag1"] }, { tags_not_in: ["tag3"] }] }
             ) {
               body
             }
