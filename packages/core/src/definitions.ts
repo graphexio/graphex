@@ -198,6 +198,7 @@ export type AMModelField = AMField & {
     storeField: string;
     collection: string;
   };
+  noArrayFilter: boolean;
 };
 
 export type AMModelFieldMap = {

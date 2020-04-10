@@ -11,7 +11,5 @@ export const postInit = (options: {
   amOptions: AMOptions;
 }) => {
   relationDirective(options.schema, options.configResolver);
-  if (options?.amOptions?.nestedArraysFilter) {
-    nestedArrays(options.schema, options.configResolver);
-  }
+  nestedArrays(options.schema, options.configResolver);
 };

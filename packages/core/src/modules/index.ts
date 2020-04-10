@@ -16,6 +16,7 @@ import * as UpdatedAt from './directives/updatedAt';
 import * as Date from './scalars/date';
 import * as JSON from './scalars/JSON';
 import * as ObjectID from './scalars/objectID';
+import * as NoArrayFilter from './directives/noArrayFilter';
 
 export default [
   Model,
@@ -38,4 +39,5 @@ export default [
   Date,
   JSON,
   ObjectID,
+  NoArrayFilter,
 ];

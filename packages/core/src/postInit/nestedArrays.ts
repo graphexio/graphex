@@ -15,6 +15,7 @@ export const nestedArrays = (
   Object.values(schema.getTypeMap()).forEach((type: AMModelType) => {
     if (type.mmModel || type.mmEmbedded || type.mmModelInherited) {
       Object.values(type.getFields()).forEach((field: AMModelField) => {
+        if (field.noArrayFilter) return;
         const typeWrap = new TypeWrap(field.type);
         const realType = typeWrap.realType() as AMModelType;
         if (
