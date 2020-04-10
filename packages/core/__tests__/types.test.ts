@@ -788,7 +788,7 @@ describe('nested arrays', () => {
 
       interface Poi @inherit @model {
         id: ID @id @unique @db(name: "_id")
-        reviews: [Review]
+        reviews: [Review] @noArrayFilter #disable interface filters due to https://github.com/graphql/graphql-spec/issues/629
       }
 
       type Hotel implements Poi {
@@ -816,7 +816,7 @@ describe('nested arrays', () => {
     expect(printType(schema.getType('Poi'))).toMatchInlineSnapshot(`
     "interface Poi {
       id: ID
-      reviews(where: ReviewWhereInput, orderBy: ReviewOrderByInput, skip: Int, first: Int): [Review]
+      reviews: [Review]
     }"
 `);
   });
