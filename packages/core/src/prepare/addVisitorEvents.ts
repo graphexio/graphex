@@ -86,7 +86,7 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
                   .map(
                     new ResultPromiseTransforms.DbRefReplace(
                       path,
-                      relationOperation.getOutput()
+                      relationOperation
                     )
                   )
               );
@@ -98,7 +98,7 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
                     new ResultPromiseTransforms.DistinctReplace(
                       path,
                       field.relation.relationField,
-                      relationOperation.getOutput()
+                      relationOperation
                     )
                   )
               );
@@ -109,7 +109,7 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
                     path,
                     field.relation.relationField,
                     field.relation.storeField,
-                    relationOperation.getOutput(),
+                    relationOperation,
                     isListType(field.type) ||
                       (isNonNullType(field.type) &&
                         isListType(field.type.ofType)) //TODO: Add runtime checking for existing unique index on relation field.

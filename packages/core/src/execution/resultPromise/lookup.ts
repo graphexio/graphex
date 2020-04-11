@@ -1,6 +1,7 @@
 import { AMResultPromise, Transformation } from './resultPromise';
 import * as R from 'ramda';
 import { mapPath } from './utils';
+import { AMOperation } from '../operation';
 
 const groupForLookup = (storeField: string) => (
   data: { [key: string]: any }[]
@@ -33,7 +34,7 @@ export class Lookup extends Transformation {
     public path: string,
     public relationField: string,
     public storeField: string,
-    public data: AMResultPromise<any>,
+    private dataOp: AMOperation,
     public many = true
   ) {
     super();
@@ -45,7 +46,7 @@ export class Lookup extends Transformation {
 
     source.getPromise().then(async value => {
       const dataMap = groupForLookup(this.storeField)(
-        await this.data.getPromise()
+        await this.dataOp.getOutput().getPromise()
       );
       const mapItem = (item: any) => {
         let val = dataMap[item[this.relationField]] || [];

@@ -1,12 +1,13 @@
 import * as R from 'ramda';
 import { AMResultPromise, Transformation } from './resultPromise';
 import { mapPath } from './utils';
+import { AMOperation } from '../operation';
 
 export class DistinctReplace extends Transformation {
   constructor(
     public path: string,
     public field: string,
-    public data: AMResultPromise<any>
+    public dataOp: AMOperation
   ) {
     super();
   }
@@ -16,7 +17,7 @@ export class DistinctReplace extends Transformation {
     source.then(async value => {
       const dataMap = R.indexBy(
         R.prop(this.field),
-        await this.data.getPromise()
+        await this.dataOp.getOutput().getPromise()
       );
       const mapItem = item => {
         if (

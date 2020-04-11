@@ -6,6 +6,8 @@ import { AMTransaction } from '../src/execution/transaction';
 import { UserInputError } from 'apollo-server';
 import { AMOptions } from '../src/definitions';
 import { validate } from 'graphql';
+import Serializer from './serializer';
+expect.addSnapshotSerializer(Serializer);
 
 const generateSchema = (typeDefs, options?: AMOptions) => {
   return new AMM({

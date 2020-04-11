@@ -195,7 +195,7 @@ test('read many relation', async () => {
         new ResultPromiseTransforms.DistinctReplace(
           'commentIds',
           '_id',
-          subOperation.getOutput()
+          subOperation
         )
       )
   );

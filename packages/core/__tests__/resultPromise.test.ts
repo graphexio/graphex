@@ -7,6 +7,10 @@ import { ResultPromiseTransforms } from '../src/execution/resultPromise';
 
 import { AMTransaction } from '../src/execution/transaction';
 import { ObjectID, DBRef } from 'mongodb';
+import Serializer from './serializer';
+import { AMOperation } from '../src/execution/operation';
+
+expect.addSnapshotSerializer(Serializer);
 
 describe('simple', () => {
   const arr = [{ test: 'value' }];
@@ -52,7 +56,11 @@ describe('simple', () => {
   });
 
   test('distinctReplace', () => {
-    const data = new AMDataResultPromise([{ _id: 'value' }]);
+    const data = ({
+      getOutput() {
+        return new AMDataResultPromise([{ _id: 'value' }]);
+      },
+    } as any) as AMOperation;
     const result = [{ test: { _id: 'value' } }];
 
     const distinctReplaceResultPromise = resultPromise.map(
@@ -89,9 +97,13 @@ describe('lookup', () => {
     const resultPromise = new AMOperationResultPromise<any>(operation);
     resultPromise.resolve(arr);
 
-    const data = new AMDataResultPromise([
-      { _id: 'child-id', parentId: 'item-id' },
-    ]);
+    const data = ({
+      getOutput() {
+        return new AMDataResultPromise([
+          { _id: 'child-id', parentId: 'item-id' },
+        ]);
+      },
+    } as any) as AMOperation;
     const result = [
       { id: 'item-id', children: [{ _id: 'child-id', parentId: 'item-id' }] },
     ];
@@ -130,9 +142,13 @@ describe('lookup', () => {
     const resultPromise = new AMOperationResultPromise<any>(operation);
     resultPromise.resolve(arr);
 
-    const data = new AMDataResultPromise([
-      { _id: 'child-id', parentId: 'item-id' },
-    ]);
+    const data = ({
+      getOutput() {
+        return new AMDataResultPromise([
+          { _id: 'child-id', parentId: 'item-id' },
+        ]);
+      },
+    } as any) as AMOperation;
     const result = [
       { id: 'item-id', children: { _id: 'child-id', parentId: 'item-id' } },
     ];
@@ -177,9 +193,13 @@ describe('lookup', () => {
     const resultPromise = new AMOperationResultPromise<any>(operation);
     resultPromise.resolve(arr);
 
-    const data = new AMDataResultPromise([
-      { _id: 'child-id', parentId: 'nested-item-id' },
-    ]);
+    const data = ({
+      getOutput() {
+        return new AMDataResultPromise([
+          { _id: 'child-id', parentId: 'nested-item-id' },
+        ]);
+      },
+    } as any) as AMOperation;
     const result = [
       {
         id: 'item-id',
@@ -311,15 +331,19 @@ test('dbRef replace', () => {
   const resultPromise = new AMOperationResultPromise<any>(operation);
   resultPromise.resolve(doc);
 
-  const data = new AMDataResultPromise({
-    [collection1]: {
-      [id1.toHexString()]: obj1,
-      [id2.toHexString()]: obj2,
+  const data = ({
+    getOutput() {
+      return new AMDataResultPromise({
+        [collection1]: {
+          [id1.toHexString()]: obj1,
+          [id2.toHexString()]: obj2,
+        },
+        [collection2]: {
+          [id3.toHexString()]: obj3,
+        },
+      });
     },
-    [collection2]: {
-      [id3.toHexString()]: obj3,
-    },
-  });
+  } as any) as AMOperation;
 
   const result = resultPromise.map(
     new ResultPromiseTransforms.DbRefReplace('ids', data)
