@@ -5,7 +5,7 @@ import { AMOperation } from '../operation';
 
 export type TransformCondition = Map<string, AMModelType>;
 
-export function findConditionsIntersection(
+function findConditionsUnion(
   cond1: TransformCondition,
   cond2: TransformCondition
 ) {
@@ -39,9 +39,9 @@ export abstract class RelationTransformation extends Transformation {
     const newConditions = [];
     let currentCond = cond;
     for (const cond of this.conditions) {
-      const intersection = findConditionsIntersection(currentCond, cond);
-      if (intersection) {
-        currentCond = intersection;
+      const union = findConditionsUnion(currentCond, cond);
+      if (union) {
+        currentCond = union;
       } else {
         newConditions.push(cond);
       }
