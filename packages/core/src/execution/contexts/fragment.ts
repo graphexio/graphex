@@ -1,15 +1,24 @@
 import { AMContext } from '../context';
 import { AMFieldsSelectionContext } from './fieldsSelection';
+import { GraphQLNamedType } from 'graphql';
 
 export class AMFragmentContext extends AMContext {
-  private fieldsSelectionContext: AMFieldsSelectionContext;
-
-  constructor(options?: { fieldsSelectionContext?: AMFieldsSelectionContext }) {
+  constructor(
+    private options?: {
+      fieldsSelectionContext?: AMFieldsSelectionContext;
+      contextType?: GraphQLNamedType;
+      conditionType?: GraphQLNamedType;
+      actualConditionType?: GraphQLNamedType;
+    }
+  ) {
     super();
-    this.fieldsSelectionContext = options?.fieldsSelectionContext;
   }
 
   getFieldsSelectionContext() {
-    return this.fieldsSelectionContext;
+    return this.options.fieldsSelectionContext;
+  }
+
+  getActualConditionType() {
+    return this.options.actualConditionType;
   }
 }

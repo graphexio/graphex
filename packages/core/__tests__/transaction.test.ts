@@ -784,65 +784,67 @@ describe('relation', () => {
     const transaction = prepareTransaction(schema, rq);
 
     expect(transaction).toMatchInlineSnapshot(`
-      Object {
-        "operations": Array [
-          Object {
-            "collectionName": "comments",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-                "postId",
-              ],
-            },
-            "identifier": "Operation-0",
-            "kind": "AMReadOperation",
-            "many": true,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-0",
-                DistinctReplace {
-                  "data": ResultPromise {
-                    "source": Array [
-                      "Operation-1",
-                    ],
-                  },
-                  "field": "_id",
-                  "path": "postId",
-                },
-              ],
-            },
-          },
-          Object {
-            "collectionName": "posts",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-              ],
-            },
-            "identifier": "Operation-1",
-            "kind": "AMReadOperation",
-            "many": true,
-            "output": ResultPromise {
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "comments",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+          "postId",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+          DistinctReplace {
+            "data": ResultPromise {
               "source": Array [
                 "Operation-1",
               ],
             },
-            "selector": Object {
-              "_id": Object {
-                "$in": ResultPromise {
-                  "source": Array [
-                    "Operation-0",
-                    Distinct {
-                      "path": "postId",
-                    },
-                  ],
-                },
-              },
-            },
+            "displayField": "post",
+            "path": Array [],
+            "relationField": "_id",
+            "storeField": "postId",
           },
         ],
-      }
-    `);
+      },
+    },
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-1",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+      "selector": Object {
+        "_id": Object {
+          "$in": ResultPromise {
+            "source": Array [
+              "Operation-0",
+              Distinct {
+                "path": "postId",
+              },
+            ],
+          },
+        },
+      },
+    },
+  ],
+}
+`);
   });
 
   test('connect', () => {
@@ -2239,103 +2241,113 @@ describe('interfaces', () => {
     //TODO: Fix filtering distinct and distinctReplace
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-      Object {
-        "operations": Array [
-          Object {
-            "collectionName": "users",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-                "approvesPostIds",
-                "likesPostIds",
-              ],
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "users",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+          "approvesPostIds",
+          "likesPostIds",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+          DistinctReplace {
+            "conditions": Map {
+              "_type" => "admin",
             },
-            "identifier": "Operation-0",
-            "kind": "AMReadOperation",
-            "many": true,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-0",
-                DistinctReplace {
-                  "data": ResultPromise {
-                    "source": Array [
-                      "Operation-1",
-                    ],
-                  },
-                  "field": "_id",
-                  "path": "approvesPostIds",
-                },
-                DistinctReplace {
-                  "data": ResultPromise {
-                    "source": Array [
-                      "Operation-2",
-                    ],
-                  },
-                  "field": "_id",
-                  "path": "likesPostIds",
-                },
-              ],
-            },
-          },
-          Object {
-            "collectionName": "posts",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-              ],
-            },
-            "identifier": "Operation-1",
-            "kind": "AMReadOperation",
-            "many": true,
-            "output": ResultPromise {
+            "data": ResultPromise {
               "source": Array [
                 "Operation-1",
               ],
             },
-            "selector": Object {
-              "_id": Object {
-                "$in": ResultPromise {
-                  "source": Array [
-                    "Operation-0",
-                    Distinct {
-                      "path": "approvesPostIds",
-                    },
-                  ],
-                },
-              },
-            },
+            "displayField": "approves",
+            "path": Array [],
+            "relationField": "_id",
+            "storeField": "approvesPostIds",
           },
-          Object {
-            "collectionName": "posts",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-              ],
+          DistinctReplace {
+            "conditions": Map {
+              "_type" => "subscriber",
             },
-            "identifier": "Operation-2",
-            "kind": "AMReadOperation",
-            "many": true,
-            "output": ResultPromise {
+            "data": ResultPromise {
               "source": Array [
                 "Operation-2",
               ],
             },
-            "selector": Object {
-              "_id": Object {
-                "$in": ResultPromise {
-                  "source": Array [
-                    "Operation-0",
-                    Distinct {
-                      "path": "likesPostIds",
-                    },
-                  ],
-                },
-              },
-            },
+            "displayField": "likes",
+            "path": Array [],
+            "relationField": "_id",
+            "storeField": "likesPostIds",
           },
         ],
-      }
-    `);
+      },
+    },
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-1",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+      "selector": Object {
+        "_id": Object {
+          "$in": ResultPromise {
+            "source": Array [
+              "Operation-0",
+              Distinct {
+                "path": "approvesPostIds",
+              },
+            ],
+          },
+        },
+      },
+    },
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-2",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-2",
+        ],
+      },
+      "selector": Object {
+        "_id": Object {
+          "$in": ResultPromise {
+            "source": Array [
+              "Operation-0",
+              Distinct {
+                "path": "likesPostIds",
+              },
+            ],
+          },
+        },
+      },
+    },
+  ],
+}
+`);
   });
 
   test('relations in embedded interfaces', () => {
@@ -2354,64 +2366,68 @@ describe('interfaces', () => {
     //TODO: Fix filtering distinct and distinctReplace
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-      Object {
-        "operations": Array [
-          Object {
-            "collectionName": "users",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "profile.userId",
-              ],
-            },
-            "identifier": "Operation-0",
-            "kind": "AMReadOperation",
-            "many": true,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-0",
-                DistinctReplace {
-                  "data": ResultPromise {
-                    "source": Array [
-                      "Operation-1",
-                    ],
-                  },
-                  "field": "_id",
-                  "path": "profile.userId",
-                },
-              ],
-            },
-          },
-          Object {
-            "collectionName": "users",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-              ],
-            },
-            "identifier": "Operation-1",
-            "kind": "AMReadOperation",
-            "many": true,
-            "output": ResultPromise {
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "users",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "profile.userId",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+          DistinctReplace {
+            "data": ResultPromise {
               "source": Array [
                 "Operation-1",
               ],
             },
-            "selector": Object {
-              "_id": Object {
-                "$in": ResultPromise {
-                  "source": Array [
-                    "Operation-0",
-                    Distinct {
-                      "path": "profile.userId",
-                    },
-                  ],
-                },
-              },
-            },
+            "displayField": "invitedBy",
+            "path": Array [
+              "profile",
+            ],
+            "relationField": "_id",
+            "storeField": "userId",
           },
         ],
-      }
-    `);
+      },
+    },
+    Object {
+      "collectionName": "users",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-1",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+      "selector": Object {
+        "_id": Object {
+          "$in": ResultPromise {
+            "source": Array [
+              "Operation-0",
+              Distinct {
+                "path": "profile.userId",
+              },
+            ],
+          },
+        },
+      },
+    },
+  ],
+}
+`);
   });
 });
 
@@ -2460,88 +2476,90 @@ describe('abstract interface', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-      Object {
-        "operations": Array [
-          Object {
-            "collectionName": "posts",
-            "data": Object {
-              "title": "post title",
-              "userId": ResultPromise {
-                "source": Array [
-                  "Operation-1",
-                  Path {
-                    "path": "_id",
-                  },
-                  ToDbRef {
-                    "collectionName": "admins",
-                  },
-                ],
-              },
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "posts",
+      "data": Object {
+        "title": "post title",
+        "userId": ResultPromise {
+          "source": Array [
+            "Operation-1",
+            Path {
+              "path": "_id",
             },
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-                "userId",
-              ],
+            ToDbRef {
+              "collectionName": "admins",
             },
-            "identifier": "Operation-0",
-            "kind": "AMCreateOperation",
-            "many": false,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-0",
-                DbRefReplace {
-                  "data": ResultPromise {
-                    "source": Array [
-                      "Operation-2",
-                    ],
-                  },
-                  "path": "userId",
-                },
-              ],
-            },
-          },
-          Object {
-            "collectionName": "admins",
-            "data": Object {
-              "username": "new admin",
-            },
-            "identifier": "Operation-1",
-            "kind": "AMCreateOperation",
-            "many": false,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-1",
-              ],
-            },
-          },
-          Object {
-            "collectionName": undefined,
-            "dbRefList": ResultPromise {
-              "source": Array [
-                "Operation-0",
-                Distinct {
-                  "path": "userId",
-                },
-              ],
-            },
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-              ],
-            },
-            "identifier": "Operation-2",
-            "kind": "AMReadDBRefOperation",
-            "many": true,
-            "output": ResultPromise {
+          ],
+        },
+      },
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+          "userId",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMCreateOperation",
+      "many": false,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+          DbRefReplace {
+            "data": ResultPromise {
               "source": Array [
                 "Operation-2",
               ],
             },
+            "displayField": "owner",
+            "path": Array [],
+            "storeField": "userId",
           },
         ],
-      }
-    `);
+      },
+    },
+    Object {
+      "collectionName": "admins",
+      "data": Object {
+        "username": "new admin",
+      },
+      "identifier": "Operation-1",
+      "kind": "AMCreateOperation",
+      "many": false,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+    },
+    Object {
+      "collectionName": undefined,
+      "dbRefList": ResultPromise {
+        "source": Array [
+          "Operation-0",
+          Distinct {
+            "path": "userId",
+          },
+        ],
+      },
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-2",
+      "kind": "AMReadDBRefOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-2",
+        ],
+      },
+    },
+  ],
+}
+`);
   });
 
   test('create relation many', () => {
@@ -2563,90 +2581,92 @@ describe('abstract interface', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-      Object {
-        "operations": Array [
-          Object {
-            "collectionName": "posts",
-            "data": Object {
-              "title": "post title",
-              "userIds": Array [
-                ResultPromise {
-                  "source": Array [
-                    "Operation-1",
-                    Path {
-                      "path": "_id",
-                    },
-                    ToDbRef {
-                      "collectionName": "admins",
-                    },
-                  ],
-                },
-              ],
-            },
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-                "userId",
-              ],
-            },
-            "identifier": "Operation-0",
-            "kind": "AMCreateOperation",
-            "many": false,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-0",
-                DbRefReplace {
-                  "data": ResultPromise {
-                    "source": Array [
-                      "Operation-2",
-                    ],
-                  },
-                  "path": "userId",
-                },
-              ],
-            },
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "posts",
+      "data": Object {
+        "title": "post title",
+        "userIds": Array [
+          ResultPromise {
+            "source": Array [
+              "Operation-1",
+              Path {
+                "path": "_id",
+              },
+              ToDbRef {
+                "collectionName": "admins",
+              },
+            ],
           },
-          Object {
-            "collectionName": "admins",
-            "data": Object {
-              "username": "new admin",
-            },
-            "identifier": "Operation-1",
-            "kind": "AMCreateOperation",
-            "many": false,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-1",
-              ],
-            },
-          },
-          Object {
-            "collectionName": undefined,
-            "dbRefList": ResultPromise {
-              "source": Array [
-                "Operation-0",
-                Distinct {
-                  "path": "userId",
-                },
-              ],
-            },
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-              ],
-            },
-            "identifier": "Operation-2",
-            "kind": "AMReadDBRefOperation",
-            "many": true,
-            "output": ResultPromise {
+        ],
+      },
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+          "userId",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMCreateOperation",
+      "many": false,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+          DbRefReplace {
+            "data": ResultPromise {
               "source": Array [
                 "Operation-2",
               ],
             },
+            "displayField": "owner",
+            "path": Array [],
+            "storeField": "userId",
           },
         ],
-      }
-    `);
+      },
+    },
+    Object {
+      "collectionName": "admins",
+      "data": Object {
+        "username": "new admin",
+      },
+      "identifier": "Operation-1",
+      "kind": "AMCreateOperation",
+      "many": false,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+    },
+    Object {
+      "collectionName": undefined,
+      "dbRefList": ResultPromise {
+        "source": Array [
+          "Operation-0",
+          Distinct {
+            "path": "userId",
+          },
+        ],
+      },
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-2",
+      "kind": "AMReadDBRefOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-2",
+        ],
+      },
+    },
+  ],
+}
+`);
   });
 
   test('create relation many with single item', () => {
@@ -2707,129 +2727,133 @@ describe('abstract interface', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-      Object {
-        "operations": Array [
-          Object {
-            "collectionName": "posts",
-            "data": Object {
-              "$push": Object {
-                "userIds": Object {
-                  "$each": Array [
-                    ResultPromise {
-                      "source": Array [
-                        "Operation-1",
-                        Path {
-                          "path": "_id",
-                        },
-                        ToDbRef {
-                          "collectionName": "admins",
-                        },
-                      ],
-                    },
-                  ],
-                },
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "posts",
+      "data": Object {
+        "$push": Object {
+          "userIds": Object {
+            "$each": Array [
+              ResultPromise {
+                "source": Array [
+                  "Operation-1",
+                  Path {
+                    "path": "_id",
+                  },
+                  ToDbRef {
+                    "collectionName": "admins",
+                  },
+                ],
               },
-            },
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-                "userId",
-                "userIds",
-              ],
-            },
-            "identifier": "Operation-0",
-            "kind": "AMUpdateOperation",
-            "many": false,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-0",
-                DbRefReplace {
-                  "data": ResultPromise {
-                    "source": Array [
-                      "Operation-2",
-                    ],
-                  },
-                  "path": "userId",
-                },
-                DbRefReplace {
-                  "data": ResultPromise {
-                    "source": Array [
-                      "Operation-3",
-                    ],
-                  },
-                  "path": "userIds",
-                },
-              ],
-            },
-            "selector": Object {
-              "_id": "post-id",
-            },
+            ],
           },
-          Object {
-            "collectionName": "admins",
-            "data": Object {
-              "username": "new admin",
-            },
-            "identifier": "Operation-1",
-            "kind": "AMCreateOperation",
-            "many": false,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-1",
-              ],
-            },
-          },
-          Object {
-            "collectionName": undefined,
-            "dbRefList": ResultPromise {
-              "source": Array [
-                "Operation-0",
-                Distinct {
-                  "path": "userId",
-                },
-              ],
-            },
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-              ],
-            },
-            "identifier": "Operation-2",
-            "kind": "AMReadDBRefOperation",
-            "many": true,
-            "output": ResultPromise {
+        },
+      },
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+          "userId",
+          "userIds",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMUpdateOperation",
+      "many": false,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+          DbRefReplace {
+            "data": ResultPromise {
               "source": Array [
                 "Operation-2",
               ],
             },
+            "displayField": "owner",
+            "path": Array [],
+            "storeField": "userId",
           },
-          Object {
-            "collectionName": undefined,
-            "dbRefList": ResultPromise {
-              "source": Array [
-                "Operation-0",
-                Distinct {
-                  "path": "userIds",
-                },
-              ],
-            },
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-              ],
-            },
-            "identifier": "Operation-3",
-            "kind": "AMReadDBRefOperation",
-            "many": true,
-            "output": ResultPromise {
+          DbRefReplace {
+            "data": ResultPromise {
               "source": Array [
                 "Operation-3",
               ],
             },
+            "displayField": "likes",
+            "path": Array [],
+            "storeField": "userIds",
           },
         ],
-      }
-    `);
+      },
+      "selector": Object {
+        "_id": "post-id",
+      },
+    },
+    Object {
+      "collectionName": "admins",
+      "data": Object {
+        "username": "new admin",
+      },
+      "identifier": "Operation-1",
+      "kind": "AMCreateOperation",
+      "many": false,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+    },
+    Object {
+      "collectionName": undefined,
+      "dbRefList": ResultPromise {
+        "source": Array [
+          "Operation-0",
+          Distinct {
+            "path": "userId",
+          },
+        ],
+      },
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-2",
+      "kind": "AMReadDBRefOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-2",
+        ],
+      },
+    },
+    Object {
+      "collectionName": undefined,
+      "dbRefList": ResultPromise {
+        "source": Array [
+          "Operation-0",
+          Distinct {
+            "path": "userIds",
+          },
+        ],
+      },
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-3",
+      "kind": "AMReadDBRefOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-3",
+        ],
+      },
+    },
+  ],
+}
+`);
   });
 });
 
@@ -3386,6 +3410,855 @@ Object {
             "path": "comments",
           },
         ],
+      },
+    },
+  ],
+}
+`);
+  });
+});
+
+describe('request merging', () => {
+  const schema = generateSchema(
+    gql`
+      interface Category @inherit @model {
+        id: ID @id @unique @db(name: "_id")
+        title: String
+      }
+
+      type RootCategory implements Category {
+        position: Int
+      }
+      type SubCategory implements Category {
+        parentCategory: Category @relation
+      }
+
+      type Post @model {
+        id: ID @id @unique @db(name: "_id")
+        title: String
+        category: Category @relation
+      }
+
+      interface Comment @inherit @model {
+        id: ID @id @unique @db(name: "_id")
+        post: Post @relation
+      }
+
+      type RootComment implements Comment {
+        message: String
+      }
+
+      type SubComment implements Comment {
+        message: String
+        parentComment: Comment @relation
+      }
+    `
+  );
+
+  test('repeat field', () => {
+    const rq = gql`
+      {
+        comments {
+          id
+          id
+          id
+          id
+        }
+      }
+    `;
+
+    const transaction = prepareTransaction(schema, rq);
+    expect(transaction).toMatchInlineSnapshot(`
+  Object {
+    "operations": Array [
+      Object {
+        "collectionName": "comments",
+        "fieldsSelection": Object {
+          "fields": Array [
+            "_id",
+          ],
+        },
+        "identifier": "Operation-0",
+        "kind": "AMReadOperation",
+        "many": true,
+        "output": ResultPromise {
+          "source": Array [
+            "Operation-0",
+          ],
+        },
+      },
+    ],
+  }
+`);
+  });
+
+  test('repeat relation field', () => {
+    const rq = gql`
+      {
+        comments {
+          id
+          post {
+            id
+          }
+          post {
+            id
+          }
+        }
+      }
+    `;
+
+    const transaction = prepareTransaction(schema, rq);
+    expect(transaction).toMatchInlineSnapshot(`
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "comments",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+          "postId",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+          DistinctReplace {
+            "data": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+            "displayField": "post",
+            "path": Array [],
+            "relationField": "_id",
+            "storeField": "postId",
+          },
+        ],
+      },
+    },
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-1",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+      "selector": Object {
+        "_id": Object {
+          "$in": ResultPromise {
+            "source": Array [
+              "Operation-0",
+              Distinct {
+                "path": "postId",
+              },
+            ],
+          },
+        },
+      },
+    },
+  ],
+}
+`);
+  });
+
+  test('repeat relation field with extended selection', () => {
+    const rq = gql`
+      {
+        comments {
+          id
+          post {
+            id
+          }
+          post {
+            category {
+              title
+            }
+          }
+        }
+      }
+    `;
+
+    const transaction = prepareTransaction(schema, rq);
+    expect(transaction).toMatchInlineSnapshot(`
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "comments",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+          "postId",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+          DistinctReplace {
+            "data": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+            "displayField": "post",
+            "path": Array [],
+            "relationField": "_id",
+            "storeField": "postId",
+          },
+          DistinctReplace {
+            "data": ResultPromise {
+              "source": Array [
+                "Operation-2",
+              ],
+            },
+            "displayField": "category",
+            "path": Array [
+              "post",
+            ],
+            "relationField": "_id",
+            "storeField": "categoryId",
+          },
+        ],
+      },
+    },
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+          "categoryId",
+        ],
+      },
+      "identifier": "Operation-1",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+      "selector": Object {
+        "_id": Object {
+          "$in": ResultPromise {
+            "source": Array [
+              "Operation-0",
+              Distinct {
+                "path": "postId",
+              },
+            ],
+          },
+        },
+      },
+    },
+    Object {
+      "collectionName": "categories",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "title",
+        ],
+      },
+      "identifier": "Operation-2",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-2",
+        ],
+      },
+      "selector": Object {
+        "_id": Object {
+          "$in": ResultPromise {
+            "source": Array [
+              "Operation-1",
+              Distinct {
+                "path": "categoryId",
+              },
+            ],
+          },
+        },
+      },
+    },
+  ],
+}
+`);
+  });
+
+  test('fragment', () => {
+    const rq = gql`
+      {
+        comments {
+          id
+          post {
+            title
+          }
+          ... on RootComment {
+            post {
+              title
+            }
+          }
+        }
+      }
+    `;
+
+    const transaction = prepareTransaction(schema, rq);
+    expect(transaction).toMatchInlineSnapshot(`
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "comments",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+          "postId",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+          DistinctReplace {
+            "data": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+            "displayField": "post",
+            "path": Array [],
+            "relationField": "_id",
+            "storeField": "postId",
+          },
+        ],
+      },
+    },
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "title",
+        ],
+      },
+      "identifier": "Operation-1",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+      "selector": Object {
+        "_id": Object {
+          "$in": ResultPromise {
+            "source": Array [
+              "Operation-0",
+              Distinct {
+                "path": "postId",
+              },
+            ],
+          },
+        },
+      },
+    },
+  ],
+}
+`);
+  });
+
+  test('fragments with not intersecting conditions', () => {
+    const rq = gql`
+      {
+        comments {
+          id
+          ... on RootComment {
+            post {
+              title
+            }
+          }
+          ... on SubComment {
+            post {
+              id
+            }
+          }
+        }
+      }
+    `;
+
+    const transaction = prepareTransaction(schema, rq);
+    expect(transaction).toMatchInlineSnapshot(`
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "comments",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+          "postId",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+          DistinctReplace {
+            "conditions": Map {
+              "_type" => "rootComment",
+            },
+            "data": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+            "displayField": "post",
+            "path": Array [],
+            "relationField": "_id",
+            "storeField": "postId",
+          },
+          DistinctReplace {
+            "conditions": Map {
+              "_type" => "subComment",
+            },
+            "data": ResultPromise {
+              "source": Array [
+                "Operation-2",
+              ],
+            },
+            "displayField": "post",
+            "path": Array [],
+            "relationField": "_id",
+            "storeField": "postId",
+          },
+        ],
+      },
+    },
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "title",
+        ],
+      },
+      "identifier": "Operation-1",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+      "selector": Object {
+        "_id": Object {
+          "$in": ResultPromise {
+            "source": Array [
+              "Operation-0",
+              Distinct {
+                "path": "postId",
+              },
+            ],
+          },
+        },
+      },
+    },
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-2",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-2",
+        ],
+      },
+      "selector": Object {
+        "_id": Object {
+          "$in": ResultPromise {
+            "source": Array [
+              "Operation-0",
+              Distinct {
+                "path": "postId",
+              },
+            ],
+          },
+        },
+      },
+    },
+  ],
+}
+`);
+  });
+
+  test('wildcard before fragments with not intersecting conditions', () => {
+    const rq = gql`
+      {
+        comments {
+          id
+          post {
+            title
+          }
+          ... on RootComment {
+            post {
+              title
+            }
+          }
+          ... on SubComment {
+            post {
+              id
+            }
+          }
+        }
+      }
+    `;
+
+    const transaction = prepareTransaction(schema, rq);
+    expect(transaction).toMatchInlineSnapshot(`
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "comments",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+          "postId",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+          DistinctReplace {
+            "data": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+            "displayField": "post",
+            "path": Array [],
+            "relationField": "_id",
+            "storeField": "postId",
+          },
+        ],
+      },
+    },
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "title",
+          "_id",
+        ],
+      },
+      "identifier": "Operation-1",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+      "selector": Object {
+        "_id": Object {
+          "$in": ResultPromise {
+            "source": Array [
+              "Operation-0",
+              Distinct {
+                "path": "postId",
+              },
+            ],
+          },
+        },
+      },
+    },
+  ],
+}
+`);
+  });
+
+  test('wildcard after fragments with not intersecting conditions', () => {
+    const rq = gql`
+      {
+        comments {
+          id
+          ... on RootComment {
+            post {
+              title
+            }
+          }
+          ... on SubComment {
+            post {
+              id
+            }
+          }
+          post {
+            title
+          }
+        }
+      }
+    `;
+
+    const transaction = prepareTransaction(schema, rq);
+    expect(transaction).toMatchInlineSnapshot(`
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "comments",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+          "postId",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+          DistinctReplace {
+            "data": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+            "displayField": "post",
+            "path": Array [],
+            "relationField": "_id",
+            "storeField": "postId",
+          },
+        ],
+      },
+    },
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "title",
+          "_id",
+        ],
+      },
+      "identifier": "Operation-1",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+      "selector": Object {
+        "_id": Object {
+          "$in": ResultPromise {
+            "source": Array [
+              "Operation-0",
+              Distinct {
+                "path": "postId",
+              },
+            ],
+          },
+        },
+      },
+    },
+  ],
+}
+`);
+  });
+
+  test('wildcard before fragments with not intersecting conditions with nested operations', () => {
+    const rq = gql`
+      {
+        comments {
+          id
+          post {
+            title
+          }
+          ... on RootComment {
+            post {
+              title
+              category {
+                title
+              }
+            }
+          }
+          ... on SubComment {
+            post {
+              id
+              category {
+                id
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const transaction = prepareTransaction(schema, rq);
+    expect(transaction).toMatchInlineSnapshot(`
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "comments",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+          "postId",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+          DistinctReplace {
+            "data": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+            "displayField": "post",
+            "path": Array [],
+            "relationField": "_id",
+            "storeField": "postId",
+          },
+          DistinctReplace {
+            "conditions": Map {
+              "_type" => "rootComment",
+            },
+            "data": ResultPromise {
+              "source": Array [
+                "Operation-2",
+              ],
+            },
+            "displayField": "category",
+            "path": Array [
+              "post",
+            ],
+            "relationField": "_id",
+            "storeField": "categoryId",
+          },
+          DistinctReplace {
+            "conditions": Map {
+              "_type" => "subComment",
+            },
+            "data": ResultPromise {
+              "source": Array [
+                "Operation-3",
+              ],
+            },
+            "displayField": "category",
+            "path": Array [
+              "post",
+            ],
+            "relationField": "_id",
+            "storeField": "categoryId",
+          },
+        ],
+      },
+    },
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "title",
+          "categoryId",
+          "_id",
+        ],
+      },
+      "identifier": "Operation-1",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+      "selector": Object {
+        "_id": Object {
+          "$in": ResultPromise {
+            "source": Array [
+              "Operation-0",
+              Distinct {
+                "path": "postId",
+              },
+            ],
+          },
+        },
+      },
+    },
+    Object {
+      "collectionName": "categories",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "title",
+        ],
+      },
+      "identifier": "Operation-2",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-2",
+        ],
+      },
+      "selector": Object {
+        "_id": Object {
+          "$in": ResultPromise {
+            "source": Array [
+              "Operation-1",
+              Distinct {
+                "path": "categoryId",
+              },
+            ],
+          },
+        },
+      },
+    },
+    Object {
+      "collectionName": "categories",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-3",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-3",
+        ],
+      },
+      "selector": Object {
+        "_id": Object {
+          "$in": ResultPromise {
+            "source": Array [
+              "Operation-1",
+              Distinct {
+                "path": "categoryId",
+              },
+            ],
+          },
+        },
       },
     },
   ],

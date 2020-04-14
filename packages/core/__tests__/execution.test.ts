@@ -8,7 +8,7 @@ import { AMDataContext } from '../src/execution/contexts/data';
 import { AMUpdateOperation } from '../src/execution/operations/updateOperation';
 import { AMListValueContext } from '../src/execution/contexts/listValue';
 import { AMReadDBRefOperation } from '../src/execution/operations/readDbRefOperation';
-import { DBRef, ObjectID, ObjectId } from 'mongodb';
+import { DBRef, ObjectID } from 'mongodb';
 import { ResultPromiseTransforms } from '../src/execution/resultPromise';
 
 test('read many', () => {
@@ -67,7 +67,7 @@ test('read one', () => {
   };
 
   const transaction = new AMTransaction();
-  const operation = new AMReadOperation(transaction, {
+  new AMReadOperation(transaction, {
     many: false,
     collectionName: 'posts',
     selector: new AMSelectorContext({ title: 'test-title' }),
@@ -100,7 +100,7 @@ test('read where', () => {
   };
 
   const transaction = new AMTransaction();
-  const operation = new AMReadOperation(transaction, {
+  new AMReadOperation(transaction, {
     many: false,
     collectionName: 'posts',
     selector: new AMSelectorContext({ _id: 'post-id' }),
@@ -193,6 +193,8 @@ test('read many relation', async () => {
       .getOutput()
       .map(
         new ResultPromiseTransforms.DistinctReplace(
+          [],
+          'commentIds',
           'commentIds',
           '_id',
           subOperation

@@ -61,27 +61,34 @@ describe('simple', () => {
         return new AMDataResultPromise([{ _id: 'value' }]);
       },
     } as any) as AMOperation;
-    const result = [{ test: { _id: 'value' } }];
+    const result = [{ test: 'value', testAlias: { _id: 'value' } }];
 
     const distinctReplaceResultPromise = resultPromise.map(
-      new ResultPromiseTransforms.DistinctReplace('test', '_id', data)
+      new ResultPromiseTransforms.DistinctReplace(
+        [],
+        'testAlias',
+        'test',
+        '_id',
+        data
+      )
     );
-    expect(distinctReplaceResultPromise.getValueSource()).toMatchInlineSnapshot(
-      `
-      Array [
-        "Operation-0",
-        DistinctReplace {
-          "data": ResultPromise {
-            "source": Array [
-              "Static Data",
-            ],
-          },
-          "field": "_id",
-          "path": "test",
-        },
-      ]
-    `
-    );
+    expect(distinctReplaceResultPromise.getValueSource())
+      .toMatchInlineSnapshot(`
+Array [
+  "Operation-0",
+  DistinctReplace {
+    "data": ResultPromise {
+      "source": Array [
+        "Static Data",
+      ],
+    },
+    "displayField": "testAlias",
+    "path": Array [],
+    "relationField": "_id",
+    "storeField": "test",
+  },
+]
+`);
 
     return expect(distinctReplaceResultPromise).resolves.toEqual(result);
   });
@@ -346,24 +353,24 @@ test('dbRef replace', () => {
   } as any) as AMOperation;
 
   const result = resultPromise.map(
-    new ResultPromiseTransforms.DbRefReplace('ids', data)
+    new ResultPromiseTransforms.DbRefReplace([], 'ids', 'ids', data)
   );
 
-  expect(result.getValueSource()).toMatchInlineSnapshot(
-    `
-    Array [
-      "Operation-0",
-      DbRefReplace {
-        "data": ResultPromise {
-          "source": Array [
-            "Static Data",
-          ],
-        },
-        "path": "ids",
-      },
-    ]
-  `
-  );
+  expect(result.getValueSource()).toMatchInlineSnapshot(`
+Array [
+  "Operation-0",
+  DbRefReplace {
+    "data": ResultPromise {
+      "source": Array [
+        "Static Data",
+      ],
+    },
+    "displayField": "ids",
+    "path": Array [],
+    "storeField": "ids",
+  },
+]
+`);
 
   return expect(result).resolves.toEqual({
     ids: [obj1, obj2, obj3],

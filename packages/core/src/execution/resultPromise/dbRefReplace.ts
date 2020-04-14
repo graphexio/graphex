@@ -4,19 +4,38 @@ import { DBRef } from 'mongodb';
 import { AMOperation } from '../operation';
 
 export class DbRefReplace extends Transformation {
-  constructor(public path: string, public dataOp: AMOperation) {
+  constructor(
+    public path: string[],
+    public displayField: string,
+    public storeField: string,
+    public dataOp: AMOperation,
+    public conditions?: Map<string, string>
+  ) {
     super();
   }
 
   transform(source: AMResultPromise<any>, dest: AMResultPromise<any>) {
-    const pathArr = this.path.split('.');
     source.then(async value => {
       const dataMap = await this.dataOp.getOutput().getPromise();
-      const mapItem = (item: DBRef) => ({
-        ...dataMap[item.namespace][item.oid.toHexString()],
-        mmCollectionName: item.namespace,
-      });
-      const newValue = mapPath(pathArr, mapItem)(value);
+      const mapItem = item => {
+        if (!item) return item;
+        const ref: DBRef | DBRef[] = item[this.storeField];
+        if (!ref) return item;
+        let resultValue;
+        if (Array.isArray(ref)) {
+          resultValue = ref.map(ref => ({
+            ...dataMap[ref.namespace][ref.oid.toHexString()],
+            mmCollectionName: ref.namespace,
+          }));
+        } else {
+          resultValue = {
+            ...dataMap[ref.namespace][ref.oid.toHexString()],
+            mmCollectionName: ref.namespace,
+          };
+        }
+        return { ...item, [this.displayField]: resultValue };
+      };
+      const newValue = mapPath(this.path, mapItem)(value);
       dest.resolve(newValue);
     });
     source.catch(dest.reject);

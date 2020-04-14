@@ -35,19 +35,19 @@ export class RelationDirective extends SchemaDirectiveVisitor {
   }
 }
 
-const DirectiveRealationResolver = (next, source, args, ctx, info) => {
-  const { storeField } = args;
-  //TODO: move to operation putput transformation
-  info.fieldName = info.parentType.getFields()[
-    info.fieldName
-  ].relation.storeField;
-  return next();
-};
+// const DirectiveRealationResolver = (next, source, args, ctx, info) => {
+//   const { storeField } = args;
+//   //TODO: move to operation putput transformation
+//   info.fieldName = info.parentType.getFields()[
+//     info.fieldName
+//   ].relation.storeField;
+//   return next();
+// };
 
 export const schemaDirectives = {
   relation: RelationDirective,
 };
 
-export const directiveResolvers = {
-  relation: DirectiveRealationResolver,
-};
+// export const directiveResolvers = {
+//   relation: DirectiveRealationResolver,
+// };

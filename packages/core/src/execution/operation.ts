@@ -6,6 +6,7 @@ import { AMResultPromise } from './resultPromise';
 import { AMTransaction } from './transaction';
 import { AMDataContext } from './contexts/data';
 import { AMListValueContext } from './contexts/listValue';
+import { Transformation } from './resultPromise';
 import { DBRef } from 'mongodb';
 
 export abstract class AMOperation extends AMContext {
@@ -20,6 +21,7 @@ export abstract class AMOperation extends AMContext {
   orderBy: { [key: string]: number };
   skip: number;
   first: number;
+  fieldTransformations: Map<string, Transformation[]> = new Map();
 
   _result: AMResultPromise<any>;
   _transactionNumber: number;
@@ -115,6 +117,17 @@ export abstract class AMOperation extends AMContext {
 
   setOutput(output: AMResultPromise<any>) {
     this._output = output;
+  }
+
+  addFieldTransformation(path: string, transformation: Transformation) {
+    let transformations = this.fieldTransformations.get(path);
+    if (!transformations) {
+      transformations = [transformation];
+      this.fieldTransformations.set(path, transformations);
+    } else {
+      transformations.push(transformation);
+    }
+    this.setOutput(this.getOutput().map(transformation));
   }
 
   toJSON(): { [key: string]: any } {

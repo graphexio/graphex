@@ -11,7 +11,9 @@ export class AMFieldsSelectionContext extends AMContext {
   }
 
   addField(fieldName: string) {
-    this.fields.push(fieldName);
+    if (!this.fields.includes(fieldName)) {
+      this.fields.push(fieldName);
+    }
   }
 
   toJSON() {

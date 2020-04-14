@@ -58,8 +58,18 @@ export type mmTransformType = (input: {
 export type AMVisitorStack = AMContext[];
 
 export type AMVisitable = {
-  amEnter?(node: ASTNode, transaction: AMTransaction, stack: AMVisitorStack);
-  amLeave?(node: ASTNode, transaction: AMTransaction, stack: AMVisitorStack);
+  amEnter?(
+    node: ASTNode,
+    transaction: AMTransaction,
+    stack: AMVisitorStack,
+    pathInfo: any
+  );
+  amLeave?(
+    node: ASTNode,
+    transaction: AMTransaction,
+    stack: AMVisitorStack,
+    pathInfo: any
+  );
 };
 
 export type AMInputField = GraphQLInputField & {

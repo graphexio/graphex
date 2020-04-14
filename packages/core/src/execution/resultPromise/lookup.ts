@@ -34,8 +34,9 @@ export class Lookup extends Transformation {
     public path: string,
     public relationField: string,
     public storeField: string,
-    private dataOp: AMOperation,
-    public many = true
+    public dataOp: AMOperation,
+    public many = true,
+    public conditions?: Map<string, string>
   ) {
     super();
   }

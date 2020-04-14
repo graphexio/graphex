@@ -9,8 +9,6 @@ export abstract class Transformation {
   ): void;
 }
 
-export type MakeTransformation = (...args: any[]) => Transformation;
-
 export class ResultPromise {
   constructor(public source) {}
 }
