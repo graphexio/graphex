@@ -200,7 +200,14 @@ export class AMVisitor {
             | AMObjectType;
 
           const field = type.getFields()[fieldName] as AMModelField;
-          stack.enterPath(node.name.value);
+          if (node.alias) {
+            /**
+             * Add $ prefix to prevent collision with real fields
+             */
+            stack.enterPath(`$${node.alias.value}`);
+          } else {
+            stack.enterPath(node.name.value);
+          }
 
           if (field.amEnter) {
             field.amEnter(node, transaction, stack);

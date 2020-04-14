@@ -2027,8 +2027,8 @@ Object {
   }
 });
 
-describe('fragments', () => {
-  test('not intersecting', async () => {
+describe('schema merging', () => {
+  test('not intersecting fragments', async () => {
     {
       const { errors } = await mutate({
         mutation: gql`
@@ -2108,7 +2108,7 @@ Object {
 `);
   });
 
-  test('spread', async () => {
+  test('spread fragment', async () => {
     const { data, errors } = await query({
       query: gql`
         fragment Title on Category {
@@ -2133,6 +2133,115 @@ Object {
       "title": "JS",
     },
     Object {
+      "title": "MongoDB",
+    },
+  ],
+}
+`);
+  });
+
+  test('alias relation', async () => {
+    const { data, errors } = await query({
+      query: gql`
+        query {
+          categories(first: 3) {
+            title
+            parent: parentCategory {
+              title
+            }
+          }
+        }
+      `,
+      variables: {},
+    });
+    expect(errors).toBeUndefined();
+    expect(data).toMatchInlineSnapshot(`
+Object {
+  "categories": Array [
+    Object {
+      "parent": null,
+      "title": "root",
+    },
+    Object {
+      "parent": Object {
+        "title": "root",
+      },
+      "title": "JS",
+    },
+    Object {
+      "parent": Object {
+        "title": "root",
+      },
+      "title": "MongoDB",
+    },
+  ],
+}
+`);
+  });
+
+  test('alias extRelation', async () => {
+    await mutate({
+      mutation: gql`
+        mutation {
+          createCategory(
+            data: {
+              title: "React"
+              parentCategory: { connect: { title: "JS" } }
+            }
+          ) {
+            title
+          }
+        }
+      `,
+    });
+    const { data, errors } = await query({
+      query: gql`
+        query {
+          categories(first: 3) {
+            title
+            sub: subcategories {
+              title
+              sub: subcategories {
+                title
+              }
+            }
+          }
+        }
+      `,
+      variables: {},
+    });
+    expect(errors).toBeUndefined();
+    expect(data).toMatchInlineSnapshot(`
+Object {
+  "categories": Array [
+    Object {
+      "sub": Array [
+        Object {
+          "sub": Array [
+            Object {
+              "title": "React",
+            },
+          ],
+          "title": "JS",
+        },
+        Object {
+          "sub": Array [],
+          "title": "MongoDB",
+        },
+      ],
+      "title": "root",
+    },
+    Object {
+      "sub": Array [
+        Object {
+          "sub": Array [],
+          "title": "React",
+        },
+      ],
+      "title": "JS",
+    },
+    Object {
+      "sub": Array [],
       "title": "MongoDB",
     },
   ],

@@ -43,6 +43,14 @@ export const relationDirective = (schema: GraphQLSchema) => {
           storeField: storeField,
           collection: type.mmCollectionName,
         };
+        field.resolve = (source, args, ctx, info) => {
+          if (source.fieldName !== info.path.key) {
+            if (info.fieldNodes[0].alias) {
+              return source[`$${info.path.key}`];
+            }
+          }
+          return source[info.fieldName];
+        };
       });
     }
   });

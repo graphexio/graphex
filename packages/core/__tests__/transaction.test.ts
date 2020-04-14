@@ -3468,10 +3468,12 @@ describe('request merging', () => {
         id: ID @id @unique @db(name: "_id")
         title: String
         category: Category @relation
+        comments: [Comment] @extRelation(storeField: "postId")
       }
 
       interface Comment @inherit @model {
         id: ID @id @unique @db(name: "_id")
+        body: String
         post: Post @relation
       }
 
@@ -3485,6 +3487,227 @@ describe('request merging', () => {
       }
     `
   );
+
+  test('repeat field with alias', () => {
+    const rq = gql`
+      {
+        comments {
+          id
+          ID: id
+        }
+      }
+    `;
+
+    const transaction = prepareTransaction(schema, rq);
+    expect(transaction).toMatchInlineSnapshot(`
+  Object {
+    "operations": Array [
+      Object {
+        "collectionName": "comments",
+        "fieldsSelection": Object {
+          "fields": Array [
+            "_id",
+          ],
+        },
+        "identifier": "Operation-0",
+        "kind": "AMReadOperation",
+        "many": true,
+        "output": ResultPromise {
+          "source": Array [
+            "Operation-0",
+          ],
+        },
+      },
+    ],
+  }
+`);
+  });
+
+  test('relation with aliases', () => {
+    const rq = gql`
+      {
+        posts {
+          id
+          mainCategory: category {
+            title
+          }
+        }
+      }
+    `;
+
+    const transaction = prepareTransaction(schema, rq);
+    expect(transaction).toMatchInlineSnapshot(`
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+          "categoryId",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+          DistinctReplace {
+            "conditions": Array [
+              Map {},
+            ],
+            "data": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+            "displayField": "$mainCategory",
+            "path": Array [],
+            "relationField": "_id",
+            "storeField": "categoryId",
+          },
+        ],
+      },
+    },
+    Object {
+      "collectionName": "categories",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "title",
+        ],
+      },
+      "identifier": "Operation-1",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+      "selector": Object {
+        "_id": Object {
+          "$in": ResultPromise {
+            "source": Array [
+              "Operation-0",
+              Distinct {
+                "path": "categoryId",
+              },
+            ],
+          },
+        },
+      },
+    },
+  ],
+}
+`);
+  });
+
+  test('multiple requests on same field with aliases', () => {
+    const rq = gql`
+      {
+        posts {
+          id
+          firstComment: comments(where: { body: "test1" }) {
+            body
+          }
+          secondComment: comments(where: { body: "test2" }) {
+            body
+          }
+        }
+      }
+    `;
+
+    const transaction = prepareTransaction(schema, rq);
+    expect(transaction).toMatchInlineSnapshot(`
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+          Lookup {
+            "conditions": Array [
+              Map {},
+            ],
+            "data": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+            "many": true,
+            "path": "$firstComment",
+            "relationField": "_id",
+            "storeField": "postId",
+          },
+          Lookup {
+            "conditions": Array [
+              Map {},
+            ],
+            "data": ResultPromise {
+              "source": Array [
+                "Operation-2",
+              ],
+            },
+            "many": true,
+            "path": "$secondComment",
+            "relationField": "_id",
+            "storeField": "postId",
+          },
+        ],
+      },
+    },
+    Object {
+      "collectionName": "comments",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "body",
+        ],
+      },
+      "identifier": "Operation-1",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+      "selector": Object {
+        "body": "test1",
+      },
+    },
+    Object {
+      "collectionName": "comments",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "body",
+        ],
+      },
+      "identifier": "Operation-2",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-2",
+        ],
+      },
+      "selector": Object {
+        "body": "test2",
+      },
+    },
+  ],
+}
+`);
+  });
 
   test('repeat field', () => {
     const rq = gql`
@@ -3914,7 +4137,7 @@ Object {
 `);
   });
 
-  test('fragments with not intersecting conditions and diifferent args', () => {
+  test('fragments with not intersecting conditions and different args', () => {
     const rq = gql`
       {
         comments {
