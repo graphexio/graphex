@@ -15,6 +15,7 @@ import {
   ValueNode,
   visit,
   Visitor,
+  FragmentDefinitionNode,
 } from 'graphql';
 import {
   AMArgumet,
@@ -37,7 +38,10 @@ export class AMVisitor {
     schema: GraphQLSchema,
     document: DocumentNode,
     variableValues: { [key: string]: any } = {},
-    transaction: AMTransaction
+    transaction: AMTransaction,
+    fragments?: {
+      [key: string]: FragmentDefinitionNode;
+    }
   ) {
     /* 
     
@@ -52,8 +56,14 @@ export class AMVisitor {
     */
 
     const typeInfo = new TypeInfo(schema);
-
     const stack = new AMVisitorStack();
+
+    /**
+     * Fill fragment definitions map with passed object, if any
+     */
+    const fragmentDefinitions = new Map<string, FragmentDefinitionNode>(
+      fragments ? Object.entries(fragments) : undefined
+    );
 
     // typeInfo.enter({
     //   kind: 'OperationDefinition',
@@ -88,6 +98,15 @@ export class AMVisitor {
       // leave(node) {
       //   // console.log('leave', node, stack);
       // },
+      [Kind.DOCUMENT]: {
+        enter(node) {
+          for (const definition of node.definitions) {
+            if (definition.kind === Kind.FRAGMENT_DEFINITION) {
+              fragmentDefinitions.set(definition.name.value, definition);
+            }
+          }
+        },
+      },
       [Kind.ARGUMENT]: {
         enter(node) {
           const arg = typeInfo
@@ -104,6 +123,17 @@ export class AMVisitor {
           if (arg.amLeave) {
             arg.amLeave(node, transaction, stack);
           }
+        },
+      },
+      [Kind.FRAGMENT_DEFINITION]: {
+        enter() {
+          return false;
+        },
+      },
+      [Kind.FRAGMENT_SPREAD]: {
+        enter(node) {
+          const definition = fragmentDefinitions.get(node.name.value);
+          visit(definition.selectionSet, visitWithTypeInfo(typeInfo, visitor));
         },
       },
       [Kind.INLINE_FRAGMENT]: {

@@ -19,7 +19,13 @@ export const resolve = (parent, args, context, info: GraphQLResolveInfo) => {
     ],
   };
 
-  AMVisitor.visit(info.schema, rq, info.variableValues, transaction);
+  AMVisitor.visit(
+    info.schema,
+    rq,
+    info.variableValues,
+    transaction,
+    info.fragments
+  );
   // console.log(Serializer.print(transaction));
   return transaction.execute(context.queryExecutor);
 };

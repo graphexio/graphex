@@ -2107,4 +2107,36 @@ Object {
 }
 `);
   });
+
+  test('spread', async () => {
+    const { data, errors } = await query({
+      query: gql`
+        fragment Title on Category {
+          title
+        }
+        query {
+          categories(first: 3) {
+            ...Title
+          }
+        }
+      `,
+      variables: {},
+    });
+    expect(errors).toBeUndefined();
+    expect(data).toMatchInlineSnapshot(`
+Object {
+  "categories": Array [
+    Object {
+      "title": "root",
+    },
+    Object {
+      "title": "JS",
+    },
+    Object {
+      "title": "MongoDB",
+    },
+  ],
+}
+`);
+  });
 });
