@@ -3,13 +3,11 @@ import {
   GraphQLInterfaceType,
   isInterfaceType,
 } from 'graphql';
-import R from 'ramda';
 import {
   AMInputFieldConfig,
   AMInputObjectType,
   AMModelType,
   AMTypeFactory,
-  IAMTypeFactory,
 } from '../definitions';
 import { AMListValueContext } from '../execution/contexts/listValue';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';

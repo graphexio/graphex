@@ -1,9 +1,8 @@
 jest.setTimeout(20000);
 
-import prepare from './integration-prepare';
-
-import gql from 'graphql-tag';
 import { getIntrospectionQuery } from 'graphql';
+import gql from 'graphql-tag';
+import prepare from './integration-prepare';
 
 let testInstance: ReturnType<typeof prepare>;
 let query, mutate, connectToDatabase;
@@ -24,7 +23,7 @@ afterAll(async () => {
 });
 
 test('Introspection', async () => {
-  const { errors, data } = await query({
+  const { errors } = await query({
     query: getIntrospectionQuery(),
   });
   expect(errors).toBeUndefined();
@@ -50,7 +49,7 @@ test('QueryCategories empty', async () => {
 });
 
 test('Empty WhereUnique', async () => {
-  const { errors, data } = await query({
+  const { errors } = await query({
     query: gql`
       query {
         category(where: {}) {
@@ -1268,7 +1267,7 @@ test('QueryShopById after updates', async () => {
 });
 
 test('test empty object instead array', async () => {
-  const { data, errors } = await query({
+  const { errors } = await query({
     query: gql`
       mutation {
         createPost(
@@ -1307,7 +1306,7 @@ test('test empty object instead array', async () => {
 
 describe('nested', () => {
   test('where', async () => {
-    const { data, errors } = await query({
+    const { errors } = await query({
       query: gql`
         query posts($where: PostWhereInput) {
           posts(where: $where) {
@@ -1750,7 +1749,7 @@ test('Test createdAt, updatedAt', async () => {
 
 test('relation some', async () => {
   {
-    const { errors, data } = await query({
+    const { errors } = await query({
       query: gql`
         mutation {
           createPost(

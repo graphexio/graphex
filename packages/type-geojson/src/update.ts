@@ -1,13 +1,8 @@
 import {
-  getFieldPath,
-  getLastOperation,
-  getOperationData,
-} from '@apollo-model/core/lib/execution/utils';
-import {
   AMInputField,
   AMInputFieldFactory,
-  AMObjectFieldContext,
   AMModelField,
+  AMObjectFieldContext,
 } from '@apollo-model/core';
 import { GraphQLNamedType } from 'graphql';
 

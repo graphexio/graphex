@@ -1,7 +1,6 @@
-import { AMVisitor } from './execution/visitor';
-import { AMTransaction } from './execution/transaction';
 import { DocumentNode, GraphQLResolveInfo } from 'graphql';
-import gql from 'graphql-tag';
+import { AMTransaction } from './execution/transaction';
+import { AMVisitor } from './execution/visitor';
 // import Serializer from '../__tests__/serializer/index';
 
 export const resolve = (parent, args, context, info: GraphQLResolveInfo) => {

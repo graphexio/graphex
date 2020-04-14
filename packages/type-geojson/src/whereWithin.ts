@@ -1,10 +1,12 @@
 import { AMInputFieldFactory, AMModelField } from '@apollo-model/core';
-import { AMDataContext } from '@apollo-model/core/lib/execution/contexts/data';
-import { AMObjectFieldContext } from '@apollo-model/core/lib/execution/contexts/objectField';
-import { AMSelectorContext } from '@apollo-model/core/lib/execution/contexts/selector';
-import { AMInputField } from '@apollo-model/core/src/definitions';
+import {
+  AMDataContext,
+  AMObjectFieldContext,
+  AMSelectorContext,
+  AMInputField,
+} from '@apollo-model/core';
+
 import { ObjectFieldNode } from 'graphql';
-import R from 'ramda';
 
 export class AMGeoJSONWithinFieldFactory extends AMInputFieldFactory {
   isApplicable() {

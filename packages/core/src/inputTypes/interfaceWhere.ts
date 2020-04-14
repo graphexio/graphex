@@ -1,11 +1,5 @@
 import { GraphQLInterfaceType, isInterfaceType } from 'graphql';
-import R from 'ramda';
-import {
-  AMInputFieldConfig,
-  AMInputObjectType,
-  AMModelType,
-  AMTypeFactory,
-} from '../definitions';
+import { AMInputObjectType, AMModelType, AMTypeFactory } from '../definitions';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMReadOperation } from '../execution/operations/readOperation';
 
@@ -30,7 +24,7 @@ export class AMInterfaceWhereTypeFactory extends AMTypeFactory<
               modelType
             ) as AMModelType[]),
           ].forEach((possibleType: AMModelType) => {
-            fields[possibleType.name] = <AMInputFieldConfig>{
+            fields[possibleType.name] = {
               type: this.configResolver.resolveInputType(
                 possibleType,
                 this.links.where

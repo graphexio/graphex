@@ -1,6 +1,5 @@
 import TypeWrap from '@apollo-model/type-wrap';
 import { getNamedType } from 'graphql';
-import * as R from 'ramda';
 import {
   AMInputField,
   AMInputFieldFactory,

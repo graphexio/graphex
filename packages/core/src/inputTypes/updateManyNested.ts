@@ -1,27 +1,9 @@
 import { GraphQLInputObjectType, GraphQLList } from 'graphql';
-import R from 'ramda';
-import {
-  AMInputFieldConfigMap,
-  AMInputObjectType,
-  AMModelField,
-  AMModelType,
-  AMTypeFactory,
-  IAMInputFieldFactory,
-  IAMTypeFactory,
-} from '../definitions';
+import { AMInputObjectType, AMModelType, AMTypeFactory } from '../definitions';
 import { AMDataContext } from '../execution/contexts/data';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
-import {
-  getFieldPath,
-  getLastOperation,
-  getOperationData,
-} from '../execution/utils';
 import { toArray } from '../utils';
 import { defaultObjectFieldVisitorHandler } from './visitorHandlers';
-
-const isApplicable = (field: AMModelField) => (
-  fieldFactory: IAMInputFieldFactory
-) => fieldFactory.isApplicable(field);
 
 export class AMUpdateManyNestedTypeFactory extends AMTypeFactory<
   GraphQLInputObjectType
@@ -32,12 +14,10 @@ export class AMUpdateManyNestedTypeFactory extends AMTypeFactory<
   getType(modelType: AMModelType) {
     const typeName = this.getTypeName(modelType);
 
-    const self: IAMTypeFactory<AMInputObjectType> = this;
-
     return new AMInputObjectType({
       name: typeName,
       fields: () => {
-        const fields = <AMInputFieldConfigMap>{
+        const fields = {
           create: {
             type: new GraphQLList(
               this.configResolver.resolveInputType(modelType, this.links.create)
@@ -60,10 +40,6 @@ export class AMUpdateManyNestedTypeFactory extends AMTypeFactory<
                 this.links.updateMany //AMUpdateWithWhereNestedTypeFactory
               )
             ),
-            amEnter(node, transaction, stack) {
-              // const context = new AMDataContext();
-              // stack.push(context);
-            },
             amLeave(node, transaction, stack) {
               const lastInStack = stack.last();
               if (lastInStack instanceof AMDataContext) {

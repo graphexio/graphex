@@ -223,7 +223,8 @@ export interface IAMTypeFactory<T extends GraphQLNamedType> {
 export abstract class AMTypeFactory<
   T extends GraphQLNamedType
 > extends AMFactory {
-  isApplicable(inputType: AMModelType) {
+  isApplicable(inputType: AMModelType): boolean;
+  isApplicable() {
     return true;
   }
   abstract getTypeName(inputType: GraphQLNamedType): string;

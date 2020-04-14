@@ -34,7 +34,7 @@ test('read many', () => {
   };
 
   const transaction = new AMTransaction();
-  const operation = new AMReadOperation(transaction, {
+  new AMReadOperation(transaction, {
     many: true,
     collectionName: 'posts',
     selector: new AMSelectorContext({ title: 'test-title' }),
@@ -253,7 +253,7 @@ test('create', () => {
   };
 
   const transaction = new AMTransaction();
-  const operation = new AMCreateOperation(transaction, {
+  new AMCreateOperation(transaction, {
     many: false,
     collectionName: 'posts',
     fieldsSelection: new AMFieldsSelectionContext(['_id', 'title']),
@@ -290,7 +290,7 @@ test('update', () => {
   };
 
   const transaction = new AMTransaction();
-  const operation = new AMUpdateOperation(transaction, {
+  new AMUpdateOperation(transaction, {
     many: false,
     collectionName: 'posts',
     fieldsSelection: new AMFieldsSelectionContext(['_id', 'title']),
@@ -364,7 +364,7 @@ test('create many', () => {
   };
 
   const transaction = new AMTransaction();
-  const operation = new AMCreateOperation(transaction, {
+  new AMCreateOperation(transaction, {
     many: true,
     collectionName: 'posts',
     dataList: new AMListValueContext([{ title: 'new title' }]),
@@ -436,7 +436,7 @@ test('read dbref', async () => {
   };
 
   const transaction = new AMTransaction();
-  const operation = new AMReadDBRefOperation(transaction, {
+  new AMReadDBRefOperation(transaction, {
     many: true,
     fieldsSelection: new AMFieldsSelectionContext(['_id', 'title']),
     dbRefList: [
@@ -469,7 +469,7 @@ test('orderBy', () => {
   };
 
   const transaction = new AMTransaction();
-  const operation = new AMReadOperation(transaction, {
+  new AMReadOperation(transaction, {
     many: false,
     collectionName: 'posts',
     orderBy: {

@@ -1,7 +1,6 @@
+import { AMModelType } from '../../definitions';
 import { AMContext } from '../context';
 import { AMFieldsSelectionContext } from './fieldsSelection';
-import { GraphQLNamedType } from 'graphql';
-import { AMModelType } from '../../definitions';
 
 export class AMFragmentContext extends AMContext {
   constructor(

@@ -1,5 +1,5 @@
 import { getNamedType, isCompositeType } from 'graphql';
-import { AMInputField, AMInputFieldFactory } from '../../definitions';
+import { AMInputFieldFactory } from '../../definitions';
 import { defaultObjectFieldVisitorHandler } from '../visitorHandlers';
 
 export class AMCreateFieldFactory extends AMInputFieldFactory {
@@ -14,8 +14,9 @@ export class AMCreateFieldFactory extends AMInputFieldFactory {
     return field.name;
   }
   getField(field) {
-    return <AMInputField>{
+    return {
       name: this.getFieldName(field),
+      extensions: undefined,
       type: field.defaultValue ? getNamedType(field.type) : field.type,
       ...defaultObjectFieldVisitorHandler(field.dbName),
       // amEnter(node: ObjectFieldNode, transaction, stack) {

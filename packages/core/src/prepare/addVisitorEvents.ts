@@ -127,13 +127,14 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
                 relationOperation
               );
             } else {
+              //TODO: Add runtime checking for existing unique index on relation field.
               transformation = new ResultPromiseTransforms.Lookup(
                 rootPath,
                 field.relation.relationField,
                 field.relation.storeField,
                 relationOperation,
                 isListType(field.type) ||
-                  (isNonNullType(field.type) && isListType(field.type.ofType)) //TODO: Add runtime checking for existing unique index on relation field.
+                  (isNonNullType(field.type) && isListType(field.type.ofType))
               );
             }
             transformation.addCondition(rootCondition);
@@ -141,9 +142,7 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
             rootOperation.addFieldTransformation(rootPath, transformation);
           };
           field.amLeave = (node, transaction, stack) => {
-            const relationOperation = stack.pop();
-            // const lastOperation = stack.lastOperation();
-            // console.log(lastOperation);
+            stack.pop();
           };
         } else {
           field.amEnter = (node, transaction, stack) => {

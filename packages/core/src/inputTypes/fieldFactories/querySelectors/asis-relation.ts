@@ -1,20 +1,17 @@
-import TypeWrap from '@apollo-model/type-wrap';
 import { getNamedType, ObjectFieldNode } from 'graphql';
-import * as R from 'ramda';
 import {
   AMInputField,
   AMInputFieldFactory,
   AMModelField,
   AMModelType,
 } from '../../../definitions';
-import { AMSelectorContext } from '../../../execution/contexts/selector';
 import { AMObjectFieldContext } from '../../../execution/contexts/objectField';
+import { AMSelectorContext } from '../../../execution/contexts/selector';
 import { AMReadOperation } from '../../../execution/operations/readOperation';
 import { ResultPromiseTransforms } from '../../../execution/resultPromise';
 
 export class AsIsRelationSelector extends AMInputFieldFactory {
   isApplicable(field: AMModelField) {
-    const typeWrap = new TypeWrap(field.type);
     return Boolean(field.relation);
   }
   getFieldName(field: AMModelField) {

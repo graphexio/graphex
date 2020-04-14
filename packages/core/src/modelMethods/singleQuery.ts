@@ -1,5 +1,4 @@
 import {
-  AMField,
   AMMethodFieldFactory,
   AMModelType,
   GraphQLOperationType,

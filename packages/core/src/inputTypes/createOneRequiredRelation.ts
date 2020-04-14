@@ -1,5 +1,5 @@
 import { UserInputError } from 'apollo-server';
-import R from 'ramda';
+import { ObjectValueNode } from 'graphql';
 import {
   AMInputFieldConfigMap,
   AMInputObjectType,
@@ -20,7 +20,7 @@ export class AMCreateOneRequiredRelationTypeFactory extends AMTypeFactory<
   getType(modelType: AMModelType) {
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
-      amEnter(node) {
+      amEnter(node: ObjectValueNode) {
         if (node.fields.length != 1) {
           throw new UserInputError(`'create' or 'connect' needed`);
         }

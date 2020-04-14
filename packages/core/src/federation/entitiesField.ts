@@ -1,18 +1,16 @@
 import {
+  getNamedType,
   GraphQLList,
   GraphQLNonNull,
-  getNamedType,
   isScalarType,
 } from 'graphql';
-import { AMField, AMModelType, IAMFieldFactory } from '../definitions';
+import R from 'ramda';
+import { AMModelType, IAMFieldFactory } from '../definitions';
+import { AMObjectFieldContext } from '../execution/contexts/objectField';
+import { AMReadEntitiesOperation } from '../execution/operations/readEntitiesOperation';
 import { resolve } from '../resolve';
 import { AMFederationAnyTypeFactory } from './anyType';
 import { AMFederationEntityTypeFactory } from './entityType';
-import { AMReadEntitiesOperation } from '../execution/operations/readEntitiesOperation';
-import { AMDataContext } from '../execution/contexts/data';
-import { AMObjectFieldContext } from '../execution/contexts/objectField';
-import { getLastOperation } from '../execution/utils';
-import R from 'ramda';
 
 export const AMFederationEntitiesFieldFactory: IAMFieldFactory = {
   getFieldName(): string {

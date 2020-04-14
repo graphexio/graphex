@@ -1,9 +1,8 @@
-import { FieldNode } from 'graphql';
 import * as R from 'ramda';
 import { AMOperation } from '../operation';
-import { AMResultPromise, Transformation } from './resultPromise';
-import { mapPath } from './utils';
 import { RelationTransformation } from './relationTransformation';
+import { AMResultPromise } from './resultPromise';
+import { mapPath } from './utils';
 
 const groupForLookup = (storeField: string) => (
   data: { [key: string]: any }[]

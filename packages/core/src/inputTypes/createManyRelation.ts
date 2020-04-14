@@ -1,5 +1,4 @@
 import { GraphQLInputObjectType, GraphQLList } from 'graphql';
-import R from 'ramda';
 import {
   AMInputFieldConfigMap,
   AMModelType,

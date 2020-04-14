@@ -1,16 +1,12 @@
 import { getNamedType } from 'graphql';
 import R from 'ramda';
-import {
-  AMInputObjectType,
-  AMModelType,
-  AMTypeFactory,
-  IAMTypeFactory,
-} from '../definitions';
+import { AMInputObjectType, AMModelType, AMTypeFactory } from '../definitions';
 import { AMDataContext } from '../execution/contexts/data';
 import { AMListValueContext } from '../execution/contexts/listValue';
 // import { AMUpdateRelationFieldFactory } from './fieldFactories/updateRelation';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMOperation } from '../execution/operation';
+// import { AMUpdateRelationFieldFactory } from './fieldFactories/updateRelation';
 // import { AMUpdateRelationFieldFactory } from './fieldFactories/updateRelation';
 // import { AMUpdateRelationFieldFactory } from './fieldFactories/updateRelation';
 
@@ -19,7 +15,6 @@ export class AMUpdateTypeFactory extends AMTypeFactory<AMInputObjectType> {
     return `${modelType.name}UpdateInput`;
   }
   getType(modelType: AMModelType) {
-    const self: IAMTypeFactory<AMInputObjectType> = this;
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {

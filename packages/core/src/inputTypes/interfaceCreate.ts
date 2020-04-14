@@ -3,7 +3,6 @@ import {
   GraphQLInterfaceType,
   isInterfaceType,
 } from 'graphql';
-import R from 'ramda';
 import {
   AMInputFieldConfig,
   AMInputObjectType,

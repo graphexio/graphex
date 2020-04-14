@@ -2,7 +2,8 @@ import { find } from 'ramda';
 import { print, ArgumentNode } from 'graphql';
 
 /**
- * Code copied from here https://github.com/graphql/graphql-js/blob/v14.6.0/src/validation/rules/OverlappingFieldsCanBeMerged.js#L643
+ * Code copied from here
+ * https://github.com/graphql/graphql-js/blob/v14.6.0/src/validation/rules/OverlappingFieldsCanBeMerged.js#L643
  */
 
 export function sameArguments(

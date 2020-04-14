@@ -1,34 +1,26 @@
-import {
-  AMInputFieldConfigMap,
-  AMInputObjectType,
-  AMModelType,
-  AMTypeFactory,
-  IAMTypeFactory,
-} from '../definitions';
+import { AMInputObjectType, AMModelType, AMTypeFactory } from '../definitions';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import {
   AMUpdateOperation,
   ArrayFilter,
 } from '../execution/operations/updateOperation';
-import { getLastOperation } from '../execution/utils';
 
 export class AMUpdateWithWhereNestedTypeFactory extends AMTypeFactory<
   AMInputObjectType
 > {
-  isApplicable(modelType: AMModelType) {
+  isApplicable() {
     return true;
   }
   getTypeName(modelType: AMModelType): string {
     return `${modelType.name}UpdateWithWhereNestedInput`;
   }
   getType(modelType: AMModelType) {
-    const self: IAMTypeFactory<AMInputObjectType> = this;
     let arrayFilter: ArrayFilter;
 
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
-        const fields = <AMInputFieldConfigMap>{
+        const fields = {
           where: {
             type: this.configResolver.resolveInputType(
               modelType,

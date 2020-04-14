@@ -1,6 +1,5 @@
 import { GraphQLList } from 'graphql';
 import { DBRef } from 'mongodb';
-import R from 'ramda';
 import {
   AMInputFieldConfigMap,
   AMInputObjectType,
@@ -18,11 +17,6 @@ import {
   AMResultPromise,
   ResultPromiseTransforms,
 } from '../execution/resultPromise';
-import {
-  getFieldPath,
-  getLastOperation,
-  getOperationData,
-} from '../execution/utils';
 
 export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
   AMInputObjectType
@@ -332,15 +326,10 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
                   },
                   amLeave(node, transaction, stack) {
                     const listContext = stack.pop() as AMListValueContext;
-                    const deleteOperation = new AMDeleteDBRefOperation(
-                      transaction,
-                      {
-                        many: true,
-                        dbRefList: listContext.values as AMResultPromise<
-                          DBRef
-                        >[],
-                      }
-                    );
+                    new AMDeleteDBRefOperation(transaction, {
+                      many: true,
+                      dbRefList: listContext.values as AMResultPromise<DBRef>[],
+                    });
 
                     const lastInStack = stack.last();
                     if (lastInStack instanceof AMDataContext) {
