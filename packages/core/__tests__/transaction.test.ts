@@ -784,67 +784,70 @@ describe('relation', () => {
     const transaction = prepareTransaction(schema, rq);
 
     expect(transaction).toMatchInlineSnapshot(`
-Object {
-  "operations": Array [
-    Object {
-      "collectionName": "comments",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-          "postId",
-        ],
-      },
-      "identifier": "Operation-0",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-0",
-          DistinctReplace {
-            "data": ResultPromise {
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "comments",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "postId",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+                DistinctReplace {
+                  "conditions": Array [
+                    Map {},
+                  ],
+                  "data": ResultPromise {
+                    "source": Array [
+                      "Operation-1",
+                    ],
+                  },
+                  "displayField": "post",
+                  "path": Array [],
+                  "relationField": "_id",
+                  "storeField": "postId",
+                },
+              ],
+            },
+          },
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+              ],
+            },
+            "identifier": "Operation-1",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
               "source": Array [
                 "Operation-1",
               ],
             },
-            "displayField": "post",
-            "path": Array [],
-            "relationField": "_id",
-            "storeField": "postId",
-          },
-        ],
-      },
-    },
-    Object {
-      "collectionName": "posts",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-        ],
-      },
-      "identifier": "Operation-1",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-1",
-        ],
-      },
-      "selector": Object {
-        "_id": Object {
-          "$in": ResultPromise {
-            "source": Array [
-              "Operation-0",
-              Distinct {
-                "path": "postId",
+            "selector": Object {
+              "_id": Object {
+                "$in": ResultPromise {
+                  "source": Array [
+                    "Operation-0",
+                    Distinct {
+                      "path": "postId",
+                    },
+                  ],
+                },
               },
-            ],
+            },
           },
-        },
-      },
-    },
-  ],
-}
-`);
+        ],
+      }
+    `);
   });
 
   test('connect', () => {
@@ -1376,66 +1379,69 @@ describe('extRelation', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-      Object {
-        "operations": Array [
-          Object {
-            "collectionName": "posts",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-              ],
-            },
-            "identifier": "Operation-0",
-            "kind": "AMReadOperation",
-            "many": true,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-0",
-                Lookup {
-                  "data": ResultPromise {
-                    "source": Array [
-                      "Operation-1",
-                    ],
-                  },
-                  "many": true,
-                  "path": "comments",
-                  "relationField": "_id",
-                  "storeField": "postId",
-                },
-              ],
-            },
-          },
-          Object {
-            "collectionName": "comments",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "message",
-              ],
-            },
-            "identifier": "Operation-1",
-            "kind": "AMReadOperation",
-            "many": true,
-            "output": ResultPromise {
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+          Lookup {
+            "conditions": Array [
+              Map {},
+            ],
+            "data": ResultPromise {
               "source": Array [
                 "Operation-1",
               ],
             },
-            "selector": Object {
-              "postId": Object {
-                "$in": ResultPromise {
-                  "source": Array [
-                    "Operation-0",
-                    Distinct {
-                      "path": "_id",
-                    },
-                  ],
-                },
-              },
-            },
+            "many": true,
+            "path": "comments",
+            "relationField": "_id",
+            "storeField": "postId",
           },
         ],
-      }
-    `);
+      },
+    },
+    Object {
+      "collectionName": "comments",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "message",
+        ],
+      },
+      "identifier": "Operation-1",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+      "selector": Object {
+        "postId": Object {
+          "$in": ResultPromise {
+            "source": Array [
+              "Operation-0",
+              Distinct {
+                "path": "_id",
+              },
+            ],
+          },
+        },
+      },
+    },
+  ],
+}
+`);
   });
 
   test('extRelation single', () => {
@@ -1451,66 +1457,69 @@ describe('extRelation', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-      Object {
-        "operations": Array [
-          Object {
-            "collectionName": "posts",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-              ],
-            },
-            "identifier": "Operation-0",
-            "kind": "AMReadOperation",
-            "many": true,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-0",
-                Lookup {
-                  "data": ResultPromise {
-                    "source": Array [
-                      "Operation-1",
-                    ],
-                  },
-                  "many": false,
-                  "path": "lastComment",
-                  "relationField": "_id",
-                  "storeField": "postId",
-                },
-              ],
-            },
-          },
-          Object {
-            "collectionName": "comments",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-              ],
-            },
-            "identifier": "Operation-1",
-            "kind": "AMReadOperation",
-            "many": true,
-            "output": ResultPromise {
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+          Lookup {
+            "conditions": Array [
+              Map {},
+            ],
+            "data": ResultPromise {
               "source": Array [
                 "Operation-1",
               ],
             },
-            "selector": Object {
-              "postId": Object {
-                "$in": ResultPromise {
-                  "source": Array [
-                    "Operation-0",
-                    Distinct {
-                      "path": "_id",
-                    },
-                  ],
-                },
-              },
-            },
+            "many": false,
+            "path": "lastComment",
+            "relationField": "_id",
+            "storeField": "postId",
           },
         ],
-      }
-    `);
+      },
+    },
+    Object {
+      "collectionName": "comments",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-1",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+      "selector": Object {
+        "postId": Object {
+          "$in": ResultPromise {
+            "source": Array [
+              "Operation-0",
+              Distinct {
+                "path": "_id",
+              },
+            ],
+          },
+        },
+      },
+    },
+  ],
+}
+`);
   });
 
   test('extRelation nested single', () => {
@@ -1544,6 +1553,9 @@ Object {
         "source": Array [
           "Operation-0",
           Lookup {
+            "conditions": Array [
+              Map {},
+            ],
             "data": ResultPromise {
               "source": Array [
                 "Operation-1",
@@ -2259,9 +2271,11 @@ Object {
         "source": Array [
           "Operation-0",
           DistinctReplace {
-            "conditions": Map {
-              "_type" => "admin",
-            },
+            "conditions": Array [
+              Map {
+                "" => "Admin",
+              },
+            ],
             "data": ResultPromise {
               "source": Array [
                 "Operation-1",
@@ -2273,9 +2287,11 @@ Object {
             "storeField": "approvesPostIds",
           },
           DistinctReplace {
-            "conditions": Map {
-              "_type" => "subscriber",
-            },
+            "conditions": Array [
+              Map {
+                "" => "Subscriber",
+              },
+            ],
             "data": ResultPromise {
               "source": Array [
                 "Operation-2",
@@ -2382,6 +2398,9 @@ Object {
         "source": Array [
           "Operation-0",
           DistinctReplace {
+            "conditions": Array [
+              Map {},
+            ],
             "data": ResultPromise {
               "source": Array [
                 "Operation-1",
@@ -2507,6 +2526,9 @@ Object {
         "source": Array [
           "Operation-0",
           DbRefReplace {
+            "conditions": Array [
+              Map {},
+            ],
             "data": ResultPromise {
               "source": Array [
                 "Operation-2",
@@ -2614,6 +2636,9 @@ Object {
         "source": Array [
           "Operation-0",
           DbRefReplace {
+            "conditions": Array [
+              Map {},
+            ],
             "data": ResultPromise {
               "source": Array [
                 "Operation-2",
@@ -2764,6 +2789,9 @@ Object {
         "source": Array [
           "Operation-0",
           DbRefReplace {
+            "conditions": Array [
+              Map {},
+            ],
             "data": ResultPromise {
               "source": Array [
                 "Operation-2",
@@ -2774,6 +2802,9 @@ Object {
             "storeField": "userId",
           },
           DbRefReplace {
+            "conditions": Array [
+              Map {},
+            ],
             "data": ResultPromise {
               "source": Array [
                 "Operation-3",
@@ -3526,6 +3557,9 @@ Object {
         "source": Array [
           "Operation-0",
           DistinctReplace {
+            "conditions": Array [
+              Map {},
+            ],
             "data": ResultPromise {
               "source": Array [
                 "Operation-1",
@@ -3608,6 +3642,9 @@ Object {
         "source": Array [
           "Operation-0",
           DistinctReplace {
+            "conditions": Array [
+              Map {},
+            ],
             "data": ResultPromise {
               "source": Array [
                 "Operation-1",
@@ -3619,6 +3656,9 @@ Object {
             "storeField": "postId",
           },
           DistinctReplace {
+            "conditions": Array [
+              Map {},
+            ],
             "data": ResultPromise {
               "source": Array [
                 "Operation-2",
@@ -3732,6 +3772,9 @@ Object {
         "source": Array [
           "Operation-0",
           DistinctReplace {
+            "conditions": Array [
+              Map {},
+            ],
             "data": ResultPromise {
               "source": Array [
                 "Operation-1",
@@ -3816,26 +3859,17 @@ Object {
         "source": Array [
           "Operation-0",
           DistinctReplace {
-            "conditions": Map {
-              "_type" => "rootComment",
-            },
+            "conditions": Array [
+              Map {
+                "" => "RootComment",
+              },
+              Map {
+                "" => "SubComment",
+              },
+            ],
             "data": ResultPromise {
               "source": Array [
                 "Operation-1",
-              ],
-            },
-            "displayField": "post",
-            "path": Array [],
-            "relationField": "_id",
-            "storeField": "postId",
-          },
-          DistinctReplace {
-            "conditions": Map {
-              "_type" => "subComment",
-            },
-            "data": ResultPromise {
-              "source": Array [
-                "Operation-2",
               ],
             },
             "displayField": "post",
@@ -3851,6 +3885,7 @@ Object {
       "fieldsSelection": Object {
         "fields": Array [
           "title",
+          "_id",
         ],
       },
       "identifier": "Operation-1",
@@ -3859,34 +3894,6 @@ Object {
       "output": ResultPromise {
         "source": Array [
           "Operation-1",
-        ],
-      },
-      "selector": Object {
-        "_id": Object {
-          "$in": ResultPromise {
-            "source": Array [
-              "Operation-0",
-              Distinct {
-                "path": "postId",
-              },
-            ],
-          },
-        },
-      },
-    },
-    Object {
-      "collectionName": "posts",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-        ],
-      },
-      "identifier": "Operation-2",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-2",
         ],
       },
       "selector": Object {
@@ -3948,6 +3955,9 @@ Object {
         "source": Array [
           "Operation-0",
           DistinctReplace {
+            "conditions": Array [
+              Map {},
+            ],
             "data": ResultPromise {
               "source": Array [
                 "Operation-1",
@@ -4036,6 +4046,9 @@ Object {
         "source": Array [
           "Operation-0",
           DistinctReplace {
+            "conditions": Array [
+              Map {},
+            ],
             "data": ResultPromise {
               "source": Array [
                 "Operation-1",
@@ -4130,6 +4143,9 @@ Object {
         "source": Array [
           "Operation-0",
           DistinctReplace {
+            "conditions": Array [
+              Map {},
+            ],
             "data": ResultPromise {
               "source": Array [
                 "Operation-1",
@@ -4141,28 +4157,17 @@ Object {
             "storeField": "postId",
           },
           DistinctReplace {
-            "conditions": Map {
-              "_type" => "rootComment",
-            },
+            "conditions": Array [
+              Map {
+                "" => "RootComment",
+              },
+              Map {
+                "" => "SubComment",
+              },
+            ],
             "data": ResultPromise {
               "source": Array [
                 "Operation-2",
-              ],
-            },
-            "displayField": "category",
-            "path": Array [
-              "post",
-            ],
-            "relationField": "_id",
-            "storeField": "categoryId",
-          },
-          DistinctReplace {
-            "conditions": Map {
-              "_type" => "subComment",
-            },
-            "data": ResultPromise {
-              "source": Array [
-                "Operation-3",
               ],
             },
             "displayField": "category",
@@ -4210,6 +4215,7 @@ Object {
       "fieldsSelection": Object {
         "fields": Array [
           "title",
+          "_id",
         ],
       },
       "identifier": "Operation-2",
@@ -4233,36 +4239,243 @@ Object {
         },
       },
     },
-    Object {
-      "collectionName": "categories",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-        ],
-      },
-      "identifier": "Operation-3",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-3",
-        ],
-      },
-      "selector": Object {
-        "_id": Object {
-          "$in": ResultPromise {
-            "source": Array [
-              "Operation-1",
-              Distinct {
-                "path": "categoryId",
-              },
-            ],
-          },
-        },
-      },
-    },
   ],
 }
 `);
   });
+
+  //   test('multiple nested fragments', () => {
+  //     const rq = gql`
+  //       {
+  //         comments {
+  //           id
+  //           post {
+  //             title
+  //           }
+  //           ... on RootComment {
+  //             post {
+  //               title
+  //               category {
+  //                 ... on SubCategory {
+  //                   parentCategory {
+  //                     id
+  //                   }
+  //                 }
+  //                 title
+  //               }
+  //             }
+  //           }
+  //           ... on SubComment {
+  //             post {
+  //               id
+  //               category {
+  //                 id
+  //               }
+  //             }
+  //           }
+  //         }
+  //       }
+  //     `;
+
+  //     const transaction = prepareTransaction(schema, rq);
+  //     expect(transaction).toMatchInlineSnapshot(`
+  // Object {
+  //   "operations": Array [
+  //     Object {
+  //       "collectionName": "comments",
+  //       "fieldsSelection": Object {
+  //         "fields": Array [
+  //           "_id",
+  //           "postId",
+  //         ],
+  //       },
+  //       "identifier": "Operation-0",
+  //       "kind": "AMReadOperation",
+  //       "many": true,
+  //       "output": ResultPromise {
+  //         "source": Array [
+  //           "Operation-0",
+  //           DistinctReplace {
+  //             "data": ResultPromise {
+  //               "source": Array [
+  //                 "Operation-1",
+  //               ],
+  //             },
+  //             "displayField": "post",
+  //             "path": Array [],
+  //             "relationField": "_id",
+  //             "storeField": "postId",
+  //           },
+  //           DistinctReplace {
+  //             "conditions": Map {
+  //               "_type" => "rootComment",
+  //             },
+  //             "data": ResultPromise {
+  //               "source": Array [
+  //                 "Operation-2",
+  //               ],
+  //             },
+  //             "displayField": "category",
+  //             "path": Array [
+  //               "post",
+  //             ],
+  //             "relationField": "_id",
+  //             "storeField": "categoryId",
+  //           },
+  //           DistinctReplace {
+  //             "conditions": Map {
+  //               "_type" => "rootComment",
+  //               "post.category._type" => "subCategory",
+  //             },
+  //             "data": ResultPromise {
+  //               "source": Array [
+  //                 "Operation-3",
+  //               ],
+  //             },
+  //             "displayField": "parentCategory",
+  //             "path": Array [
+  //               "post",
+  //               "category",
+  //             ],
+  //             "relationField": "_id",
+  //             "storeField": "categoryId",
+  //           },
+  //           DistinctReplace {
+  //             "conditions": Map {
+  //               "_type" => "subComment",
+  //             },
+  //             "data": ResultPromise {
+  //               "source": Array [
+  //                 "Operation-4",
+  //               ],
+  //             },
+  //             "displayField": "category",
+  //             "path": Array [
+  //               "post",
+  //             ],
+  //             "relationField": "_id",
+  //             "storeField": "categoryId",
+  //           },
+  //         ],
+  //       },
+  //     },
+  //     Object {
+  //       "collectionName": "posts",
+  //       "fieldsSelection": Object {
+  //         "fields": Array [
+  //           "title",
+  //           "categoryId",
+  //           "_id",
+  //         ],
+  //       },
+  //       "identifier": "Operation-1",
+  //       "kind": "AMReadOperation",
+  //       "many": true,
+  //       "output": ResultPromise {
+  //         "source": Array [
+  //           "Operation-1",
+  //         ],
+  //       },
+  //       "selector": Object {
+  //         "_id": Object {
+  //           "$in": ResultPromise {
+  //             "source": Array [
+  //               "Operation-0",
+  //               Distinct {
+  //                 "path": "postId",
+  //               },
+  //             ],
+  //           },
+  //         },
+  //       },
+  //     },
+  //     Object {
+  //       "collectionName": "categories",
+  //       "fieldsSelection": Object {
+  //         "fields": Array [
+  //           "title",
+  //           "categoryId",
+  //         ],
+  //       },
+  //       "identifier": "Operation-2",
+  //       "kind": "AMReadOperation",
+  //       "many": true,
+  //       "output": ResultPromise {
+  //         "source": Array [
+  //           "Operation-2",
+  //         ],
+  //       },
+  //       "selector": Object {
+  //         "_id": Object {
+  //           "$in": ResultPromise {
+  //             "source": Array [
+  //               "Operation-1",
+  //               Distinct {
+  //                 "path": "categoryId",
+  //               },
+  //             ],
+  //           },
+  //         },
+  //       },
+  //     },
+  //     Object {
+  //       "collectionName": "categories",
+  //       "fieldsSelection": Object {
+  //         "fields": Array [
+  //           "_id",
+  //         ],
+  //       },
+  //       "identifier": "Operation-3",
+  //       "kind": "AMReadOperation",
+  //       "many": true,
+  //       "output": ResultPromise {
+  //         "source": Array [
+  //           "Operation-3",
+  //         ],
+  //       },
+  //       "selector": Object {
+  //         "_id": Object {
+  //           "$in": ResultPromise {
+  //             "source": Array [
+  //               "Operation-2",
+  //               Distinct {
+  //                 "path": "categoryId",
+  //               },
+  //             ],
+  //           },
+  //         },
+  //       },
+  //     },
+  //     Object {
+  //       "collectionName": "categories",
+  //       "fieldsSelection": Object {
+  //         "fields": Array [
+  //           "_id",
+  //         ],
+  //       },
+  //       "identifier": "Operation-4",
+  //       "kind": "AMReadOperation",
+  //       "many": true,
+  //       "output": ResultPromise {
+  //         "source": Array [
+  //           "Operation-4",
+  //         ],
+  //       },
+  //       "selector": Object {
+  //         "_id": Object {
+  //           "$in": ResultPromise {
+  //             "source": Array [
+  //               "Operation-1",
+  //               Distinct {
+  //                 "path": "categoryId",
+  //               },
+  //             ],
+  //           },
+  //         },
+  //       },
+  //     },
+  //   ],
+  // }
+  // `);
+  //   });
 });

@@ -201,21 +201,6 @@ export class AMVisitor {
         enter(node: SelectionSetNode) {
           const selectionSetContext = new AMFieldsSelectionContext();
           stack.push(selectionSetContext);
-
-          //Process wildcard selections first to optimize operations
-          const wildcardSelections = [];
-          const otherSelections = [];
-          node.selections.forEach(selection => {
-            if (selection.kind === Kind.FIELD) {
-              wildcardSelections.push(selection);
-            } else {
-              otherSelections.push(selection);
-            }
-          });
-          return {
-            ...node,
-            selections: [...wildcardSelections, ...otherSelections],
-          };
         },
         leave(node) {
           const context = stack.pop() as AMFieldsSelectionContext;

@@ -1,7 +1,9 @@
-import { AMResultPromise, Transformation } from './resultPromise';
+import { FieldNode } from 'graphql';
 import * as R from 'ramda';
-import { mapPath } from './utils';
 import { AMOperation } from '../operation';
+import { AMResultPromise, Transformation } from './resultPromise';
+import { mapPath } from './utils';
+import { RelationTransformation } from './relationTransformation';
 
 const groupForLookup = (storeField: string) => (
   data: { [key: string]: any }[]
@@ -29,14 +31,13 @@ const groupForLookup = (storeField: string) => (
   return result;
 };
 
-export class Lookup extends Transformation {
+export class Lookup extends RelationTransformation {
   constructor(
     public path: string,
     public relationField: string,
     public storeField: string,
     public dataOp: AMOperation,
-    public many = true,
-    public conditions?: Map<string, string>
+    public many = true
   ) {
     super();
   }

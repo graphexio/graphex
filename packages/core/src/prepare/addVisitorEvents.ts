@@ -4,6 +4,7 @@ import {
   isListType,
   isNonNullType,
   isObjectType,
+  FieldNode,
 } from 'graphql';
 import R from 'ramda';
 import { AMModelField } from '../definitions';
@@ -17,36 +18,15 @@ import {
   getFieldsSelectionPathWithConditions,
   getLastOperation,
 } from '../execution/utils';
-
-type Condition = Map<string, string>;
-function findConditionsIntersection(cond1: Condition, cond2: Condition) {
-  const result: Condition = new Map<string, string>();
-  let smallCond: Condition, bigCond: Condition;
-  if (cond1.size < cond2.size) {
-    smallCond = cond1;
-    bigCond = cond2;
-  } else {
-    smallCond = cond2;
-    bigCond = cond1;
-  }
-  for (const [k, v] of smallCond.entries()) {
-    if (bigCond.has(k)) {
-      if (bigCond.get(k) !== v) {
-        return null;
-      } else {
-        result.set(k, v);
-      }
-    }
-  }
-  return result;
-}
+import { findConditionsIntersection, sameArguments } from './utils';
+import { RelationTransformation } from '../execution/resultPromise/relationTransformation';
 
 export const addVisitorEvents = (schema: GraphQLSchema) => {
   Object.values(schema.getTypeMap()).forEach(type => {
     if (isObjectType(type) || isInterfaceType(type)) {
       Object.values(type.getFields()).forEach((field: AMModelField) => {
         if (field.relation) {
-          field.amEnter = (node, transaction, stack, PathInfo) => {
+          field.amEnter = (node: FieldNode, transaction, stack, PathInfo) => {
             const lastStackItem = R.last(stack);
             if (lastStackItem instanceof AMFieldsSelectionContext) {
               if (!field.relation.external) {
@@ -74,35 +54,18 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
             }
             const path = pathArr.join('.');
 
-            const existingTransformations = rootOperation.fieldTransformations.get(
-              rootPath
-            );
-            if (existingTransformations?.length > 0) {
-              for (const transformation of existingTransformations) {
-                if (
-                  transformation instanceof ResultPromiseTransforms.Lookup ||
-                  transformation instanceof
-                    ResultPromiseTransforms.DistinctReplace ||
-                  transformation instanceof ResultPromiseTransforms.DbRefReplace
-                ) {
-                  if (transformation.conditions) {
-                    if (!rootConditions) {
-                      //set transformation conditions to intersection
-                      transformation.conditions = undefined;
-                    } else {
-                      const conditionIntersection = findConditionsIntersection(
-                        rootConditions,
-                        transformation.conditions
-                      );
-                      if (conditionIntersection) {
-                        //set transformation conditions to intersection
-                        transformation.conditions = conditionIntersection;
-                      } else {
-                        continue;
-                      }
-                    }
-                  }
+            //look for existing transformation for the field with the same args
+            const existingTransformations =
+              rootOperation.fieldTransformations.get(rootPath) || [];
 
+            const fieldArgs = node.arguments || [];
+            for (const transformation of existingTransformations) {
+              if (transformation instanceof RelationTransformation) {
+                const transformationArgs =
+                  transformation.getFieldNodes()?.[0]?.arguments || [];
+                if (sameArguments(fieldArgs, transformationArgs)) {
+                  transformation.addCondition(rootConditions);
+                  transformation.addFieldNode(node);
                   stack.push(transformation.dataOp);
                   return;
                 }
@@ -148,47 +111,37 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
 
             stack.push(relationOperation);
 
+            let transformation: RelationTransformation;
             if (field.relation.abstract) {
               const displayField = rootPathArr.pop();
-
-              rootOperation.addFieldTransformation(
-                rootPath,
-                new ResultPromiseTransforms.DbRefReplace(
-                  rootPathArr,
-                  displayField,
-                  field.relation.storeField,
-                  relationOperation,
-                  rootConditions
-                )
+              transformation = new ResultPromiseTransforms.DbRefReplace(
+                rootPathArr,
+                displayField,
+                field.relation.storeField,
+                relationOperation
               );
             } else if (!field.relation.external) {
               const displayField = rootPathArr.pop();
-              rootOperation.addFieldTransformation(
-                rootPath,
-                new ResultPromiseTransforms.DistinctReplace(
-                  rootPathArr,
-                  displayField,
-                  field.relation.storeField,
-                  field.relation.relationField,
-                  relationOperation,
-                  rootConditions
-                )
+              transformation = new ResultPromiseTransforms.DistinctReplace(
+                rootPathArr,
+                displayField,
+                field.relation.storeField,
+                field.relation.relationField,
+                relationOperation
               );
             } else {
-              rootOperation.addFieldTransformation(
+              transformation = new ResultPromiseTransforms.Lookup(
                 rootPath,
-                new ResultPromiseTransforms.Lookup(
-                  rootPath,
-                  field.relation.relationField,
-                  field.relation.storeField,
-                  relationOperation,
-                  isListType(field.type) ||
-                    (isNonNullType(field.type) &&
-                      isListType(field.type.ofType)), //TODO: Add runtime checking for existing unique index on relation field.
-                  rootConditions
-                )
+                field.relation.relationField,
+                field.relation.storeField,
+                relationOperation,
+                isListType(field.type) ||
+                  (isNonNullType(field.type) && isListType(field.type.ofType)) //TODO: Add runtime checking for existing unique index on relation field.
               );
             }
+            transformation.addCondition(rootConditions);
+            transformation.addFieldNode(node);
+            rootOperation.addFieldTransformation(rootPath, transformation);
           };
           field.amLeave = (node, transaction, stack) => {
             const relationOperation = stack.pop();

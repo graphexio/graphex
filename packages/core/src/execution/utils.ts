@@ -66,7 +66,7 @@ export const getFieldsSelectionPathWithConditions = (
   operation: AMOperation
 ) => {
   const path = [];
-  let conditions: Map<string, string>;
+  const conditions: Map<string, string> = new Map();
   const operationIndex = stack.indexOf(operation);
   for (let i = operationIndex + 1; i < stack.length; i++) {
     const ctx = stack[i];
@@ -76,13 +76,7 @@ export const getFieldsSelectionPathWithConditions = (
       path.pop();
       const conditionType = ctx.getActualConditionType() as AMModelType;
       if (conditionType) {
-        if (!conditions) {
-          conditions = new Map();
-        }
-        conditions.set(
-          [...path, conditionType.mmDiscriminatorField].join('.'),
-          conditionType.mmDiscriminator
-        );
+        conditions.set(path.join('.'), conditionType);
       }
     }
   }

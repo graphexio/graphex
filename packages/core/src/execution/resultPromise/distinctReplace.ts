@@ -1,16 +1,16 @@
 import * as R from 'ramda';
-import { AMResultPromise, Transformation } from './resultPromise';
-import { mapPath } from './utils';
 import { AMOperation } from '../operation';
+import { RelationTransformation } from './relationTransformation';
+import { AMResultPromise } from './resultPromise';
+import { mapPath } from './utils';
 
-export class DistinctReplace extends Transformation {
+export class DistinctReplace extends RelationTransformation {
   constructor(
     public path: string[],
     public displayField: string,
     public storeField: string,
     public relationField: string,
-    public dataOp: AMOperation,
-    public conditions?: Map<string, string>
+    public dataOp: AMOperation
   ) {
     super();
   }

@@ -1,15 +1,15 @@
-import { AMResultPromise, Transformation } from './resultPromise';
-import { mapPath } from './utils';
 import { DBRef } from 'mongodb';
 import { AMOperation } from '../operation';
+import { RelationTransformation } from './relationTransformation';
+import { AMResultPromise } from './resultPromise';
+import { mapPath } from './utils';
 
-export class DbRefReplace extends Transformation {
+export class DbRefReplace extends RelationTransformation {
   constructor(
     public path: string[],
     public displayField: string,
     public storeField: string,
-    public dataOp: AMOperation,
-    public conditions?: Map<string, string>
+    public dataOp: AMOperation
   ) {
     super();
   }

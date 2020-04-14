@@ -9,7 +9,7 @@ export const serializeLookup = {
       relationField: val.relationField,
       storeField: val.storeField,
     };
-    if (val.conditions) {
+    if (val?.conditions?.length > 0) {
       obj.conditions = val.conditions;
     }
     return (
