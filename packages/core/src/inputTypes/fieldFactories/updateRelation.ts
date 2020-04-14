@@ -42,17 +42,17 @@ export class AMUpdateRelationFieldFactory extends AMInputFieldFactory {
         stack.push(context);
       },
       amLeave(node, transaction, stack) {
-        const operation = getLastOperation(stack);
-        const path = getFieldPath(stack, operation);
+        const operation = stack.lastOperation();
+        const path = stack.getFieldPath(operation);
         const context = stack.pop() as AMObjectFieldContext;
 
         if (context.value) {
-          const data = getOperationData(stack, operation);
+          const data = stack.getOperationData(operation);
           const set = (data.data && data.data['$set']) || {};
           data.addValue('$set', set);
           set[path] = context.value;
         }
-        // const lastInStack = R.last(stack);
+        // const lastInStack = stack.last();
         // if (
         //   lastInStack instanceof AMDataContext ||
         //   lastInStack instanceof AMObjectFieldContext

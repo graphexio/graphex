@@ -34,12 +34,12 @@ export class AMUpdateNestedFieldFactory extends AMInputFieldFactory {
         stack.push(action);
       },
       amLeave(node, transaction, stack) {
-        const operation = getLastOperation(stack);
-        const path = getFieldPath(stack, operation);
+        const operation = stack.lastOperation();
+        const path = stack.getFieldPath(operation);
         const context = stack.pop() as AMObjectFieldContext;
 
         if (context.value) {
-          const data = getOperationData(stack, operation);
+          const data = stack.getOperationData(operation);
           const set = (data.data && data.data['$set']) || {};
           data.addValue('$set', set);
           set[path] = context.value;

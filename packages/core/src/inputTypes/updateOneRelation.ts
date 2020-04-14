@@ -36,7 +36,7 @@ export class AMUpdateOneRelationTypeFactory extends AMTypeFactory<
             amLeave(node, transaction, stack) {
               const opContext = stack.pop() as AMReadOperation;
 
-              const lastInStack = R.last(stack);
+              const lastInStack = stack.last();
               if (lastInStack instanceof AMObjectFieldContext) {
                 lastInStack.setValue(
                   opContext
@@ -65,7 +65,7 @@ export class AMUpdateOneRelationTypeFactory extends AMTypeFactory<
             amLeave(node, transaction, stack) {
               const opContext = stack.pop() as AMReadOperation;
 
-              const lastInStack = R.last(stack);
+              const lastInStack = stack.last();
               if (lastInStack instanceof AMObjectFieldContext) {
                 lastInStack.setValue(
                   opContext

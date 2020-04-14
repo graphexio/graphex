@@ -1,33 +1,28 @@
 import { astFromValue } from '@apollo-model/ast-from-value';
 import {
+  ASTKindToNode,
+  ASTNode,
   DocumentNode,
   getNamedType,
   getVisitFn,
-  GraphQLNamedType,
   GraphQLScalarType,
   GraphQLSchema,
-  InlineFragmentNode,
+  isInterfaceType,
+  isObjectType,
   isScalarType,
   Kind,
   TypeInfo,
   ValueNode,
-  VariableNode,
   visit,
-  isInterfaceType,
-  isObjectType,
-  ASTNode,
-  SelectionSetNode,
+  Visitor,
 } from 'graphql';
-import R, { o } from 'ramda';
 import {
   AMArgumet,
   AMEnumType,
-  AMField,
   AMInputObjectType,
   AMModelField,
   AMModelType,
   AMObjectType,
-  AMVisitorStack,
 } from '../definitions';
 import { AMFieldsSelectionContext } from './contexts/fieldsSelection';
 import { AMFragmentContext } from './contexts/fragment';
@@ -35,12 +30,7 @@ import { AMListValueContext } from './contexts/listValue';
 import { AMObjectFieldContext } from './contexts/objectField';
 import { AMOperation } from './operation';
 import { AMTransaction } from './transaction';
-
-function isAMModelField(
-  object: AMField | AMModelField
-): object is AMModelField {
-  return 'dbName' in object;
-}
+import { AMVisitorStack } from './visitorStack';
 
 export class AMVisitor {
   static visit(
@@ -63,55 +53,7 @@ export class AMVisitor {
 
     const typeInfo = new TypeInfo(schema);
 
-    const pathInfo = (() => {
-      const operationsMap = new Map<
-        AMOperation,
-        { path: string[]; db: string[] }
-      >();
-      return {
-        push(pathItem: string, dbPathItem: string) {
-          for (const { path, db } of operationsMap.values()) {
-            path.push(pathItem);
-            db.push(dbPathItem);
-          }
-        },
-        pop() {
-          for (const { path, db } of operationsMap.values()) {
-            path.pop();
-            db.pop();
-          }
-        },
-        addOperation(operation: AMOperation) {
-          operationsMap.set(operation, { path: [], db: [] });
-        },
-        removeOperation(operation: AMOperation) {
-          operationsMap.delete(operation);
-        },
-        path(operation: AMOperation) {
-          return operationsMap.get(operation).path;
-        },
-        db(operation: AMOperation) {
-          return operationsMap.get(operation).db;
-        },
-      };
-    })();
-
-    const stack: AMVisitorStack = [];
-    const oldStackPush = stack.push.bind(stack);
-    const oldStackPop = stack.pop.bind(stack);
-    stack.push = item => {
-      if (item instanceof AMOperation) {
-        pathInfo.addOperation(item);
-      }
-      return oldStackPush(item);
-    };
-    stack.pop = () => {
-      const item = oldStackPop();
-      if (item instanceof AMOperation) {
-        pathInfo.removeOperation(item);
-      }
-      return item;
-    };
+    const stack = new AMVisitorStack();
 
     // typeInfo.enter({
     //   kind: 'OperationDefinition',
@@ -129,7 +71,7 @@ export class AMVisitor {
       enter(node: ValueNode) {
         const type = getNamedType(typeInfo.getInputType()) as GraphQLScalarType;
 
-        const lastInStack = R.last(stack);
+        const lastInStack = stack.last();
         const value = node ? type.parseLiteral(node, variableValues) : null;
         if (lastInStack instanceof AMObjectFieldContext) {
           lastInStack.setValue(value);
@@ -148,12 +90,11 @@ export class AMVisitor {
       // },
       [Kind.ARGUMENT]: {
         enter(node) {
-          // console.log(typeInfo.getArgument());
           const arg = typeInfo
             .getFieldDef()
             .args.find(arg => arg.name === node.name.value) as AMArgumet;
           if (arg.amEnter) {
-            arg.amEnter(node, transaction, stack, pathInfo);
+            arg.amEnter(node, transaction, stack);
           }
         },
         leave(node) {
@@ -161,17 +102,19 @@ export class AMVisitor {
             .getFieldDef()
             .args.find(arg => arg.name === node.name.value) as AMArgumet;
           if (arg.amLeave) {
-            arg.amLeave(node, transaction, stack, pathInfo);
+            arg.amLeave(node, transaction, stack);
           }
         },
       },
       [Kind.INLINE_FRAGMENT]: {
-        enter(node: InlineFragmentNode) {
-          const lastInStack = R.last(stack) as AMFieldsSelectionContext;
-          const currentType = getNamedType(typeInfo.getType());
-          const conditionType = schema.getType(node.typeCondition.name.value);
+        enter(node) {
+          const lastInStack = stack.last() as AMFieldsSelectionContext;
+          const currentType = getNamedType(typeInfo.getType()) as AMModelType;
+          const conditionType = schema.getType(
+            node.typeCondition.name.value
+          ) as AMModelType;
 
-          let actualConditionType: GraphQLNamedType = null;
+          let actualConditionType: AMModelType = null;
           /* 
           store actualConditionType only if currentType is interface 
           and condition type is implementation
@@ -198,13 +141,13 @@ export class AMVisitor {
         },
       },
       [Kind.SELECTION_SET]: {
-        enter(node: SelectionSetNode) {
+        enter() {
           const selectionSetContext = new AMFieldsSelectionContext();
           stack.push(selectionSetContext);
         },
-        leave(node) {
+        leave() {
           const context = stack.pop() as AMFieldsSelectionContext;
-          const stackLastItem = R.last(stack);
+          const stackLastItem = stack.last();
           if (stackLastItem) {
             if (stackLastItem instanceof AMOperation) {
               const existingSelection = stackLastItem.fieldsSelection;
@@ -239,10 +182,10 @@ export class AMVisitor {
             | AMObjectType;
 
           const field = type.getFields()[fieldName] as AMModelField;
-          pathInfo.push(node.name.value, field.dbName);
+          stack.enterPath(node.name.value);
 
           if (field.amEnter) {
-            field.amEnter(node, transaction, stack, pathInfo);
+            field.amEnter(node, transaction, stack);
           }
         },
         leave(node) {
@@ -255,10 +198,10 @@ export class AMVisitor {
             | AMObjectType;
           const field = type.getFields()[fieldName];
 
-          pathInfo.pop();
+          stack.leavePath();
 
           if (field.amLeave) {
-            field.amLeave(node, transaction, stack, pathInfo);
+            field.amLeave(node, transaction, stack);
           }
         },
       },
@@ -273,7 +216,7 @@ export class AMVisitor {
           }
 
           if (type.amEnter) {
-            type.amEnter(node, transaction, stack, pathInfo);
+            type.amEnter(node, transaction, stack);
           }
         },
         leave(node) {
@@ -281,7 +224,7 @@ export class AMVisitor {
             typeInfo.getInputType()
           ) as AMInputObjectType;
           if (type.amLeave) {
-            type.amLeave(node, transaction, stack, pathInfo);
+            type.amLeave(node, transaction, stack);
           }
         },
       },
@@ -294,7 +237,7 @@ export class AMVisitor {
 
           const field = type.getFields()[fieldName];
           if (field.amEnter) {
-            field.amEnter(node, transaction, stack, pathInfo);
+            field.amEnter(node, transaction, stack);
           }
         },
         leave(node) {
@@ -306,18 +249,18 @@ export class AMVisitor {
           const field = type.getFields()[fieldName];
 
           if (field.amLeave) {
-            field.amLeave(node, transaction, stack, pathInfo);
+            field.amLeave(node, transaction, stack);
           }
         },
       },
       [Kind.LIST]: {
-        enter(node) {
+        enter() {
           const context = new AMListValueContext();
           stack.push(context);
         },
-        leave(node) {
+        leave() {
           const context = stack.pop() as AMListValueContext;
-          const lastInStack = R.last(stack);
+          const lastInStack = stack.last();
           if (lastInStack instanceof AMObjectFieldContext) {
             lastInStack.setValue(context.values);
           } else if (lastInStack instanceof AMListValueContext) {
@@ -330,15 +273,15 @@ export class AMVisitor {
           const type = getNamedType(typeInfo.getInputType()) as AMEnumType;
 
           if (type.amEnter) {
-            type.amEnter(node, transaction, stack, pathInfo);
+            type.amEnter(node, transaction, stack);
           }
         },
         leave(node) {
           const type = getNamedType(typeInfo.getInputType()) as AMEnumType;
           if (type.amLeave) {
-            type.amLeave(node, transaction, stack, pathInfo);
+            type.amLeave(node, transaction, stack);
           } else {
-            const lastInStack = R.last(stack);
+            const lastInStack = stack.last();
             if (lastInStack instanceof AMObjectFieldContext) {
               lastInStack.setValue(node.value);
             } else if (lastInStack instanceof AMListValueContext) {
@@ -353,13 +296,12 @@ export class AMVisitor {
       [Kind.INT]: scalarVisitor,
       [Kind.FLOAT]: scalarVisitor,
       [Kind.VARIABLE_DEFINITION]: {
-        enter(node) {
+        enter() {
           return null;
         },
-        leave(node) {},
       },
       [Kind.VARIABLE]: {
-        enter(node: VariableNode) {
+        enter(node) {
           //replace variable with astnode to visit that fields
           const type = typeInfo.getInputType();
           const newNode = astFromValue(variableValues[node.name.value], type);
@@ -374,18 +316,18 @@ export class AMVisitor {
           }
         },
       },
-    };
+    } as Visitor<ASTKindToNode, ASTNode>;
     visit(document, visitWithTypeInfo(typeInfo, visitor));
   }
 }
 
-function visitWithTypeInfo(typeInfo: any, visitor: any): any {
+function visitWithTypeInfo(typeInfo: TypeInfo, visitor): any {
   return {
-    enter(node) {
-      if (visitor.enter) visitor.enter.apply(visitor, arguments);
+    enter(node, ...rest) {
+      if (visitor.enter) visitor.enter(node, ...rest);
       const fn = getVisitFn(visitor, node.kind, /* isLeaving */ false);
       if (fn) {
-        const result = fn.apply(visitor, arguments);
+        const result = fn(node, ...rest);
         typeInfo.enter(node);
         if (result !== undefined) {
           typeInfo.leave(node);
@@ -398,17 +340,17 @@ function visitWithTypeInfo(typeInfo: any, visitor: any): any {
         typeInfo.enter(node);
       }
     },
-    leave(node) {
+    leave(node, ...rest) {
       typeInfo.leave(node);
-      if (visitor.leave) visitor.leave.apply(visitor, arguments);
+      if (visitor.leave) visitor.leave(node, ...rest);
       const fn = getVisitFn(visitor, node.kind, /* isLeaving */ true);
-      let result;
+      let result: ASTNode;
       if (fn) {
-        result = fn.apply(visitor, arguments);
+        result = fn(node, ...rest);
       }
       return result;
     },
-  };
+  } as Visitor<ASTKindToNode, ASTNode>;
 }
 
 function isNode(maybeNode): boolean {

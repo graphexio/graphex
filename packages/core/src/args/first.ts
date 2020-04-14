@@ -17,7 +17,7 @@ export const firstArg: AMArgumet = {
   },
   amLeave(node, transaction, stack) {
     const context = stack.pop() as AMObjectFieldContext;
-    const lastInStack = R.last(stack);
+    const lastInStack = stack.last();
 
     if (lastInStack instanceof AMOperation) {
       lastInStack.setFirst(context.value as number);

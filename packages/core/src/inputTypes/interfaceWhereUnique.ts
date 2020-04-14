@@ -51,7 +51,7 @@ export class AMInterfaceWhereUniqueTypeFactory extends AMTypeFactory<
                         modelType.mmDiscriminatorField &&
                         possibleType.mmDiscriminator
                       ) {
-                        const lastInStack = R.last(stack);
+                        const lastInStack = stack.last();
                         if (lastInStack instanceof AMReadOperation) {
                           if (lastInStack.selector) {
                             lastInStack.selector.addValue(
@@ -80,7 +80,7 @@ export class AMInterfaceWhereUniqueTypeFactory extends AMTypeFactory<
                     },
                     amLeave(node, transaction, stack) {
                       const readOp = stack.pop() as AMReadOperation;
-                      const lastInStack = R.last(stack);
+                      const lastInStack = stack.last();
 
                       if (lastInStack instanceof AMObjectFieldContext) {
                         lastInStack.setValue(

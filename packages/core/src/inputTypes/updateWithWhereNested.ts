@@ -54,7 +54,7 @@ export class AMUpdateWithWhereNestedTypeFactory extends AMTypeFactory<
         return fields;
       },
       amEnter(node, transaction, stack) {
-        const operation = getLastOperation(stack);
+        const operation = stack.lastOperation();
         if (!(operation instanceof AMUpdateOperation)) {
           throw new Error(
             'UpdateManyNested may be used with Update operation only'

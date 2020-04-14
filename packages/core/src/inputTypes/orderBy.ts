@@ -20,7 +20,7 @@ export class AMOrderByTypeFactory extends AMTypeFactory<AMEnumType> {
       name: this.getTypeName(modelType),
       values,
       amLeave(node: EnumValueNode, transaction, stack) {
-        const lastInStack = R.last(stack);
+        const lastInStack = stack.last();
 
         if (lastInStack instanceof AMOperation) {
           lastInStack.setOrderBy(values[node.value].value);

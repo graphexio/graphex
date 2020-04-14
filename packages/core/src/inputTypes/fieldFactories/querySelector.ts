@@ -16,7 +16,7 @@ export abstract class AMQuerySelectorFieldFactory extends AMQuerySelectorComplex
     context: AMObjectFieldContext,
     field: AMModelField
   ) {
-    const lastInStack = R.last(stack);
+    const lastInStack = stack.last();
     if (
       lastInStack instanceof AMSelectorContext ||
       lastInStack instanceof AMObjectFieldContext

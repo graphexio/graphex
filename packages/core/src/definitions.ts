@@ -18,13 +18,12 @@ import {
   GraphQLSchema,
   InputObjectTypeDefinitionNode,
   InputObjectTypeExtensionNode,
-  ObjectValueNode,
   Thunk,
 } from 'graphql';
 import Maybe from 'graphql/tsutils/Maybe';
 import { AMConfigResolver } from './config/resolver';
-import { AMContext } from './execution/context';
 import { AMTransaction } from './execution/transaction';
+import { AMVisitorStack } from './execution/visitorStack';
 
 export abstract class AMFactory {
   links: { [key: string]: string | string[] };
@@ -55,21 +54,20 @@ export type mmTransformType = (input: {
   [fieldName: string]: any;
 }) => { [fieldName: string]: any };
 
-export type AMVisitorStack = AMContext[];
+type AMEnterHandler = (
+  node: ASTNode,
+  transaction: AMTransaction,
+  stack: AMVisitorStack
+) => void;
+type AMLeaveHandler = (
+  node: ASTNode,
+  transaction: AMTransaction,
+  stack: AMVisitorStack
+) => void;
 
 export type AMVisitable = {
-  amEnter?(
-    node: ASTNode,
-    transaction: AMTransaction,
-    stack: AMVisitorStack,
-    pathInfo: any
-  );
-  amLeave?(
-    node: ASTNode,
-    transaction: AMTransaction,
-    stack: AMVisitorStack,
-    pathInfo: any
-  );
+  amEnter?: AMEnterHandler;
+  amLeave?: AMLeaveHandler;
 };
 
 export type AMInputField = GraphQLInputField & {
@@ -80,9 +78,9 @@ export type AMInputFieldMap = {
   [key: string]: AMInputField;
 };
 
-export class AMEnumType extends GraphQLEnumType {
-  amEnter?(node: ASTNode, transaction: AMTransaction, stack: AMVisitorStack);
-  amLeave?(node: ASTNode, transaction: AMTransaction, stack: AMVisitorStack);
+export class AMEnumType extends GraphQLEnumType implements AMVisitable {
+  amEnter?: AMEnterHandler;
+  amLeave?: AMLeaveHandler;
   constructor(config: AMEnumTypeConfig) {
     super(config);
     this.amEnter = config.amEnter;
@@ -96,22 +94,14 @@ export interface AMEnumTypeConfig {
   description?: Maybe<string>;
   astNode?: Maybe<EnumTypeDefinitionNode>;
   extensionASTNodes?: Maybe<ReadonlyArray<EnumTypeExtensionNode>>;
-  amEnter?(node: ASTNode, transaction: AMTransaction, stack: AMVisitorStack);
-  amLeave?(node: ASTNode, transaction: AMTransaction, stack: AMVisitorStack);
+  amEnter?: AMEnterHandler;
+  amLeave?: AMLeaveHandler;
 }
 
 export class AMInputObjectType extends GraphQLInputObjectType
   implements AMVisitable {
-  amEnter?(
-    node: ObjectValueNode,
-    transaction: AMTransaction,
-    stack: AMVisitorStack
-  );
-  amLeave?(
-    node: ObjectValueNode,
-    transaction: AMTransaction,
-    stack: AMVisitorStack
-  );
+  amEnter?: AMEnterHandler;
+  amLeave?: AMLeaveHandler;
   getFields(): AMInputFieldMap {
     return super.getFields() as AMInputFieldMap;
   }
@@ -134,16 +124,8 @@ export interface AMInputObjectTypeConfig {
   description?: Maybe<string>;
   astNode?: Maybe<InputObjectTypeDefinitionNode>;
   extensionASTNodes?: Maybe<ReadonlyArray<InputObjectTypeExtensionNode>>;
-  amEnter?(
-    node: ObjectValueNode,
-    transaction: AMTransaction,
-    stack: AMVisitorStack
-  );
-  amLeave?(
-    node: ObjectValueNode,
-    transaction: AMTransaction,
-    stack: AMVisitorStack
-  );
+  amEnter?: AMEnterHandler;
+  amLeave?: AMLeaveHandler;
 }
 
 export type AMField = Omit<GraphQLField<any, any>, 'type' | 'args'> &
@@ -162,16 +144,8 @@ export type AMFieldMap = {
 
 export class AMObjectType extends GraphQLObjectType implements AMVisitable {
   mmDiscriminator: string;
-  amEnter?(
-    node: ObjectValueNode,
-    transaction: AMTransaction,
-    stack: AMVisitorStack
-  );
-  amLeave?(
-    node: ObjectValueNode,
-    transaction: AMTransaction,
-    stack: AMVisitorStack
-  );
+  amEnter?: AMEnterHandler;
+  amLeave?: AMLeaveHandler;
 
   constructor(config: AMObjectTypeConfig) {
     super(config);

@@ -3,11 +3,14 @@ import { AMModelType } from '../../definitions';
 import { FieldNode } from 'graphql';
 import { AMOperation } from '../operation';
 
-type Condition = Map<string, AMModelType>;
+export type TransformCondition = Map<string, AMModelType>;
 
-export function findConditionsIntersection(cond1: Condition, cond2: Condition) {
-  const result: Condition = new Map();
-  let smallCond: Condition, bigCond: Condition;
+export function findConditionsIntersection(
+  cond1: TransformCondition,
+  cond2: TransformCondition
+) {
+  const result: TransformCondition = new Map();
+  let smallCond: TransformCondition, bigCond: TransformCondition;
   if (cond1.size < cond2.size) {
     smallCond = cond1;
     bigCond = cond2;
@@ -28,16 +31,15 @@ export function findConditionsIntersection(cond1: Condition, cond2: Condition) {
 }
 
 export abstract class RelationTransformation extends Transformation {
-  private conditions?: readonly Condition[] = [];
+  private conditions?: readonly TransformCondition[] = [];
   private fieldNodes?: FieldNode[] = [];
   public dataOp: AMOperation;
 
-  addCondition(cond: Condition) {
+  addCondition(cond: TransformCondition) {
     const newConditions = [];
     let currentCond = cond;
     for (const cond of this.conditions) {
       const intersection = findConditionsIntersection(currentCond, cond);
-
       if (intersection) {
         currentCond = intersection;
       } else {

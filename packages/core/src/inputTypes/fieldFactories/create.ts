@@ -25,7 +25,7 @@ export class AMCreateFieldFactory extends AMInputFieldFactory {
       // amLeave(node, transaction, stack) {
       //   const context = stack.pop() as AMObjectFieldContext;
 
-      //   const lastInStack = R.last(stack);
+      //   const lastInStack = stack.last();
       //   if (lastInStack instanceof AMDataContext) {
       //     lastInStack.addValue(context.fieldName, context.value);
       //   }

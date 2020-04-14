@@ -52,7 +52,7 @@ export class AMCreateManyRelationTypeFactory extends AMTypeFactory<
                     const opContext = stack.pop() as AMReadOperation;
                     opContext.setDataList(listContext);
 
-                    const lastInStack = R.last(stack);
+                    const lastInStack = stack.last();
                     if (lastInStack instanceof AMObjectFieldContext) {
                       lastInStack.setValue(
                         opContext
@@ -70,7 +70,7 @@ export class AMCreateManyRelationTypeFactory extends AMTypeFactory<
                   },
                   amLeave(node, transaction, stack) {
                     const listContext = stack.pop() as AMListValueContext;
-                    const lastInStack = R.last(stack);
+                    const lastInStack = stack.last();
                     if (lastInStack instanceof AMObjectFieldContext) {
                       lastInStack.setValue(listContext.values);
                     }
@@ -109,7 +109,7 @@ export class AMCreateManyRelationTypeFactory extends AMTypeFactory<
 
               opContext.setSelector(selectorContext);
 
-              const lastInStack = R.last(stack);
+              const lastInStack = stack.last();
               if (lastInStack instanceof AMObjectFieldContext) {
                 lastInStack.setValue(
                   opContext

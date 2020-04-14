@@ -1,7 +1,6 @@
 import { GraphQLNonNull, isInterfaceType } from 'graphql';
 import R from 'ramda';
 import {
-  AMField,
   AMMethodFieldFactory,
   AMModelType,
   GraphQLOperationType,
@@ -18,20 +17,29 @@ export class AMModelUpdateMutationFieldFactory extends AMMethodFieldFactory {
     return R.concat('update')(modelType.name);
   }
   getField(modelType: AMModelType) {
-    return <AMField>{
+    return {
       name: this.getFieldName(modelType),
       description: '',
+      extensions: undefined,
       isDeprecated: false,
       type: modelType,
       args: [
         {
           name: 'data',
+          description: undefined,
+          defaultValue: undefined,
+          extensions: undefined,
+          astNode: undefined,
           type: new GraphQLNonNull(
             this.configResolver.resolveInputType(modelType, this.links.data)
           ),
         },
         {
           name: 'where',
+          description: undefined,
+          defaultValue: undefined,
+          extensions: undefined,
+          astNode: undefined,
           type: new GraphQLNonNull(
             this.configResolver.resolveInputType(
               modelType,

@@ -19,9 +19,10 @@ export const AMFederationEntitiesFieldFactory: IAMFieldFactory = {
     return '_entities';
   },
   getField(inputType: AMModelType, schemaInfo) {
-    return <AMField>{
+    return {
       name: this.getFieldName(),
       description: '',
+      extensions: undefined,
       isDeprecated: false,
       type: new GraphQLNonNull(
         new GraphQLList(
@@ -31,6 +32,10 @@ export const AMFederationEntitiesFieldFactory: IAMFieldFactory = {
       args: [
         {
           name: 'representations',
+          defaultValue: undefined,
+          description: undefined,
+          extensions: undefined,
+          astNode: undefined,
           type: new GraphQLNonNull(
             new GraphQLList(
               new GraphQLNonNull(
@@ -45,9 +50,7 @@ export const AMFederationEntitiesFieldFactory: IAMFieldFactory = {
           amLeave(node, transaction, stack) {
             const context = stack.pop() as AMObjectFieldContext;
 
-            const lastOperation = getLastOperation(
-              stack
-            ) as AMReadEntitiesOperation;
+            const lastOperation = stack.lastOperation() as AMReadEntitiesOperation;
 
             const normalizedRepresentations = (context.value as {
               [k: string]: any;

@@ -20,7 +20,7 @@ export function defaultObjectFieldVisitorHandler(
     amLeave(node, transaction, stack) {
       const context = stack.pop() as AMObjectFieldContext;
 
-      const lastInStack = R.last(stack);
+      const lastInStack = stack.last();
       if (
         lastInStack instanceof AMDataContext ||
         lastInStack instanceof AMObjectFieldContext ||
@@ -41,8 +41,8 @@ export function updateObjectFieldVisitorHandler(
       stack.push(action);
     },
     amLeave(node, transaction, stack) {
-      const operation = getLastOperation(stack);
-      const path = getFieldPath(stack, operation);
+      const operation = stack.lastOperation();
+      const path = stack.getFieldPath(operation);
 
       const context = stack.pop() as AMObjectFieldContext;
       const set = operation.data['$set'] || {};
@@ -62,7 +62,7 @@ export function whereTypeVisitorHandler(
     },
     amLeave(node, transaction, stack) {
       const context = stack.pop() as AMSelectorContext;
-      const lastInStack = R.last(stack);
+      const lastInStack = stack.last();
 
       if (
         !options.emptyAllowed &&

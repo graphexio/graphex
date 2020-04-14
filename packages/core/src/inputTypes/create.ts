@@ -74,7 +74,7 @@ export class AMCreateTypeFactory extends AMTypeFactory<AMInputObjectType> {
       },
       amLeave(node, transaction, stack) {
         const context = stack.pop() as AMDataContext;
-        const lastInStack = R.last(stack);
+        const lastInStack = stack.last();
 
         if (lastInStack instanceof AMOperation) {
           lastInStack.setData(context);

@@ -65,7 +65,7 @@ export class AMUpdateManyNestedTypeFactory extends AMTypeFactory<
               // stack.push(context);
             },
             amLeave(node, transaction, stack) {
-              const lastInStack = R.last(stack);
+              const lastInStack = stack.last();
               if (lastInStack instanceof AMDataContext) {
                 lastInStack.addValue('updateMany', true);
               }
@@ -89,12 +89,12 @@ export class AMUpdateManyNestedTypeFactory extends AMTypeFactory<
         stack.push(context);
       },
       amLeave(node, transaction, stack) {
-        const operation = getLastOperation(stack);
-        const path = getFieldPath(stack, operation);
+        const operation = stack.lastOperation();
+        const path = stack.getFieldPath(operation);
         const context = stack.pop() as AMDataContext;
-        const lastInStack = R.last(stack);
+        const lastInStack = stack.last();
 
-        const data = getOperationData(stack, operation);
+        const data = stack.getOperationData(operation);
         if (!context.data || Object.keys(context.data).length != 1) {
           throw new Error(`${typeName} should contain one field`);
         }

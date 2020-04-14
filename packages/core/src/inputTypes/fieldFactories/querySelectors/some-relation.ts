@@ -42,7 +42,7 @@ export class SomeRelationSelector extends AMInputFieldFactory {
       },
       amLeave(node, transaction, stack) {
         const context = stack.pop() as AMReadOperation;
-        const lastInStack = R.last(stack);
+        const lastInStack = stack.last();
         if (
           lastInStack instanceof AMSelectorContext ||
           lastInStack instanceof AMObjectFieldContext

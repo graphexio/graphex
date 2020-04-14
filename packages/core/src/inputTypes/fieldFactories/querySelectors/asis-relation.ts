@@ -30,7 +30,7 @@ export class AsIsRelationSelector extends AMInputFieldFactory {
       ),
       amEnter(node: ObjectFieldNode, transaction, stack) {
         if (node.value.kind === 'NullValue') {
-          const lastInStack = R.last(stack);
+          const lastInStack = stack.last();
 
           if (
             lastInStack instanceof AMSelectorContext ||
@@ -49,7 +49,7 @@ export class AsIsRelationSelector extends AMInputFieldFactory {
       amLeave(node: ObjectFieldNode, transaction, stack) {
         if (node.value.kind !== 'NullValue') {
           const context = stack.pop() as AMReadOperation;
-          const lastInStack = R.last(stack);
+          const lastInStack = stack.last();
           if (
             lastInStack instanceof AMSelectorContext ||
             lastInStack instanceof AMObjectFieldContext

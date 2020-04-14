@@ -1,12 +1,11 @@
 import {
+  FieldNode,
   GraphQLSchema,
   isInterfaceType,
   isListType,
   isNonNullType,
   isObjectType,
-  FieldNode,
 } from 'graphql';
-import R from 'ramda';
 import { AMModelField } from '../definitions';
 import { AMFieldsSelectionContext } from '../execution/contexts/fieldsSelection';
 import { AMSelectorContext } from '../execution/contexts/selector';
@@ -14,20 +13,16 @@ import { AMOperation } from '../execution/operation';
 import { AMReadDBRefOperation } from '../execution/operations/readDbRefOperation';
 import { AMReadOperation } from '../execution/operations/readOperation';
 import { ResultPromiseTransforms } from '../execution/resultPromise';
-import {
-  getFieldsSelectionPathWithConditions,
-  getLastOperation,
-} from '../execution/utils';
-import { findConditionsIntersection, sameArguments } from './utils';
 import { RelationTransformation } from '../execution/resultPromise/relationTransformation';
+import { sameArguments } from './utils';
 
 export const addVisitorEvents = (schema: GraphQLSchema) => {
   Object.values(schema.getTypeMap()).forEach(type => {
     if (isObjectType(type) || isInterfaceType(type)) {
       Object.values(type.getFields()).forEach((field: AMModelField) => {
         if (field.relation) {
-          field.amEnter = (node: FieldNode, transaction, stack, PathInfo) => {
-            const lastStackItem = R.last(stack);
+          field.amEnter = (node: FieldNode, transaction, stack) => {
+            const lastStackItem = stack.last();
             if (lastStackItem instanceof AMFieldsSelectionContext) {
               if (!field.relation.external) {
                 lastStackItem.addField(field.relation.storeField);
@@ -37,17 +32,19 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
             }
 
             const rootOperation = transaction.operations[0];
-            const rootPathInfo = getFieldsSelectionPathWithConditions(
-              stack,
-              rootOperation
-            );
-            const { conditions: rootConditions } = rootPathInfo;
+            // const rootPathInfo = getFieldsSelectionPathWithConditions(
+            //   stack,
+            //   rootOperation
+            // );
+            // const { conditions: rootConditions } = rootPathInfo;
 
-            const rootPathArr = [...PathInfo.path(rootOperation)];
+            const rootCondition = stack.condition(rootOperation);
+
+            const rootPathArr = [...stack.path(rootOperation)];
             const rootPath = rootPathArr.join('.');
 
-            const lastOperation = getLastOperation(stack);
-            const pathArr = [...PathInfo.db(lastOperation)];
+            const lastOperation = stack.lastOperation();
+            const pathArr = [...stack.path(lastOperation)];
             if (!field.relation.external) {
               pathArr.pop();
               pathArr.push(field.relation.storeField);
@@ -64,7 +61,7 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
                 const transformationArgs =
                   transformation.getFieldNodes()?.[0]?.arguments || [];
                 if (sameArguments(fieldArgs, transformationArgs)) {
-                  transformation.addCondition(rootConditions);
+                  transformation.addCondition(rootCondition);
                   transformation.addFieldNode(node);
                   stack.push(transformation.dataOp);
                   return;
@@ -139,18 +136,18 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
                   (isNonNullType(field.type) && isListType(field.type.ofType)) //TODO: Add runtime checking for existing unique index on relation field.
               );
             }
-            transformation.addCondition(rootConditions);
+            transformation.addCondition(rootCondition);
             transformation.addFieldNode(node);
             rootOperation.addFieldTransformation(rootPath, transformation);
           };
           field.amLeave = (node, transaction, stack) => {
             const relationOperation = stack.pop();
-            // const lastOperation = getLastOperation(stack);
+            // const lastOperation = stack.lastOperation();
             // console.log(lastOperation);
           };
         } else {
           field.amEnter = (node, transaction, stack) => {
-            const lastStackItem = R.last(stack);
+            const lastStackItem = stack.last();
             if (lastStackItem instanceof AMFieldsSelectionContext) {
               lastStackItem.addField(field.dbName);
             }
