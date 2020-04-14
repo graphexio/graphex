@@ -368,7 +368,7 @@ test('Query Category with parent relation', async () => {
   `);
 });
 
-test('QueryCategoriesExtRelation', async () => {
+test('Query categories extRelation', async () => {
   const { errors, data } = await query({
     query: gql`
       query {
@@ -426,6 +426,78 @@ test('QueryCategoriesExtRelation', async () => {
       ],
     }
   `);
+});
+
+test('Query extRelation together with relation on the same storeField', async () => {
+  const { errors, data } = await query({
+    query: gql`
+      query {
+        categories {
+          title
+          subcategories {
+            title
+            subcategories {
+              title
+            }
+            parentCategory {
+              title
+            }
+          }
+        }
+      }
+    `,
+    variables: {},
+  });
+  expect(errors).toBeUndefined();
+  expect(data).toMatchInlineSnapshot(`
+Object {
+  "categories": Array [
+    Object {
+      "subcategories": Array [
+        Object {
+          "parentCategory": Object {
+            "title": "root",
+          },
+          "subcategories": Array [
+            Object {
+              "title": "React",
+            },
+          ],
+          "title": "JS",
+        },
+        Object {
+          "parentCategory": Object {
+            "title": "root",
+          },
+          "subcategories": Array [],
+          "title": "MongoDB",
+        },
+      ],
+      "title": "root",
+    },
+    Object {
+      "subcategories": Array [
+        Object {
+          "parentCategory": Object {
+            "title": "JS",
+          },
+          "subcategories": Array [],
+          "title": "React",
+        },
+      ],
+      "title": "JS",
+    },
+    Object {
+      "subcategories": Array [],
+      "title": "MongoDB",
+    },
+    Object {
+      "subcategories": Array [],
+      "title": "React",
+    },
+  ],
+}
+`);
 });
 
 test('Categories aggregate count', async () => {
