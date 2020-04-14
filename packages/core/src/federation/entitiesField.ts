@@ -1,27 +1,26 @@
 import {
+  getNamedType,
   GraphQLList,
   GraphQLNonNull,
-  getNamedType,
   isScalarType,
 } from 'graphql';
-import { AMField, AMModelType, IAMFieldFactory } from '../definitions';
+import R from 'ramda';
+import { AMModelType, IAMFieldFactory } from '../definitions';
+import { AMObjectFieldContext } from '../execution/contexts/objectField';
+import { AMReadEntitiesOperation } from '../execution/operations/readEntitiesOperation';
 import { resolve } from '../resolve';
 import { AMFederationAnyTypeFactory } from './anyType';
 import { AMFederationEntityTypeFactory } from './entityType';
-import { AMReadEntitiesOperation } from '../execution/operations/readEntitiesOperation';
-import { AMDataContext } from '../execution/contexts/data';
-import { AMObjectFieldContext } from '../execution/contexts/objectField';
-import { getLastOperation } from '../execution/utils';
-import R from 'ramda';
 
 export const AMFederationEntitiesFieldFactory: IAMFieldFactory = {
   getFieldName(): string {
     return '_entities';
   },
   getField(inputType: AMModelType, schemaInfo) {
-    return <AMField>{
+    return {
       name: this.getFieldName(),
       description: '',
+      extensions: undefined,
       isDeprecated: false,
       type: new GraphQLNonNull(
         new GraphQLList(
@@ -31,6 +30,10 @@ export const AMFederationEntitiesFieldFactory: IAMFieldFactory = {
       args: [
         {
           name: 'representations',
+          defaultValue: undefined,
+          description: undefined,
+          extensions: undefined,
+          astNode: undefined,
           type: new GraphQLNonNull(
             new GraphQLList(
               new GraphQLNonNull(
@@ -45,9 +48,7 @@ export const AMFederationEntitiesFieldFactory: IAMFieldFactory = {
           amLeave(node, transaction, stack) {
             const context = stack.pop() as AMObjectFieldContext;
 
-            const lastOperation = getLastOperation(
-              stack
-            ) as AMReadEntitiesOperation;
+            const lastOperation = stack.lastOperation() as AMReadEntitiesOperation;
 
             const normalizedRepresentations = (context.value as {
               [k: string]: any;

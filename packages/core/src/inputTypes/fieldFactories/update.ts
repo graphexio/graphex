@@ -1,12 +1,7 @@
 import TypeWrap from '@apollo-model/type-wrap';
 import { getNamedType, isCompositeType } from 'graphql';
-import { AMInputField, AMInputFieldFactory } from '../../definitions';
+import { AMInputFieldFactory, AMInputObjectType } from '../../definitions';
 import { AMObjectFieldContext } from '../../execution/contexts/objectField';
-import {
-  getFieldPath,
-  getLastOperation,
-  getOperationData,
-} from '../../execution/utils';
 
 export class AMUpdateFieldFactory extends AMInputFieldFactory {
   isApplicable(field) {
@@ -20,19 +15,22 @@ export class AMUpdateFieldFactory extends AMInputFieldFactory {
     return field.name;
   }
   getField(field) {
-    return <AMInputField>{
+    return {
       name: this.getFieldName(field),
-      type: new TypeWrap(field.type).setRequired(false).type(),
+      extensions: undefined,
+      type: new TypeWrap(field.type)
+        .setRequired(false)
+        .type() as AMInputObjectType,
       amEnter(node, transaction, stack) {
         const action = new AMObjectFieldContext(field.dbName);
         stack.push(action);
       },
       amLeave(node, transaction, stack) {
-        const operation = getLastOperation(stack);
-        const path = getFieldPath(stack, operation);
+        const operation = stack.lastOperation();
+        const path = stack.getFieldPath(operation);
         const context = stack.pop() as AMObjectFieldContext;
 
-        const data = getOperationData(stack, operation);
+        const data = stack.getOperationData(operation);
         const set = (data.data && data.data['$set']) || {};
         data.addValue('$set', set);
         set[path] = context.value;

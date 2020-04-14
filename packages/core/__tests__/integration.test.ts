@@ -1,9 +1,8 @@
 jest.setTimeout(20000);
 
-import prepare from './integration-prepare';
-
-import gql from 'graphql-tag';
 import { getIntrospectionQuery } from 'graphql';
+import gql from 'graphql-tag';
+import prepare from './integration-prepare';
 
 let testInstance: ReturnType<typeof prepare>;
 let query, mutate, connectToDatabase;
@@ -24,7 +23,7 @@ afterAll(async () => {
 });
 
 test('Introspection', async () => {
-  const { errors, data } = await query({
+  const { errors } = await query({
     query: getIntrospectionQuery(),
   });
   expect(errors).toBeUndefined();
@@ -50,7 +49,7 @@ test('QueryCategories empty', async () => {
 });
 
 test('Empty WhereUnique', async () => {
-  const { errors, data } = await query({
+  const { errors } = await query({
     query: gql`
       query {
         category(where: {}) {
@@ -369,7 +368,7 @@ test('Query Category with parent relation', async () => {
   `);
 });
 
-test('QueryCategoriesExtRelation', async () => {
+test('Query categories extRelation', async () => {
   const { errors, data } = await query({
     query: gql`
       query {
@@ -427,6 +426,78 @@ test('QueryCategoriesExtRelation', async () => {
       ],
     }
   `);
+});
+
+test('Query extRelation together with relation on the same storeField', async () => {
+  const { errors, data } = await query({
+    query: gql`
+      query {
+        categories {
+          title
+          subcategories {
+            title
+            subcategories {
+              title
+            }
+            parentCategory {
+              title
+            }
+          }
+        }
+      }
+    `,
+    variables: {},
+  });
+  expect(errors).toBeUndefined();
+  expect(data).toMatchInlineSnapshot(`
+Object {
+  "categories": Array [
+    Object {
+      "subcategories": Array [
+        Object {
+          "parentCategory": Object {
+            "title": "root",
+          },
+          "subcategories": Array [
+            Object {
+              "title": "React",
+            },
+          ],
+          "title": "JS",
+        },
+        Object {
+          "parentCategory": Object {
+            "title": "root",
+          },
+          "subcategories": Array [],
+          "title": "MongoDB",
+        },
+      ],
+      "title": "root",
+    },
+    Object {
+      "subcategories": Array [
+        Object {
+          "parentCategory": Object {
+            "title": "JS",
+          },
+          "subcategories": Array [],
+          "title": "React",
+        },
+      ],
+      "title": "JS",
+    },
+    Object {
+      "subcategories": Array [],
+      "title": "MongoDB",
+    },
+    Object {
+      "subcategories": Array [],
+      "title": "React",
+    },
+  ],
+}
+`);
 });
 
 test('Categories aggregate count', async () => {
@@ -1268,7 +1339,7 @@ test('QueryShopById after updates', async () => {
 });
 
 test('test empty object instead array', async () => {
-  const { data, errors } = await query({
+  const { errors } = await query({
     query: gql`
       mutation {
         createPost(
@@ -1307,7 +1378,7 @@ test('test empty object instead array', async () => {
 
 describe('nested', () => {
   test('where', async () => {
-    const { data, errors } = await query({
+    const { errors } = await query({
       query: gql`
         query posts($where: PostWhereInput) {
           posts(where: $where) {
@@ -1750,7 +1821,7 @@ test('Test createdAt, updatedAt', async () => {
 
 test('relation some', async () => {
   {
-    const { errors, data } = await query({
+    const { errors } = await query({
       query: gql`
         mutation {
           createPost(
@@ -1906,7 +1977,7 @@ test('Create interface', async () => {
 
 test('Custom discriminator', async () => {
   {
-    let { data, errors } = await query({
+    const { data, errors } = await query({
       query: gql`
         mutation {
           createPetDog(data: { name: "New dog" }) {
@@ -1929,7 +2000,7 @@ Object {
   }
 
   {
-    let { data, errors } = await query({
+    const { data, errors } = await query({
       query: gql`
         query {
           pets {
@@ -1954,4 +2025,227 @@ Object {
 }
 `);
   }
+});
+
+describe('schema merging', () => {
+  test('not intersecting fragments', async () => {
+    {
+      const { errors } = await mutate({
+        mutation: gql`
+          mutation {
+            createPost(
+              data: {
+                title: "new post for subscriber1"
+                body: "new post body"
+                owner: { connect: { User: { username: "subscriber1" } } }
+              }
+            ) {
+              id
+            }
+          }
+        `,
+        variables: {},
+      });
+      expect(errors).toBeUndefined();
+    }
+
+    const { data, errors } = await query({
+      query: gql`
+        {
+          users {
+            __typename
+            ... on Admin {
+              lastPost {
+                title
+              }
+            }
+            ... on Subscriber {
+              lastPost(where: { title: "new post for subscriber1" }) {
+                body
+              }
+            }
+          }
+        }
+      `,
+      variables: {},
+    });
+    expect(errors).toBeUndefined();
+    expect(data).toMatchInlineSnapshot(`
+Object {
+  "users": Array [
+    Object {
+      "__typename": "Subscriber",
+      "lastPost": Object {
+        "body": "new post body",
+      },
+    },
+    Object {
+      "__typename": "Admin",
+      "lastPost": Object {
+        "title": "Post with likes",
+      },
+    },
+    Object {
+      "__typename": "Admin",
+      "lastPost": Object {
+        "title": "Build GraphQL API with Apollo",
+      },
+    },
+    Object {
+      "__typename": "Admin",
+      "lastPost": null,
+    },
+    Object {
+      "__typename": "Admin",
+      "lastPost": null,
+    },
+    Object {
+      "__typename": "Admin",
+      "lastPost": null,
+    },
+  ],
+}
+`);
+  });
+
+  test('spread fragment', async () => {
+    const { data, errors } = await query({
+      query: gql`
+        fragment Title on Category {
+          title
+        }
+        query {
+          categories(first: 3) {
+            ...Title
+          }
+        }
+      `,
+      variables: {},
+    });
+    expect(errors).toBeUndefined();
+    expect(data).toMatchInlineSnapshot(`
+Object {
+  "categories": Array [
+    Object {
+      "title": "root",
+    },
+    Object {
+      "title": "JS",
+    },
+    Object {
+      "title": "MongoDB",
+    },
+  ],
+}
+`);
+  });
+
+  test('alias relation', async () => {
+    const { data, errors } = await query({
+      query: gql`
+        query {
+          categories(first: 3) {
+            title
+            parent: parentCategory {
+              title
+            }
+          }
+        }
+      `,
+      variables: {},
+    });
+    expect(errors).toBeUndefined();
+    expect(data).toMatchInlineSnapshot(`
+Object {
+  "categories": Array [
+    Object {
+      "parent": null,
+      "title": "root",
+    },
+    Object {
+      "parent": Object {
+        "title": "root",
+      },
+      "title": "JS",
+    },
+    Object {
+      "parent": Object {
+        "title": "root",
+      },
+      "title": "MongoDB",
+    },
+  ],
+}
+`);
+  });
+
+  test('alias extRelation', async () => {
+    await mutate({
+      mutation: gql`
+        mutation {
+          createCategory(
+            data: {
+              title: "React"
+              parentCategory: { connect: { title: "JS" } }
+            }
+          ) {
+            title
+          }
+        }
+      `,
+    });
+    const { data, errors } = await query({
+      query: gql`
+        query {
+          categories(first: 3) {
+            title
+            sub: subcategories {
+              title
+              sub: subcategories {
+                title
+              }
+            }
+          }
+        }
+      `,
+      variables: {},
+    });
+    expect(errors).toBeUndefined();
+    expect(data).toMatchInlineSnapshot(`
+Object {
+  "categories": Array [
+    Object {
+      "sub": Array [
+        Object {
+          "sub": Array [
+            Object {
+              "title": "React",
+            },
+          ],
+          "title": "JS",
+        },
+        Object {
+          "sub": Array [],
+          "title": "MongoDB",
+        },
+      ],
+      "title": "root",
+    },
+    Object {
+      "sub": Array [
+        Object {
+          "sub": Array [],
+          "title": "React",
+        },
+      ],
+      "title": "JS",
+    },
+    Object {
+      "sub": Array [],
+      "title": "MongoDB",
+    },
+  ],
+}
+`);
+  });
 });

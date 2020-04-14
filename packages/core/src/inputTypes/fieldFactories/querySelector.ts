@@ -1,9 +1,9 @@
 import { ASTNode, GraphQLInputType } from 'graphql';
-import R from 'ramda';
-import { AMModelField, AMVisitorStack } from '../../definitions';
+import { AMModelField } from '../../definitions';
 import { AMObjectFieldContext } from '../../execution/contexts/objectField';
 import { AMSelectorContext } from '../../execution/contexts/selector';
 import { AMTransaction } from '../../execution/transaction';
+import { AMVisitorStack } from '../../execution/visitorStack';
 import { AMQuerySelectorComplexFieldFactory } from './querySelectorComplex';
 
 export abstract class AMQuerySelectorFieldFactory extends AMQuerySelectorComplexFieldFactory {
@@ -15,8 +15,14 @@ export abstract class AMQuerySelectorFieldFactory extends AMQuerySelectorComplex
     stack: AMVisitorStack,
     context: AMObjectFieldContext,
     field: AMModelField
+  ): void;
+  applyValue(
+    node: ASTNode,
+    transaction: AMTransaction,
+    stack: AMVisitorStack,
+    context: AMObjectFieldContext
   ) {
-    const lastInStack = R.last(stack);
+    const lastInStack = stack.last();
     if (
       lastInStack instanceof AMSelectorContext ||
       lastInStack instanceof AMObjectFieldContext

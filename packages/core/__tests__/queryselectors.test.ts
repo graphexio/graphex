@@ -467,7 +467,14 @@ describe('relations', () => {
     expect(selector).toMatchInlineSnapshot(`
       Object {
         "commentIds": Object {
-          "$in": "AMResultPromise { Operation-1 -> distinct('_id') }",
+          "$in": ResultPromise {
+            "source": Array [
+              "Operation-1",
+              Distinct {
+                "path": "_id",
+              },
+            ],
+          },
         },
       }
     `);

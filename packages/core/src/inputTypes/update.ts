@@ -1,37 +1,20 @@
+import { getNamedType } from 'graphql';
 import R from 'ramda';
-import {
-  AMInputObjectType,
-  AMModelField,
-  AMModelType,
-  AMTypeFactory,
-  IAMInputFieldFactory,
-  IAMTypeFactory,
-} from '../definitions';
+import { AMInputObjectType, AMModelType, AMTypeFactory } from '../definitions';
 import { AMDataContext } from '../execution/contexts/data';
 import { AMListValueContext } from '../execution/contexts/listValue';
 // import { AMUpdateRelationFieldFactory } from './fieldFactories/updateRelation';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMOperation } from '../execution/operation';
-import {
-  getFieldPath,
-  getLastOperation,
-  getOperationData,
-} from '../execution/utils';
-import { AMUpdateFieldFactory } from './fieldFactories/update';
-import { AMUpdateNestedFieldFactory } from './fieldFactories/updateNested';
-import { AMUpdateRelationFieldFactory } from './fieldFactories/updateRelation';
-import { getNamedType } from 'graphql';
-
-const isApplicable = (field: AMModelField) => (
-  fieldFactory: IAMInputFieldFactory
-) => fieldFactory.isApplicable(field);
+// import { AMUpdateRelationFieldFactory } from './fieldFactories/updateRelation';
+// import { AMUpdateRelationFieldFactory } from './fieldFactories/updateRelation';
+// import { AMUpdateRelationFieldFactory } from './fieldFactories/updateRelation';
 
 export class AMUpdateTypeFactory extends AMTypeFactory<AMInputObjectType> {
   getTypeName(modelType: AMModelType): string {
     return `${modelType.name}UpdateInput`;
   }
   getType(modelType: AMModelType) {
-    const self: IAMTypeFactory<AMInputObjectType> = this;
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
@@ -61,10 +44,10 @@ export class AMUpdateTypeFactory extends AMTypeFactory<AMInputObjectType> {
 
         /* Begin filling updatedAt */
         if (modelType.mmUpdatedAtFields) {
-          const operation = getLastOperation(stack);
-          const path = getFieldPath(stack, operation);
+          const operation = stack.lastOperation();
+          const path = stack.getFieldPath(operation);
 
-          const data = getOperationData(stack, operation);
+          const data = stack.getOperationData(operation);
           const set = (data.data && data.data['$set']) || {};
           data.addValue('$set', set);
 
@@ -82,7 +65,7 @@ export class AMUpdateTypeFactory extends AMTypeFactory<AMInputObjectType> {
       },
       amLeave(node, transaction, stack) {
         const context = stack.pop() as AMDataContext;
-        const lastInStack = R.last(stack);
+        const lastInStack = stack.last();
 
         if (lastInStack instanceof AMOperation) {
           lastInStack.setData(context);

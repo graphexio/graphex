@@ -1,6 +1,5 @@
 import TypeWrap from '@apollo-model/type-wrap';
 import { getNamedType } from 'graphql';
-import * as R from 'ramda';
 import {
   AMInputField,
   AMInputFieldFactory,
@@ -42,7 +41,7 @@ export class SomeRelationSelector extends AMInputFieldFactory {
       },
       amLeave(node, transaction, stack) {
         const context = stack.pop() as AMReadOperation;
-        const lastInStack = R.last(stack);
+        const lastInStack = stack.last();
         if (
           lastInStack instanceof AMSelectorContext ||
           lastInStack instanceof AMObjectFieldContext
@@ -51,7 +50,9 @@ export class SomeRelationSelector extends AMInputFieldFactory {
             $in: context
               .getOutput()
               .map(
-                ResultPromiseTransforms.distinct(field.relation.relationField)
+                new ResultPromiseTransforms.Distinct(
+                  field.relation.relationField
+                )
               ),
           });
         }

@@ -1,16 +1,7 @@
 import TypeWrap from '@apollo-model/type-wrap';
 import { getNamedType, isCompositeType } from 'graphql';
-import {
-  AMInputField,
-  AMInputFieldFactory,
-  AMModelType,
-} from '../../definitions';
+import { AMInputFieldFactory, AMModelType } from '../../definitions';
 import { AMObjectFieldContext } from '../../execution/contexts/objectField';
-import {
-  getFieldPath,
-  getLastOperation,
-  getOperationData,
-} from '../../execution/utils';
 
 export class AMUpdateNestedFieldFactory extends AMInputFieldFactory {
   isApplicable(field) {
@@ -26,20 +17,21 @@ export class AMUpdateNestedFieldFactory extends AMInputFieldFactory {
       typeWrap.isMany() ? this.links.many : this.links.one
     );
 
-    return <AMInputField>{
+    return {
       name: this.getFieldName(field),
+      extensions: undefined,
       type,
       amEnter(node, transaction, stack) {
         const action = new AMObjectFieldContext(field.dbName);
         stack.push(action);
       },
       amLeave(node, transaction, stack) {
-        const operation = getLastOperation(stack);
-        const path = getFieldPath(stack, operation);
+        const operation = stack.lastOperation();
+        const path = stack.getFieldPath(operation);
         const context = stack.pop() as AMObjectFieldContext;
 
         if (context.value) {
-          const data = getOperationData(stack, operation);
+          const data = stack.getOperationData(operation);
           const set = (data.data && data.data['$set']) || {};
           data.addValue('$set', set);
           set[path] = context.value;

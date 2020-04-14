@@ -1,6 +1,5 @@
-import R from 'ramda';
-import { AMArgumet } from '../definitions';
 import { GraphQLInt } from 'graphql';
+import { AMArgumet } from '../definitions';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMOperation } from '../execution/operation';
 
@@ -17,7 +16,7 @@ export const skipArg: AMArgumet = {
   },
   amLeave(node, transaction, stack) {
     const context = stack.pop() as AMObjectFieldContext;
-    const lastInStack = R.last(stack);
+    const lastInStack = stack.last();
 
     if (lastInStack instanceof AMOperation) {
       lastInStack.setSkip(context.value as number);

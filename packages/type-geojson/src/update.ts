@@ -1,13 +1,8 @@
 import {
-  getFieldPath,
-  getLastOperation,
-  getOperationData,
-} from '@apollo-model/core/lib/execution/utils';
-import {
   AMInputField,
   AMInputFieldFactory,
-  AMObjectFieldContext,
   AMModelField,
+  AMObjectFieldContext,
 } from '@apollo-model/core';
 import { GraphQLNamedType } from 'graphql';
 
@@ -29,11 +24,11 @@ export class AMGeoJSONUpdateFieldFactory extends AMInputFieldFactory {
         stack.push(action);
       },
       amLeave(node, transaction, stack) {
-        const operation = getLastOperation(stack);
-        const path = getFieldPath(stack, operation);
+        const operation = stack.lastOperation();
+        const path = stack.getFieldPath(operation);
         const context = stack.pop() as AMObjectFieldContext;
 
-        const data = getOperationData(stack, operation);
+        const data = stack.getOperationData(operation);
         const set = (data.data && data.data['$set']) || {};
         data.addValue('$set', set);
         set[path] = context.value;

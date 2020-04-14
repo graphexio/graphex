@@ -1,5 +1,5 @@
 import * as R from 'ramda';
-import { AMResultPromise } from './resultPromise';
+import { AMResultPromise, Transformation } from './resultPromise';
 import { mapPath, completeAMResultPromise } from './utils';
 
 type MakePredicate = (...args) => R.Pred;
@@ -186,33 +186,37 @@ const makePredicate: MakePredicate = (key, value) => {
   return makeSimplePredicate(key, value);
 };
 
-export const transformArray = (
-  path: string,
-  filterParams: { where: { [key: string]: any } }
-) => (source: AMResultPromise<any>, dest: AMResultPromise<any>) => {
-  const pathArr = path.split('.');
-  const arrFieldName = pathArr.pop();
+export class TransformArray extends Transformation {
+  constructor(
+    public path: string,
+    public filterParams: { where: { [key: string]: any } }
+  ) {
+    super();
+  }
+  transform(source: AMResultPromise<any>, dest: AMResultPromise<any>) {
+    const pathArr = this.path.split('.');
+    const arrFieldName = pathArr.pop();
 
-  source.then(async value => {
-    const filter = makeObjectPredicate(
-      await completeAMResultPromise(filterParams.where)
-    );
+    source.then(async value => {
+      const filter = makeObjectPredicate(
+        await completeAMResultPromise(this.filterParams.where)
+      );
 
-    const mapItem = item => {
-      const arr = item[arrFieldName];
-      if (Array.isArray(arr)) {
-        return {
-          ...item,
-          [arrFieldName]: arr.filter(filter),
-        };
-      } else {
-        return item;
-      }
-    };
+      const mapItem = item => {
+        const arr = item[arrFieldName];
+        if (Array.isArray(arr)) {
+          return {
+            ...item,
+            [arrFieldName]: arr.filter(filter),
+          };
+        } else {
+          return item;
+        }
+      };
 
-    const newValue = mapPath(pathArr, mapItem)(value);
-    dest.resolve(newValue);
-  });
-  source.catch(dest.reject);
-  return `transformArray('${path}', ${JSON.stringify(filterParams)}')`;
-};
+      const newValue = mapPath(pathArr, mapItem)(value);
+      dest.resolve(newValue);
+    });
+    source.catch(dest.reject);
+  }
+}

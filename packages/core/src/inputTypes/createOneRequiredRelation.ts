@@ -1,5 +1,5 @@
 import { UserInputError } from 'apollo-server';
-import R from 'ramda';
+import { ObjectValueNode } from 'graphql';
 import {
   AMInputFieldConfigMap,
   AMInputObjectType,
@@ -20,7 +20,7 @@ export class AMCreateOneRequiredRelationTypeFactory extends AMTypeFactory<
   getType(modelType: AMModelType) {
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
-      amEnter(node) {
+      amEnter(node: ObjectValueNode) {
         if (node.fields.length != 1) {
           throw new UserInputError(`'create' or 'connect' needed`);
         }
@@ -45,13 +45,13 @@ export class AMCreateOneRequiredRelationTypeFactory extends AMTypeFactory<
                   amLeave(node, transaction, stack) {
                     const opContext = stack.pop() as AMCreateOperation;
 
-                    const lastInStack = R.last(stack);
+                    const lastInStack = stack.last();
                     if (lastInStack instanceof AMObjectFieldContext) {
                       lastInStack.setValue(
                         opContext
                           .getOutput()
                           .map(
-                            ResultPromiseTransforms.path(
+                            new ResultPromiseTransforms.Path(
                               lastInStack.field.relation.relationField
                             )
                           )
@@ -76,13 +76,13 @@ export class AMCreateOneRequiredRelationTypeFactory extends AMTypeFactory<
             amLeave(node, transaction, stack) {
               const opContext = stack.pop() as AMReadOperation;
 
-              const lastInStack = R.last(stack);
+              const lastInStack = stack.last();
               if (lastInStack instanceof AMObjectFieldContext) {
                 lastInStack.setValue(
                   opContext
                     .getOutput()
                     .map(
-                      ResultPromiseTransforms.path(
+                      new ResultPromiseTransforms.Path(
                         lastInStack.field.relation.relationField
                       )
                     )

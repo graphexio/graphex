@@ -1,5 +1,7 @@
-import { AMResultPromise } from './resultPromise';
 import * as R from 'ramda';
+import { AMOperation } from '../operation';
+import { RelationTransformation } from './relationTransformation';
+import { AMResultPromise } from './resultPromise';
 import { mapPath } from './utils';
 
 const groupForLookup = (storeField: string) => (
@@ -28,32 +30,44 @@ const groupForLookup = (storeField: string) => (
   return result;
 };
 
-export const lookup = (
-  path: string,
-  relationField: string,
-  storeField: string,
-  getData: () => AMResultPromise<any>,
-  many = true
-) => (source: AMResultPromise<any>, dest: AMResultPromise<any>) => {
-  const pathArr = path.split('.');
-  const lookupFieldName = pathArr.pop();
+export class Lookup extends RelationTransformation {
+  constructor(
+    public path: string,
+    public relationField: string,
+    public storeField: string,
+    public dataOp: AMOperation,
+    public many = true
+  ) {
+    super();
+  }
 
-  source.getPromise().then(async value => {
-    const dataMap = groupForLookup(storeField)(await getData().getPromise());
-    const mapItem = (item: any) => {
-      let val = dataMap[item[relationField]] || [];
-      if (!many) {
-        val = R.head(val);
-      }
-      return {
-        ...item,
-        [lookupFieldName]: val,
+  transform(source: AMResultPromise<any>, dest: AMResultPromise<any>) {
+    const pathArr = this.path.split('.');
+    const lookupFieldName = pathArr.pop();
+
+    source.getPromise().then(async value => {
+      const dataMap = groupForLookup(this.storeField)(
+        await this.dataOp.getOutput().getPromise()
+      );
+      const mapItem = (item: any) => {
+        let val = dataMap[item[this.relationField]] || [];
+        if (!this.many) {
+          val = R.head(val);
+        }
+        const result = {
+          ...item,
+          [lookupFieldName]: val,
+        };
+        return result;
       };
-    };
-    const newValue = mapPath(pathArr, mapItem)(value);
-    dest.resolve(newValue);
-  });
-  source.getPromise().catch(dest.reject);
-
-  return `lookup('${path}', '${relationField}', '${storeField}', ${getData().toJSON()}, ${many})`;
-};
+      const newValue = mapPath(
+        pathArr,
+        mapItem,
+        [],
+        this.getConditions()
+      )(value);
+      dest.resolve(newValue);
+    });
+    source.getPromise().catch(dest.reject);
+  }
+}

@@ -1,15 +1,24 @@
+import { AMModelType } from '../../definitions';
 import { AMContext } from '../context';
 import { AMFieldsSelectionContext } from './fieldsSelection';
 
 export class AMFragmentContext extends AMContext {
-  private fieldsSelectionContext: AMFieldsSelectionContext;
-
-  constructor(options?: { fieldsSelectionContext?: AMFieldsSelectionContext }) {
+  constructor(
+    private options?: {
+      fieldsSelectionContext?: AMFieldsSelectionContext;
+      contextType?: AMModelType;
+      conditionType?: AMModelType;
+      actualConditionType?: AMModelType;
+    }
+  ) {
     super();
-    this.fieldsSelectionContext = options?.fieldsSelectionContext;
   }
 
   getFieldsSelectionContext() {
-    return this.fieldsSelectionContext;
+    return this.options.fieldsSelectionContext;
+  }
+
+  getActualConditionType() {
+    return this.options.actualConditionType;
   }
 }

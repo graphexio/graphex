@@ -1,6 +1,5 @@
 import { GraphQLList } from 'graphql';
 import { DBRef } from 'mongodb';
-import R from 'ramda';
 import {
   AMInputFieldConfigMap,
   AMInputObjectType,
@@ -18,11 +17,6 @@ import {
   AMResultPromise,
   ResultPromiseTransforms,
 } from '../execution/resultPromise';
-import {
-  getFieldPath,
-  getLastOperation,
-  getOperationData,
-} from '../execution/utils';
 
 export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
   AMInputObjectType
@@ -66,13 +60,13 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
                     const opContext = stack.pop() as AMReadOperation;
                     opContext.setDataList(listContext);
 
-                    const lastInStack = R.last(stack);
+                    const lastInStack = stack.last();
                     if (lastInStack instanceof AMDataContext) {
                       lastInStack.addValue(
                         'create',
                         opContext
                           .getOutput()
-                          .map(ResultPromiseTransforms.path('insertedIds'))
+                          .map(new ResultPromiseTransforms.Path('insertedIds'))
                       );
                     }
                   },
@@ -85,7 +79,7 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
                   },
                   amLeave(node, transaction, stack) {
                     const listContext = stack.pop() as AMListValueContext;
-                    const lastInStack = R.last(stack);
+                    const lastInStack = stack.last();
                     if (lastInStack instanceof AMDataContext) {
                       lastInStack.addValue('create', listContext.values);
                     }
@@ -121,13 +115,13 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
                     const opContext = stack.pop() as AMReadOperation;
                     opContext.setDataList(listContext);
 
-                    const lastInStack = R.last(stack);
+                    const lastInStack = stack.last();
                     if (lastInStack instanceof AMDataContext) {
                       lastInStack.addValue(
                         'recreate',
                         opContext
                           .getOutput()
-                          .map(ResultPromiseTransforms.path('insertedIds'))
+                          .map(new ResultPromiseTransforms.Path('insertedIds'))
                       );
                     }
                   },
@@ -140,7 +134,7 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
                   },
                   amLeave(node, transaction, stack) {
                     const listContext = stack.pop() as AMListValueContext;
-                    const lastInStack = R.last(stack);
+                    const lastInStack = stack.last();
                     if (lastInStack instanceof AMDataContext) {
                       lastInStack.addValue('recreate', listContext.values);
                     }
@@ -185,10 +179,10 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
 
                     opContext.setSelector(selectorContext);
 
-                    const lastInStack = R.last(stack);
+                    const lastInStack = stack.last();
                     if (lastInStack instanceof AMDataContext) {
-                      const objectFieldContext = R.last(
-                        R.dropLast(1, stack)
+                      const objectFieldContext = stack.last(
+                        1
                       ) as AMObjectFieldContext;
 
                       lastInStack.addValue(
@@ -196,7 +190,7 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
                         opContext
                           .getOutput()
                           .map(
-                            ResultPromiseTransforms.distinct(
+                            new ResultPromiseTransforms.Distinct(
                               objectFieldContext.field.relation.relationField
                             )
                           )
@@ -211,7 +205,7 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
                   },
                   amLeave(node, transaction, stack) {
                     const listContext = stack.pop() as AMListValueContext;
-                    const lastInStack = R.last(stack);
+                    const lastInStack = stack.last();
                     if (lastInStack instanceof AMDataContext) {
                       lastInStack.addValue('connect', listContext.values);
                     }
@@ -256,10 +250,10 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
 
                     opContext.setSelector(selectorContext);
 
-                    const lastInStack = R.last(stack);
+                    const lastInStack = stack.last();
                     if (lastInStack instanceof AMDataContext) {
-                      const objectFieldContext = R.last(
-                        R.dropLast(1, stack)
+                      const objectFieldContext = stack.last(
+                        1
                       ) as AMObjectFieldContext;
 
                       lastInStack.addValue(
@@ -267,7 +261,7 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
                         opContext
                           .getOutput()
                           .map(
-                            ResultPromiseTransforms.distinct(
+                            new ResultPromiseTransforms.Distinct(
                               objectFieldContext.field.relation.relationField
                             )
                           )
@@ -282,7 +276,7 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
                   },
                   amLeave(node, transaction, stack) {
                     const listContext = stack.pop() as AMListValueContext;
-                    const lastInStack = R.last(stack);
+                    const lastInStack = stack.last();
                     if (lastInStack instanceof AMDataContext) {
                       lastInStack.addValue('reconnect', listContext.values);
                     }
@@ -307,7 +301,7 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
                   },
                   amLeave(node, transaction, stack) {
                     const listContext = stack.pop() as AMListValueContext;
-                    const lastInStack = R.last(stack);
+                    const lastInStack = stack.last();
                     if (lastInStack instanceof AMDataContext) {
                       lastInStack.addValue('disconnect', listContext.values);
                     }
@@ -332,17 +326,12 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
                   },
                   amLeave(node, transaction, stack) {
                     const listContext = stack.pop() as AMListValueContext;
-                    const deleteOperation = new AMDeleteDBRefOperation(
-                      transaction,
-                      {
-                        many: true,
-                        dbRefList: listContext.values as AMResultPromise<
-                          DBRef
-                        >[],
-                      }
-                    );
+                    new AMDeleteDBRefOperation(transaction, {
+                      many: true,
+                      dbRefList: listContext.values as AMResultPromise<DBRef>[],
+                    });
 
-                    const lastInStack = R.last(stack);
+                    const lastInStack = stack.last();
                     if (lastInStack instanceof AMDataContext) {
                       lastInStack.addValue('delete', listContext.values);
                     }
@@ -358,12 +347,12 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
         stack.push(context);
       },
       amLeave(node, transaction, stack) {
-        const operation = getLastOperation(stack);
-        const path = getFieldPath(stack, operation);
+        const operation = stack.lastOperation();
+        const path = stack.getFieldPath(operation);
         const context = stack.pop() as AMDataContext;
-        const lastInStack = R.last(stack);
+        const lastInStack = stack.last();
 
-        const data = getOperationData(stack, operation);
+        const data = stack.getOperationData(operation);
         if (!context.data || Object.keys(context.data).length != 1) {
           throw new Error(`${typeName} should contain one filled field`);
         }

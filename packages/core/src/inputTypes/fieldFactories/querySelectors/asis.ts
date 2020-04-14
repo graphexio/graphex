@@ -1,21 +1,11 @@
 import TypeWrap from '@apollo-model/type-wrap';
-import {
-  ASTNode,
-  getNamedType,
-  GraphQLInputType,
-  isCompositeType,
-  isInterfaceType,
-} from 'graphql';
-import * as R from 'ramda';
-import {
-  AMModelField,
-  AMModelType,
-  AMVisitorStack,
-} from '../../../definitions';
+import { ASTNode, getNamedType, isCompositeType } from 'graphql';
+import { AMModelField, AMModelType } from '../../../definitions';
 import { AMObjectFieldContext } from '../../../execution/contexts/objectField';
 import { AMSelectorContext } from '../../../execution/contexts/selector';
 import { AMTransaction } from '../../../execution/transaction';
 import { AMQuerySelectorComplexFieldFactory } from '../querySelectorComplex';
+import { AMVisitorStack } from '../../../execution/visitorStack';
 
 export class AsIsSelector extends AMQuerySelectorComplexFieldFactory {
   isApplicable(field: AMModelField) {
@@ -43,7 +33,7 @@ export class AsIsSelector extends AMQuerySelectorComplexFieldFactory {
     context: AMObjectFieldContext,
     field: AMModelField
   ) {
-    const lastInStack = R.last(stack);
+    const lastInStack = stack.last();
     if (
       lastInStack instanceof AMSelectorContext ||
       lastInStack instanceof AMObjectFieldContext

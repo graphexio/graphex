@@ -3,13 +3,11 @@ import {
   GraphQLInterfaceType,
   isInterfaceType,
 } from 'graphql';
-import R from 'ramda';
 import {
   AMInputFieldConfig,
   AMInputObjectType,
   AMModelType,
   AMTypeFactory,
-  IAMTypeFactory,
 } from '../definitions';
 import { AMListValueContext } from '../execution/contexts/listValue';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
@@ -51,7 +49,7 @@ export class AMInterfaceWhereUniqueTypeFactory extends AMTypeFactory<
                         modelType.mmDiscriminatorField &&
                         possibleType.mmDiscriminator
                       ) {
-                        const lastInStack = R.last(stack);
+                        const lastInStack = stack.last();
                         if (lastInStack instanceof AMReadOperation) {
                           if (lastInStack.selector) {
                             lastInStack.selector.addValue(
@@ -80,15 +78,15 @@ export class AMInterfaceWhereUniqueTypeFactory extends AMTypeFactory<
                     },
                     amLeave(node, transaction, stack) {
                       const readOp = stack.pop() as AMReadOperation;
-                      const lastInStack = R.last(stack);
+                      const lastInStack = stack.last();
 
                       if (lastInStack instanceof AMObjectFieldContext) {
                         lastInStack.setValue(
                           readOp
                             .getOutput()
-                            .map(ResultPromiseTransforms.path('_id'))
+                            .map(new ResultPromiseTransforms.Path('_id'))
                             .map(
-                              ResultPromiseTransforms.dbRef(
+                              new ResultPromiseTransforms.ToDbRef(
                                 possibleType.mmCollectionName
                               )
                             )
@@ -97,9 +95,9 @@ export class AMInterfaceWhereUniqueTypeFactory extends AMTypeFactory<
                         lastInStack.addValue(
                           readOp
                             .getOutput()
-                            .map(ResultPromiseTransforms.path('_id'))
+                            .map(new ResultPromiseTransforms.Path('_id'))
                             .map(
-                              ResultPromiseTransforms.dbRef(
+                              new ResultPromiseTransforms.ToDbRef(
                                 possibleType.mmCollectionName
                               )
                             )

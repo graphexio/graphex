@@ -1,20 +1,17 @@
-import TypeWrap from '@apollo-model/type-wrap';
 import { getNamedType, ObjectFieldNode } from 'graphql';
-import * as R from 'ramda';
 import {
   AMInputField,
   AMInputFieldFactory,
   AMModelField,
   AMModelType,
 } from '../../../definitions';
-import { AMSelectorContext } from '../../../execution/contexts/selector';
 import { AMObjectFieldContext } from '../../../execution/contexts/objectField';
+import { AMSelectorContext } from '../../../execution/contexts/selector';
 import { AMReadOperation } from '../../../execution/operations/readOperation';
 import { ResultPromiseTransforms } from '../../../execution/resultPromise';
 
 export class AsIsRelationSelector extends AMInputFieldFactory {
   isApplicable(field: AMModelField) {
-    const typeWrap = new TypeWrap(field.type);
     return Boolean(field.relation);
   }
   getFieldName(field: AMModelField) {
@@ -30,7 +27,7 @@ export class AsIsRelationSelector extends AMInputFieldFactory {
       ),
       amEnter(node: ObjectFieldNode, transaction, stack) {
         if (node.value.kind === 'NullValue') {
-          const lastInStack = R.last(stack);
+          const lastInStack = stack.last();
 
           if (
             lastInStack instanceof AMSelectorContext ||
@@ -49,7 +46,7 @@ export class AsIsRelationSelector extends AMInputFieldFactory {
       amLeave(node: ObjectFieldNode, transaction, stack) {
         if (node.value.kind !== 'NullValue') {
           const context = stack.pop() as AMReadOperation;
-          const lastInStack = R.last(stack);
+          const lastInStack = stack.last();
           if (
             lastInStack instanceof AMSelectorContext ||
             lastInStack instanceof AMObjectFieldContext
@@ -58,7 +55,9 @@ export class AsIsRelationSelector extends AMInputFieldFactory {
               $in: context
                 .getOutput()
                 .map(
-                  ResultPromiseTransforms.distinct(field.relation.relationField)
+                  new ResultPromiseTransforms.Distinct(
+                    field.relation.relationField
+                  )
                 ),
             });
           }

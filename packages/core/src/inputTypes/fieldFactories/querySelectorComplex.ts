@@ -1,17 +1,12 @@
-import {
-  ASTNode,
-  getNamedType,
-  GraphQLInputType,
-  ObjectFieldNode,
-} from 'graphql';
+import { ASTNode, GraphQLInputType } from 'graphql';
 import {
   AMInputField,
   AMInputFieldFactory,
   AMModelField,
-  AMVisitorStack,
 } from '../../definitions';
 import { AMObjectFieldContext } from '../../execution/contexts/objectField';
 import { AMTransaction } from '../../execution/transaction';
+import { AMVisitorStack } from '../../execution/visitorStack';
 
 export abstract class AMQuerySelectorComplexFieldFactory extends AMInputFieldFactory {
   abstract getFieldType(field: AMModelField): GraphQLInputType;
@@ -24,21 +19,19 @@ export abstract class AMQuerySelectorComplexFieldFactory extends AMInputFieldFac
   ): void;
 
   getField(field: AMModelField) {
-    const self = this;
-    const namedType = getNamedType(field.type);
     const type = this.getFieldType(field);
 
-    return <AMInputField>{
+    return {
       name: this.getFieldName(field),
       type,
-      amEnter(node: ObjectFieldNode, transaction, stack) {
+      amEnter: (node, transaction, stack) => {
         const context = new AMObjectFieldContext(field.dbName);
         stack.push(context);
       },
-      amLeave(node, transaction, stack) {
+      amLeave: (node, transaction, stack) => {
         const context = stack.pop() as AMObjectFieldContext;
-        self.applyValue(node, transaction, stack, context, field);
+        this.applyValue(node, transaction, stack, context, field);
       },
-    };
+    } as AMInputField;
   }
 }

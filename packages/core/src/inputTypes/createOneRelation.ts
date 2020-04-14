@@ -1,4 +1,3 @@
-import R from 'ramda';
 import {
   AMInputFieldConfigMap,
   AMInputObjectType,
@@ -39,13 +38,13 @@ export class AMCreateOneRelationTypeFactory extends AMTypeFactory<
                   amLeave(node, transaction, stack) {
                     const opContext = stack.pop() as AMCreateOperation;
 
-                    const lastInStack = R.last(stack);
+                    const lastInStack = stack.last();
                     if (lastInStack instanceof AMObjectFieldContext) {
                       lastInStack.setValue(
                         opContext
                           .getOutput()
                           .map(
-                            ResultPromiseTransforms.path(
+                            new ResultPromiseTransforms.Path(
                               lastInStack.field.relation.relationField
                             )
                           )
@@ -72,13 +71,13 @@ export class AMCreateOneRelationTypeFactory extends AMTypeFactory<
                   amLeave(node, transaction, stack) {
                     const opContext = stack.pop() as AMReadOperation;
 
-                    const lastInStack = R.last(stack);
+                    const lastInStack = stack.last();
                     if (lastInStack instanceof AMObjectFieldContext) {
                       lastInStack.setValue(
                         opContext
                           .getOutput()
                           .map(
-                            ResultPromiseTransforms.path(
+                            new ResultPromiseTransforms.Path(
                               lastInStack.field.relation.relationField
                             )
                           )

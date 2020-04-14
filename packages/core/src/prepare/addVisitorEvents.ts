@@ -1,11 +1,11 @@
 import {
+  FieldNode,
   GraphQLSchema,
   isInterfaceType,
   isListType,
   isNonNullType,
   isObjectType,
 } from 'graphql';
-import R from 'ramda';
 import { AMModelField } from '../definitions';
 import { AMFieldsSelectionContext } from '../execution/contexts/fieldsSelection';
 import { AMSelectorContext } from '../execution/contexts/selector';
@@ -13,15 +13,16 @@ import { AMOperation } from '../execution/operation';
 import { AMReadDBRefOperation } from '../execution/operations/readDbRefOperation';
 import { AMReadOperation } from '../execution/operations/readOperation';
 import { ResultPromiseTransforms } from '../execution/resultPromise';
-import { getFieldsSelectionPath, getLastOperation } from '../execution/utils';
+import { RelationTransformation } from '../execution/resultPromise/relationTransformation';
+import { sameArguments } from './utils';
 
 export const addVisitorEvents = (schema: GraphQLSchema) => {
   Object.values(schema.getTypeMap()).forEach(type => {
     if (isObjectType(type) || isInterfaceType(type)) {
       Object.values(type.getFields()).forEach((field: AMModelField) => {
         if (field.relation) {
-          field.amEnter = (node, transaction, stack) => {
-            const lastStackItem = R.last(stack);
+          field.amEnter = (node: FieldNode, transaction, stack) => {
+            const lastStackItem = stack.last();
             if (lastStackItem instanceof AMFieldsSelectionContext) {
               if (!field.relation.external) {
                 lastStackItem.addField(field.relation.storeField);
@@ -30,14 +31,36 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
               }
             }
 
-            const lastOperation = getLastOperation(stack);
-            let path = getFieldsSelectionPath(stack, lastOperation);
+            const rootOperation = transaction.operations[0];
+            const rootCondition = stack.condition(rootOperation);
 
-            if (field.relation.external) {
-              const pathArr = path.split('.');
+            const rootPathArr = stack.path(rootOperation);
+            const rootPath = rootPathArr.join('.');
+
+            const lastOperation = stack.lastOperation();
+            const pathArr = stack.path(lastOperation);
+            if (!field.relation.external) {
               pathArr.pop();
-              pathArr.push(field.name);
-              path = pathArr.join('.');
+              pathArr.push(field.relation.storeField);
+            }
+            const path = pathArr.join('.');
+
+            //look for existing transformation for the field with the same args
+            const existingTransformations =
+              rootOperation.fieldTransformations.get(rootPath) || [];
+
+            const fieldArgs = node.arguments || [];
+            for (const transformation of existingTransformations) {
+              if (transformation instanceof RelationTransformation) {
+                const transformationArgs =
+                  transformation.getFieldNodes()?.[0]?.arguments || [];
+                if (sameArguments(fieldArgs, transformationArgs)) {
+                  transformation.addCondition(rootCondition);
+                  transformation.addFieldNode(node);
+                  stack.push(transformation.dataOp);
+                  return;
+                }
+              }
             }
 
             let relationOperation: AMOperation;
@@ -52,7 +75,7 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
                         [field.relation.relationField]: {
                           $in: lastOperation
                             .getResult()
-                            .map(ResultPromiseTransforms.distinct(path)),
+                            .map(new ResultPromiseTransforms.Distinct(path)),
                         },
                       }
                     : {
@@ -60,7 +83,7 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
                           $in: lastOperation
                             .getResult()
                             .map(
-                              ResultPromiseTransforms.distinct(
+                              new ResultPromiseTransforms.Distinct(
                                 field.relation.relationField
                               )
                             ),
@@ -73,62 +96,55 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
                 many: true,
                 dbRefList: lastOperation
                   .getResult()
-                  .map(ResultPromiseTransforms.distinct(path)),
+                  .map(new ResultPromiseTransforms.Distinct(path)),
               });
             }
 
             stack.push(relationOperation);
 
+            let transformation: RelationTransformation;
             if (field.relation.abstract) {
-              lastOperation.setOutput(
-                lastOperation
-                  .getOutput()
-                  .map(
-                    ResultPromiseTransforms.dbRefReplace(path, () =>
-                      relationOperation.getOutput()
-                    )
-                  )
+              const displayField = rootPathArr.pop();
+              transformation = new ResultPromiseTransforms.DbRefReplace(
+                rootPathArr,
+                displayField,
+                field.relation.storeField,
+                relationOperation
               );
             } else if (!field.relation.external) {
-              lastOperation.setOutput(
-                lastOperation
-                  .getOutput()
-                  .map(
-                    ResultPromiseTransforms.distinctReplace(
-                      path,
-                      field.relation.relationField,
-                      () => relationOperation.getOutput()
-                    )
-                  )
+              const displayField = rootPathArr.pop();
+              transformation = new ResultPromiseTransforms.DistinctReplace(
+                rootPathArr,
+                displayField,
+                field.relation.storeField,
+                field.relation.relationField,
+                relationOperation
               );
             } else {
-              lastOperation.setOutput(
-                lastOperation.getOutput().map(
-                  ResultPromiseTransforms.lookup(
-                    path,
-                    field.relation.relationField,
-                    field.relation.storeField,
-                    () => relationOperation.getOutput(),
-                    isListType(field.type) ||
-                      (isNonNullType(field.type) &&
-                        isListType(field.type.ofType)) //TODO: Add runtime checking for existing unique index on relation field.
-                  )
-                )
+              //TODO: Add runtime checking for existing unique index on relation field.
+              transformation = new ResultPromiseTransforms.Lookup(
+                rootPath,
+                field.relation.relationField,
+                field.relation.storeField,
+                relationOperation,
+                isListType(field.type) ||
+                  (isNonNullType(field.type) && isListType(field.type.ofType))
               );
             }
+            transformation.addCondition(rootCondition);
+            transformation.addFieldNode(node);
+            rootOperation.addFieldTransformation(rootPath, transformation);
           };
           field.amLeave = (node, transaction, stack) => {
             stack.pop();
           };
         } else {
           field.amEnter = (node, transaction, stack) => {
-            const lastStackItem = R.last(stack);
+            const lastStackItem = stack.last();
             if (lastStackItem instanceof AMFieldsSelectionContext) {
               lastStackItem.addField(field.dbName);
             }
           };
-          // field.amLeave=(node, transaction, stack)=>{
-          // },
         }
       });
     }

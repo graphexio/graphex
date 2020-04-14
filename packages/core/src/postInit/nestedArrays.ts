@@ -5,7 +5,6 @@ import { skipArg } from '../args/skip';
 import { AMConfigResolver } from '../config/resolver';
 import { AMModelField, AMModelType } from '../definitions';
 import { AMObjectFieldContext } from '../execution';
-import { getFieldPath, getLastOperation } from '../execution/utils';
 import { ResultPromiseTransforms } from '../execution/resultPromise';
 
 export const nestedArrays = (
@@ -36,12 +35,12 @@ export const nestedArrays = (
               },
               amLeave: (node, transaction, stack) => {
                 const context = stack.pop() as AMObjectFieldContext;
-                const operation = getLastOperation(stack);
-                const path = getFieldPath(stack, operation);
+                const operation = stack.lastOperation();
+                const path = stack.getFieldPath(operation);
                 // console.log(path, context.value);
                 operation.setOutput(
                   operation.getOutput().map(
-                    ResultPromiseTransforms.transformArray(path, {
+                    new ResultPromiseTransforms.TransformArray(path, {
                       where: context.value as {},
                     })
                   )

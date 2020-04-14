@@ -1,11 +1,5 @@
 import { getNamedType, isInterfaceType } from 'graphql';
-import R from 'ramda';
-import {
-  AMInputObjectType,
-  AMModelType,
-  AMTypeFactory,
-  IAMTypeFactory,
-} from '../definitions';
+import { AMInputObjectType, AMModelType, AMTypeFactory } from '../definitions';
 import { AMDataContext } from '../execution/contexts/data';
 import { AMListValueContext } from '../execution/contexts/listValue';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
@@ -19,7 +13,6 @@ export class AMCreateTypeFactory extends AMTypeFactory<AMInputObjectType> {
     return `${modelType.name}CreateInput`;
   }
   getType(modelType: AMModelType) {
-    const self: IAMTypeFactory<AMInputObjectType> = this;
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
@@ -74,7 +67,7 @@ export class AMCreateTypeFactory extends AMTypeFactory<AMInputObjectType> {
       },
       amLeave(node, transaction, stack) {
         const context = stack.pop() as AMDataContext;
-        const lastInStack = R.last(stack);
+        const lastInStack = stack.last();
 
         if (lastInStack instanceof AMOperation) {
           lastInStack.setData(context);

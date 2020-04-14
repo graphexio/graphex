@@ -1,5 +1,4 @@
 import {
-  AMField,
   AMMethodFieldFactory,
   AMModelType,
   GraphQLOperationType,
@@ -17,14 +16,19 @@ export class AMModelSingleQueryFieldFactory extends AMMethodFieldFactory {
     return lowercaseFirstLetter(modelType.name);
   }
   getField(modelType: AMModelType) {
-    return <AMField>{
+    return {
       name: this.getFieldName(modelType),
       description: '',
+      extensions: undefined,
       isDeprecated: false,
       type: modelType,
       args: [
         {
           name: 'where',
+          description: undefined,
+          defaultValue: undefined,
+          extensions: undefined,
+          astNode: undefined,
           type: this.configResolver.resolveInputType(
             modelType,
             this.links.whereUnique

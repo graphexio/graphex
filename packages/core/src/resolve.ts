@@ -1,7 +1,7 @@
-import { AMVisitor } from './execution/visitor';
-import { AMTransaction } from './execution/transaction';
 import { DocumentNode, GraphQLResolveInfo } from 'graphql';
-import gql from 'graphql-tag';
+import { AMTransaction } from './execution/transaction';
+import { AMVisitor } from './execution/visitor';
+// import Serializer from '../__tests__/serializer/index';
 
 export const resolve = (parent, args, context, info: GraphQLResolveInfo) => {
   const transaction = new AMTransaction();
@@ -19,7 +19,13 @@ export const resolve = (parent, args, context, info: GraphQLResolveInfo) => {
     ],
   };
 
-  AMVisitor.visit(info.schema, rq, info.variableValues, transaction);
-  // console.log(JSON.stringify(transaction, null, 2));
+  AMVisitor.visit(
+    info.schema,
+    rq,
+    info.variableValues,
+    transaction,
+    info.fragments
+  );
+  // console.log(Serializer.print(transaction));
   return transaction.execute(context.queryExecutor);
 };

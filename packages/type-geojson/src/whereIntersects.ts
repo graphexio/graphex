@@ -4,8 +4,6 @@ import { AMObjectFieldContext } from '@apollo-model/core/lib/execution/contexts/
 import { AMSelectorContext } from '@apollo-model/core/lib/execution/contexts/selector';
 import { AMInputField } from '@apollo-model/core/src/definitions';
 import { UserInputError } from 'apollo-server';
-import { ObjectFieldNode } from 'graphql';
-import R from 'ramda';
 
 export class AMGeoJSONIntersectsFieldFactory extends AMInputFieldFactory {
   isApplicable() {
@@ -19,14 +17,14 @@ export class AMGeoJSONIntersectsFieldFactory extends AMInputFieldFactory {
       name: this.getFieldName(field),
       type: this.schemaInfo.schema.getTypeMap().GeoJSONIntersectsInput,
 
-      amEnter(node: ObjectFieldNode, transaction, stack) {
+      amEnter(node, transaction, stack) {
         const action = new AMObjectFieldContext(field.dbName);
         stack.push(action);
       },
       amLeave(node, transaction, stack) {
         const context = stack.pop() as AMObjectFieldContext;
 
-        const lastInStack = R.last(stack);
+        const lastInStack = stack.last();
         if (
           lastInStack instanceof AMDataContext ||
           lastInStack instanceof AMSelectorContext

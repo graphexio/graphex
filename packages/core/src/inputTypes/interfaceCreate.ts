@@ -3,7 +3,6 @@ import {
   GraphQLInterfaceType,
   isInterfaceType,
 } from 'graphql';
-import R from 'ramda';
 import {
   AMInputFieldConfig,
   AMInputObjectType,
@@ -43,7 +42,7 @@ export class AMInterfaceCreateTypeFactory extends AMTypeFactory<
                     // amEnter(node, transaction, stack) {
                     //   },
                     amLeave(node, transaction, stack) {
-                      const lastInStack = R.last(stack);
+                      const lastInStack = stack.last();
                       if (lastInStack instanceof AMCreateOperation) {
                         if (lastInStack.data) {
                           lastInStack.data.addValue(
@@ -67,14 +66,14 @@ export class AMInterfaceCreateTypeFactory extends AMTypeFactory<
                     },
                     amLeave(node, transaction, stack) {
                       const createOp = stack.pop() as AMCreateOperation;
-                      const lastInStack = R.last(stack);
+                      const lastInStack = stack.last();
                       if (lastInStack instanceof AMObjectFieldContext) {
                         lastInStack.setValue(
                           createOp
                             .getOutput()
-                            .map(ResultPromiseTransforms.path('_id'))
+                            .map(new ResultPromiseTransforms.Path('_id'))
                             .map(
-                              ResultPromiseTransforms.dbRef(
+                              new ResultPromiseTransforms.ToDbRef(
                                 possibleType.mmCollectionName
                               )
                             )
@@ -83,9 +82,9 @@ export class AMInterfaceCreateTypeFactory extends AMTypeFactory<
                         lastInStack.addValue(
                           createOp
                             .getOutput()
-                            .map(ResultPromiseTransforms.path('_id'))
+                            .map(new ResultPromiseTransforms.Path('_id'))
                             .map(
-                              ResultPromiseTransforms.dbRef(
+                              new ResultPromiseTransforms.ToDbRef(
                                 possibleType.mmCollectionName
                               )
                             )
