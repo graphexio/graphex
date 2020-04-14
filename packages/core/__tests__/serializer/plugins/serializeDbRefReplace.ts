@@ -9,8 +9,8 @@ export const serializeDbRefReplace = {
       storeField: val.storeField,
       data: val.dataOp.getOutput(),
     };
-    if (val?.conditions?.length > 0) {
-      obj.conditions = val.conditions;
+    if (val?.getConditions()?.length > 0) {
+      obj.conditions = val.getConditions();
     }
     return (
       'DbRefReplace {' +

@@ -10,8 +10,8 @@ export const serializeDistinctReplace = {
       relationField: val.relationField,
       path: val.path,
     };
-    if (val?.conditions?.length > 0) {
-      obj.conditions = val.conditions;
+    if (val?.getConditions()?.length > 0) {
+      obj.conditions = val.getConditions();
     }
     return (
       'DistinctReplace {' +
