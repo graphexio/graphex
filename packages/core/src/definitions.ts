@@ -70,9 +70,7 @@ export type AMVisitable = {
   amLeave?: AMLeaveHandler;
 };
 
-export type AMInputField = GraphQLInputField & {
-  // mmTransform: mmTransformType;
-} & AMVisitable;
+export type AMInputField = GraphQLInputField & AMVisitable;
 
 export type AMInputFieldMap = {
   [key: string]: AMInputField;

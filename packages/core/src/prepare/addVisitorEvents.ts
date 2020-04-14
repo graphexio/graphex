@@ -32,19 +32,13 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
             }
 
             const rootOperation = transaction.operations[0];
-            // const rootPathInfo = getFieldsSelectionPathWithConditions(
-            //   stack,
-            //   rootOperation
-            // );
-            // const { conditions: rootConditions } = rootPathInfo;
-
             const rootCondition = stack.condition(rootOperation);
 
-            const rootPathArr = [...stack.path(rootOperation)];
+            const rootPathArr = stack.path(rootOperation);
             const rootPath = rootPathArr.join('.');
 
             const lastOperation = stack.lastOperation();
-            const pathArr = [...stack.path(lastOperation)];
+            const pathArr = stack.path(lastOperation);
             if (!field.relation.external) {
               pathArr.pop();
               pathArr.push(field.relation.storeField);
@@ -151,8 +145,6 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
               lastStackItem.addField(field.dbName);
             }
           };
-          // field.amLeave=(node, transaction, stack)=>{
-          // },
         }
       });
     }

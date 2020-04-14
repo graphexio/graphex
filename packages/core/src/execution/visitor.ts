@@ -65,18 +65,6 @@ export class AMVisitor {
       fragments ? Object.entries(fragments) : undefined
     );
 
-    // typeInfo.enter({
-    //   kind: 'OperationDefinition',
-    //   operation: 'query',
-    //   variableDefinitions: [],
-    //   selectionSet: { kind: 'SelectionSet', selections: [] },
-    //   name: undefined,
-    // });
-    // typeInfo.enter({
-    //   kind: 'SelectionSet',
-    //   selections: [],
-    // });
-
     const scalarVisitor = {
       enter(node: ValueNode) {
         const type = getNamedType(typeInfo.getInputType()) as GraphQLScalarType;
