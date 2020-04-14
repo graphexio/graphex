@@ -198,7 +198,7 @@ test('read many relation', async () => {
           'commentIds',
           '_id',
           subOperation
-        )
+        ).addCondition(new Map())
       )
   );
 

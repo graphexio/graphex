@@ -31,19 +31,14 @@ export class DistinctReplace extends RelationTransformation {
           resultValue = dataMap[storeValue];
         }
         return { ...item, [this.displayField]: resultValue };
-        // if (
-        //   typeof item === 'string' ||
-        //   (item !== null &&
-        //     typeof item === 'object' &&
-        //     item.constructor.name === 'ObjectID')
-        // ) {
-        //   return dataMap[item];
-        // } else {
-        //   return item;
-        // }
       };
 
-      const newValue = mapPath(this.path, mapItem)(value);
+      const newValue = mapPath(
+        this.path,
+        mapItem,
+        [],
+        this.getConditions()
+      )(value);
       dest.resolve(newValue);
     });
     source.catch(dest.reject);

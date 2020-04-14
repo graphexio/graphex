@@ -70,13 +70,16 @@ describe('simple', () => {
         'test',
         '_id',
         data
-      )
+      ).addCondition(new Map())
     );
     expect(distinctReplaceResultPromise.getValueSource())
       .toMatchInlineSnapshot(`
 Array [
   "Operation-0",
   DistinctReplace {
+    "conditions": Array [
+      Map {},
+    ],
     "data": ResultPromise {
       "source": Array [
         "Static Data",
@@ -116,26 +119,32 @@ describe('lookup', () => {
     ];
 
     const lookupResultPromise = resultPromise.map(
-      new ResultPromiseTransforms.Lookup('children', 'id', 'parentId', data)
+      new ResultPromiseTransforms.Lookup(
+        'children',
+        'id',
+        'parentId',
+        data
+      ).addCondition(new Map())
     );
-    expect(lookupResultPromise.getValueSource()).toMatchInlineSnapshot(
-      `
-      Array [
-        "Operation-0",
-        Lookup {
-          "data": ResultPromise {
-            "source": Array [
-              "Static Data",
-            ],
-          },
-          "many": true,
-          "path": "children",
-          "relationField": "id",
-          "storeField": "parentId",
-        },
-      ]
-    `
-    );
+    expect(lookupResultPromise.getValueSource()).toMatchInlineSnapshot(`
+Array [
+  "Operation-0",
+  Lookup {
+    "conditions": Array [
+      Map {},
+    ],
+    "data": ResultPromise {
+      "source": Array [
+        "Static Data",
+      ],
+    },
+    "many": true,
+    "path": "children",
+    "relationField": "id",
+    "storeField": "parentId",
+  },
+]
+`);
 
     return expect(lookupResultPromise).resolves.toEqual(result);
   });
@@ -167,26 +176,27 @@ describe('lookup', () => {
         'parentId',
         data,
         false
-      )
+      ).addCondition(new Map())
     );
-    expect(lookupResultPromise.getValueSource()).toMatchInlineSnapshot(
-      `
-      Array [
-        "Operation-0",
-        Lookup {
-          "data": ResultPromise {
-            "source": Array [
-              "Static Data",
-            ],
-          },
-          "many": false,
-          "path": "children",
-          "relationField": "id",
-          "storeField": "parentId",
-        },
-      ]
-    `
-    );
+    expect(lookupResultPromise.getValueSource()).toMatchInlineSnapshot(`
+Array [
+  "Operation-0",
+  Lookup {
+    "conditions": Array [
+      Map {},
+    ],
+    "data": ResultPromise {
+      "source": Array [
+        "Static Data",
+      ],
+    },
+    "many": false,
+    "path": "children",
+    "relationField": "id",
+    "storeField": "parentId",
+  },
+]
+`);
 
     return expect(lookupResultPromise).resolves.toEqual(result);
   });
@@ -224,26 +234,27 @@ describe('lookup', () => {
         'parentId',
         data,
         false
-      )
+      ).addCondition(new Map())
     );
-    expect(lookupResultPromise.getValueSource()).toMatchInlineSnapshot(
-      `
-      Array [
-        "Operation-0",
-        Lookup {
-          "data": ResultPromise {
-            "source": Array [
-              "Static Data",
-            ],
-          },
-          "many": false,
-          "path": "nested.children",
-          "relationField": "id",
-          "storeField": "parentId",
-        },
-      ]
-    `
-    );
+    expect(lookupResultPromise.getValueSource()).toMatchInlineSnapshot(`
+Array [
+  "Operation-0",
+  Lookup {
+    "conditions": Array [
+      Map {},
+    ],
+    "data": ResultPromise {
+      "source": Array [
+        "Static Data",
+      ],
+    },
+    "many": false,
+    "path": "nested.children",
+    "relationField": "id",
+    "storeField": "parentId",
+  },
+]
+`);
 
     return expect(lookupResultPromise).resolves.toEqual(result);
   });
@@ -353,13 +364,21 @@ test('dbRef replace', () => {
   } as any) as AMOperation;
 
   const result = resultPromise.map(
-    new ResultPromiseTransforms.DbRefReplace([], 'ids', 'ids', data)
+    new ResultPromiseTransforms.DbRefReplace(
+      [],
+      'ids',
+      'ids',
+      data
+    ).addCondition(new Map())
   );
 
   expect(result.getValueSource()).toMatchInlineSnapshot(`
 Array [
   "Operation-0",
   DbRefReplace {
+    "conditions": Array [
+      Map {},
+    ],
     "data": ResultPromise {
       "source": Array [
         "Static Data",

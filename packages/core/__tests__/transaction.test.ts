@@ -3914,6 +3914,130 @@ Object {
 `);
   });
 
+  test('fragments with not intersecting conditions and diifferent args', () => {
+    const rq = gql`
+      {
+        comments {
+          id
+          ... on RootComment {
+            post(where: { title: "test" }) {
+              title
+            }
+          }
+          ... on SubComment {
+            post {
+              id
+            }
+          }
+        }
+      }
+    `;
+
+    const transaction = prepareTransaction(schema, rq);
+    expect(transaction).toMatchInlineSnapshot(`
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "comments",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+          "postId",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+          DistinctReplace {
+            "conditions": Array [
+              Map {
+                "" => "RootComment",
+              },
+            ],
+            "data": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+            "displayField": "post",
+            "path": Array [],
+            "relationField": "_id",
+            "storeField": "postId",
+          },
+          DistinctReplace {
+            "conditions": Array [
+              Map {
+                "" => "SubComment",
+              },
+            ],
+            "data": ResultPromise {
+              "source": Array [
+                "Operation-2",
+              ],
+            },
+            "displayField": "post",
+            "path": Array [],
+            "relationField": "_id",
+            "storeField": "postId",
+          },
+        ],
+      },
+    },
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "title",
+        ],
+      },
+      "identifier": "Operation-1",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+      "selector": Object {
+        "title": "test",
+      },
+    },
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-2",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-2",
+        ],
+      },
+      "selector": Object {
+        "_id": Object {
+          "$in": ResultPromise {
+            "source": Array [
+              "Operation-0",
+              Distinct {
+                "path": "postId",
+              },
+            ],
+          },
+        },
+      },
+    },
+  ],
+}
+`);
+  });
+
   test('wildcard before fragments with not intersecting conditions', () => {
     const rq = gql`
       {

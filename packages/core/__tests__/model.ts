@@ -41,9 +41,6 @@ export default gql`
     pois: [Poi] @relation(storeField: "poiIds")
   }
 
-  scalar _FieldSet
-  directive @key(fields: _FieldSet!) on OBJECT | INTERFACE
-
   interface User @implements(name: "Node & Timestamp") @inherit @model {
     username: String! @unique
     lastPost: Post @extRelation(storeField: "ownerUserId")

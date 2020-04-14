@@ -49,6 +49,7 @@ export abstract class RelationTransformation extends Transformation {
 
     newConditions.push(currentCond);
     this.conditions = newConditions;
+    return this;
   }
 
   getConditions() {
@@ -57,6 +58,7 @@ export abstract class RelationTransformation extends Transformation {
 
   addFieldNode(node: FieldNode) {
     this.fieldNodes.push(node);
+    return this;
   }
   getFieldNodes() {
     return this.fieldNodes as readonly FieldNode[];

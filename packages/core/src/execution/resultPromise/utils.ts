@@ -1,4 +1,5 @@
 import { AMResultPromise } from './resultPromise';
+import { TransformCondition } from './relationTransformation';
 
 export const getPath = (path: string[]) => (value: any) => {
   if (path.length !== 0 && !value) {
@@ -15,21 +16,61 @@ export const getPath = (path: string[]) => (value: any) => {
   }
 };
 
-export const mapPath = <T>(path: string[], mapFn: (item: T) => T) => (
-  value: any
-) => {
+function filterPassedConditions(
+  path: string,
+  value: { [key: string]: string },
+  conditions: readonly TransformCondition[]
+) {
+  /**
+   * If condition is not met, remove it
+   */
+  return conditions.filter(cond => {
+    if (cond.has(path)) {
+      const condType = cond.get(path);
+      if (value[condType.mmDiscriminatorField] !== condType.mmDiscriminator) {
+        return false;
+      }
+    }
+    return true;
+  });
+}
+
+export const mapPath = <T>(
+  path: string[],
+  mapFn: (item: T) => T,
+  currentPath: string[] = [],
+  conditions: readonly TransformCondition[] = [new Map()]
+) => (value: any) => {
   if (path.length !== 0 && !value) {
     return value;
   } else if (value instanceof Array) {
-    return value.map(mapPath(path, mapFn));
+    return value.map(mapPath(path, mapFn, currentPath, conditions));
   } else {
+    const currentPathStr = currentPath.join('.');
+
+    const filteredConditions = filterPassedConditions(
+      currentPathStr,
+      value,
+      conditions
+    );
+
+    /* If all conditions don't pass return value without next transformations */
+    if (filteredConditions.length === 0) {
+      return value;
+    }
+
     if (path.length == 0) {
       return mapFn(value);
     } else {
       const [pathSection, ...restPath] = path;
       return {
         ...value,
-        [pathSection]: mapPath(restPath, mapFn)(value[pathSection]),
+        [pathSection]: mapPath(
+          restPath,
+          mapFn,
+          [...currentPath, pathSection],
+          filteredConditions
+        )(value[pathSection]),
       };
     }
   }

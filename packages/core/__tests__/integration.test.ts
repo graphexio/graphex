@@ -2026,3 +2026,85 @@ Object {
 `);
   }
 });
+
+describe('fragments', () => {
+  test('not intersecting', async () => {
+    {
+      const { errors } = await mutate({
+        mutation: gql`
+          mutation {
+            createPost(
+              data: {
+                title: "new post for subscriber1"
+                body: "new post body"
+                owner: { connect: { User: { username: "subscriber1" } } }
+              }
+            ) {
+              id
+            }
+          }
+        `,
+        variables: {},
+      });
+      expect(errors).toBeUndefined();
+    }
+
+    const { data, errors } = await query({
+      query: gql`
+        {
+          users {
+            __typename
+            ... on Admin {
+              lastPost {
+                title
+              }
+            }
+            ... on Subscriber {
+              lastPost(where: { title: "new post for subscriber1" }) {
+                body
+              }
+            }
+          }
+        }
+      `,
+      variables: {},
+    });
+    expect(errors).toBeUndefined();
+    expect(data).toMatchInlineSnapshot(`
+Object {
+  "users": Array [
+    Object {
+      "__typename": "Subscriber",
+      "lastPost": Object {
+        "body": "new post body",
+      },
+    },
+    Object {
+      "__typename": "Admin",
+      "lastPost": Object {
+        "title": "Post with likes",
+      },
+    },
+    Object {
+      "__typename": "Admin",
+      "lastPost": Object {
+        "title": "Build GraphQL API with Apollo",
+      },
+    },
+    Object {
+      "__typename": "Admin",
+      "lastPost": null,
+    },
+    Object {
+      "__typename": "Admin",
+      "lastPost": null,
+    },
+    Object {
+      "__typename": "Admin",
+      "lastPost": null,
+    },
+  ],
+}
+`);
+  });
+});

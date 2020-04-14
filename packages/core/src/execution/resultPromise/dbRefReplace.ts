@@ -35,7 +35,12 @@ export class DbRefReplace extends RelationTransformation {
         }
         return { ...item, [this.displayField]: resultValue };
       };
-      const newValue = mapPath(this.path, mapItem)(value);
+      const newValue = mapPath(
+        this.path,
+        mapItem,
+        [],
+        this.getConditions()
+      )(value);
       dest.resolve(newValue);
     });
     source.catch(dest.reject);

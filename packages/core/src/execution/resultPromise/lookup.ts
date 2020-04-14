@@ -54,12 +54,18 @@ export class Lookup extends RelationTransformation {
         if (!this.many) {
           val = R.head(val);
         }
-        return {
+        const result = {
           ...item,
           [lookupFieldName]: val,
         };
+        return result;
       };
-      const newValue = mapPath(pathArr, mapItem)(value);
+      const newValue = mapPath(
+        pathArr,
+        mapItem,
+        [],
+        this.getConditions()
+      )(value);
       dest.resolve(newValue);
     });
     source.getPromise().catch(dest.reject);
