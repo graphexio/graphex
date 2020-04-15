@@ -2027,6 +2027,85 @@ Object {
   }
 });
 
+test('relation with broken links', async () => {
+  let postId;
+
+  {
+    const { errors, data } = await query({
+      query: gql`
+        mutation {
+          createAdmin(data: { username: "userToRemove" }) {
+            id
+          }
+        }
+      `,
+    });
+    expect(errors).toBeUndefined();
+  }
+  {
+    const { errors, data } = await query({
+      query: gql`
+        mutation {
+          createPost(
+            data: {
+              title: "Post with likes"
+              body: "Post with likes"
+              likes: { connect: [{ Admin: { username: "userToRemove" } }] }
+            }
+          ) {
+            id
+            likes {
+              username
+            }
+          }
+        }
+      `,
+    });
+    expect(errors).toBeUndefined();
+    postId = data.createPost.id;
+  }
+
+  {
+    const { errors } = await query({
+      query: gql`
+        mutation {
+          deleteUser(where: { User: { username: "userToRemove" } }) {
+            id
+          }
+        }
+      `,
+    });
+    expect(errors).toBeUndefined();
+  }
+
+  {
+    const { errors, data } = await query({
+      query: gql`
+        query($postId: ObjectID) {
+          posts(where: { id: $postId }) {
+            likes {
+              username
+            }
+          }
+        }
+      `,
+      variables: {
+        postId,
+      },
+    });
+    expect(errors).toBeUndefined();
+    expect(data).toMatchInlineSnapshot(`
+    Object {
+      "posts": Array [
+        Object {
+          "likes": Array [],
+        },
+      ],
+    }
+    `);
+  }
+});
+
 describe('schema merging', () => {
   test('not intersecting fragments', async () => {
     {
