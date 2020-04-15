@@ -10,6 +10,9 @@ import {
   typeFromAST,
   VariableDefinitionNode,
   VariableNode,
+  FragmentDefinitionNode,
+  print,
+  SelectionSetNode,
 } from 'graphql';
 import * as R from 'ramda';
 import {
@@ -37,6 +40,8 @@ export const transformRequest = (transformOptions, transformContext) => async (
   };
   const initialSchema = transformContext.initialSchema;
 
+  const fragmentDefinitions = new Map<string, FragmentDefinitionNode>();
+
   const visitor = {
     // enter(node) {
     //   console.log('enter', node);
@@ -44,6 +49,48 @@ export const transformRequest = (transformOptions, transformContext) => async (
     // leave(node) {
     //   console.log('leave', node);
     // },
+    [Kind.DOCUMENT]: {
+      enter(node) {
+        const newDefinitions = [];
+        for (const definition of node.definitions) {
+          if (definition.kind === Kind.FRAGMENT_DEFINITION) {
+            fragmentDefinitions.set(definition.name.value, definition);
+          } else {
+            newDefinitions.push(definition);
+          }
+        }
+        return { ...node, definitions: newDefinitions };
+      },
+    },
+    [Kind.FRAGMENT_DEFINITION]: {
+      enter() {
+        return false;
+      },
+    },
+    [Kind.FRAGMENT_SPREAD]: {
+      enter(node) {
+        return false;
+      },
+    },
+    [Kind.SELECTION_SET]: {
+      enter(node: SelectionSetNode) {
+        const newSelections = [];
+
+        node.selections.forEach(selection => {
+          if (selection.kind === Kind.FRAGMENT_SPREAD) {
+            fragmentDefinitions
+              .get(selection.name.value)
+              ?.selectionSet.selections.forEach(selection => {
+                newSelections.push(selection);
+              });
+          } else {
+            newSelections.push(selection);
+          }
+        });
+
+        return { ...node, selections: newSelections };
+      },
+    },
     [Kind.OPERATION_DEFINITION]: {
       enter: (node: OperationDefinitionNode) => {
         R.pipe(
