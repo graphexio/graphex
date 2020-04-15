@@ -625,4 +625,67 @@ describe('SchemaFilter', () => {
       expect(errors).toBeUndefined();
     });
   });
+
+  describe('fragments', () => {
+    const typeDefs = gql`
+      type Query {
+        post: Post
+      }
+
+      type Mutation {
+        createPost(data: PostCreateInput!): Post
+      }
+
+      type Post {
+        id: ID
+        title: String
+        meta: Meta!
+      }
+
+      type Meta {
+        slug: String!
+      }
+
+      input PostCreateInput {
+        title: String
+        defaultCreateField: MetaCreateOneNestedInput!
+      }
+
+      input MetaCreateOneNestedInput {
+        create: MetaCreateInput
+      }
+
+      input MetaCreateInput {
+        removeField: String!
+      }
+    `;
+
+    const Post = { title: 'Post title' };
+    const resolvers = {
+      Query: {
+        post: () => {
+          return Post;
+        },
+      },
+    };
+
+    test('right with fragment', async () => {
+      const schema = makeSchema({ typeDefs, resolvers });
+      const { query } = testClient({ schema });
+      const { data, errors } = await query({
+        query: gql`
+          fragment Post on Post {
+            title
+          }
+          query {
+            post {
+              ...Post
+            }
+          }
+        `,
+      });
+      expect(errors).toBeUndefined();
+      expect(data).toMatchObject({ post: Post });
+    });
+  });
 });
