@@ -26,7 +26,7 @@ export class DistinctReplace extends RelationTransformation {
         const storeValue = item[this.storeField];
         let resultValue;
         if (Array.isArray(storeValue)) {
-          resultValue = storeValue.map(v => dataMap[v]);
+          resultValue = storeValue.map(v => dataMap[v]).filter(v => v);
         } else {
           resultValue = dataMap[storeValue];
         }
