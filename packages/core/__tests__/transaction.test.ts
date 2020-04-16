@@ -3433,12 +3433,14 @@ Object {
         "source": Array [
           "Operation-0",
           TransformArray {
+            "displayField": "comments",
             "filterParams": Object {
               "where": Object {
                 "message": "test",
               },
             },
-            "path": "comments",
+            "path": Array [],
+            "storeField": "comments",
           },
         ],
       },

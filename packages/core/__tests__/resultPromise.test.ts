@@ -444,7 +444,7 @@ describe('transformArray', () => {
       },
     ];
     const transformResultPromise = resultPromise.map(
-      new ResultPromiseTransforms.TransformArray('comments', {
+      new ResultPromiseTransforms.TransformArray([], 'comments', 'comments', {
         where: {
           message: 'message_test',
         },
@@ -461,7 +461,7 @@ describe('transformArray', () => {
       },
     ];
     const transformResultPromise = resultPromise.map(
-      new ResultPromiseTransforms.TransformArray('comments', {
+      new ResultPromiseTransforms.TransformArray([], 'comments', 'comments', {
         where: {
           message: {
             $regex: /test/,
@@ -491,7 +491,7 @@ describe('transformArray', () => {
       },
     ];
     const transformResultPromise = resultPromise.map(
-      new ResultPromiseTransforms.TransformArray('comments', {
+      new ResultPromiseTransforms.TransformArray([], 'comments', 'comments', {
         where: {
           comments: {
             $elemMatch: {
@@ -523,7 +523,7 @@ describe('transformArray', () => {
       },
     ];
     const transformResultPromise = resultPromise.map(
-      new ResultPromiseTransforms.TransformArray('comments', {
+      new ResultPromiseTransforms.TransformArray([], 'comments', 'comments', {
         where: {
           tags: {
             $all: ['a', 'b'],
@@ -553,7 +553,7 @@ describe('transformArray', () => {
       },
     ];
     const transformResultPromise = resultPromise.map(
-      new ResultPromiseTransforms.TransformArray('comments', {
+      new ResultPromiseTransforms.TransformArray([], 'comments', 'comments', {
         where: {
           comments: {
             $exists: true,
@@ -578,7 +578,7 @@ describe('transformArray', () => {
       },
     ];
     const transformResultPromise = resultPromise.map(
-      new ResultPromiseTransforms.TransformArray('comments', {
+      new ResultPromiseTransforms.TransformArray([], 'comments', 'comments', {
         where: {
           id: {
             $gt: 7,
@@ -607,7 +607,7 @@ describe('transformArray', () => {
       },
     ];
     const transformResultPromise = resultPromise.map(
-      new ResultPromiseTransforms.TransformArray('comments', {
+      new ResultPromiseTransforms.TransformArray([], 'comments', 'comments', {
         where: {
           id: {
             $gte: 7,
@@ -636,7 +636,7 @@ describe('transformArray', () => {
       },
     ];
     const transformResultPromise = resultPromise.map(
-      new ResultPromiseTransforms.TransformArray('comments', {
+      new ResultPromiseTransforms.TransformArray([], 'comments', 'comments', {
         where: {
           id: {
             $in: [7, 8],
@@ -666,7 +666,7 @@ describe('transformArray', () => {
       },
     ];
     const transformResultPromise = resultPromise.map(
-      new ResultPromiseTransforms.TransformArray('comments', {
+      new ResultPromiseTransforms.TransformArray([], 'comments', 'comments', {
         where: {
           tags: {
             $in: ['b', 'c'],
@@ -695,7 +695,7 @@ describe('transformArray', () => {
       },
     ];
     const transformResultPromise = resultPromise.map(
-      new ResultPromiseTransforms.TransformArray('comments', {
+      new ResultPromiseTransforms.TransformArray([], 'comments', 'comments', {
         where: {
           comments: {
             $not: {

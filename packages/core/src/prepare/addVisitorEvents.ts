@@ -22,6 +22,17 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
       Object.values(type.getFields()).forEach((field: AMModelField) => {
         if (field.relation) {
           field.amEnter = (node: FieldNode, transaction, stack) => {
+            /**
+             * Relations data should be stored in field with name of alias
+             */
+            if (node.alias) {
+              /**
+               * Add $ prefix to prevent collision with real fields
+               */
+              stack.leavePath();
+              stack.enterPath(`$${node.alias.value}`);
+            }
+
             const lastStackItem = stack.last();
             if (lastStackItem instanceof AMFieldsSelectionContext) {
               if (!field.relation.external) {
