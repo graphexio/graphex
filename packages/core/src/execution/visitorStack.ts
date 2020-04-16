@@ -10,11 +10,14 @@ import {
 } from './contexts';
 import { TransformCondition } from './resultPromise/relationTransformation';
 
+const displayItem = R.prop('display');
+const dbItem = R.prop('db');
+
 export class AMVisitorStack {
   private contexts: AMContext[] = [];
   private operationsInfo = new Map<
     AMOperation,
-    { path: string[]; condition: TransformCondition }
+    { path: { display: string; db: string }[]; condition: TransformCondition }
   >();
 
   push(ctx: AMContext) {
@@ -24,7 +27,7 @@ export class AMVisitorStack {
       const condType = ctx.getActualConditionType();
       if (condType) {
         for (const { path, condition } of this.operationsInfo.values()) {
-          condition.set(path.join('.'), condType);
+          condition.set(path.map(displayItem).join('.'), condType);
         }
       }
     }
@@ -39,16 +42,16 @@ export class AMVisitorStack {
       const condType = ctx.getActualConditionType();
       if (condType) {
         for (const { path, condition } of this.operationsInfo.values()) {
-          condition.delete(path.join('.'));
+          condition.delete(path.map(displayItem).join('.'));
         }
       }
     }
     return ctx;
   }
 
-  enterPath(pathItem: string) {
+  enterPath(display: string, db: string) {
     for (const { path } of this.operationsInfo.values()) {
-      path.push(pathItem);
+      path.push({ display, db });
     }
   }
 
@@ -67,7 +70,10 @@ export class AMVisitorStack {
   }
 
   path(operation: AMOperation) {
-    return [...this.operationsInfo.get(operation).path];
+    return this.operationsInfo.get(operation).path.map(displayItem);
+  }
+  dbPath(operation: AMOperation) {
+    return this.operationsInfo.get(operation).path.map(dbItem);
   }
 
   condition(operation: AMOperation) {

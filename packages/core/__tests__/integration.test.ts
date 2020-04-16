@@ -2287,11 +2287,23 @@ Object {
               }
             }
           ) {
+            c0: comments {
+              body
+              user {
+                username
+              }
+            }
             c1: comments(where: { body: "comment1" }) {
               body
+              user {
+                username
+              }
             }
             c2: comments(where: { body: "comment2" }) {
               body
+              user {
+                username
+              }
             }
           }
         }
@@ -2301,14 +2313,34 @@ Object {
     expect(data).toMatchInlineSnapshot(`
 Object {
   "createPost": Object {
+    "c0": Array [
+      Object {
+        "body": "comment1",
+        "user": Object {
+          "username": "UserForComments1",
+        },
+      },
+      Object {
+        "body": "comment2",
+        "user": Object {
+          "username": "UserForComments2",
+        },
+      },
+    ],
     "c1": Array [
       Object {
         "body": "comment1",
+        "user": Object {
+          "username": "UserForComments1",
+        },
       },
     ],
     "c2": Array [
       Object {
         "body": "comment2",
+        "user": Object {
+          "username": "UserForComments2",
+        },
       },
     ],
   },

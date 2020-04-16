@@ -79,18 +79,21 @@ export const nestedArrays = (
             /**
              * Filtered arrays should be stored in field with name of alias
              */
-            if (node.alias) {
+            if (node.alias && node.arguments?.length > 0) {
               /**
                * Add $ prefix to prevent collision with real fields
                */
               stack.leavePath();
-              stack.enterPath(`$${node.alias.value}`);
+              stack.enterPath(`$${node.alias.value}`, field.dbName);
             }
           };
 
           field.resolve = (source, args, ctx, info) => {
             if (source.fieldName !== info.path.key) {
-              if (info.fieldNodes[0].alias) {
+              if (
+                info.fieldNodes[0].alias &&
+                info.fieldNodes[0].arguments?.length > 0
+              ) {
                 return source[`$${info.path.key}`];
               }
             }
