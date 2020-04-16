@@ -188,33 +188,32 @@ const makePredicate: MakePredicate = (key, value) => {
 
 export class TransformArray extends Transformation {
   constructor(
-    public path: string,
+    public path: string[],
+    public displayField: string,
+    public storeField: string,
     public filterParams: { where: { [key: string]: any } }
   ) {
     super();
   }
   transform(source: AMResultPromise<any>, dest: AMResultPromise<any>) {
-    const pathArr = this.path.split('.');
-    const arrFieldName = pathArr.pop();
-
     source.then(async value => {
       const filter = makeObjectPredicate(
         await completeAMResultPromise(this.filterParams.where)
       );
 
       const mapItem = item => {
-        const arr = item[arrFieldName];
+        const arr = item[this.storeField];
         if (Array.isArray(arr)) {
           return {
             ...item,
-            [arrFieldName]: arr.filter(filter),
+            [this.displayField]: arr.filter(filter),
           };
         } else {
           return item;
         }
       };
 
-      const newValue = mapPath(pathArr, mapItem)(value);
+      const newValue = mapPath(this.path, mapItem)(value);
       dest.resolve(newValue);
     });
     source.catch(dest.reject);

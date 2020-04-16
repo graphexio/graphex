@@ -74,6 +74,7 @@ export class AMVisitorStack {
     return new Map(this.operationsInfo.get(operation).condition);
   }
 
+  //TODO: Method is deprecated. Replace it with `path`
   getFieldPath(operation: AMOperation) {
     const path = [];
     const operationIndex = this.contexts.indexOf(operation);

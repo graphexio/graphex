@@ -1371,7 +1371,6 @@ test('test empty object instead array', async () => {
         }
       }
     `,
-    variables: { shopId },
   });
   expect(errors).toBeUndefined();
 });
@@ -2252,6 +2251,125 @@ Object {
         "title": "root",
       },
       "title": "MongoDB",
+    },
+  ],
+}
+`);
+  });
+
+  test('alias for filtered nested array', async () => {
+    const { errors, data } = await query({
+      query: gql`
+        mutation {
+          createPost(
+            data: {
+              title: "Empty comments post title"
+              body: "Empty comments post body"
+              comments: {
+                create: [
+                  {
+                    body: "comment1"
+                    user: {
+                      create: { Admin: { username: "UserForComments1" } }
+                    }
+                    color: red
+                    tags: ["tag1", "tag2"]
+                  }
+                  {
+                    body: "comment2"
+                    user: {
+                      create: { Admin: { username: "UserForComments2" } }
+                    }
+                    color: blue
+                    tags: ["tag2", "tag3"]
+                  }
+                ]
+              }
+            }
+          ) {
+            c1: comments(where: { body: "comment1" }) {
+              body
+            }
+            c2: comments(where: { body: "comment2" }) {
+              body
+            }
+          }
+        }
+      `,
+    });
+    expect(errors).toBeUndefined();
+    expect(data).toMatchInlineSnapshot(`
+Object {
+  "createPost": Object {
+    "c1": Array [
+      Object {
+        "body": "comment1",
+      },
+    ],
+    "c2": Array [
+      Object {
+        "body": "comment2",
+      },
+    ],
+  },
+}
+`);
+  });
+
+  test('relation inside nested object after alias', async () => {
+    {
+      const { errors } = await mutate({
+        mutation: gql`
+          mutation {
+            createAdmin(
+              data: {
+                username: "adminInvitedByAdmin"
+                profile: {
+                  create: {
+                    invitedBy: { connect: { User: { username: "admin" } } }
+                  }
+                }
+              }
+            ) {
+              username
+              profile {
+                invitedBy {
+                  username
+                }
+              }
+            }
+          }
+        `,
+        variables: {},
+      });
+      expect(errors).toBeUndefined();
+    }
+    const { data, errors } = await query({
+      query: gql`
+        query {
+          admins(where: { username: "adminInvitedByAdmin" }) {
+            username
+            p: profile {
+              invitedBy {
+                username
+              }
+            }
+          }
+        }
+      `,
+      variables: {},
+    });
+    expect(errors).toBeUndefined();
+    expect(data).toMatchInlineSnapshot(`
+Object {
+  "admins": Array [
+    Object {
+      "p": Object {
+        "invitedBy": Object {
+          "username": "admin",
+        },
+      },
+      "username": "adminInvitedByAdmin",
     },
   ],
 }

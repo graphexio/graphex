@@ -1,10 +1,15 @@
 import TypeWrap from '@apollo-model/type-wrap';
-import { GraphQLSchema, isInterfaceType, isObjectType } from 'graphql';
+import {
+  GraphQLSchema,
+  isInterfaceType,
+  isObjectType,
+  FieldNode,
+} from 'graphql';
 import { firstArg } from '../args/first';
 import { skipArg } from '../args/skip';
 import { AMConfigResolver } from '../config/resolver';
 import { AMModelField, AMModelType } from '../definitions';
-import { AMObjectFieldContext } from '../execution';
+import { AMObjectFieldContext, AMFieldsSelectionContext } from '../execution';
 import { ResultPromiseTransforms } from '../execution/resultPromise';
 
 export const nestedArrays = (
@@ -36,13 +41,18 @@ export const nestedArrays = (
               amLeave: (node, transaction, stack) => {
                 const context = stack.pop() as AMObjectFieldContext;
                 const operation = stack.lastOperation();
-                const path = stack.getFieldPath(operation);
-                // console.log(path, context.value);
+                const path = stack.path(operation);
+                const displayField = path.pop();
                 operation.setOutput(
                   operation.getOutput().map(
-                    new ResultPromiseTransforms.TransformArray(path, {
-                      where: context.value as {},
-                    })
+                    new ResultPromiseTransforms.TransformArray(
+                      path,
+                      displayField,
+                      field.dbName,
+                      {
+                        where: context.value as {},
+                      }
+                    )
                   )
                 );
                 return;
@@ -60,6 +70,32 @@ export const nestedArrays = (
             skipArg,
             firstArg,
           ];
+
+          field.amEnter = (node: FieldNode, transaction, stack) => {
+            const lastStackItem = stack.last();
+            if (lastStackItem instanceof AMFieldsSelectionContext) {
+              lastStackItem.addField(field.dbName);
+            }
+            /**
+             * Filtered arrays should be stored in field with name of alias
+             */
+            if (node.alias) {
+              /**
+               * Add $ prefix to prevent collision with real fields
+               */
+              stack.leavePath();
+              stack.enterPath(`$${node.alias.value}`);
+            }
+          };
+
+          field.resolve = (source, args, ctx, info) => {
+            if (source.fieldName !== info.path.key) {
+              if (info.fieldNodes[0].alias) {
+                return source[`$${info.path.key}`];
+              }
+            }
+            return source[info.fieldName];
+          };
         }
       });
     }
