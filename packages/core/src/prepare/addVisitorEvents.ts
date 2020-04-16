@@ -24,14 +24,23 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
           field.amEnter = (node: FieldNode, transaction, stack) => {
             /**
              * Relations data should be stored in field with name of alias
+             * Add $ prefix to prevent collision with real fields
              */
+            let pathItem: string;
             if (node.alias) {
-              /**
-               * Add $ prefix to prevent collision with real fields
-               */
-              stack.leavePath();
-              stack.enterPath(`$${node.alias.value}`);
+              pathItem = `$${node.alias.value}`;
+            } else {
+              pathItem = node.name.value;
             }
+            let dbPathItem: string;
+            if (field.relation.external) {
+              dbPathItem = field.dbName;
+            } else {
+              dbPathItem = field.relation.storeField;
+            }
+
+            stack.leavePath();
+            stack.enterPath(pathItem, dbPathItem);
 
             const lastStackItem = stack.last();
             if (lastStackItem instanceof AMFieldsSelectionContext) {
@@ -49,12 +58,8 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
             const rootPath = rootPathArr.join('.');
 
             const lastOperation = stack.lastOperation();
-            const pathArr = stack.path(lastOperation);
-            if (!field.relation.external) {
-              pathArr.pop();
-              pathArr.push(field.relation.storeField);
-            }
-            const path = pathArr.join('.');
+            const dbPathArr = stack.dbPath(lastOperation);
+            const dbPath = dbPathArr.join('.');
 
             //look for existing transformation for the field with the same args
             const existingTransformations =
@@ -86,7 +91,7 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
                         [field.relation.relationField]: {
                           $in: lastOperation
                             .getResult()
-                            .map(new ResultPromiseTransforms.Distinct(path)),
+                            .map(new ResultPromiseTransforms.Distinct(dbPath)),
                         },
                       }
                     : {
@@ -107,7 +112,7 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
                 many: true,
                 dbRefList: lastOperation
                   .getResult()
-                  .map(new ResultPromiseTransforms.Distinct(path)),
+                  .map(new ResultPromiseTransforms.Distinct(dbPath)),
               });
             }
 

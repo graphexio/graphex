@@ -200,7 +200,7 @@ export class AMVisitor {
             | AMObjectType;
 
           const field = type.getFields()[fieldName] as AMModelField;
-          stack.enterPath(node.name.value);
+          stack.enterPath(node.name.value, field.dbName);
 
           if (field.amEnter) {
             field.amEnter(node, transaction, stack);
