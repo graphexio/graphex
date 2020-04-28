@@ -13,6 +13,7 @@ import {
   FragmentDefinitionNode,
   print,
   SelectionSetNode,
+  isScalarType,
 } from 'graphql';
 import * as R from 'ramda';
 import {
@@ -21,7 +22,7 @@ import {
   getFields,
   getFragmentTypeName,
   getNameValue,
-  mapArgForTypeStack,
+  mapNodeForTypeStack,
   mapFieldForTypeStack,
   mapTypeForTypeStack,
 } from './utils';
@@ -153,7 +154,7 @@ export const transformRequest = (transformOptions, transformContext) => async (
           R.last,
           getArgs,
           R.prop(getNameValue(node)),
-          mapArgForTypeStack,
+          mapNodeForTypeStack,
           typeStackPush
         )(typeStack);
       },
@@ -174,11 +175,14 @@ export const transformRequest = (transformOptions, transformContext) => async (
           return null;
         }
 
+        if (isScalarType(R.last(typeStack).type)) {
+          return false;
+        }
         R.pipe(
           R.last,
           getFields,
           R.prop(getNameValue(node)),
-          mapArgForTypeStack,
+          mapNodeForTypeStack,
           typeStackPush
         )(typeStack);
       },

@@ -626,6 +626,92 @@ describe('SchemaFilter', () => {
     });
   });
 
+  describe('cutom scalar', () => {
+    const typeDefs = gql`
+      scalar JSON
+
+      type Query {
+        post: Post
+      }
+
+      type Post {
+        id: ID
+        postData: JSON
+      }
+
+      input CreatePostInput {
+        postData: JSON
+      }
+
+      type Mutation {
+        createPost(data: CreatePostInput): Post
+      }
+    `;
+
+    const resolvers = {
+      Mutation: {
+        createPost: (parent, { data }) => {
+          return data;
+        },
+      },
+    };
+
+    test('JSON scalar', async () => {
+      const schema = makeSchema({ typeDefs, resolvers });
+      const { mutate } = testClient({ schema });
+      const { data, errors } = await mutate({
+        mutation: gql`
+          mutation {
+            createPost(data: { postData: { test: "value" } }) {
+              postData
+            }
+          }
+        `,
+      });
+      expect(errors).toBeUndefined();
+      expect(data.createPost).toEqual({ postData: { test: 'value' } });
+    });
+
+    test('JSON scalar multiple nested objects', async () => {
+      const schema = makeSchema({ typeDefs, resolvers });
+      const { mutate } = testClient({ schema });
+      const { data, errors } = await mutate({
+        mutation: gql`
+          mutation {
+            createPost(
+              data: { postData: { test1: { test2: { test3: "value" } } } }
+            ) {
+              postData
+            }
+          }
+        `,
+      });
+      expect(errors).toBeUndefined();
+      expect(data.createPost).toEqual({
+        postData: { test1: { test2: { test3: 'value' } } },
+      });
+    });
+
+    test('JSON scalar in variable', async () => {
+      const schema = makeSchema({ typeDefs, resolvers });
+      const { mutate } = testClient({ schema });
+      const { data, errors } = await mutate({
+        mutation: gql`
+          mutation($data: JSON) {
+            createPost(data: { postData: $data }) {
+              postData
+            }
+          }
+        `,
+        variables: { data: { test1: { test2: { test3: 'value' } } } },
+      });
+      expect(errors).toBeUndefined();
+      expect(data.createPost).toEqual({
+        postData: { test1: { test2: { test3: 'value' } } },
+      });
+    });
+  });
+
   describe('fragments', () => {
     const typeDefs = gql`
       type Query {
