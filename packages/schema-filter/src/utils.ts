@@ -23,8 +23,8 @@ export const mapFieldForTypeStack = field => ({
   args: field.args.reduce(reduceArgs, {}),
 });
 
-export const mapArgForTypeStack = arg => ({
-  type: new TypeWrap(arg.type).realType(),
+export const mapNodeForTypeStack = node => ({
+  type: new TypeWrap(node.type).realType(),
 });
 
 export const groupFields = (predicate, object) => {
