@@ -99,7 +99,7 @@ Array [
 
 describe('lookup', () => {
   test('lookup', () => {
-    const arr = [{ id: 'item-id' }];
+    const arr = [{ id: 'item-id' }, null];
     const transaction = new AMTransaction();
     const operation = new AMCreateOperation(transaction, {
       collectionName: '',
@@ -116,6 +116,7 @@ describe('lookup', () => {
     } as any) as AMOperation;
     const result = [
       { id: 'item-id', children: [{ _id: 'child-id', parentId: 'item-id' }] },
+      null,
     ];
 
     const lookupResultPromise = resultPromise.map(

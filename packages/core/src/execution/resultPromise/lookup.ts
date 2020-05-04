@@ -50,6 +50,7 @@ export class Lookup extends RelationTransformation {
         await this.dataOp.getOutput().getPromise()
       );
       const mapItem = (item: any) => {
+        if (!item) return item;
         let val = dataMap[item[this.relationField]] || [];
         if (!this.many) {
           val = R.head(val);
