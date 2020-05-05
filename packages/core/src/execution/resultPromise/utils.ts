@@ -41,7 +41,7 @@ export const mapPath = <T>(
   currentPath: string[] = [],
   conditions: readonly TransformCondition[] = [new Map()]
 ) => (value: any) => {
-  if (path.length !== 0 && !value) {
+  if (!value) {
     return value;
   } else if (value instanceof Array) {
     return value.map(mapPath(path, mapFn, currentPath, conditions));

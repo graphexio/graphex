@@ -9,6 +9,7 @@ import { AMTransaction } from '../src/execution/transaction';
 import { ObjectID, DBRef } from 'mongodb';
 import Serializer from './serializer';
 import { AMOperation } from '../src/execution/operation';
+import { AMModelType } from '../src/definitions';
 
 expect.addSnapshotSerializer(Serializer);
 
@@ -243,6 +244,87 @@ Array [
   Lookup {
     "conditions": Array [
       Map {},
+    ],
+    "data": ResultPromise {
+      "source": Array [
+        "Static Data",
+      ],
+    },
+    "many": false,
+    "path": "nested.children",
+    "relationField": "id",
+    "storeField": "parentId",
+  },
+]
+`);
+
+    return expect(lookupResultPromise).resolves.toEqual(result);
+  });
+
+  test('lookup inside nested with condition', () => {
+    const arr = [
+      { id: 'item-id-1', nested: { id: 'nested-item-id', type: 'type-1' } },
+      { id: 'item-id-2', nested: null },
+    ];
+    const transaction = new AMTransaction();
+    const operation = new AMCreateOperation(transaction, {
+      collectionName: '',
+    });
+    const resultPromise = new AMOperationResultPromise<any>(operation);
+    resultPromise.resolve(arr);
+
+    const data = ({
+      getOutput() {
+        return new AMDataResultPromise([
+          { _id: 'child-id', parentId: 'nested-item-id' },
+        ]);
+      },
+    } as any) as AMOperation;
+    const result = [
+      {
+        id: 'item-id-1',
+        nested: {
+          id: 'nested-item-id',
+          children: { _id: 'child-id', parentId: 'nested-item-id' },
+          type: 'type-1',
+        },
+      },
+      {
+        id: 'item-id-2',
+        nested: null,
+      },
+    ];
+
+    const lookupResultPromise = resultPromise.map(
+      new ResultPromiseTransforms.Lookup(
+        'nested.children',
+        'id',
+        'parentId',
+        data,
+        false
+      ).addCondition(
+        new Map([
+          [
+            'nested',
+            {
+              mmDiscriminatorField: 'type',
+              mmDiscriminator: 'type-1',
+            } as AMModelType,
+          ],
+        ])
+      )
+    );
+    expect(lookupResultPromise.getValueSource()).toMatchInlineSnapshot(`
+Array [
+  "Operation-0",
+  Lookup {
+    "conditions": Array [
+      Map {
+        "nested" => Object {
+          "mmDiscriminator": "type-1",
+          "mmDiscriminatorField": "type",
+        },
+      },
     ],
     "data": ResultPromise {
       "source": Array [
