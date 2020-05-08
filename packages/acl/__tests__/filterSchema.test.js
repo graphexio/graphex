@@ -1,20 +1,17 @@
-import { execute, printSchema } from 'graphql';
+import AMM from '@apollo-model/core';
+import { printSchema } from 'graphql';
 import gql from 'graphql-tag';
 import R from 'ramda';
-
+import { removeUnusedTypes } from '@apollo-model/schema-filter';
 import {
+  allMutations,
+  allQueries,
+  anyField,
   applyRules,
+  modelCustomActions,
   modelDefaultActions,
   modelField,
-  regexAccessRule,
-  modelCustomActions,
-  anyField,
-  allQueries,
-  allMutations,
 } from '../src';
-
-import AMM from '@apollo-model/core';
-import typeDefs from './__fixtures__/model.js';
 
 const createSchema = typeDefs => {
   const schema = new AMM({
@@ -36,10 +33,12 @@ describe('accessRules', () => {
       }
     `);
 
-    let aclSchema = applyRules(schema, {
+    const aclSchema = applyRules(schema, {
       allow: [allQueries, allMutations, anyField],
     });
-    expect(printSchema(aclSchema)).toEqual(printSchema(schema));
+    expect(printSchema(aclSchema)).toEqual(
+      printSchema(removeUnusedTypes(schema))
+    );
   });
 
   it('CRU only', () => {
@@ -50,11 +49,11 @@ describe('accessRules', () => {
       }
     `);
 
-    let aclSchema = applyRules(schema, {
+    const aclSchema = applyRules(schema, {
       allow: [modelDefaultActions('Post', 'CRU'), anyField],
     });
 
-    let referenceSchema = R.clone(schema);
+    const referenceSchema = removeUnusedTypes(R.clone(schema));
     delete referenceSchema.getTypeMap().Mutation._fields.deletePost;
     delete referenceSchema.getTypeMap().Mutation._fields.deletePosts;
 
@@ -69,12 +68,14 @@ describe('accessRules', () => {
       }
     `);
 
-    let aclSchema = applyRules(schema, {
+    const aclSchema = applyRules(schema, {
       allow: [modelDefaultActions('Post', 'R'), anyField],
     });
 
-    let referenceSchema = R.clone(schema);
+    const referenceSchema = removeUnusedTypes(R.clone(schema));
     delete referenceSchema._typeMap.Mutation;
+    delete referenceSchema._typeMap.PostCreateInput;
+    delete referenceSchema._typeMap.PostUpdateInput;
 
     expect(printSchema(aclSchema)).toEqual(printSchema(referenceSchema));
   });
@@ -91,12 +92,12 @@ describe('accessRules', () => {
       }
     `);
 
-    let aclSchema = applyRules(schema, {
+    const aclSchema = applyRules(schema, {
       allow: [allQueries, allMutations, anyField],
       deny: [modelCustomActions('Post', ['approve'])],
     });
 
-    let referenceSchema = R.clone(schema);
+    const referenceSchema = removeUnusedTypes(R.clone(schema));
     delete referenceSchema.getTypeMap().Mutation._fields.approvePost;
 
     expect(printSchema(aclSchema)).toEqual(printSchema(referenceSchema));
@@ -123,17 +124,18 @@ describe('accessRules', () => {
       }
     `);
 
-    let aclSchema = applyRules(schema, {
+    const aclSchema = applyRules(schema, {
       allow: [modelDefaultActions('User', 'CRUD'), anyField],
       deny: [modelDefaultActions('Admin', 'CUD')],
     });
 
-    let referenceSchema = R.clone(schema);
+    const referenceSchema = removeUnusedTypes(R.clone(schema));
     const { Mutation, Query } = referenceSchema.getTypeMap();
     delete Mutation._fields.deleteAdmin;
     delete Mutation._fields.deleteAdmins;
     delete Mutation._fields.updateAdmin;
     delete Mutation._fields.createAdmin;
+    delete referenceSchema._typeMap.AdminUpdateInput;
 
     expect(printSchema(aclSchema)).toEqual(printSchema(referenceSchema));
   });
@@ -150,7 +152,7 @@ describe('accessRules', () => {
       }
     `);
 
-    let aclSchema = applyRules(schema, {
+    const aclSchema = applyRules(schema, {
       allow: [allQueries, allMutations, anyField],
       deny: [modelField('PostMeta', 'keywords', 'CRUD')],
     });
