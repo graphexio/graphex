@@ -1,5 +1,5 @@
 import R from 'ramda';
-import { SchemaFilter } from '@apollo-model/schema-filter';
+import { SchemaFilter, removeUnusedTypes } from '@apollo-model/schema-filter';
 import { transformSchema } from '@apollo-model/graphql-tools';
 
 export const applyRules = (
@@ -45,5 +45,5 @@ export const applyRules = (
     },
   });
 
-  return transformSchema(schema, [filterFields]);
+  return removeUnusedTypes(transformSchema(schema, [filterFields]));
 };
