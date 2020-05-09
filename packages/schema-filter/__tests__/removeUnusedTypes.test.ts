@@ -8,7 +8,7 @@ test('removeUnusedTypes', () => {
   const schema = makeExecutableSchema({
     typeDefs: gql`
       type Query {
-        test: Test
+        test: TestInterface
       }
 
       interface TestInterface {
@@ -33,7 +33,7 @@ test('removeUnusedTypes', () => {
       }
 
       type Mutation {
-        add(value: AddInput): Test
+        add(value: AddInput): TestInterface
       }
 
       input AddInput {
@@ -47,7 +47,7 @@ test('removeUnusedTypes', () => {
     `,
     resolvers: {
       Query: {
-        test: () => ({ field: 'test value' }),
+        test: () => ({ __typename: 'Test', field: 'test value' }),
       },
     },
     resolverValidationOptions: { requireResolversForResolveType: false },
@@ -56,7 +56,7 @@ test('removeUnusedTypes', () => {
   const cleanSchema = makeExecutableSchema({
     typeDefs: gql`
       type Query {
-        test: Test
+        test: TestInterface
       }
 
       interface TestInterface {
@@ -73,7 +73,7 @@ test('removeUnusedTypes', () => {
       }
 
       type Mutation {
-        add(value: AddInput): Test
+        add(value: AddInput): TestInterface
       }
 
       input AddInput {
