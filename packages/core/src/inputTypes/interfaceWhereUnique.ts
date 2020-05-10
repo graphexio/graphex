@@ -13,7 +13,11 @@ import { AMListValueContext } from '../execution/contexts/listValue';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMReadOperation } from '../execution/operations/readOperation';
 import { ResultPromiseTransforms } from '../execution/resultPromise';
-import { defaultObjectFieldVisitorHandler } from './visitorHandlers';
+import {
+  defaultObjectFieldVisitorHandler,
+  whereTypeVisitorHandler,
+} from './visitorHandlers';
+import { AMSelectorContext } from '../execution';
 
 export class AMInterfaceWhereUniqueTypeFactory extends AMTypeFactory<
   GraphQLInputObjectType
@@ -58,16 +62,7 @@ export class AMInterfaceWhereUniqueTypeFactory extends AMTypeFactory<
                         possibleType.mmDiscriminator
                       ) {
                         const lastInStack = stack.last();
-                        if (lastInStack instanceof AMReadOperation) {
-                          if (lastInStack.selector) {
-                            lastInStack.selector.addValue(
-                              modelType.mmDiscriminatorField,
-                              possibleType.mmDiscriminator
-                            );
-                          }
-                        } else if (
-                          lastInStack instanceof AMObjectFieldContext
-                        ) {
+                        if (lastInStack instanceof AMSelectorContext) {
                           lastInStack.addValue(
                             modelType.mmDiscriminatorField,
                             possibleType.mmDiscriminator
@@ -119,6 +114,9 @@ export class AMInterfaceWhereUniqueTypeFactory extends AMTypeFactory<
 
         return fields;
       },
+      ...(modelType.mmAbstract
+        ? {} //TODO: fix for abstract interfaces
+        : whereTypeVisitorHandler({ emptyAllowed: false })),
     });
   }
 }

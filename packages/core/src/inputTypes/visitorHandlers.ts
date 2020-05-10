@@ -91,6 +91,10 @@ export function whereTypeVisitorHandler(
         lastInStack.addValue(context.selector);
       } else if (lastInStack instanceof AMObjectFieldContext) {
         lastInStack.setValue(context.selector);
+      } else if (lastInStack instanceof AMSelectorContext) {
+        Object.entries(context.selector).forEach(([k, v]) =>
+          lastInStack.addValue(k, v)
+        );
       }
     },
   };
