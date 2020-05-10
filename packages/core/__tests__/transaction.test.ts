@@ -3242,6 +3242,15 @@ describe('aclWhere', () => {
       type AttachmentComment implements Comment {
         path: String
       }
+
+      interface User @model @inherit {
+        id: ID @id @unique @db(name: "_id")
+        username: String
+      }
+
+      type Admin implements User {
+        title: String
+      }
     `,
     { aclWhere: true }
   );
@@ -3288,6 +3297,53 @@ describe('aclWhere', () => {
         ],
       }
     `);
+  });
+
+  test('interface', () => {
+    const rq = gql`
+      query {
+        users(
+          where: { Admin: { title: "title" }, aclWhere: { username: "str-2" } }
+        ) {
+          id
+        }
+      }
+    `;
+
+    const transaction = prepareTransaction(schema, rq);
+    expect(transaction).toMatchInlineSnapshot(`
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "users",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+        ],
+      },
+      "selector": Object {
+        "$and": Array [
+          Object {
+            "_type": "admin",
+            "title": "title",
+          },
+          Object {
+            "username": "str-2",
+          },
+        ],
+      },
+    },
+  ],
+}
+`);
   });
 });
 

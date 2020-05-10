@@ -170,7 +170,9 @@ function transformInput(value, type: GraphQLInputType) {
     const { __typename, ...restValue } = value;
     let typeName = __typename;
     if (!typeName) {
-      typeName = Object.keys(type.getFields())[0];
+      typeName = Object.keys(type.getFields()).filter(
+        key => key !== 'aclWhere'
+      )[0];
     }
     return transformInputObject({ [typeName]: restValue }, type);
   }

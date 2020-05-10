@@ -2,7 +2,11 @@ import { GraphQLInterfaceType, isInterfaceType } from 'graphql';
 import { AMInputObjectType, AMModelType, AMTypeFactory } from '../definitions';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMReadOperation } from '../execution/operations/readOperation';
-import { defaultObjectFieldVisitorHandler } from './visitorHandlers';
+import {
+  defaultObjectFieldVisitorHandler,
+  whereTypeVisitorHandler,
+} from './visitorHandlers';
+import { AMSelectorContext } from '../execution';
 
 export class AMInterfaceWhereTypeFactory extends AMTypeFactory<
   AMInputObjectType
@@ -47,16 +51,7 @@ export class AMInterfaceWhereTypeFactory extends AMTypeFactory<
                         possibleType.mmDiscriminator
                       ) {
                         const lastInStack = stack.last();
-                        if (lastInStack instanceof AMReadOperation) {
-                          if (lastInStack.selector) {
-                            lastInStack.selector.addValue(
-                              modelType.mmDiscriminatorField,
-                              possibleType.mmDiscriminator
-                            );
-                          }
-                        } else if (
-                          lastInStack instanceof AMObjectFieldContext
-                        ) {
+                        if (lastInStack instanceof AMSelectorContext) {
                           lastInStack.addValue(
                             modelType.mmDiscriminatorField,
                             possibleType.mmDiscriminator
@@ -102,6 +97,7 @@ export class AMInterfaceWhereTypeFactory extends AMTypeFactory<
 
         return fields;
       },
+      ...whereTypeVisitorHandler(),
     });
   }
 }

@@ -4,9 +4,9 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Jest All",
+      "name": "Jest All --watch",
       "program": "${workspaceFolder}/node_modules/.bin/jest",
-      "args": ["--runInBand"],
+      "args": ["--runInBand", "--watch"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "disableOptimisticBPs": true,
