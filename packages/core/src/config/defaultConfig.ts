@@ -194,6 +194,7 @@ const config = {
       interfaceWhere: {
         factory: AMInterfaceWhereTypeFactory,
         links: {
+          whereACL: 'whereACL',
           where: 'where',
         },
       },
@@ -213,6 +214,7 @@ const config = {
       interfaceWhereUnique: {
         factory: AMInterfaceWhereUniqueTypeFactory,
         links: {
+          whereACL: 'whereACL',
           whereUnique: 'whereUnique',
         },
       },
