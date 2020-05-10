@@ -2,6 +2,7 @@ import { GraphQLInterfaceType, isInterfaceType } from 'graphql';
 import { AMInputObjectType, AMModelType, AMTypeFactory } from '../definitions';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMReadOperation } from '../execution/operations/readOperation';
+import { defaultObjectFieldVisitorHandler } from './visitorHandlers';
 
 export class AMInterfaceWhereTypeFactory extends AMTypeFactory<
   AMInputObjectType
@@ -17,6 +18,13 @@ export class AMInterfaceWhereTypeFactory extends AMTypeFactory<
       name: this.getTypeName(modelType),
       fields: () => {
         const fields = {};
+        fields['aclWhere'] = {
+          type: this.configResolver.resolveInputType(
+            modelType,
+            this.links.whereACL
+          ),
+          ...defaultObjectFieldVisitorHandler('aclWhere'),
+        };
         if (modelType instanceof GraphQLInterfaceType) {
           [
             modelType,

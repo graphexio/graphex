@@ -387,12 +387,13 @@ describe('interface', () => {
   test('ProfileInterfaceWhereInput', () => {
     expect(printType(schema.getType('ProfileInterfaceWhereInput')))
       .toMatchInlineSnapshot(`
-       "input ProfileInterfaceWhereInput {
-         Profile: ProfileWhereInput
-         AdminProfile: AdminProfileWhereInput
-         SubscriberProfile: SubscriberProfileWhereInput
-       }"
-    `);
+"input ProfileInterfaceWhereInput {
+  aclWhere: ProfileWhereACLInput
+  Profile: ProfileWhereInput
+  AdminProfile: AdminProfileWhereInput
+  SubscriberProfile: SubscriberProfileWhereInput
+}"
+`);
   });
 
   test('UserCreateOneRelationInput', () => {
@@ -430,6 +431,7 @@ describe('interface', () => {
     expect(printType(schema.getType('UserInterfaceWhereInput')))
       .toMatchInlineSnapshot(`
             "input UserInterfaceWhereInput {
+              aclWhere: UserWhereACLInput
               User: UserWhereInput
               Admin: AdminWhereInput
               Subscriber: SubscriberWhereInput
@@ -441,13 +443,14 @@ describe('interface', () => {
   test('UserInterfaceWhereUniqueInput', () => {
     expect(printType(schema.getType('UserInterfaceWhereUniqueInput')))
       .toMatchInlineSnapshot(`
-            "input UserInterfaceWhereUniqueInput {
-              User: UserWhereUniqueInput
-              Admin: AdminWhereUniqueInput
-              Subscriber: SubscriberWhereUniqueInput
-              Manager: ManagerWhereUniqueInput
-            }"
-        `);
+"input UserInterfaceWhereUniqueInput {
+  aclWhere: UserWhereACLInput
+  User: UserWhereUniqueInput
+  Admin: AdminWhereUniqueInput
+  Subscriber: SubscriberWhereUniqueInput
+  Manager: ManagerWhereUniqueInput
+}"
+`);
   });
 
   test('ManagerCreateInput', () => {
@@ -653,12 +656,13 @@ describe('abstract', () => {
   test('UserInterfaceWhereUniqueInput', () => {
     expect(printType(schema.getType('UserInterfaceWhereUniqueInput')))
       .toMatchInlineSnapshot(`
-            "input UserInterfaceWhereUniqueInput {
-              User: UserWhereUniqueInput
-              Admin: AdminWhereUniqueInput
-              Subscriber: SubscriberWhereUniqueInput
-            }"
-        `);
+"input UserInterfaceWhereUniqueInput {
+  aclWhere: UserWhereACLInput
+  User: UserWhereUniqueInput
+  Admin: AdminWhereUniqueInput
+  Subscriber: SubscriberWhereUniqueInput
+}"
+`);
   });
 });
 

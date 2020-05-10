@@ -13,6 +13,7 @@ import { AMListValueContext } from '../execution/contexts/listValue';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMReadOperation } from '../execution/operations/readOperation';
 import { ResultPromiseTransforms } from '../execution/resultPromise';
+import { defaultObjectFieldVisitorHandler } from './visitorHandlers';
 
 export class AMInterfaceWhereUniqueTypeFactory extends AMTypeFactory<
   GraphQLInputObjectType
@@ -28,6 +29,13 @@ export class AMInterfaceWhereUniqueTypeFactory extends AMTypeFactory<
       name: this.getTypeName(modelType),
       fields: () => {
         const fields = {};
+        fields['aclWhere'] = {
+          type: this.configResolver.resolveInputType(
+            modelType,
+            this.links.whereACL
+          ),
+          ...defaultObjectFieldVisitorHandler('aclWhere'),
+        };
         if (modelType instanceof GraphQLInterfaceType) {
           [
             modelType,
