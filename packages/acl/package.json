@@ -1,6 +1,6 @@
 {
   "name": "@apollo-model/acl",
-  "version": "0.6.4-alpha.2",
+  "version": "0.6.4-alpha.3",
   "description": "",
   "main": "lib/index.js",
   "files": [
@@ -16,7 +16,7 @@
   "license": "ISC",
   "dependencies": {
     "@apollo-model/ast-from-value": "0.6.0-alpha.52",
-    "@apollo-model/core": "0.6.4-alpha.2",
+    "@apollo-model/core": "0.6.4-alpha.3",
     "@apollo-model/graphql-tools": "4.0.7",
     "@apollo-model/mongodb-executor": "0.6.0-alpha.32",
     "@apollo-model/schema-filter": "0.6.4-alpha.1",
