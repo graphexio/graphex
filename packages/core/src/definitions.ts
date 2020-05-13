@@ -168,6 +168,7 @@ export type AMModelField = AMField & {
   isID: boolean;
   isUnique: boolean;
   isReadOnly: boolean;
+  isConnection?: boolean;
   defaultValue?: any;
   relation: {
     external: boolean;

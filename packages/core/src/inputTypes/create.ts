@@ -19,6 +19,7 @@ export class AMCreateTypeFactory extends AMTypeFactory<AMInputObjectType> {
         const fields = {};
 
         Object.values(modelType.getFields()).forEach(field => {
+          if (field.isConnection) return;
           const fieldType = getNamedType(field.type) as AMModelType;
           let links = this.getDynamicLinksForType(fieldType.name)
             .fieldFactories;

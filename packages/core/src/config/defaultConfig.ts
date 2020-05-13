@@ -53,6 +53,7 @@ import { AMModelDeleteManyMutationFieldFactory } from '../modelMethods/deleteMan
 import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
 import { AMConnectionTypeFactory } from '../types/connection';
 import { AMAggregateTypeFactory } from '../types/aggregate';
+import { AMAggregateNumericFieldsTypeFactory } from '../types/aggregateNumbericFields';
 
 const config = {
   _default: {
@@ -106,6 +107,14 @@ const config = {
     typeFactories: {
       aggregate: {
         factory: AMAggregateTypeFactory,
+        links: {
+          sum: 'aggregateNumericFields',
+          min: 'aggregateNumericFields',
+          max: 'aggregateNumericFields',
+        },
+      },
+      aggregateNumericFields: {
+        factory: AMAggregateNumericFieldsTypeFactory,
       },
       connection: {
         factory: AMConnectionTypeFactory,

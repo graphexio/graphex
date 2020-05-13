@@ -1,4 +1,4 @@
-import { valueFromAST, astFromValue, Kind } from 'graphql';
+import { astFromValue, GraphQLObjectType, Kind, valueFromAST } from 'graphql';
 import R from 'ramda';
 
 const reduceDefaults = (state, item) => {
@@ -99,7 +99,9 @@ export default () => {
     return undefined;
   };
 
-  const applyDefaultArgs = (node, variables, context) => parent => {
+  const applyDefaultArgs = (node, variables, context) => (parent: {
+    type: GraphQLObjectType;
+  }) => {
     if (
       defaultArgs[parent.type.name] &&
       defaultArgs[parent.type.name][node.name.value]
@@ -127,7 +129,8 @@ export default () => {
 
       Object.entries(args).forEach(([argName, argValue]) => {
         try {
-          const argType = R.find(R.propEq('name', argName))(
+          const argType = R.find(
+            arg => arg.name === argName,
             parent.type.getFields()[node.name.value].args
           ).type;
 

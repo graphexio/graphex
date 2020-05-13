@@ -246,34 +246,37 @@ export default class ModelMongo {
     } while (initialCount !== Object.values(schema.getTypeMap()).length);
     /* resolve field thunks */
 
-    const typesToRemove = [];
-    Object.entries(schema.getTypeMap()).forEach(([, type]) => {
-      if (hasTypeFields(type) && Object.keys(type.getFields()).length == 0) {
-        typesToRemove.push(type);
-      } else if (isEnumType(type)) {
-        if (type.getValues().length === 0) {
+    let typesToRemove: GraphQLNamedType[];
+    do {
+      typesToRemove = [];
+      Object.entries(schema.getTypeMap()).forEach(([, type]) => {
+        if (hasTypeFields(type) && Object.keys(type.getFields()).length == 0) {
           typesToRemove.push(type);
-        }
-      }
-    });
-
-    Object.entries(schema.getTypeMap()).forEach(([, type]) => {
-      if (hasTypeFields(type)) {
-        const fields = type.getFields();
-        Object.entries(fields).forEach(([name, field]) => {
-          if (typesToRemove.includes(getNamedType(field.type))) {
-            delete fields[name];
-          } else if (field.args) {
-            field.args = field.args.filter(
-              arg => !typesToRemove.includes(getNamedType(arg.type))
-            );
+        } else if (isEnumType(type)) {
+          if (type.getValues().length === 0) {
+            typesToRemove.push(type);
           }
-        });
-      }
-    });
-    typesToRemove.forEach(type => {
-      delete schema.getTypeMap()[type.name];
-    });
+        }
+      });
+
+      Object.entries(schema.getTypeMap()).forEach(([, type]) => {
+        if (hasTypeFields(type)) {
+          const fields = type.getFields();
+          Object.entries(fields).forEach(([name, field]) => {
+            if (typesToRemove.includes(getNamedType(field.type))) {
+              delete fields[name];
+            } else if (field.args) {
+              field.args = field.args.filter(
+                arg => !typesToRemove.includes(getNamedType(arg.type))
+              );
+            }
+          });
+        }
+      });
+      typesToRemove.forEach(type => {
+        delete schema.getTypeMap()[type.name];
+      });
+    } while (typesToRemove.length > 0);
 
     //Remove system directives
     (schema as any)._directives = [];

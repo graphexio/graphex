@@ -3,6 +3,6 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },
-  "debug.javascriipt.usePreview": true,
+  "debug.javascript.usePreview": true,
   "debug.node.autoAttach": "on"
 }

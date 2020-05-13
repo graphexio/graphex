@@ -10,10 +10,15 @@ export class AMCreateOneNestedTypeFactory extends AMTypeFactory<
   GraphQLInputObjectType
 > {
   getTypeName(modelType: AMModelType): string {
+    if (
+      `${modelType.name}CreateOneNestedInput` ===
+      'AggregateNumericFieldsInCommentCreateOneNestedInput'
+    ) {
+      throw new Error();
+    }
     return `${modelType.name}CreateOneNestedInput`;
   }
   getType(modelType: AMModelType) {
-    const self: IAMTypeFactory<AMInputObjectType> = this;
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {

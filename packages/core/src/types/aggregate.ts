@@ -1,4 +1,4 @@
-import { GraphQLInt, GraphQLNonNull } from 'graphql';
+import { GraphQLInt, GraphQLNonNull, GraphQLObjectType } from 'graphql';
 import { AMObjectType, AMTypeFactory } from '../definitions';
 
 export class AMAggregateTypeFactory extends AMTypeFactory<AMObjectType> {
@@ -12,6 +12,24 @@ export class AMAggregateTypeFactory extends AMTypeFactory<AMObjectType> {
         const fields = {
           count: {
             type: new GraphQLNonNull(GraphQLInt),
+          },
+          sum: {
+            type: this.configResolver.resolveType(
+              modelType,
+              this.links.sum
+            ) as GraphQLObjectType,
+          },
+          min: {
+            type: this.configResolver.resolveType(
+              modelType,
+              this.links.min
+            ) as GraphQLObjectType,
+          },
+          max: {
+            type: this.configResolver.resolveType(
+              modelType,
+              this.links.max
+            ) as GraphQLObjectType,
           },
         };
 
