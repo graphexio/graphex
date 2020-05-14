@@ -1,5 +1,7 @@
 import { GraphQLObjectType } from 'graphql';
 import { AMObjectType, AMTypeFactory } from '../definitions';
+import { AMFieldsSelectionContext } from '../execution';
+import { defaultSelectionVisitorHandler } from './visitorHandlers';
 
 export class AMConnectionTypeFactory extends AMTypeFactory<AMObjectType> {
   getTypeName(modelType): string {
@@ -15,6 +17,7 @@ export class AMConnectionTypeFactory extends AMTypeFactory<AMObjectType> {
               modelType,
               'aggregate'
             ) as GraphQLObjectType,
+            ...defaultSelectionVisitorHandler('aggregate'),
           },
         };
 

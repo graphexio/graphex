@@ -24,6 +24,8 @@ import Maybe from 'graphql/tsutils/Maybe';
 import { AMConfigResolver } from './config/resolver';
 import { AMTransaction } from './execution/transaction';
 import { AMVisitorStack } from './execution/visitorStack';
+import { AMDBExecutorOperationType } from '@apollo-model/mongodb-executor';
+export { AMDBExecutorOperationType } from '@apollo-model/mongodb-executor';
 
 export abstract class AMFactory {
   links: { [key: string]: string | string[] };
@@ -314,20 +316,6 @@ export type AMDBExecutorParams = {
     skip?: number;
   };
 };
-
-export enum AMDBExecutorOperationType {
-  FIND = 'find',
-  FIND_ONE = 'findOne',
-  FIND_IDS = 'findIds',
-  COUNT = 'count',
-  DISTINCT = 'distinct',
-  INSERT_ONE = 'insertOne',
-  INSERT_MANY = 'insertMany',
-  DELETE_ONE = 'deleteOne',
-  DELETE_MANY = 'deleteMany',
-  UPDATE_ONE = 'updateOne',
-  UPDATE_MANY = 'updateMany',
-}
 
 export interface AMConfig {
   [typeName: string]: {

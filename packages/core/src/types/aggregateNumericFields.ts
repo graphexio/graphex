@@ -5,9 +5,13 @@ import {
   GraphQLString,
   GraphQLFloat,
   isObjectType,
+  getNamedType,
+  isListType,
 } from 'graphql';
 import { AMObjectType, AMTypeFactory, AMModelType } from '../definitions';
 import * as R from 'ramda';
+import { AMFieldsSelectionContext } from '../execution';
+import { defaultSelectionVisitorHandler } from './visitorHandlers';
 
 export class AMAggregateNumericFieldsTypeFactory extends AMTypeFactory<
   AMObjectType
@@ -22,23 +26,31 @@ export class AMAggregateNumericFieldsTypeFactory extends AMTypeFactory<
       fields: () => {
         const fields = Object.values(modelType.getFields()).reduce(
           (acc, field) => {
-            if (field.type === GraphQLInt || field.type === GraphQLFloat) {
-              return { ...acc, [field.name]: { type: field.type } };
-            } else if (
-              isObjectType(field.type) &&
-              (field.type as AMModelType).mmEmbedded
-            ) {
-              return {
-                ...acc,
+            if (isListType(field.type)) {
+              return acc;
+            }
+            const type = getNamedType(field.type);
+            let newField;
+            if (type === GraphQLInt || type === GraphQLFloat) {
+              newField = {
+                [field.name]: {
+                  type,
+                  ...defaultSelectionVisitorHandler(field.dbName),
+                },
+              };
+            } else if (isObjectType(type) && (type as AMModelType).mmEmbedded) {
+              newField = {
                 [field.name]: {
                   type: this.configResolver.resolveType(
-                    field.type as AMModelType,
+                    type as AMModelType,
                     'aggregateNumericFields'
                   ) as AMObjectType,
+                  ...defaultSelectionVisitorHandler(field.dbName),
                 },
               };
             }
-            return acc;
+            if (newField) return { ...acc, ...newField };
+            else return acc;
           },
           {}
         );

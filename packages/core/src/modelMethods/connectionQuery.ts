@@ -23,7 +23,7 @@ export class AMModelConnectionQueryFieldFactory extends AMMethodFieldFactory {
     );
   }
   getField(modelType: AMModelType) {
-    return <AMField>{
+    return {
       name: this.getFieldName(modelType),
       description: '',
       isDeprecated: false,
@@ -64,6 +64,6 @@ export class AMModelConnectionQueryFieldFactory extends AMMethodFieldFactory {
         }
       },
       resolve: resolve,
-    };
+    } as AMField;
   }
 }
