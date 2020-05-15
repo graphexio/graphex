@@ -123,6 +123,18 @@ const queryExecutor = DB => async (params: {
         if (sort) cursor = cursor.sort(sort);
         return { aggregate: { count: await cursor.count(true) } };
       } else {
+        const pipeline = [];
+
+        if (selector) {
+          pipeline.push({ $match: selector });
+        }
+        if (skip) {
+          pipeline.push({ $skip: skip });
+        }
+        if (limit) {
+          pipeline.push({ $limit: limit });
+        }
+
         const group = { _id: null };
         const backMap = [];
 
@@ -137,8 +149,10 @@ const queryExecutor = DB => async (params: {
           group[aggregationField] = { [`$${op}`]: `$${path.join('.')}` };
           backMap.push({ path: [op, ...path], field: aggregationField });
         });
+        pipeline.push({ $group: group });
+
         const aggregationResult = head(
-          await Collection.aggregate([{ $group: group }]).toArray()
+          await Collection.aggregate(pipeline).toArray()
         );
         const aggregate = backMap.reduce((acc, { field, path }) => {
           return assocPath(path, aggregationResult[field], acc);
