@@ -51,12 +51,13 @@ export const relationDirective = (
           ];
 
           if (!realType.mmAbstract && typeWrap.isMany()) {
-            type.getFields()[`${field.name}Connection`] = <AMField>{
+            type.getFields()[`${field.name}Connection`] = {
               name: `${field.name}Connection`,
               isDeprecated: false,
               description: '',
               extensions: undefined,
               astNode: undefined,
+              isConnection: true,
               type: configResolver.resolveType(realType, 'connection'),
               args: [
                 {
@@ -84,7 +85,7 @@ export const relationDirective = (
               amLeave(node, transaction, stack) {
                 stack.pop();
               },
-            };
+            } as AMField;
           }
         }
       });

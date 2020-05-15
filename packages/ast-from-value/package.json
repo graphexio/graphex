@@ -5,7 +5,7 @@
   "license": "MIT",
   "devDependencies": {
     "rimraf": "^2.6.3",
-    "typescript": "^3.7.4"
+    "typescript": "^3.9.2"
   },
   "scripts": {
     "prepare": "rimraf ./lib && tsc"

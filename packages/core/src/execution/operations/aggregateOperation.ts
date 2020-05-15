@@ -5,7 +5,7 @@ import { completeAMResultPromise } from '../resultPromise/utils';
 export class AMAggregateOperation extends AMOperation {
   async execute(executor: AMDBExecutor) {
     executor({
-      type: AMDBExecutorOperationType.COUNT,
+      type: AMDBExecutorOperationType.AGGREGATE,
       collection: this.collectionName,
       selector: await completeAMResultPromise(
         this.selector ? this.selector.selector : undefined
@@ -15,13 +15,7 @@ export class AMAggregateOperation extends AMOperation {
       ),
       options: { sort: this.orderBy, limit: this.first, skip: this.skip },
     })
-      .then(res => {
-        this._result.resolve({
-          aggregate: {
-            count: res,
-          },
-        });
-      })
+      .then(this._result.resolve)
       .catch(this._result.reject);
   }
 }
