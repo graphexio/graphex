@@ -1,6 +1,6 @@
 {
   "name": "@apollo-model/core",
-  "version": "0.6.5-alpha.1",
+  "version": "0.6.5-alpha.2",
   "description": "",
   "main": "lib/index.js",
   "files": [
@@ -47,7 +47,7 @@
   "dependencies": {
     "@apollo-model/ast-from-value": "0.6.5-alpha.0",
     "@apollo-model/directive-inherit": "0.6.0-alpha.32",
-    "@apollo-model/mongodb-executor": "0.6.5-alpha.0",
+    "@apollo-model/mongodb-executor": "0.6.5-alpha.2",
     "@apollo-model/type-wrap": "0.6.5-alpha.0",
     "@apollo/federation": "^0.9.2",
     "@babel/runtime": "^7.2.0",
