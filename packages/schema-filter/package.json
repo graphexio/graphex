@@ -1,6 +1,6 @@
 {
   "name": "@apollo-model/schema-filter",
-  "version": "0.6.4-alpha.1",
+  "version": "0.6.5-alpha.0",
   "description": "",
   "main": "lib/index.js",
   "files": [
@@ -15,9 +15,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@apollo-model/ast-from-value": "0.6.0-alpha.52",
+    "@apollo-model/ast-from-value": "0.6.5-alpha.0",
     "@apollo-model/graphql-tools": "4.0.7",
-    "@apollo-model/type-wrap": "0.6.2-alpha.0",
+    "@apollo-model/type-wrap": "0.6.5-alpha.0",
     "@apollo/federation": "^0.7.0",
     "ramda": "^0.27.0"
   },
@@ -28,13 +28,13 @@
     "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/plugin-proposal-pipeline-operator": "^7.5.0",
     "@babel/preset-env": "^7.5.5",
+    "@types/ramda": "^0.27.4",
     "apollo-server": "^2.8.1",
     "apollo-server-testing": "^2.8.1",
     "jest": "^25.1.0",
     "nodemon": "^1.19.1",
     "rimraf": "^2.6.3",
-    "typescript": "^3.9.2",
-    "@types/ramda": "^0.27.4"
+    "typescript": "^3.9.2"
   },
   "peerDependencies": {
     "graphql": "^14.6.0"
