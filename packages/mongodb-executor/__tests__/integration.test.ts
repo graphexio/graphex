@@ -178,4 +178,28 @@ describe('aggregation', () => {
       },
     });
   });
+
+  test('min,max,sum empty collection', async () => {
+    const testCollectionName = 'test';
+    const testCollection = DB.collection('test');
+
+    const result = await QE({
+      type: AMDBExecutorOperationType.AGGREGATE,
+      collection: testCollectionName,
+      fields: [
+        'aggregate.min.price',
+        'aggregate.max.price',
+        'aggregate.sum.price',
+      ],
+    });
+
+    expect(result).toEqual({
+      aggregate: {
+        count: 0,
+        max: null,
+        min: null,
+        sum: null,
+      },
+    });
+  });
 });

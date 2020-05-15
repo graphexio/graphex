@@ -154,6 +154,9 @@ const queryExecutor = DB => async (params: {
         const aggregationResult = head(
           await Collection.aggregate(pipeline).toArray()
         );
+        if (!aggregationResult) {
+          return { aggregate: { count: 0, min: null, max: null, sum: null } };
+        }
         const aggregate = backMap.reduce((acc, { field, path }) => {
           return assocPath(path, aggregationResult[field], acc);
         }, {});
