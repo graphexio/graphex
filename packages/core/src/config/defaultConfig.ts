@@ -54,6 +54,9 @@ import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
 import { AMConnectionTypeFactory } from '../types/connection';
 import { AMAggregateTypeFactory } from '../types/aggregate';
 import { AMAggregateNumericFieldsTypeFactory } from '../types/aggregateNumericFields';
+import { AMIdentityFieldFactory } from '../types/fieldFactories/identity';
+import { AMNamedTypeFieldFactory } from '../types/fieldFactories/namedType';
+import { AMAggregateNumericFieldsFieldFactory } from '../types/fieldFactories/aggregateNumericFields';
 
 const config = {
   _default: {
@@ -115,9 +118,37 @@ const config = {
       },
       aggregateNumericFields: {
         factory: AMAggregateNumericFieldsTypeFactory,
+        links: {
+          embedded: 'aggregateNumericFields',
+        },
+        dynamicLinks: {
+          _default: {
+            fieldFactories: ['aggregateNumericFields'],
+          },
+          Int: {
+            fieldFactories: ['namedType'],
+          },
+          Float: {
+            fieldFactories: ['namedType'],
+          },
+        },
       },
       connection: {
         factory: AMConnectionTypeFactory,
+      },
+    },
+    fieldFactories: {
+      aggregateNumericFields: {
+        factory: AMAggregateNumericFieldsFieldFactory,
+        links: {
+          embedded: 'aggregateNumericFields',
+        },
+      },
+      identity: {
+        factory: AMIdentityFieldFactory,
+      },
+      namedType: {
+        factory: AMNamedTypeFieldFactory,
       },
     },
     inputTypeFactories: {
