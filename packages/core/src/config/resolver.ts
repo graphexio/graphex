@@ -120,7 +120,6 @@ export class AMConfigResolver {
   }
 
   resolveInputFieldFactory(type: AMModelType, link: string) {
-    // console.log('inputField', type, link);
     let factoryItem = this.getNamespace(type).inputFieldFactories
       ? this.getNamespace(type).inputFieldFactories[link]
       : undefined;
@@ -139,5 +138,26 @@ export class AMConfigResolver {
 
   resolveInputFieldFactories(type: AMModelType, links: string[]) {
     return links.map(link => this.resolveInputFieldFactory(type, link));
+  }
+
+  resolveFieldFactory(type: AMModelType, link: string) {
+    let factoryItem = this.getNamespace(type).fieldFactories
+      ? this.getNamespace(type).fieldFactories[link]
+      : undefined;
+    if (!factoryItem) {
+      factoryItem = this.getDefaultNamespace()?.fieldFactories[link];
+    }
+    if (!factoryItem)
+      throw new Error(`Unknown factory ${link} for type ${type.name}`);
+    return new factoryItem.factory({
+      links: factoryItem.links,
+      dynamicLinks: factoryItem.dynamicLinks,
+      schemaInfo: this.schemaInfo,
+      configResolver: this,
+    });
+  }
+
+  resolveFieldFactories(type: AMModelType, links: string[]) {
+    return links.map(link => this.resolveFieldFactory(type, link));
   }
 }

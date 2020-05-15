@@ -30,27 +30,24 @@ export class AMAggregateNumericFieldsTypeFactory extends AMTypeFactory<
               return acc;
             }
             const type = getNamedType(field.type);
-            let newField;
-            if (type === GraphQLInt || type === GraphQLFloat) {
-              newField = {
-                [field.name]: {
-                  type,
-                  ...defaultSelectionVisitorHandler(field.dbName),
-                },
-              };
-            } else if (isObjectType(type) && (type as AMModelType).mmEmbedded) {
-              newField = {
-                [field.name]: {
-                  type: this.configResolver.resolveType(
-                    type as AMModelType,
-                    'aggregateNumericFields'
-                  ) as AMObjectType,
-                  ...defaultSelectionVisitorHandler(field.dbName),
-                },
-              };
-            }
-            if (newField) return { ...acc, ...newField };
-            else return acc;
+
+            const fieldFactoryLinks =
+              (this.getDynamicLinksForType(type.name)?.fieldFactories as []) ??
+              [];
+            const fieldFactories = this.configResolver
+              .resolveFieldFactories(modelType, fieldFactoryLinks)
+              .filter(fieldFactory => fieldFactory.isApplicable(field));
+
+            return {
+              ...acc,
+              ...R.mergeAll(
+                fieldFactories.map(fieldFactory => ({
+                  [fieldFactory.getFieldName(field)]: fieldFactory.getField(
+                    field
+                  ),
+                }))
+              ),
+            };
           },
           {}
         );

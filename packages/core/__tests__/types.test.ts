@@ -841,7 +841,7 @@ describe('aggregation', () => {
       type Dish @model {
         id: ID @id @unique @db(name: "_id")
         title: String
-        price: Float
+        price: Float!
         details: DishDetails
       }
 

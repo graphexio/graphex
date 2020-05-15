@@ -253,6 +253,12 @@ export abstract class AMInputFieldFactory extends AMFactory {
   abstract getField(field: AMModelField): AMInputField;
 }
 
+export abstract class AMFieldFactory extends AMFactory {
+  abstract isApplicable(field: AMModelField): boolean;
+  abstract getFieldName(field: AMModelField): string;
+  abstract getField(field: AMModelField): AMField;
+}
+
 export interface IAMFieldFactory {
   getFieldName(inputType: AMModelType): string;
   getField(
@@ -337,6 +343,19 @@ export interface AMConfig {
         factory?: new (options: AMFactoryOptions) => AMTypeFactory<
           GraphQLNamedType
         >;
+        links?: {
+          [key: string]: string | string[];
+        };
+        dynamicLinks?: {
+          [type: string]: {
+            [key: string]: string | string[];
+          };
+        };
+      };
+    };
+    fieldFactories?: {
+      [factoryKey: string]: {
+        factory?: new (options: AMFactoryOptions) => AMFieldFactory;
         links?: {
           [key: string]: string | string[];
         };
