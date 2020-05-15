@@ -85,6 +85,71 @@ describe('aggregation', () => {
     });
   });
 
+  test('min,max,sum with selector', async () => {
+    const testCollectionName = 'test';
+    const testCollection = DB.collection('test');
+    await testCollection.insertMany([
+      { price: 100 },
+      { price: 200 },
+      { price: 400 },
+      { price: 800 },
+    ]);
+
+    const result = await QE({
+      type: AMDBExecutorOperationType.AGGREGATE,
+      collection: testCollectionName,
+      selector: {
+        $and: [{ price: { $gt: 150 } }, { price: { $lt: 500 } }],
+      },
+      fields: [
+        'aggregate.min.price',
+        'aggregate.max.price',
+        'aggregate.sum.price',
+      ],
+    });
+
+    expect(result).toEqual({
+      aggregate: {
+        min: { price: 200 },
+        max: { price: 400 },
+        sum: { price: 600 },
+      },
+    });
+  });
+
+  test('min,max,sum with skip and limit', async () => {
+    const testCollectionName = 'test';
+    const testCollection = DB.collection('test');
+    await testCollection.insertMany([
+      { price: 100 },
+      { price: 200 },
+      { price: 400 },
+      { price: 800 },
+    ]);
+
+    const result = await QE({
+      type: AMDBExecutorOperationType.AGGREGATE,
+      collection: testCollectionName,
+      options: {
+        skip: 1,
+        limit: 2,
+      },
+      fields: [
+        'aggregate.min.price',
+        'aggregate.max.price',
+        'aggregate.sum.price',
+      ],
+    });
+
+    expect(result).toEqual({
+      aggregate: {
+        min: { price: 200 },
+        max: { price: 400 },
+        sum: { price: 600 },
+      },
+    });
+  });
+
   test('min,max,sum nested', async () => {
     const testCollectionName = 'test';
     const testCollection = DB.collection('test');
