@@ -13,7 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "@apollo-model/core": "^0.5.4-alpha.12",
-    "apollo-server": "^2.2.6",
+    "apollo-server": "^2.14.2",
     "graphql": "^14.4.2",
     "mongodb": "^3.1.10"
   },
