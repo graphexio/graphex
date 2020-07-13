@@ -641,6 +641,7 @@ describe('SchemaFilter', () => {
 
       input CreatePostInput {
         postData: JSON
+        defaultField: String
       }
 
       type Mutation {
