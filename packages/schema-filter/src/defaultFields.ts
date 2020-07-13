@@ -1,4 +1,5 @@
-import { astFromValue, GraphQLObjectType, Kind, valueFromAST } from 'graphql';
+import { GraphQLObjectType, Kind, valueFromAST } from 'graphql';
+import { astFromValue } from '@apollo-model/ast-from-value';
 import R from 'ramda';
 
 const reduceDefaults = (state, item) => {
