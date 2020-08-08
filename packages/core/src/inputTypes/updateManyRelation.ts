@@ -1,5 +1,5 @@
 import { GraphQLList } from 'graphql';
-import { DBRef } from 'mongodb';
+import { connect, DBRef } from 'mongodb';
 import {
   AMInputFieldConfigMap,
   AMInputObjectType,
@@ -18,14 +18,81 @@ import {
   ResultPromiseTransforms,
 } from '../execution/resultPromise';
 
+const connectHandlerFactory = (modelType: AMModelType) => (
+  methodName: string
+) => {
+  return !modelType.mmAbstract
+    ? {
+        amEnter(node, transaction, stack) {
+          const opContext = new AMReadOperation(transaction, {
+            many: true,
+            collectionName: modelType.mmCollectionName,
+          });
+          stack.push(opContext);
+
+          /* Next context will be List and it hasn't default 
+          instructions how to pass value into operation */
+
+          const selectorContext = new AMSelectorContext();
+          stack.push(selectorContext);
+
+          const orContext = new AMObjectFieldContext('$or');
+          stack.push(orContext);
+        },
+        amLeave(node, transaction, stack) {
+          const orContext = stack.pop() as AMObjectFieldContext;
+          const selectorContext = stack.pop() as AMSelectorContext;
+          const opContext = stack.pop() as AMReadOperation;
+
+          selectorContext.addValue(orContext.fieldName, orContext.value);
+
+          opContext.setSelector(selectorContext);
+
+          const lastInStack = stack.last();
+          if (lastInStack instanceof AMDataContext) {
+            const objectFieldContext = stack.last(1) as AMObjectFieldContext;
+
+            lastInStack.addValue(
+              methodName,
+              opContext
+                .getOutput()
+                .map(
+                  new ResultPromiseTransforms.Distinct(
+                    objectFieldContext.field.relation.relationField
+                  )
+                )
+            );
+          }
+        },
+      }
+    : {
+        amEnter(node, transaction, stack) {
+          const listContext = new AMListValueContext();
+          stack.push(listContext);
+        },
+        amLeave(node, transaction, stack) {
+          const listContext = stack.pop() as AMListValueContext;
+          const lastInStack = stack.last();
+          if (lastInStack instanceof AMDataContext) {
+            lastInStack.addValue(methodName, listContext.values);
+          }
+        },
+      };
+};
+
 export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
   AMInputObjectType
 > {
   getTypeName(modelType: AMModelType): string {
     return `${modelType.name}UpdateManyRelationInput`;
   }
+
+  // TODO: Refactor mmEnter, mmLeave
+
   getType(modelType: AMModelType) {
     const typeName = this.getTypeName(modelType);
+
+    const connectHandler = connectHandlerFactory(modelType);
 
     return new AMInputObjectType({
       name: typeName,
@@ -148,69 +215,16 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
                 'interfaceWhereUnique',
               ])
             ),
-            /* For abstract interface we make separate operation for each document */
-            ...(!modelType.mmAbstract
-              ? {
-                  amEnter(node, transaction, stack) {
-                    const opContext = new AMReadOperation(transaction, {
-                      many: true,
-                      collectionName: modelType.mmCollectionName,
-                    });
-                    stack.push(opContext);
-
-                    /* Next context will be List and it hasn't default 
-                      instructions how to pass value into operation */
-
-                    const selectorContext = new AMSelectorContext();
-                    stack.push(selectorContext);
-
-                    const orContext = new AMObjectFieldContext('$or');
-                    stack.push(orContext);
-                  },
-                  amLeave(node, transaction, stack) {
-                    const orContext = stack.pop() as AMObjectFieldContext;
-                    const selectorContext = stack.pop() as AMSelectorContext;
-                    const opContext = stack.pop() as AMReadOperation;
-
-                    selectorContext.addValue(
-                      orContext.fieldName,
-                      orContext.value
-                    );
-
-                    opContext.setSelector(selectorContext);
-
-                    const lastInStack = stack.last();
-                    if (lastInStack instanceof AMDataContext) {
-                      const objectFieldContext = stack.last(
-                        1
-                      ) as AMObjectFieldContext;
-
-                      lastInStack.addValue(
-                        'connect',
-                        opContext
-                          .getOutput()
-                          .map(
-                            new ResultPromiseTransforms.Distinct(
-                              objectFieldContext.field.relation.relationField
-                            )
-                          )
-                      );
-                    }
-                  },
-                }
-              : {
-                  amEnter(node, transaction, stack) {
-                    const listContext = new AMListValueContext();
-                    stack.push(listContext);
-                  },
-                  amLeave(node, transaction, stack) {
-                    const listContext = stack.pop() as AMListValueContext;
-                    const lastInStack = stack.last();
-                    if (lastInStack instanceof AMDataContext) {
-                      lastInStack.addValue('connect', listContext.values);
-                    }
-                  },
-                }),
+            ...connectHandler('connect'),
+          },
+          connectOnce: {
+            type: new GraphQLList(
+              this.configResolver.resolveInputType(modelType, [
+                'whereUnique',
+                'interfaceWhereUnique',
+              ])
+            ),
+            ...connectHandler('connectOnce'),
           },
           reconnect: {
             type: new GraphQLList(
@@ -219,69 +233,7 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
                 'interfaceWhereUnique',
               ])
             ),
-            /* For abstract interface we make separate operation for each document */
-            ...(!modelType.mmAbstract
-              ? {
-                  amEnter(node, transaction, stack) {
-                    const opContext = new AMReadOperation(transaction, {
-                      many: true,
-                      collectionName: modelType.mmCollectionName,
-                    });
-                    stack.push(opContext);
-
-                    /* Next context will be List and it hasn't default 
-                      instructions how to pass value into operation */
-
-                    const selectorContext = new AMSelectorContext();
-                    stack.push(selectorContext);
-
-                    const orContext = new AMObjectFieldContext('$or');
-                    stack.push(orContext);
-                  },
-                  amLeave(node, transaction, stack) {
-                    const orContext = stack.pop() as AMObjectFieldContext;
-                    const selectorContext = stack.pop() as AMSelectorContext;
-                    const opContext = stack.pop() as AMReadOperation;
-
-                    selectorContext.addValue(
-                      orContext.fieldName,
-                      orContext.value
-                    );
-
-                    opContext.setSelector(selectorContext);
-
-                    const lastInStack = stack.last();
-                    if (lastInStack instanceof AMDataContext) {
-                      const objectFieldContext = stack.last(
-                        1
-                      ) as AMObjectFieldContext;
-
-                      lastInStack.addValue(
-                        'reconnect',
-                        opContext
-                          .getOutput()
-                          .map(
-                            new ResultPromiseTransforms.Distinct(
-                              objectFieldContext.field.relation.relationField
-                            )
-                          )
-                      );
-                    }
-                  },
-                }
-              : {
-                  amEnter(node, transaction, stack) {
-                    const listContext = new AMListValueContext();
-                    stack.push(listContext);
-                  },
-                  amLeave(node, transaction, stack) {
-                    const listContext = stack.pop() as AMListValueContext;
-                    const lastInStack = stack.last();
-                    if (lastInStack instanceof AMDataContext) {
-                      lastInStack.addValue('reconnect', listContext.values);
-                    }
-                  },
-                }),
+            ...connectHandler('reconnect'),
           },
           disconnect: {
             type: new GraphQLList(
@@ -367,6 +319,12 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
           const push = (data.data && data.data['$push']) || {};
           data.addValue('$push', push);
           push[path] = { $each: context.data.connect };
+        }
+
+        if (context.data.connectOnce) {
+          const push = (data.data && data.data['$addToSet']) || {};
+          data.addValue('$addToSet', push);
+          push[path] = { $each: context.data.connectOnce };
         }
 
         if (context.data.disconnect) {

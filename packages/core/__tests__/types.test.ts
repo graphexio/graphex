@@ -612,15 +612,16 @@ describe('abstract', () => {
   test('UserUpdateManyRelationInput', () => {
     expect(printType(schema.getType('UserUpdateManyRelationInput')))
       .toMatchInlineSnapshot(`
-                 "input UserUpdateManyRelationInput {
-                   create: [UserInterfaceCreateInput]
-                   recreate: [UserInterfaceCreateInput]
-                   connect: [UserInterfaceWhereUniqueInput]
-                   reconnect: [UserInterfaceWhereUniqueInput]
-                   disconnect: [UserInterfaceWhereUniqueInput]
-                   delete: [UserInterfaceWhereUniqueInput]
-                 }"
-            `);
+"input UserUpdateManyRelationInput {
+  create: [UserInterfaceCreateInput]
+  recreate: [UserInterfaceCreateInput]
+  connect: [UserInterfaceWhereUniqueInput]
+  connectOnce: [UserInterfaceWhereUniqueInput]
+  reconnect: [UserInterfaceWhereUniqueInput]
+  disconnect: [UserInterfaceWhereUniqueInput]
+  delete: [UserInterfaceWhereUniqueInput]
+}"
+`);
   });
 
   test('UserCreateOneRelationInput', () => {
