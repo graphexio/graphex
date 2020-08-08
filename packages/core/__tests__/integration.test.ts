@@ -1923,6 +1923,84 @@ test('relation reconnect', async () => {
   }
 });
 
+test('relation connectOnce', async () => {
+  let postId;
+  {
+    const { errors, data } = await query({
+      query: gql`
+        mutation {
+          createPost(
+            data: { title: "Post with likes", body: "Post with likes" }
+          ) {
+            id
+            likes {
+              username
+            }
+          }
+        }
+      `,
+    });
+    expect(errors).toBeUndefined();
+    postId = data.createPost.id;
+  }
+
+  {
+    await query({
+      query: gql`
+        mutation($postId: ObjectID) {
+          updatePost(
+            where: { id: $postId }
+            data: {
+              title: "123"
+              likes: { connectOnce: [{ User: { username: "admin" } }] }
+            }
+          ) {
+            likes {
+              username
+            }
+          }
+        }
+      `,
+      variables: {
+        postId,
+      },
+    });
+
+    const { errors, data } = await query({
+      query: gql`
+        mutation($postId: ObjectID) {
+          updatePost(
+            where: { id: $postId }
+            data: {
+              title: "123"
+              likes: { connectOnce: [{ User: { username: "admin" } }] }
+            }
+          ) {
+            likes {
+              username
+            }
+          }
+        }
+      `,
+      variables: {
+        postId,
+      },
+    });
+    expect(errors).toBeUndefined();
+    expect(data).toMatchInlineSnapshot(`
+      Object {
+        "updatePost": Object {
+          "likes": Array [
+            Object {
+              "username": "admin",
+            },
+          ],
+        },
+      }
+    `);
+  }
+});
+
 test('extRelation single', async () => {
   const { errors, data } = await query({
     query: gql`
