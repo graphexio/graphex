@@ -15,7 +15,7 @@
     "@apollo-model/core": "^0.5.4-alpha.12",
     "apollo-server": "^2.2.6",
     "graphql": "^14.4.2",
-    "mongodb": "^3.1.10"
+    "mongodb": "^3.1.13"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.0",
