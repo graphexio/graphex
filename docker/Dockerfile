@@ -2,11 +2,8 @@ FROM node:14.16.1
 
 WORKDIR /workspace/
 
-COPY package.json yarn.lock /workspace/
+RUN yarn add rimraf typescript sequelize-cli sequelize pg
 
-# install
-RUN  yarn install --frozen-lockfile
-
-COPY ./database /workspace/database
+COPY ./ /workspace/
 
 CMD ["sh", "./docker/entrypoint.sh"]
