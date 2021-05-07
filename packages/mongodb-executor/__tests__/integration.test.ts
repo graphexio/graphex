@@ -5,13 +5,13 @@ import QueryExecutor, { AMDBExecutorOperationType } from '../src/';
 let mongod: MongoMemoryServer;
 let QE: ReturnType<typeof QueryExecutor>;
 let DB: Db = null;
+let client: MongoClient;
 
 beforeAll(async () => {
   mongod = new MongoMemoryServer();
   const MONGO_URL = await mongod.getConnectionString();
   const MONGO_DB = await mongod.getDbName();
 
-  let client: MongoClient;
   const connectToDatabase = async () => {
     if (DB && client.isConnected()) {
       return DB;
@@ -29,11 +29,12 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  mongod.stop();
+  await client.close();
+  await mongod.stop();
 });
 
 beforeEach(async () => {
-  DB.dropDatabase();
+  await DB.dropDatabase();
 });
 
 describe('aggregation', () => {
