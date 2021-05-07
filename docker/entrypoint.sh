@@ -10,10 +10,3 @@ if ! [ -z "$DATABASE_HOST" ]; then
     fi
   fi
 fi
-
-if ! [ -z "$ACCESS_CONTROL_REDIS_HOST" ]; then
-  ./docker/wait_for_it.sh "${ACCESS_CONTROL_REDIS_HOST}:${ACCESS_CONTROL_REDIS_PORT}" -- echo "[info]: Redis is up at ${ACCESS_CONTROL_REDIS_HOST} on ${ACCESS_CONTROL_REDIS_PORT}"
-fi
-
-echo "[info]: Starting application with command - \"${DOCKER_COMMAND}\""
-${DOCKER_COMMAND}
