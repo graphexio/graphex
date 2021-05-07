@@ -1,0 +1,31 @@
+version: '3.7'
+
+x-default-env: &default-env
+  NODE_ENV: 'development'
+
+x-db-env: &db-env
+  DATABASE_DIALECT: 'postgres'
+  DATABASE_HOST: 'postgres'
+  DATABASE_PORT: '5432'
+  DATABASE_NAME: 'mydbname'
+  DATABASE_USER: 'mydbuser'
+  DATABASE_PASSWORD: 'donttellasoul'
+
+services:
+  migrations:
+    build:
+      dockerfile: docker/Dockerfile
+      context: ./
+    environment:
+      << : *default-env
+      << : *db-env
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:11.8
+    environment:
+      POSTGRES_USER: 'mydbuser'
+      POSTGRES_PASSWORD: 'donttellasoul'
+      POSTGRES_DB: 'mydbname'
+
