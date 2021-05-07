@@ -1,0 +1,9 @@
+{
+  "compilerOptions":
+  {
+    "outDir": "./distdb",
+    "declaration": false,
+    "sourceMap": false
+  },
+  "include": ["database"]
+}
