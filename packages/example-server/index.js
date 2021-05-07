@@ -1,7 +1,7 @@
 import { ApolloServer } from 'apollo-server';
 import ApolloModelMongo from '@apollo-model/core';
 import QueryExecutor from '@apollo-model/mongodb-executor';
-import { MongoClient, ObjectID } from 'mongodb';
+import { MongoClient } from 'mongodb';
 import typeDefs from './model.js';
 
 let DB = null;
@@ -18,16 +18,17 @@ export const connectToDatabase = () => {
   });
 };
 
-let schema = new ApolloModelMongo({
-  queryExecutor: QueryExecutor(connectToDatabase),
-}).makeExecutableSchema({
+const schema = new ApolloModelMongo().makeExecutableSchema({
   typeDefs,
 });
 
-let server = new ApolloServer({
+const server = new ApolloServer({
   schema,
   introspection: true,
   playground: true,
+  context: () => ({
+    queryExecutor: QueryExecutor(connectToDatabase),
+  }),
 });
 
 server.listen().then(({ url }) => {
