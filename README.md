@@ -8,7 +8,7 @@ docker-compose build migrations
 
 Start the Postrges
 ```
-docker-compose up postgres
+docker-compose up postgres -d
 ```
 
 Run migrations
