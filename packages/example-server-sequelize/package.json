@@ -1,10 +1,10 @@
 {
-  "name": "@apollo-model/example-server",
+  "name": "@apollo-model/example-server-sequelize",
   "version": "0.6.6-alpha.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "MONGO_URL='mongodb+srv://public:public@cluster0-c6p6b.mongodb.net/admin' MONGO_DB='db1' babel-node index.js",
+    "dev": "nodemon",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "private": true,
@@ -13,15 +13,21 @@
   "license": "ISC",
   "dependencies": {
     "@apollo-model/core": "0.6.6-alpha.0",
-    "apollo-server": "^2.2.6",
+    "apollo-server": "^2.24.0",
+    "dotenv": "^9.0.0",
     "graphql": "14.6.0",
-    "mongodb": "^3.1.10"
+    "pg": "^8.6.0",
+    "reflect-metadata": "^0.1.13",
+    "sequelize-typescript": "^2.1.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.0",
     "@babel/core": "^7.2.0",
     "@babel/node": "^7.2.0",
     "@babel/preset-env": "^7.2.0",
-    "babel-plugin-import-graphql": "^2.6.2"
+    "babel-plugin-import-graphql": "^2.6.2",
+    "nodemon": "^2.0.7",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.4"
   }
 }
