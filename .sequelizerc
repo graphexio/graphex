@@ -1,0 +1,6 @@
+var path = require('path');
+
+module.exports = {
+  'config':          path.resolve('dbconfig.js'),
+  'migrations-path': path.resolve('distdb','migrations'),
+};

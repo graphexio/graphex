@@ -14,10 +14,13 @@
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.10.1",
     "eslint-plugin-prettier": "^3.1.2",
+    "graphql": "14.6.0",
     "jest": "^25.1.0",
     "lerna": "^3.13.1",
+    "pg": "^8.6.0",
     "prettier": "^1.19.1",
-    "graphql": "14.6.0"
+    "sequelize": "^6.6.2",
+    "sequelize-cli": "^6.2.0"
   },
   "private": true,
   "workspaces": {
@@ -29,7 +32,10 @@
     "bootstrap": "lerna bootstrap",
     "prepare": "lerna run --stream --sort prepare",
     "test": "jest",
-    "lint": "eslint 'packages/*/{src,__tests__}/**/*.ts'"
+    "lint": "eslint 'packages/*/{src,__tests__}/**/*.ts'",
+    "build:migrations": "rimraf distdb && tsc -p tsconfig.migrations.json",
+    "db:migrate": "yarn build:migrations && sequelize-cli db:migrate",
+    "db:migrate:dryrun": "yarn db:migrate && MIGRATIONS_DRYRUN=true sequelize-cli db:migrate"
   },
   "keywords": [],
   "author": "",
