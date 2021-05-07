@@ -3,7 +3,8 @@
   {
     "outDir": "./distdb",
     "declaration": false,
-    "sourceMap": false
+    "sourceMap": false,
+    "allowSyntheticDefaultImports": true
   },
   "include": ["database"]
 }

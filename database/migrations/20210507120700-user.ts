@@ -13,7 +13,7 @@ export default {
           primaryKey: true,
           autoIncrement: true,
         },
-        user_name: {
+        username: {
           type: Sequelize.STRING(255),
           allowNull: false,
         },
