@@ -47,5 +47,5 @@ export default {
       await transaction.commit();
     }
   },
-  down: queryInterface => queryInterface.dropTable('collection_spotlights'),
+  down: queryInterface => queryInterface.dropTable('post'),
 };
