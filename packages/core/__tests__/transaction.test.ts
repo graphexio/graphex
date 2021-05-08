@@ -6,7 +6,7 @@ import { AMTransaction } from '../src/execution/transaction';
 import { UserInputError } from 'apollo-server';
 import { AMOptions } from '../src/definitions';
 import { validate } from 'graphql';
-import Serializer from './serializer';
+import Serializer from '../src/serializer';
 expect.addSnapshotSerializer(Serializer);
 
 const generateSchema = (typeDefs, options?: AMOptions) => {
@@ -324,29 +324,29 @@ describe('simple schema', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-Object {
-  "operations": Array [
-    Object {
-      "collectionName": "posts",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "aggregate.count",
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "aggregate.count",
+              ],
+            },
+            "first": 1,
+            "identifier": "Operation-0",
+            "kind": "AMAggregateOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+            "skip": 2,
+          },
         ],
-      },
-      "first": 1,
-      "identifier": "Operation-0",
-      "kind": "AMAggregateOperation",
-      "many": false,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-0",
-        ],
-      },
-      "skip": 2,
-    },
-  ],
-}
-`);
+      }
+    `);
   });
 });
 
@@ -1417,6 +1417,7 @@ Object {
       "collectionName": "comments",
       "fieldsSelection": Object {
         "fields": Array [
+          "postId",
           "message",
         ],
       },
@@ -1495,6 +1496,7 @@ Object {
       "collectionName": "comments",
       "fieldsSelection": Object {
         "fields": Array [
+          "postId",
           "_id",
         ],
       },
@@ -1575,6 +1577,7 @@ Object {
       "collectionName": "comments",
       "fieldsSelection": Object {
         "fields": Array [
+          "postId",
           "_id",
         ],
       },
@@ -3634,6 +3637,7 @@ Object {
       "collectionName": "categories",
       "fieldsSelection": Object {
         "fields": Array [
+          "_id",
           "title",
         ],
       },
@@ -3730,6 +3734,7 @@ Object {
       "collectionName": "comments",
       "fieldsSelection": Object {
         "fields": Array [
+          "postId",
           "body",
         ],
       },
@@ -3749,6 +3754,7 @@ Object {
       "collectionName": "comments",
       "fieldsSelection": Object {
         "fields": Array [
+          "postId",
           "body",
         ],
       },
@@ -3990,6 +3996,7 @@ Object {
       "collectionName": "categories",
       "fieldsSelection": Object {
         "fields": Array [
+          "_id",
           "title",
         ],
       },
@@ -4075,6 +4082,7 @@ Object {
       "collectionName": "posts",
       "fieldsSelection": Object {
         "fields": Array [
+          "_id",
           "title",
         ],
       },
@@ -4167,8 +4175,8 @@ Object {
       "collectionName": "posts",
       "fieldsSelection": Object {
         "fields": Array [
-          "title",
           "_id",
+          "title",
         ],
       },
       "identifier": "Operation-1",
@@ -4273,6 +4281,7 @@ Object {
       "collectionName": "posts",
       "fieldsSelection": Object {
         "fields": Array [
+          "_id",
           "title",
         ],
       },
@@ -4382,8 +4391,8 @@ Object {
       "collectionName": "posts",
       "fieldsSelection": Object {
         "fields": Array [
-          "title",
           "_id",
+          "title",
         ],
       },
       "identifier": "Operation-1",
@@ -4473,8 +4482,8 @@ Object {
       "collectionName": "posts",
       "fieldsSelection": Object {
         "fields": Array [
-          "title",
           "_id",
+          "title",
         ],
       },
       "identifier": "Operation-1",
@@ -4591,9 +4600,9 @@ Object {
       "collectionName": "posts",
       "fieldsSelection": Object {
         "fields": Array [
+          "_id",
           "title",
           "categoryId",
-          "_id",
         ],
       },
       "identifier": "Operation-1",
@@ -4621,8 +4630,8 @@ Object {
       "collectionName": "categories",
       "fieldsSelection": Object {
         "fields": Array [
-          "title",
           "_id",
+          "title",
         ],
       },
       "identifier": "Operation-2",
@@ -4764,9 +4773,9 @@ Object {
       "collectionName": "posts",
       "fieldsSelection": Object {
         "fields": Array [
+          "_id",
           "title",
           "categoryId",
-          "_id",
         ],
       },
       "identifier": "Operation-1",
@@ -4794,9 +4803,9 @@ Object {
       "collectionName": "categories",
       "fieldsSelection": Object {
         "fields": Array [
+          "_id",
           "categoryId",
           "title",
-          "_id",
         ],
       },
       "identifier": "Operation-2",
@@ -4966,9 +4975,9 @@ Object {
       "collectionName": "posts",
       "fieldsSelection": Object {
         "fields": Array [
+          "_id",
           "title",
           "categoryId",
-          "_id",
         ],
       },
       "identifier": "Operation-1",
@@ -4996,9 +5005,9 @@ Object {
       "collectionName": "categories",
       "fieldsSelection": Object {
         "fields": Array [
+          "_id",
           "categoryId",
           "title",
-          "_id",
         ],
       },
       "identifier": "Operation-2",

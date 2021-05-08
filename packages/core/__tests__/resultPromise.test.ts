@@ -7,7 +7,7 @@ import { ResultPromiseTransforms } from '../src/execution/resultPromise';
 
 import { AMTransaction } from '../src/execution/transaction';
 import { ObjectID, DBRef } from 'mongodb';
-import Serializer from './serializer';
+import Serializer from '../src/serializer';
 import { AMOperation } from '../src/execution/operation';
 import { AMModelType } from '../src/definitions';
 
