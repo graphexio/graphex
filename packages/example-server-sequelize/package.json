@@ -1,6 +1,6 @@
 {
   "name": "@apollo-model/example-server-sequelize",
-  "version": "0.6.6-alpha.0",
+  "version": "0.6.7-alpha.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@apollo-model/core": "0.6.6-alpha.0",
+    "@apollo-model/core": "0.6.7-alpha.0",
     "apollo-server": "^2.24.0",
     "dotenv": "^9.0.0",
     "graphql": "14.6.0",
