@@ -46,10 +46,10 @@ export default class Post extends Model<Post> {
   })
   updatedAt?: Date;
 
-  @Column({
-    field: 'deleted_at',
-    allowNull: true,
-    type: DataType.DATE,
-  })
-  deletedAt?: Date;
+  // @Column({
+  //   field: 'deleted_at',
+  //   allowNull: true,
+  //   type: DataType.DATE,
+  // })
+  // deletedAt?: Date;
 }

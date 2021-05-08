@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 export default gql`
   interface Node @inherit {
-    id: ID! @id @unique
+    id: Int! @id @unique
   }
 
   interface Timestamp @inherit {
@@ -11,6 +11,7 @@ export default gql`
 
   type User implements Node & Timestamp @model(collection: "User") {
     username: String! @unique
+    posts: [Post] @extRelation(storeField: "owner_id", field: "id", many: true)
   }
 
   type Post implements Node & Timestamp @model(collection: "Post") {

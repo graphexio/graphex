@@ -12,22 +12,52 @@ const schema = new AM().makeExecutableSchema({
 
 const strategies = {
   find: (params) => {
-    return SQ.model(params.collection).findAll({
-      where: params.selector,
-      attributes: params.fields,
-      limit: params.options.limit,
-      offset: params.options.skip,
-      raw: true,
-    });
+    return SQ.model(params.collection)
+      .findAll({
+        where: params.selector,
+        attributes: params.fields,
+        limit: params.options.limit,
+        offset: params.options.skip,
+        order:
+          params.options.sort &&
+          Object.entries(params.options.sort).map(([key, value]) => [
+            key,
+            value === 1 ? 'ASC' : 'DESC',
+          ]),
+      })
+      .then((res) => res?.map((item) => item.get({ plain: true })));
   },
   findOne: (params) => {
-    return SQ.model(params.collection).findOne({
-      where: params.selector,
-      attributes: params.fields,
-      limit: params.options.limit,
-      offset: params.options.skip,
-      raw: true,
-    });
+    return SQ.model(params.collection)
+      .findOne({
+        where: params.selector,
+        attributes: params.fields,
+        limit: params.options.limit,
+        offset: params.options.skip,
+      })
+      .then((res) => res?.get({ plain: true }));
+  },
+  insertOne: (params) => {
+    return SQ.model(params.collection)
+      .create(params.doc)
+      .then((res) => res?.get({ plain: true }));
+  },
+  updateOne: (params) => {
+    return SQ.model(params.collection)
+      .update(params.doc['$set'], { where: params.selector, returning: true })
+      .then(([, res]) => res?.[0]?.get({ plain: true }));
+  },
+  deleteOne: async (params) => {
+    const item = await SQ.model(params.collection)
+      .findOne({
+        where: params.selector,
+        attributes: params.fields,
+      })
+      .then((res) => res?.get({ plain: true }));
+
+    await SQ.model(params.collection).destroy({ where: params.selector });
+
+    return item;
   },
 };
 
@@ -37,6 +67,10 @@ const mapSelectorKeys = {
   $and: Op.and,
   $not: Op.not,
   $eq: Op.eq,
+  $lt: Op.lt,
+  $lte: Op.lte,
+  $gt: Op.gt,
+  $gte: Op.gte,
 };
 
 const mapSelector = (selector) => {
@@ -56,20 +90,20 @@ const server = new ApolloServer({
   playground: true,
   context: () => ({
     queryExecutor: async (params) => {
-      console.log(params);
+      // console.log(JSON.stringify(params));
 
       const mappedSelector = params?.selector
         ? mapSelector(params.selector)
         : undefined;
 
-      console.log(mappedSelector);
+      // console.log(mappedSelector);
 
       const res = await strategies[params.type]({
         ...params,
         selector: mappedSelector,
       });
 
-      console.log(res);
+      // console.log(res);
 
       return res;
     },
