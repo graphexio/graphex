@@ -6,7 +6,7 @@ import { AMTransaction } from '../src/execution/transaction';
 import { UserInputError } from 'apollo-server';
 import { AMOptions } from '../src/definitions';
 import { validate } from 'graphql';
-import Serializer from './serializer';
+import Serializer from '../src/serializer';
 expect.addSnapshotSerializer(Serializer);
 
 const generateSchema = (typeDefs, options?: AMOptions) => {
@@ -21,7 +21,7 @@ const generateSchema = (typeDefs, options?: AMOptions) => {
   });
 };
 
-const buildFederatedSchema = typeDefs => {
+const buildFederatedSchema = (typeDefs) => {
   return new AMM({
     modules: [DirectiveImplements],
   }).buildFederatedSchema({
