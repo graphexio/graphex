@@ -71,6 +71,7 @@ const mapSelectorKeys = {
   $lte: Op.lte,
   $gt: Op.gt,
   $gte: Op.gte,
+  $regex: Op.regexp,
 };
 
 const mapSelector = (selector) => {
@@ -79,6 +80,10 @@ const mapSelector = (selector) => {
 
   return Object.fromEntries(
     Object.entries(selector ?? {}).map(([key, value]) => {
+      if (key === '$regex') {
+        const regex = value.toString();
+        return [mapSelectorKeys[key], regex.substring(1, regex.length - 1)];
+      }
       return [mapSelectorKeys[key] ?? key, mapSelector(value)];
     })
   );
