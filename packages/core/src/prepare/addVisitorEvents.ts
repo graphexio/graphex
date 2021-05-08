@@ -85,6 +85,11 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
               relationOperation = new AMReadOperation(transaction, {
                 many: true,
                 collectionName: field.relation.collection,
+                fieldsSelection: new AMFieldsSelectionContext([
+                  !field.relation.external
+                    ? field.relation.relationField
+                    : field.relation.storeField,
+                ]),
                 selector: new AMSelectorContext(
                   !field.relation.external
                     ? {
