@@ -1,6 +1,6 @@
 import { GraphQLSchema } from 'graphql';
 import { fillDbName } from './fillDbName';
-import { addVisitorEvents } from './addVisitorEvents';
+import { relationFieldsVisitorEvents } from './relationFieldsVisitorEvents';
 import { fieldFactories } from './fieldFactories';
 import { fieldVisitorEvents } from './fieldVisitorEvents';
 
@@ -32,7 +32,7 @@ export const prepare = (options: {
   extRelationDirective(options.schema);
   fieldFactories(options.schema, options.fieldFactoriesMap);
   fieldVisitorEvents(options.schema, options.fieldVisitorEventsMap);
-  addVisitorEvents(options.schema);
+  relationFieldsVisitorEvents(options.schema);
 
   /* validations */
   validations(options.schema);

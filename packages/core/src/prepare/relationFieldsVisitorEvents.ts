@@ -16,7 +16,7 @@ import { ResultPromiseTransforms } from '../execution/resultPromise';
 import { RelationTransformation } from '../execution/resultPromise/relationTransformation';
 import { sameArguments } from './utils';
 
-export const addVisitorEvents = (schema: GraphQLSchema) => {
+export const relationFieldsVisitorEvents = (schema: GraphQLSchema) => {
   Object.values(schema.getTypeMap()).forEach(type => {
     if (isObjectType(type) || isInterfaceType(type)) {
       Object.values(type.getFields()).forEach((field: AMModelField) => {
