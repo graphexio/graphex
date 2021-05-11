@@ -8,8 +8,9 @@ export default class User extends Model<User> {
   @Column({
     primaryKey: true,
     type: DataType.INTEGER,
+    autoIncrement: true,
   })
-  id!: string;
+  id!: number;
 
   @Column({
     allowNull: true,

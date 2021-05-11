@@ -7,3 +7,4 @@ distdb
 **/node_modules/
 **/lib
 *.log
+.history
