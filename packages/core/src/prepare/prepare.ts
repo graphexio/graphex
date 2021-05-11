@@ -11,8 +11,10 @@ import { updatedAtDirective } from './updatedAtDirective';
 import { embeddedDirective } from './embeddedDirective';
 import { defaultDirective } from './defaultDirective';
 import { validations } from './validations';
+import { rootFields } from './rootFields';
+
 import { AMConfigResolver } from '../config/resolver';
-import { AMSchemaInfo } from '../definitions';
+import { AMOptions, AMSchemaInfo } from '../definitions';
 
 export const prepare = (options: {
   schema: GraphQLSchema;
@@ -20,6 +22,7 @@ export const prepare = (options: {
   configResolver: AMConfigResolver;
   fieldFactoriesMap: {};
   fieldVisitorEventsMap: {};
+  options: AMOptions;
 }) => {
   fillDbName(options.schema);
   relationDirective(options.schema);
@@ -36,4 +39,6 @@ export const prepare = (options: {
   updatedAtDirective(options.schema);
   embeddedDirective(options.schema);
   defaultDirective(options.schema);
+
+  rootFields(options);
 };
