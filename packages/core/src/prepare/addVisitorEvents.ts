@@ -61,7 +61,14 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
             const dbPathArr = stack.dbPath(lastOperation);
             const dbPath = dbPathArr.join('.');
 
-            //look for existing transformation for the field with the same args
+            /**
+             * When using fragments there is a chance that the same field
+             * will be requested multiple times from different fragments but with
+             * the same arguments. In this case we can reuse one operation for both
+             * fields. All transformations are stored in a hashmap
+             * in root operation. Keys are paths to the fields.
+             */
+
             const existingTransformations =
               rootOperation.fieldTransformations.get(rootPath) || [];
 
@@ -78,6 +85,10 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
                 }
               }
             }
+
+            /**
+             * Create read operation
+             */
 
             let relationOperation: AMOperation;
 
@@ -122,6 +133,10 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
             }
 
             stack.push(relationOperation);
+
+            /**
+             * Create transformation which should merge operations together.
+             */
 
             let transformation: RelationTransformation;
             if (field.relation.abstract) {
