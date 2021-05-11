@@ -46,36 +46,6 @@ export const relationsArguments = (
             skipArg,
             firstArg,
           ];
-
-          if (!realType.mmAbstract && typeWrap.isMany()) {
-            type.getFields()[`${field.name}Connection`] = {
-              name: `${field.name}Connection`,
-              isDeprecated: false,
-              description: '',
-              extensions: undefined,
-              astNode: undefined,
-              isConnection: true,
-              type: configResolver.resolveType(realType, 'connection'),
-              args: [
-                {
-                  name: 'where',
-                  type: configResolver.resolveInputType(realType, 'where'),
-                },
-                skipArg,
-                firstArg,
-              ],
-              amEnter(node, transaction, stack) {
-                const operation = new AMAggregateOperation(transaction, {
-                  many: false,
-                  collectionName: realType.mmCollectionName,
-                });
-                stack.push(operation);
-              },
-              amLeave(node, transaction, stack) {
-                stack.pop();
-              },
-            } as AMField;
-          }
         }
       });
     }
