@@ -1,6 +1,10 @@
-import { GraphQLObjectType } from 'graphql';
+import {
+  GraphQLInt,
+  GraphQLList,
+  GraphQLNonNull,
+  GraphQLObjectType,
+} from 'graphql';
 import { AMObjectType, AMTypeFactory } from '../definitions';
-import { AMFieldsSelectionContext } from '../execution';
 import { defaultSelectionVisitorHandler } from './visitorHandlers';
 
 export class AMConnectionTypeFactory extends AMTypeFactory<AMObjectType> {
@@ -12,6 +16,14 @@ export class AMConnectionTypeFactory extends AMTypeFactory<AMObjectType> {
       name: this.getTypeName(modelType),
       fields: () => {
         const fields = {
+          nodes: {
+            type: new GraphQLNonNull(
+              new GraphQLList(new GraphQLNonNull(modelType))
+            ),
+          },
+          totalCount: {
+            type: GraphQLInt,
+          },
           aggregate: {
             type: this.configResolver.resolveType(
               modelType,

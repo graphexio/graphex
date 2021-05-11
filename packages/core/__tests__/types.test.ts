@@ -561,6 +561,8 @@ describe('modelFields', () => {
 
     expect(printType(schema.getType('PostConnection'))).toMatchInlineSnapshot(`
         "type PostConnection {
+          nodes: [Post!]!
+          totalCount: Int
           aggregate: AggregatePost
         }"
       `);
