@@ -21,7 +21,6 @@ import { AMOptions } from './definitions';
 import { AMFederationEntitiesFieldFactory } from './federation/entitiesField';
 import InitialScheme from './initialScheme';
 import Modules from './modules';
-import { postInit } from './postInit';
 import { prepare } from './prepare/prepare';
 import { makeSchemaInfo } from './schemaInfo';
 import { getDirective, isAMModelType, appendField } from './utils';
@@ -177,7 +176,6 @@ export default class ModelMongo {
     };
 
     const schema = makeGraphQLSchema(modelParams);
-    // let schema = buildFederatedSchema(modules);
 
     const schemaInfo = makeSchemaInfo(schema, this.options);
     const configResolver = new AMConfigResolver({
@@ -193,8 +191,6 @@ export default class ModelMongo {
       fieldVisitorEventsMap,
       options: this.options,
     });
-
-    postInit({ schema, schemaInfo, configResolver, amOptions: this.options });
 
     /* resolve field thunks */
     let initialCount;
