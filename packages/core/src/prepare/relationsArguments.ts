@@ -8,8 +8,7 @@ import {
 import { firstArg } from '../args/first';
 import { skipArg } from '../args/skip';
 import { AMConfigResolver } from '../config/resolver';
-import { AMField, AMModelField, AMModelType } from '../definitions';
-import { AMAggregateOperation } from '../execution/operations/aggregateOperation';
+import { AMModelField, AMModelType } from '../definitions';
 
 export const relationsArguments = (
   schema: GraphQLSchema,

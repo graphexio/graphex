@@ -174,13 +174,6 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
           field.amLeave = (node, transaction, stack) => {
             stack.pop();
           };
-        } else {
-          field.amEnter = (node, transaction, stack) => {
-            const lastStackItem = stack.last();
-            if (lastStackItem instanceof AMFieldsSelectionContext) {
-              lastStackItem.addField(field.dbName);
-            }
-          };
         }
       });
     }

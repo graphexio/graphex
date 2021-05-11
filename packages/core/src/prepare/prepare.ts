@@ -30,9 +30,9 @@ export const prepare = (options: {
   fillDbName(options.schema);
   relationDirective(options.schema);
   extRelationDirective(options.schema);
-  addVisitorEvents(options.schema);
   fieldFactories(options.schema, options.fieldFactoriesMap);
   fieldVisitorEvents(options.schema, options.fieldVisitorEventsMap);
+  addVisitorEvents(options.schema);
 
   /* validations */
   validations(options.schema);
