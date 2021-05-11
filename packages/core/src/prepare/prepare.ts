@@ -12,6 +12,7 @@ import { embeddedDirective } from './embeddedDirective';
 import { defaultDirective } from './defaultDirective';
 import { validations } from './validations';
 import { rootFields } from './rootFields';
+import { relationsArguments } from './relationsArguments';
 
 import { AMConfigResolver } from '../config/resolver';
 import { AMOptions, AMSchemaInfo } from '../definitions';
@@ -41,4 +42,6 @@ export const prepare = (options: {
   defaultDirective(options.schema);
 
   rootFields(options);
+
+  relationsArguments(options.schema, options.configResolver);
 };

@@ -10,6 +10,5 @@ export const postInit = (options: {
   configResolver: AMConfigResolver;
   amOptions: AMOptions;
 }) => {
-  relationDirective(options.schema, options.configResolver);
   nestedArrays(options.schema, options.configResolver);
 };

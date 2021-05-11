@@ -10,14 +10,11 @@ import { skipArg } from '../args/skip';
 import { AMConfigResolver } from '../config/resolver';
 import { AMField, AMModelField, AMModelType } from '../definitions';
 import { AMAggregateOperation } from '../execution/operations/aggregateOperation';
-import { makeSchemaInfo } from '../schemaInfo';
 
-export const relationDirective = (
+export const relationsArguments = (
   schema: GraphQLSchema,
   configResolver: AMConfigResolver
 ) => {
-  const schemaInfo = makeSchemaInfo(schema);
-
   Object.values(schema.getTypeMap()).forEach(type => {
     if (isOutputType(type) && (isObjectType(type) || isInterfaceType(type))) {
       Object.values(type.getFields()).forEach((field: AMModelField) => {
@@ -67,14 +64,6 @@ export const relationDirective = (
                 skipArg,
                 firstArg,
               ],
-              /* Type resolvers from above lines shouldn't use these new fields */
-              mmFieldFactories: {
-                AMCreateTypeFactory: [],
-                AMUpdateTypeFactory: [],
-                AMWhereTypeFactory: [],
-                AMWhereUniqueTypeFactory: [],
-                AMWhereCleanTypeFactory: [],
-              },
               amEnter(node, transaction, stack) {
                 const operation = new AMAggregateOperation(transaction, {
                   many: false,
