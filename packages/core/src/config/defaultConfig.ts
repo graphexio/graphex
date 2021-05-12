@@ -78,6 +78,7 @@ const config = {
         factory: AMModelConnectionQueryFieldFactory,
         links: {
           where: ['where', 'interfaceWhere'],
+          orderBy: 'orderBy',
         },
       },
       createMutation: {

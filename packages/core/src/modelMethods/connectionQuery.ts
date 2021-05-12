@@ -36,10 +36,13 @@ export class AMModelConnectionQueryFieldFactory extends AMMethodFieldFactory {
             this.links.where
           ),
         },
-        // {
-        //   name: 'orderBy',
-        //   type: schemaInfo.resolveFactoryType(modelType, AMOrderByTypeFactory),
-        // },
+        {
+          name: 'orderBy',
+          type: this.configResolver.resolveInputType(
+            modelType,
+            this.links.orderBy
+          ),
+        },
         skipArg,
         firstArg,
       ],
