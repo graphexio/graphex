@@ -5,5 +5,3 @@ WORKDIR /workspace/
 RUN yarn add rimraf typescript sequelize-cli sequelize pg
 
 COPY ./ /workspace/
-
-CMD ["sh", "./docker/entrypoint.sh"]
