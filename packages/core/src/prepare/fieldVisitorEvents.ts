@@ -1,13 +1,11 @@
 import {
   GraphQLSchema,
-  isObjectType,
-  getNamedType,
   isInputObjectType,
   isInterfaceType,
+  isObjectType,
 } from 'graphql';
-import { getDirectiveAST } from '../utils';
 import { AMModelField, AMModelType } from '../definitions';
-import { AMObjectFieldContext } from '../execution/contexts/objectField';
+import { AMFieldsSelectionContext } from '../execution';
 
 export const fieldVisitorEvents = (
   schema: GraphQLSchema,
@@ -28,6 +26,16 @@ export const fieldVisitorEvents = (
 
           field.amEnter = events.amEnter;
           field.amLeave = events.amLeave;
+        } else {
+          /**
+           * Add default visitor handler
+           */
+          field.amEnter = (node, transaction, stack) => {
+            const lastStackItem = stack.last();
+            if (lastStackItem instanceof AMFieldsSelectionContext) {
+              lastStackItem.addField(field.dbName);
+            }
+          };
         }
       });
     }

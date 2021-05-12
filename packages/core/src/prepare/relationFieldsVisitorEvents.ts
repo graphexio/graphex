@@ -16,7 +16,7 @@ import { ResultPromiseTransforms } from '../execution/resultPromise';
 import { RelationTransformation } from '../execution/resultPromise/relationTransformation';
 import { sameArguments } from './utils';
 
-export const addVisitorEvents = (schema: GraphQLSchema) => {
+export const relationFieldsVisitorEvents = (schema: GraphQLSchema) => {
   Object.values(schema.getTypeMap()).forEach(type => {
     if (isObjectType(type) || isInterfaceType(type)) {
       Object.values(type.getFields()).forEach((field: AMModelField) => {
@@ -61,7 +61,14 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
             const dbPathArr = stack.dbPath(lastOperation);
             const dbPath = dbPathArr.join('.');
 
-            //look for existing transformation for the field with the same args
+            /**
+             * When using fragments there is a chance that the same field
+             * will be requested multiple times from different fragments but with
+             * the same arguments. In this case we can reuse one operation for both
+             * fields. All transformations are stored in a hashmap
+             * in root operation. Keys are paths to the fields.
+             */
+
             const existingTransformations =
               rootOperation.fieldTransformations.get(rootPath) || [];
 
@@ -78,6 +85,10 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
                 }
               }
             }
+
+            /**
+             * Create read operation
+             */
 
             let relationOperation: AMOperation;
 
@@ -123,6 +134,10 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
 
             stack.push(relationOperation);
 
+            /**
+             * Create transformation which should merge operations together.
+             */
+
             let transformation: RelationTransformation;
             if (field.relation.abstract) {
               const displayField = rootPathArr.pop();
@@ -158,13 +173,6 @@ export const addVisitorEvents = (schema: GraphQLSchema) => {
           };
           field.amLeave = (node, transaction, stack) => {
             stack.pop();
-          };
-        } else {
-          field.amEnter = (node, transaction, stack) => {
-            const lastStackItem = stack.last();
-            if (lastStackItem instanceof AMFieldsSelectionContext) {
-              lastStackItem.addField(field.dbName);
-            }
           };
         }
       });

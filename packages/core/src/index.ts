@@ -1,4 +1,5 @@
 import TypeWrap from '@apollo-model/type-wrap';
+import { printSchema } from '@apollo/federation';
 import {
   DirectiveNode,
   getNamedType,
@@ -7,37 +8,26 @@ import {
   GraphQLNamedType,
   GraphQLObjectType,
   GraphQLString,
+  isEnumType,
   isInputObjectType,
   isInterfaceType,
   isObjectType,
-  isEnumType,
 } from 'graphql';
 import { makeExecutableSchema as makeGraphQLSchema } from 'graphql-tools';
 import _ from 'lodash';
-import appendField from './appendField';
 import { defaultConfig } from './config/defaultConfig';
 import { AMConfigResolver } from './config/resolver';
-import { AMModelType, AMOptions, GraphQLOperationType } from './definitions';
+import { AMOptions } from './definitions';
 import { AMFederationEntitiesFieldFactory } from './federation/entitiesField';
 import InitialScheme from './initialScheme';
 import Modules from './modules';
-import { postInit } from './postInit';
 import { prepare } from './prepare/prepare';
 import { makeSchemaInfo } from './schemaInfo';
-import { getDirective } from './utils';
+import { getDirective, isAMModelType, appendField } from './utils';
 export * from './config/defaultConfig';
 export * from './definitions';
 export * from './execution';
 export * from './inputTypes';
-
-import { printSchema } from '@apollo/federation';
-
-function isAMModelType(type: GraphQLNamedType): type is AMModelType {
-  const typeWrap = new TypeWrap(type);
-  return (
-    getDirective(type, 'model') || typeWrap.interfaceWithDirective('model')
-  );
-}
 
 function hasTypeFields(
   type: GraphQLNamedType
@@ -186,7 +176,6 @@ export default class ModelMongo {
     };
 
     const schema = makeGraphQLSchema(modelParams);
-    // let schema = buildFederatedSchema(modules);
 
     const schemaInfo = makeSchemaInfo(schema, this.options);
     const configResolver = new AMConfigResolver({
@@ -200,39 +189,8 @@ export default class ModelMongo {
       configResolver,
       fieldFactoriesMap,
       fieldVisitorEventsMap,
+      options: this.options,
     });
-
-    Object.values(schema.getTypeMap()).forEach(type => {
-      // this._onSchemaInit(type);
-
-      const typeWrap = new TypeWrap(type);
-      if (isAMModelType(type)) {
-        if (!typeWrap.isAbstract()) {
-          // console.log(`Building queries for ${type.name}`);
-          [
-            configResolver.resolveMethodFactory(type, 'multipleQuery'),
-            configResolver.resolveMethodFactory(type, 'singleQuery'),
-            configResolver.resolveMethodFactory(type, 'connectionQuery'),
-            configResolver.resolveMethodFactory(type, 'createMutation'),
-            configResolver.resolveMethodFactory(type, 'deleteOneMutation'),
-            configResolver.resolveMethodFactory(type, 'deleteManyMutation'),
-            configResolver.resolveMethodFactory(type, 'updateMutation'),
-          ].forEach(fieldFactory => {
-            appendField(
-              schema,
-              fieldFactory.getOperationType() === GraphQLOperationType.Query
-                ? schema.getQueryType()
-                : schema.getMutationType(),
-              fieldFactory,
-              type as AMModelType,
-              this.options
-            );
-          });
-        }
-      }
-    });
-
-    postInit({ schema, schemaInfo, configResolver, amOptions: this.options });
 
     /* resolve field thunks */
     let initialCount;
