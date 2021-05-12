@@ -13,5 +13,10 @@ docker-compose up postgres -d
 
 Run migrations
 ```
-docker-compose run migrations
+docker-compose run migrations yarn db:migrate
+```
+
+Run seeds
+```
+docker-compose run migrations yarn db:seed:all
 ```
