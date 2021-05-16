@@ -14,67 +14,66 @@ export class AMConnectionOperation extends AMOperation {
   public relationInfo: RelationInfo;
 
   async execute(executor: AMDBExecutor) {
-    const counts = await executor({
-      type: AMDBExecutorOperationType.AGGREGATE,
-      collection: this.collectionName,
-      selector: await completeAMResultPromise(
-        this.selector ? this.selector.selector : undefined
-      ),
-      fields: await completeAMResultPromise(
-        this.fieldsSelection ? this.fieldsSelection.fields : undefined
-      ),
-      options: {
-        sort: this.orderBy,
-        limit: this.first,
-        skip: this.skip,
-        groupBy: this.groupBy,
-      },
-    });
-
-    const nodes = await executor({
-      type: AMDBExecutorOperationType.FIND,
-      collection: this.collectionName,
-      selector: await completeAMResultPromise(
-        this.selector ? this.selector.selector : undefined
-      ),
-      fields: [
-        ...(
-          await completeAMResultPromise(
-            this.nodesSelectionContext
-              ? this.nodesSelectionContext.fields
-              : undefined
-          )
-        ).map(f => f.split('.').slice(1).join('.')),
-        this.groupBy,
-      ],
-      options: {
-        sort: this.orderBy,
-        limit: this.first,
-        skip: this.skip,
-        groupBy: this.groupBy,
-      },
-    });
-
-    const keys = await this.keys?.getPromise();
-    if (keys) {
-      const indexedCounts = indexBy(prop(this.groupBy), counts);
-      const indexedNodes = groupBy(prop(this.groupBy), nodes);
-      console.log(indexedNodes);
-      this._result.resolve(
-        keys.map(_k => ({
-          _k,
-          nodes: indexedNodes[_k],
-          aggregate: { count: indexedCounts[_k]?.['count'] ?? 0 },
-          totalCount: indexedCounts[_k]?.['count'] ?? 0,
-        }))
-      );
-    } else {
-      this._result.resolve({
-        nodes,
-        aggregate: { count: counts[0]?.['count'] ?? 0 },
-        totalCount: counts[0]?.['count'] ?? 0,
-      });
-    }
+    this._result.resolve([]);
+    // const counts = await executor({
+    //   type: AMDBExecutorOperationType.AGGREGATE,
+    //   collection: this.collectionName,
+    //   selector: await completeAMResultPromise(
+    //     this.selector ? this.selector.selector : undefined
+    //   ),
+    //   fields: await completeAMResultPromise(
+    //     this.fieldsSelection ? this.fieldsSelection.fields : undefined
+    //   ),
+    //   options: {
+    //     sort: this.orderBy,
+    //     limit: this.first,
+    //     skip: this.skip,
+    //     groupBy: this.groupBy,
+    //   },
+    // });
+    // const nodes = await executor({
+    //   type: AMDBExecutorOperationType.FIND,
+    //   collection: this.collectionName,
+    //   selector: await completeAMResultPromise(
+    //     this.selector ? this.selector.selector : undefined
+    //   ),
+    //   fields: [
+    //     ...(
+    //       await completeAMResultPromise(
+    //         this.nodesSelectionContext
+    //           ? this.nodesSelectionContext.fields
+    //           : undefined
+    //       )
+    //     ).map(f => f.split('.').slice(1).join('.')),
+    //     this.groupBy,
+    //   ],
+    //   options: {
+    //     sort: this.orderBy,
+    //     limit: this.first,
+    //     skip: this.skip,
+    //     groupBy: this.groupBy,
+    //   },
+    // });
+    // const keys = await this.keys?.getPromise();
+    // if (keys) {
+    //   const indexedCounts = indexBy(prop(this.groupBy), counts);
+    //   const indexedNodes = groupBy(prop(this.groupBy), nodes);
+    //   console.log(indexedNodes);
+    //   this._result.resolve(
+    //     keys.map(_k => ({
+    //       _k,
+    //       nodes: indexedNodes[_k],
+    //       aggregate: { count: indexedCounts[_k]?.['count'] ?? 0 },
+    //       totalCount: indexedCounts[_k]?.['count'] ?? 0,
+    //     }))
+    //   );
+    // } else {
+    //   this._result.resolve({
+    //     nodes,
+    //     aggregate: { count: counts[0]?.['count'] ?? 0 },
+    //     totalCount: counts[0]?.['count'] ?? 0,
+    //   });
+    // }
   }
 
   toJSON() {

@@ -30,11 +30,18 @@ export const relationFieldsVisitorEvents = (schema: GraphQLSchema) => {
           };
 
           field.amEnter = (node: FieldNode, transaction, stack) => {
-            const parentDataOperation = stack.lastOperation();
+            const lastOperation = stack.lastOperation();
+            const isInConnection =
+              lastOperation instanceof AMConnectionOperation;
             const relationInfo = getRelationInfo({
-              parentDataOperation,
+              parentDataOperation: lastOperation,
               field,
             });
+
+            // parent operation for relation inside connection is the previous one
+            const parentDataOperation = isInConnection
+              ? stack.lastOperation(1) // take previous operation
+              : lastOperation;
 
             /**
              * Relations data should be stored in field with name of an alias
@@ -51,7 +58,12 @@ export const relationFieldsVisitorEvents = (schema: GraphQLSchema) => {
             const childDataPath = stack.path(rootOperation);
 
             const mapItemsPath = childDataPath.clone();
-            const displayFieldPath = Path.fromArray([mapItemsPath.pop()]);
+            const displayFieldPath = Path.fromArray(
+              [
+                mapItemsPath.pop(),
+                ...(isInConnection ? [mapItemsPath.pop()] : []), // for connections move one more item from map path into display path
+              ].reverse()
+            );
             /**
              * When using fragments there is a chance that the same field
              * will be requested multiple times from different fragments but with
@@ -152,12 +164,24 @@ const pushFieldIntoSelectionContext = ({
   relationInfo: RelationInfo;
   stack: AMVisitorStack;
 }) => {
-  const lastStackItem = stack.last();
-  if (lastStackItem instanceof AMFieldsSelectionContext) {
+  /**
+   * For connections put required fields into parent context
+   */
+  let context = stack.last();
+  const lastOperation = stack.lastOperation();
+  if (lastOperation instanceof AMConnectionOperation) {
+    const idx = stack.rightIndexOf(lastOperation);
+    context = stack.last(idx + 1);
+  }
+  /**
+   * -----
+   */
+
+  if (context instanceof AMFieldsSelectionContext) {
     if (!relationInfo.external) {
-      lastStackItem.addField(relationInfo.storeField);
+      context.addField(relationInfo.storeField);
     } else {
-      lastStackItem.addField(relationInfo.relationField);
+      context.addField(relationInfo.relationField);
     }
   }
 };

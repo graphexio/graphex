@@ -10,6 +10,7 @@ import { skipArg } from '../args/skip';
 import { AMConfigResolver } from '../config/resolver';
 import { AMField, AMModelField, AMModelType } from '../definitions';
 import { AMAggregateOperation } from '../execution/operations/aggregateOperation';
+import { AMConnectionOperation } from '../execution/operations/connectionOperation';
 
 export const connectionFields = (
   schema: GraphQLSchema,
@@ -40,10 +41,8 @@ export const connectionFields = (
                 firstArg,
               ],
               amEnter(node, transaction, stack) {
-                const operation = new AMAggregateOperation(transaction, {
-                  many: false,
-                  collectionName: realType.mmCollectionName,
-                });
+                const operation = new AMConnectionOperation(transaction, {});
+                operation.relationInfo = field.relation;
                 stack.push(operation);
               },
               amLeave(node, transaction, stack) {
