@@ -32,7 +32,6 @@ export const prepare = (options: {
   extRelationDirective(options.schema);
   fieldFactories(options.schema, options.fieldFactoriesMap);
   fieldVisitorEvents(options.schema, options.fieldVisitorEventsMap);
-  relationFieldsVisitorEvents(options.schema);
 
   /* validations */
   validations(options.schema);
@@ -48,4 +47,5 @@ export const prepare = (options: {
   relationsArguments(options.schema, options.configResolver);
   connectionFields(options.schema, options.configResolver);
   nestedArrays(options.schema, options.configResolver);
+  relationFieldsVisitorEvents(options.schema);
 };

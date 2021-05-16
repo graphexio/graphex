@@ -20,6 +20,7 @@ export class AMConnectionTypeFactory extends AMTypeFactory<AMObjectType> {
             type: new GraphQLNonNull(
               new GraphQLList(new GraphQLNonNull(modelType))
             ),
+            nodesRelation: true,
           },
           totalCount: {
             type: GraphQLInt,

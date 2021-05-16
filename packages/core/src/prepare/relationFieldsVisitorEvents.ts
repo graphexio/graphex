@@ -2,14 +2,13 @@ import {
   FieldNode,
   GraphQLSchema,
   isInterfaceType,
-  isListType,
-  isNonNullType,
   isObjectType,
 } from 'graphql';
-import { AMModelField } from '../definitions';
+import { AMModelField, RelationInfo } from '../definitions';
 import { AMFieldsSelectionContext } from '../execution/contexts/fieldsSelection';
 import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMOperation } from '../execution/operation';
+import { AMConnectionOperation } from '../execution/operations/connectionOperation';
 import { AMReadDBRefOperation } from '../execution/operations/readDbRefOperation';
 import { AMReadOperation } from '../execution/operations/readOperation';
 import { ResultPromiseTransforms } from '../execution/resultPromise';
@@ -22,34 +21,30 @@ export const relationFieldsVisitorEvents = (schema: GraphQLSchema) => {
   Object.values(schema.getTypeMap()).forEach(type => {
     if (isObjectType(type) || isInterfaceType(type)) {
       Object.values(type.getFields()).forEach((field: AMModelField) => {
-        if (field.relation) {
+        if (field.relation || field.nodesRelation) {
           field.resolve = (source, args, ctx, info) => {
-            /**
-             * Results of children operations should be stored
-             * in parent operation result
-             * under different keys for each alias.
-             */
-            if (source.fieldName !== info.path.key) {
-              if (info.fieldNodes[0].alias) {
-                return source[`$${info.path.key}`];
-              }
-            }
-            return source[info.fieldName];
+            return source[
+              getChildDataStoreField(info.fieldNodes[0]) //
+            ];
           };
 
           field.amEnter = (node: FieldNode, transaction, stack) => {
+            const parentDataOperation = stack.lastOperation();
+            const relationInfo = getRelationInfo({
+              parentDataOperation,
+              field,
+            });
+
             /**
              * Relations data should be stored in field with name of an alias
              * Add $ prefix to prevent collision with real fields
              */
-            changeContextCurrentPath({ node, field, stack });
-
-            pushFieldIntoSelectionContext({ field, stack });
+            changeContextCurrentPath({ node, relationInfo, stack });
+            pushFieldIntoSelectionContext({ relationInfo, stack });
 
             const rootOperation = transaction.operations[0];
             const rootCondition = stack.condition(rootOperation);
 
-            const parentDataOperation = stack.lastOperation();
             const parentDataDbPath = stack
               .dbPath(parentDataOperation)
               .join('.');
@@ -74,14 +69,14 @@ export const relationFieldsVisitorEvents = (schema: GraphQLSchema) => {
              */
             if (!relationOperation) {
               // TODO replace with relation kind enum
-              const createOperation = field.relation.abstract
+              const createOperation = relationInfo.abstract
                 ? createAbstractBelongsToRelationOperation
-                : field.relation.external
+                : relationInfo.external
                 ? createHasRelationOperation
                 : createBelongsToRelationOperation;
 
               ({ relationOperation, transformation } = createOperation({
-                field,
+                relationInfo,
                 transaction,
                 parentDataOperation,
                 parentDataDbPath,
@@ -106,46 +101,67 @@ export const relationFieldsVisitorEvents = (schema: GraphQLSchema) => {
   });
 };
 
+const getRelationInfo = ({
+  parentDataOperation,
+  field,
+}: {
+  parentDataOperation: AMOperation;
+  field: AMModelField;
+}) => {
+  if (parentDataOperation instanceof AMConnectionOperation) {
+    return parentDataOperation.relationInfo;
+  }
+  return field.relation;
+};
+
+const getChildDataStoreField = (node: FieldNode) => {
+  /**
+   * Results of children operations should be stored
+   * in parent operation result
+   * under different keys for each alias.
+   */
+  return node.alias //
+    ? `$${node.alias.value}`
+    : node.name.value;
+};
+
 const changeContextCurrentPath = ({
   node,
-  field,
+  relationInfo,
   stack,
 }: {
   node: FieldNode;
-  field: AMModelField;
+  relationInfo: RelationInfo;
   stack: AMVisitorStack;
 }) => {
-  const pathItem = node.alias //
-    ? `$${node.alias.value}`
-    : node.name.value;
-
-  const dbPathItem = field.relation.external
-    ? field.dbName
-    : field.relation.storeField;
+  const pathItem = getChildDataStoreField(node);
+  const dbPathItem = relationInfo.external
+    ? undefined
+    : relationInfo.storeField;
 
   stack.leavePath();
   stack.enterPath(pathItem, dbPathItem);
 };
 
 const pushFieldIntoSelectionContext = ({
-  field,
+  relationInfo,
   stack,
 }: {
-  field: AMModelField;
+  relationInfo: RelationInfo;
   stack: AMVisitorStack;
 }) => {
   const lastStackItem = stack.last();
   if (lastStackItem instanceof AMFieldsSelectionContext) {
-    if (!field.relation.external) {
-      lastStackItem.addField(field.relation.storeField);
+    if (!relationInfo.external) {
+      lastStackItem.addField(relationInfo.storeField);
     } else {
-      lastStackItem.addField(field.relation.relationField);
+      lastStackItem.addField(relationInfo.relationField);
     }
   }
 };
 
 type CreateRelationOperationParams = {
-  field: AMModelField;
+  relationInfo: RelationInfo;
   transaction: AMTransaction;
 
   parentDataOperation: AMOperation;
@@ -155,7 +171,7 @@ type CreateRelationOperationParams = {
 };
 
 const createAbstractBelongsToRelationOperation = ({
-  field,
+  relationInfo,
   transaction,
   parentDataOperation,
   parentDataDbPath,
@@ -172,7 +188,7 @@ const createAbstractBelongsToRelationOperation = ({
   const transformation = new ResultPromiseTransforms.DbRefReplace(
     childDataPathArr,
     displayField,
-    field.relation.storeField,
+    relationInfo.storeField,
     relationOperation
   );
 
@@ -180,7 +196,7 @@ const createAbstractBelongsToRelationOperation = ({
 };
 
 const createBelongsToRelationOperation = ({
-  field,
+  relationInfo,
   transaction,
   parentDataOperation,
   parentDataDbPath,
@@ -188,12 +204,10 @@ const createBelongsToRelationOperation = ({
 }: CreateRelationOperationParams) => {
   const relationOperation = new AMReadOperation(transaction, {
     many: true,
-    collectionName: field.relation.collection,
-    fieldsSelection: new AMFieldsSelectionContext([
-      field.relation.relationField,
-    ]),
+    collectionName: relationInfo.collection,
+    fieldsSelection: new AMFieldsSelectionContext([relationInfo.relationField]),
     selector: new AMSelectorContext({
-      [field.relation.relationField]: {
+      [relationInfo.relationField]: {
         $in: parentDataOperation
           .getResult()
           .map(new ResultPromiseTransforms.Distinct(parentDataDbPath)),
@@ -205,8 +219,8 @@ const createBelongsToRelationOperation = ({
   const transformation = new ResultPromiseTransforms.DistinctReplace(
     childDataPathArr,
     displayField,
-    field.relation.storeField,
-    field.relation.relationField,
+    relationInfo.storeField,
+    relationInfo.relationField,
     relationOperation
   );
 
@@ -214,21 +228,21 @@ const createBelongsToRelationOperation = ({
 };
 
 const createHasRelationOperation = ({
-  field,
+  relationInfo,
   transaction,
   parentDataOperation,
   childDataPathArr,
 }: CreateRelationOperationParams) => {
   const relationOperation = new AMReadOperation(transaction, {
     many: true,
-    collectionName: field.relation.collection,
-    fieldsSelection: new AMFieldsSelectionContext([field.relation.storeField]),
+    collectionName: relationInfo.collection,
+    fieldsSelection: new AMFieldsSelectionContext([relationInfo.storeField]),
     selector: new AMSelectorContext({
-      [field.relation.storeField]: {
+      [relationInfo.storeField]: {
         $in: parentDataOperation
           .getResult()
           .map(
-            new ResultPromiseTransforms.Distinct(field.relation.relationField)
+            new ResultPromiseTransforms.Distinct(relationInfo.relationField)
           ),
       },
     }),
@@ -237,11 +251,10 @@ const createHasRelationOperation = ({
   //TODO: Add runtime checking for existing unique index on relation field.
   const transformation = new ResultPromiseTransforms.Lookup(
     childDataPathArr.join('.'),
-    field.relation.relationField,
-    field.relation.storeField,
+    relationInfo.relationField,
+    relationInfo.storeField,
     relationOperation,
-    isListType(field.type) ||
-      (isNonNullType(field.type) && isListType(field.type.ofType))
+    relationInfo.many
   );
 
   return { relationOperation, transformation };

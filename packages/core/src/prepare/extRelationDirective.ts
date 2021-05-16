@@ -1,5 +1,11 @@
 import TypeWrap from '@apollo-model/type-wrap';
-import { GraphQLSchema, isInterfaceType, isObjectType } from 'graphql';
+import {
+  GraphQLSchema,
+  isInterfaceType,
+  isListType,
+  isNonNullType,
+  isObjectType,
+} from 'graphql';
 import { AMModelField, AMModelType } from '../definitions';
 import {
   getArgValueFromDirectiveAST,
@@ -40,6 +46,9 @@ export const extRelationDirective = (schema: GraphQLSchema) => {
           relationField: relationField,
           storeField: storeField,
           collection: fieldType.mmCollectionName,
+          many:
+            isListType(field.type) ||
+            (isNonNullType(field.type) && isListType(field.type.ofType)),
         };
         /**
          * Field resolver is added in relationFieldsVisitorEvents

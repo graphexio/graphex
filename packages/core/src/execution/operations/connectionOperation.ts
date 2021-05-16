@@ -1,5 +1,5 @@
 import { indexBy, groupBy, prop } from 'ramda';
-import { AMDBExecutor } from '../../definitions';
+import { AMDBExecutor, RelationInfo } from '../../definitions';
 import { AMOperation } from '../operation';
 import { AMResultPromise } from '../resultPromise';
 import { compact } from '../../utils';
@@ -11,6 +11,7 @@ export class AMConnectionOperation extends AMOperation {
   public keys: AMResultPromise<any[]>;
   public groupBy: string;
   public nodesSelectionContext: AMFieldsSelectionContext;
+  public relationInfo: RelationInfo;
 
   async execute(executor: AMDBExecutor) {
     const counts = await executor({

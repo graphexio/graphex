@@ -98,7 +98,8 @@ export interface AMEnumTypeConfig {
   amLeave?: AMLeaveHandler;
 }
 
-export class AMInputObjectType extends GraphQLInputObjectType
+export class AMInputObjectType
+  extends GraphQLInputObjectType
   implements AMVisitable {
   amEnter?: AMEnterHandler;
   amLeave?: AMLeaveHandler;
@@ -165,6 +166,15 @@ export type AMInterfaceType = Omit<GraphQLInterfaceType, 'getFields'> & {
   mmDiscriminatorMap: { [key: string]: string };
 };
 
+export type RelationInfo = {
+  external: boolean;
+  abstract: boolean;
+  relationField: string;
+  storeField: string;
+  collection: string;
+  many?: boolean; // for extRelation
+};
+
 export type AMModelField = AMField & {
   dbName: string;
   isID: boolean;
@@ -172,13 +182,8 @@ export type AMModelField = AMField & {
   isReadOnly: boolean;
   isConnection?: boolean;
   defaultValue?: any;
-  relation: {
-    external: boolean;
-    abstract: boolean;
-    relationField: string;
-    storeField: string;
-    collection: string;
-  };
+  relation: RelationInfo;
+  nodesRelation?: boolean; // indicates that this is a relation field, but it has no relation information (Connection type)
   noArrayFilter: boolean;
 };
 
@@ -341,9 +346,9 @@ export interface AMConfig {
     };
     typeFactories?: {
       [factoryKey: string]: {
-        factory?: new (options: AMFactoryOptions) => AMTypeFactory<
-          GraphQLNamedType
-        >;
+        factory?: new (
+          options: AMFactoryOptions
+        ) => AMTypeFactory<GraphQLNamedType>;
         links?: {
           [key: string]: string | string[];
         };
