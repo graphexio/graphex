@@ -2,6 +2,7 @@ import * as R from 'ramda';
 import { AMContext } from './context';
 import { AMOperation } from './operation';
 import { isOperation } from './utils';
+import { Path } from './path';
 import {
   AMFieldsSelectionContext,
   AMObjectFieldContext,
@@ -70,10 +71,12 @@ export class AMVisitorStack {
   }
 
   path(operation: AMOperation) {
-    return this.operationsInfo.get(operation).path.map(displayItem);
+    return Path.fromArray(
+      this.operationsInfo.get(operation).path.map(displayItem)
+    );
   }
   dbPath(operation: AMOperation) {
-    return this.operationsInfo.get(operation).path.map(dbItem);
+    return Path.fromArray(this.operationsInfo.get(operation).path.map(dbItem));
   }
 
   condition(operation: AMOperation) {

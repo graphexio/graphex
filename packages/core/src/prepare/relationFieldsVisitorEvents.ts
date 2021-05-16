@@ -11,6 +11,7 @@ import { AMOperation } from '../execution/operation';
 import { AMConnectionOperation } from '../execution/operations/connectionOperation';
 import { AMReadDBRefOperation } from '../execution/operations/readDbRefOperation';
 import { AMReadOperation } from '../execution/operations/readOperation';
+import { Path } from '../execution/path';
 import { ResultPromiseTransforms } from '../execution/resultPromise';
 import { RelationTransformation } from '../execution/resultPromise/relationTransformation';
 import { AMTransaction } from '../execution/transaction';
@@ -45,12 +46,9 @@ export const relationFieldsVisitorEvents = (schema: GraphQLSchema) => {
             const rootOperation = transaction.operations[0];
             const rootCondition = stack.condition(rootOperation);
 
-            const parentDataDbPath = stack
-              .dbPath(parentDataOperation)
-              .join('.');
+            const parentDataDbPath = stack.dbPath(parentDataOperation);
 
-            const childDataPathArr = stack.path(rootOperation);
-            const childDataPath = childDataPathArr.join('.');
+            const childDataPath = stack.path(rootOperation);
             /**
              * When using fragments there is a chance that the same field
              * will be requested multiple times from different fragments but with
@@ -61,7 +59,7 @@ export const relationFieldsVisitorEvents = (schema: GraphQLSchema) => {
             let { relationOperation, transformation } = getExistingOperation({
               args: node.arguments,
               rootOperation,
-              childDataPathArr,
+              childDataPath,
             });
 
             /**
@@ -80,7 +78,7 @@ export const relationFieldsVisitorEvents = (schema: GraphQLSchema) => {
                 transaction,
                 parentDataOperation,
                 parentDataDbPath,
-                childDataPathArr,
+                childDataPath,
               }));
               rootOperation.addFieldTransformation(
                 childDataPath,
@@ -165,9 +163,8 @@ type CreateRelationOperationParams = {
   transaction: AMTransaction;
 
   parentDataOperation: AMOperation;
-  parentDataDbPath: string;
-
-  childDataPathArr: string[];
+  parentDataDbPath: Path;
+  childDataPath: Path;
 };
 
 const createAbstractBelongsToRelationOperation = ({
@@ -175,18 +172,18 @@ const createAbstractBelongsToRelationOperation = ({
   transaction,
   parentDataOperation,
   parentDataDbPath,
-  childDataPathArr,
+  childDataPath,
 }: CreateRelationOperationParams) => {
   const relationOperation = new AMReadDBRefOperation(transaction, {
     many: true,
     dbRefList: parentDataOperation
       .getResult()
-      .map(new ResultPromiseTransforms.Distinct(parentDataDbPath)),
+      .map(new ResultPromiseTransforms.Distinct(parentDataDbPath.asString())),
   });
-
-  const displayField = childDataPathArr.pop();
+  const path = [...childDataPath.asArray()];
+  const displayField = path.pop();
   const transformation = new ResultPromiseTransforms.DbRefReplace(
-    childDataPathArr,
+    path,
     displayField,
     relationInfo.storeField,
     relationOperation
@@ -200,7 +197,7 @@ const createBelongsToRelationOperation = ({
   transaction,
   parentDataOperation,
   parentDataDbPath,
-  childDataPathArr,
+  childDataPath,
 }: CreateRelationOperationParams) => {
   const relationOperation = new AMReadOperation(transaction, {
     many: true,
@@ -210,14 +207,17 @@ const createBelongsToRelationOperation = ({
       [relationInfo.relationField]: {
         $in: parentDataOperation
           .getResult()
-          .map(new ResultPromiseTransforms.Distinct(parentDataDbPath)),
+          .map(
+            new ResultPromiseTransforms.Distinct(parentDataDbPath.asString())
+          ),
       },
     }),
   });
 
-  const displayField = childDataPathArr.pop();
+  const path = [...childDataPath.asArray()];
+  const displayField = path.pop();
   const transformation = new ResultPromiseTransforms.DistinctReplace(
-    childDataPathArr,
+    path,
     displayField,
     relationInfo.storeField,
     relationInfo.relationField,
@@ -231,7 +231,7 @@ const createHasRelationOperation = ({
   relationInfo,
   transaction,
   parentDataOperation,
-  childDataPathArr,
+  childDataPath,
 }: CreateRelationOperationParams) => {
   const relationOperation = new AMReadOperation(transaction, {
     many: true,
@@ -250,7 +250,7 @@ const createHasRelationOperation = ({
 
   //TODO: Add runtime checking for existing unique index on relation field.
   const transformation = new ResultPromiseTransforms.Lookup(
-    childDataPathArr.join('.'),
+    childDataPath.asString(),
     relationInfo.relationField,
     relationInfo.storeField,
     relationOperation,
@@ -263,14 +263,14 @@ const createHasRelationOperation = ({
 const getExistingOperation = ({
   args,
   rootOperation,
-  childDataPathArr,
+  childDataPath,
 }: {
   args?: FieldNode['arguments'];
   rootOperation: AMOperation;
-  childDataPathArr: string[];
+  childDataPath: Path;
 }) => {
   const existingTransformations =
-    rootOperation.fieldTransformations.get(childDataPathArr.join('.')) || [];
+    rootOperation.fieldTransformations.get(childDataPath.asString()) || [];
 
   const fieldArgs = args || [];
   for (const transformation of existingTransformations) {

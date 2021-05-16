@@ -9,6 +9,7 @@ import { AMListValueContext } from './contexts/listValue';
 import { Transformation } from './resultPromise';
 import { DBRef } from 'mongodb';
 import { compact } from '../utils';
+import { Path } from './path';
 
 export abstract class AMOperation extends AMContext {
   collectionName: string;
@@ -131,11 +132,11 @@ export abstract class AMOperation extends AMContext {
     this.setOutput(this.getOutput().map(transformation));
   }
 
-  addFieldTransformation(path: string, transformation: Transformation) {
-    let transformations = this.fieldTransformations.get(path);
+  addFieldTransformation(path: Path, transformation: Transformation) {
+    let transformations = this.fieldTransformations.get(path.asString());
     if (!transformations) {
       transformations = [transformation];
-      this.fieldTransformations.set(path, transformations);
+      this.fieldTransformations.set(path.asString(), transformations);
     } else {
       transformations.push(transformation);
     }
