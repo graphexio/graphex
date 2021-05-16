@@ -2561,7 +2561,6 @@ Object {
       },
     },
     Object {
-      "collectionName": undefined,
       "dbRefList": ResultPromise {
         "source": Array [
           "Operation-0",
@@ -2671,7 +2670,6 @@ Object {
       },
     },
     Object {
-      "collectionName": undefined,
       "dbRefList": ResultPromise {
         "source": Array [
           "Operation-0",
@@ -2840,7 +2838,6 @@ Object {
       },
     },
     Object {
-      "collectionName": undefined,
       "dbRefList": ResultPromise {
         "source": Array [
           "Operation-0",
@@ -2864,7 +2861,6 @@ Object {
       },
     },
     Object {
-      "collectionName": undefined,
       "dbRefList": ResultPromise {
         "source": Array [
           "Operation-0",

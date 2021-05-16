@@ -39,6 +39,25 @@ describe('simple', () => {
     `);
   });
 
+  test('indexBy', () => {
+    const result = { value: { test: 'value' } };
+    const indexByResultPromise = resultPromise.map(
+      new ResultPromiseTransforms.IndexBy({ groupingField: 'test' })
+    );
+    expect(indexByResultPromise.getValueSource()).toMatchInlineSnapshot(`
+      Array [
+        "Operation-0",
+        IndexBy {
+          "params": Object {
+            "groupingField": "test",
+          },
+        },
+      ]
+    `);
+
+    return expect(indexByResultPromise).resolves.toEqual(result);
+  });
+
   test('distinct', () => {
     const result = ['value'];
     const distinctResultPromise = resultPromise.map(
@@ -95,6 +114,42 @@ Array [
 `);
 
     return expect(distinctReplaceResultPromise).resolves.toEqual(result);
+  });
+
+  test('join', () => {
+    const data = ({
+      getOutput() {
+        return new AMDataResultPromise({ value: { _id: 'value' } });
+      },
+    } as any) as AMOperation;
+    const result = [{ test: 'value', testAlias: { _id: 'value' } }];
+
+    const joinResultPromise = resultPromise.map(
+      new ResultPromiseTransforms.Join({
+        dataOp: data,
+        storeField: 'testAlias',
+        keyField: 'test',
+      }).addCondition(new Map())
+    );
+    expect(joinResultPromise.getValueSource()).toMatchInlineSnapshot(`
+Array [
+  "Operation-0",
+  Join {
+    "conditions": Array [
+      Map {},
+    ],
+    "data": ResultPromise {
+      "source": Array [
+        "Static Data",
+      ],
+    },
+    "keyField": "test",
+    "storeField": "testAlias",
+  },
+]
+`);
+
+    return expect(joinResultPromise).resolves.toEqual(result);
   });
 });
 

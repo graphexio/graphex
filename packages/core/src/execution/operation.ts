@@ -8,6 +8,7 @@ import { AMDataContext } from './contexts/data';
 import { AMListValueContext } from './contexts/listValue';
 import { Transformation } from './resultPromise';
 import { DBRef } from 'mongodb';
+import { compact } from '../utils';
 
 export abstract class AMOperation extends AMContext {
   collectionName: string;
@@ -65,6 +66,13 @@ export abstract class AMOperation extends AMContext {
     return `Operation-${this._transactionNumber}`;
   }
 
+  getFieldsSelection() {
+    if (!this.fieldsSelection) {
+      this.fieldsSelection = new AMFieldsSelectionContext();
+    }
+    return this.fieldsSelection;
+  }
+
   setFieldsSelection(selectionSet: AMFieldsSelectionContext) {
     this.fieldsSelection = selectionSet;
   }
@@ -119,6 +127,10 @@ export abstract class AMOperation extends AMContext {
     this._output = output;
   }
 
+  addTransformation(transformation: Transformation) {
+    this.setOutput(this.getOutput().map(transformation));
+  }
+
   addFieldTransformation(path: string, transformation: Transformation) {
     let transformations = this.fieldTransformations.get(path);
     if (!transformations) {
@@ -131,23 +143,21 @@ export abstract class AMOperation extends AMContext {
   }
 
   toJSON(): { [key: string]: any } {
-    return {
+    return compact({
       identifier: this.getIdentifier(),
       kind: this.constructor.name,
       collectionName: this.collectionName,
       output: this.getOutput(),
       many: this.many,
-      ...(this.fieldsSelection
-        ? { fieldsSelection: this.fieldsSelection.toJSON() }
-        : null),
-      ...(this.selector ? { selector: this.selector.toJSON() } : null),
-      ...(this.data ? { data: this.data.toJSON() } : null),
-      ...(this.dataList ? { dataList: this.dataList.toJSON() } : null),
-      ...(this.dbRef ? { dbRef: this.dbRef } : null),
-      ...(this.dbRefList ? { dbRefList: this.dbRefList } : null),
-      ...(this.orderBy ? { orderBy: this.orderBy } : null),
-      ...(this.skip ? { skip: this.skip } : null),
-      ...(this.first ? { first: this.first } : null),
-    };
+      fieldsSelection: this.fieldsSelection?.toJSON(),
+      selector: this.selector?.toJSON(),
+      data: this.data?.toJSON(),
+      dataList: this.dataList?.toJSON(),
+      dbRef: this.dbRef,
+      dbRefList: this.dbRefList,
+      orderBy: this.orderBy,
+      skip: this.skip,
+      first: this.first,
+    });
   }
 }

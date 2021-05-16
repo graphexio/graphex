@@ -320,6 +320,7 @@ export type AMDBExecutorParams = {
     sort?: { [key: string]: number };
     limit?: number;
     skip?: number;
+    groupBy?: string;
   };
 };
 

@@ -10,9 +10,10 @@ export class DistinctReplace extends RelationTransformation {
     public displayField: string,
     public storeField: string,
     public relationField: string,
-    public dataOp: AMOperation
+    dataOp: AMOperation
   ) {
     super();
+    this.dataOp = dataOp;
   }
 
   transform(source: AMResultPromise<any>, dest: AMResultPromise<any>) {

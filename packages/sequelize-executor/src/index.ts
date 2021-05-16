@@ -50,15 +50,21 @@ export const SequelizeExecutor = (SQ: Sequelize) => {
       return item;
     },
     aggregate: async params => {
-      return {
-        aggregate: {
-          count: await SQ.model(params.collection).count({
-            where: params.selector,
-            // limit: params.options.limit,
-            // offset: params.options.skip,
-          }),
-        },
-      };
+      if (!params.options?.groupBy) {
+        return [
+          {
+            count: await SQ.model(params.collection).count({
+              where: params.selector,
+            }),
+          },
+        ];
+      } else {
+        return SQ.model(params.collection).count({
+          where: params.selector,
+          attributes: [params.options?.groupBy],
+          group: params.options?.groupBy,
+        });
+      }
     },
   };
 

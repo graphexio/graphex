@@ -35,10 +35,11 @@ export class Lookup extends RelationTransformation {
     public path: string,
     public relationField: string,
     public storeField: string,
-    public dataOp: AMOperation,
+    dataOp: AMOperation,
     public many = true
   ) {
     super();
+    this.dataOp = dataOp;
   }
 
   transform(source: AMResultPromise<any>, dest: AMResultPromise<any>) {

@@ -5,6 +5,8 @@ import { Path } from './path';
 import { ToDbRef } from './toDbRef';
 import { DbRefReplace } from './dbRefReplace';
 import { TransformArray } from './transformArray';
+import { IndexBy } from './indexBy';
+import { Join } from './join';
 
 export const ResultPromiseTransforms = {
   Distinct,
@@ -14,4 +16,7 @@ export const ResultPromiseTransforms = {
   ToDbRef,
   DbRefReplace,
   TransformArray,
+  IndexBy,
+  Join,
+  WildcardCondition: new Map(),
 };
