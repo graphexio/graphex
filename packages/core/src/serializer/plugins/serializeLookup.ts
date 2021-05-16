@@ -6,6 +6,7 @@ export const serializeLookup = {
       data: val.dataOp.getOutput(),
       many: val.many,
       path: val.path,
+      displayFieldPath: val.displayFieldPath,
       relationField: val.relationField,
       storeField: val.storeField,
     };

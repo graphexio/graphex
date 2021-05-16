@@ -255,7 +255,8 @@ const createHasRelationOperation = ({
 
   //TODO: Add runtime checking for existing unique index on relation field.
   const transformation = new ResultPromiseTransforms.Lookup(
-    [...mapItemsPath.asArray(), ...displayFieldPath.asArray()].join('.'),
+    mapItemsPath,
+    displayFieldPath,
     relationInfo.relationField,
     relationInfo.storeField,
     relationOperation,

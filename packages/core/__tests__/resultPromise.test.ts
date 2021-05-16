@@ -10,6 +10,7 @@ import { ObjectID, DBRef } from 'mongodb';
 import Serializer from '../src/serializer';
 import { AMOperation } from '../src/execution/operation';
 import { AMModelType } from '../src/definitions';
+import { Path } from '../src/execution/path';
 
 expect.addSnapshotSerializer(Serializer);
 
@@ -177,7 +178,8 @@ describe('lookup', () => {
 
     const lookupResultPromise = resultPromise.map(
       new ResultPromiseTransforms.Lookup(
-        'children',
+        Path.fromArray([]),
+        Path.fromArray(['children']),
         'id',
         'parentId',
         data
@@ -195,8 +197,9 @@ Array [
         "Static Data",
       ],
     },
+    "displayFieldPath": "children",
     "many": true,
-    "path": "children",
+    "path": "",
     "relationField": "id",
     "storeField": "parentId",
   },
@@ -228,7 +231,8 @@ Array [
 
     const lookupResultPromise = resultPromise.map(
       new ResultPromiseTransforms.Lookup(
-        'children',
+        Path.fromArray([]),
+        Path.fromArray(['children']),
         'id',
         'parentId',
         data,
@@ -247,8 +251,9 @@ Array [
         "Static Data",
       ],
     },
+    "displayFieldPath": "children",
     "many": false,
-    "path": "children",
+    "path": "",
     "relationField": "id",
     "storeField": "parentId",
   },
@@ -286,7 +291,8 @@ Array [
 
     const lookupResultPromise = resultPromise.map(
       new ResultPromiseTransforms.Lookup(
-        'nested.children',
+        Path.fromArray(['nested']),
+        Path.fromArray(['children']),
         'id',
         'parentId',
         data,
@@ -305,8 +311,9 @@ Array [
         "Static Data",
       ],
     },
+    "displayFieldPath": "children",
     "many": false,
-    "path": "nested.children",
+    "path": "nested",
     "relationField": "id",
     "storeField": "parentId",
   },
@@ -352,7 +359,8 @@ Array [
 
     const lookupResultPromise = resultPromise.map(
       new ResultPromiseTransforms.Lookup(
-        'nested.children',
+        Path.fromArray(['nested']),
+        Path.fromArray(['children']),
         'id',
         'parentId',
         data,
@@ -386,8 +394,9 @@ Array [
         "Static Data",
       ],
     },
+    "displayFieldPath": "children",
     "many": false,
-    "path": "nested.children",
+    "path": "nested",
     "relationField": "id",
     "storeField": "parentId",
   },

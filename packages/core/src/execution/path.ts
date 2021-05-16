@@ -22,4 +22,8 @@ export class Path {
   pop() {
     return this._pathArr.pop();
   }
+
+  toJSON() {
+    return this.asString();
+  }
 }

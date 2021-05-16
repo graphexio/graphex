@@ -1,5 +1,6 @@
 import * as R from 'ramda';
 import { AMOperation } from '../operation';
+import { Path } from '../path';
 import { RelationTransformation } from './relationTransformation';
 import { AMResultPromise } from './resultPromise';
 import { mapPath } from './utils';
@@ -32,7 +33,8 @@ const groupForLookup = (storeField: string) => (
 
 export class Lookup extends RelationTransformation {
   constructor(
-    public path: string,
+    public path: Path,
+    public displayFieldPath: Path,
     public relationField: string,
     public storeField: string,
     dataOp: AMOperation,
@@ -43,27 +45,22 @@ export class Lookup extends RelationTransformation {
   }
 
   transform(source: AMResultPromise<any>, dest: AMResultPromise<any>) {
-    const pathArr = this.path.split('.');
-    const lookupFieldName = pathArr.pop();
-
     source.getPromise().then(async value => {
       const dataMap = groupForLookup(this.storeField)(
         await this.dataOp.getOutput().getPromise()
       );
+
       const mapItem = (item: any) => {
         if (!item) return item;
         let val = dataMap[item[this.relationField]] || [];
         if (!this.many) {
           val = R.head(val);
         }
-        const result = {
-          ...item,
-          [lookupFieldName]: val,
-        };
-        return result;
+        return R.assocPath(this.displayFieldPath.asArray(), val, item);
       };
+
       const newValue = mapPath(
-        pathArr,
+        this.path.asArray(),
         mapItem,
         [],
         this.getConditions()
