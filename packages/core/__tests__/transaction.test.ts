@@ -786,70 +786,70 @@ describe('relation', () => {
     const transaction = prepareTransaction(schema, rq);
 
     expect(transaction).toMatchInlineSnapshot(`
-      Object {
-        "operations": Array [
-          Object {
-            "collectionName": "comments",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-                "postId",
-              ],
-            },
-            "identifier": "Operation-0",
-            "kind": "AMReadOperation",
-            "many": true,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-0",
-                DistinctReplace {
-                  "conditions": Array [
-                    Map {},
-                  ],
-                  "data": ResultPromise {
-                    "source": Array [
-                      "Operation-1",
-                    ],
-                  },
-                  "displayField": "post",
-                  "path": Array [],
-                  "relationField": "_id",
-                  "storeField": "postId",
-                },
-              ],
-            },
-          },
-          Object {
-            "collectionName": "posts",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-              ],
-            },
-            "identifier": "Operation-1",
-            "kind": "AMReadOperation",
-            "many": true,
-            "output": ResultPromise {
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "comments",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+          "postId",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+          DistinctReplace {
+            "conditions": Array [
+              Map {},
+            ],
+            "data": ResultPromise {
               "source": Array [
                 "Operation-1",
               ],
             },
-            "selector": Object {
-              "_id": Object {
-                "$in": ResultPromise {
-                  "source": Array [
-                    "Operation-0",
-                    Distinct {
-                      "path": "postId",
-                    },
-                  ],
-                },
-              },
-            },
+            "displayField": "post",
+            "path": "",
+            "relationField": "_id",
+            "storeField": "postId",
           },
         ],
-      }
-    `);
+      },
+    },
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-1",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+      "selector": Object {
+        "_id": Object {
+          "$in": ResultPromise {
+            "source": Array [
+              "Operation-0",
+              Distinct {
+                "path": "postId",
+              },
+            ],
+          },
+        },
+      },
+    },
+  ],
+}
+`);
   });
 
   test('connect', () => {
@@ -2290,7 +2290,7 @@ Object {
               ],
             },
             "displayField": "approves",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "approvesPostIds",
           },
@@ -2306,7 +2306,7 @@ Object {
               ],
             },
             "displayField": "likes",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "likesPostIds",
           },
@@ -2415,9 +2415,7 @@ Object {
               ],
             },
             "displayField": "invitedBy",
-            "path": Array [
-              "profile",
-            ],
+            "path": "profile",
             "relationField": "_id",
             "storeField": "userId",
           },
@@ -3625,7 +3623,7 @@ Object {
               ],
             },
             "displayField": "$mainCategory",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "categoryId",
           },
@@ -3856,7 +3854,7 @@ Object {
               ],
             },
             "displayField": "post",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -3941,7 +3939,7 @@ Object {
               ],
             },
             "displayField": "post",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -3955,9 +3953,7 @@ Object {
               ],
             },
             "displayField": "category",
-            "path": Array [
-              "post",
-            ],
+            "path": "post",
             "relationField": "_id",
             "storeField": "categoryId",
           },
@@ -4072,7 +4068,7 @@ Object {
               ],
             },
             "displayField": "post",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -4165,7 +4161,7 @@ Object {
               ],
             },
             "displayField": "post",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -4255,7 +4251,7 @@ Object {
               ],
             },
             "displayField": "post",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -4271,7 +4267,7 @@ Object {
               ],
             },
             "displayField": "post",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -4381,7 +4377,7 @@ Object {
               ],
             },
             "displayField": "post",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -4472,7 +4468,7 @@ Object {
               ],
             },
             "displayField": "post",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -4569,7 +4565,7 @@ Object {
               ],
             },
             "displayField": "post",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -4588,9 +4584,7 @@ Object {
               ],
             },
             "displayField": "category",
-            "path": Array [
-              "post",
-            ],
+            "path": "post",
             "relationField": "_id",
             "storeField": "categoryId",
           },
@@ -4722,7 +4716,7 @@ Object {
               ],
             },
             "displayField": "post",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -4741,9 +4735,7 @@ Object {
               ],
             },
             "displayField": "category",
-            "path": Array [
-              "post",
-            ],
+            "path": "post",
             "relationField": "_id",
             "storeField": "categoryId",
           },
@@ -4760,10 +4752,7 @@ Object {
               ],
             },
             "displayField": "parentCategory",
-            "path": Array [
-              "post",
-              "category",
-            ],
+            "path": "post.category",
             "relationField": "_id",
             "storeField": "categoryId",
           },
@@ -4924,7 +4913,7 @@ Object {
               ],
             },
             "displayField": "post",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -4943,9 +4932,7 @@ Object {
               ],
             },
             "displayField": "category",
-            "path": Array [
-              "post",
-            ],
+            "path": "post",
             "relationField": "_id",
             "storeField": "categoryId",
           },
@@ -4962,10 +4949,7 @@ Object {
               ],
             },
             "displayField": "parentCategory",
-            "path": Array [
-              "post",
-              "category",
-            ],
+            "path": "post.category",
             "relationField": "_id",
             "storeField": "categoryId",
           },
@@ -5107,7 +5091,7 @@ Object {
               ],
             },
             "displayField": "post",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },

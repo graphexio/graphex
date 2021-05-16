@@ -221,8 +221,8 @@ const createBelongsToRelationOperation = ({
   });
 
   const transformation = new ResultPromiseTransforms.DistinctReplace(
-    mapItemsPath.asArray(),
-    displayFieldPath.asString(),
+    mapItemsPath,
+    displayFieldPath,
     relationInfo.storeField,
     relationInfo.relationField,
     relationOperation

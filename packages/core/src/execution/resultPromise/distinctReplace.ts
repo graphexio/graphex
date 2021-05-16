@@ -1,13 +1,14 @@
 import * as R from 'ramda';
 import { AMOperation } from '../operation';
+import { Path } from '../path';
 import { RelationTransformation } from './relationTransformation';
 import { AMResultPromise } from './resultPromise';
 import { mapPath } from './utils';
 
 export class DistinctReplace extends RelationTransformation {
   constructor(
-    public path: string[],
-    public displayField: string,
+    public path: Path,
+    public displayField: Path,
     public storeField: string,
     public relationField: string,
     dataOp: AMOperation
@@ -31,11 +32,11 @@ export class DistinctReplace extends RelationTransformation {
         } else {
           resultValue = dataMap[storeValue];
         }
-        return { ...item, [this.displayField]: resultValue };
+        return R.assocPath(this.displayField.asArray(), resultValue, item);
       };
 
       const newValue = mapPath(
-        this.path,
+        this.path.asArray(),
         mapItem,
         [],
         this.getConditions()

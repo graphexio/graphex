@@ -86,8 +86,8 @@ describe('simple', () => {
 
     const distinctReplaceResultPromise = resultPromise.map(
       new ResultPromiseTransforms.DistinctReplace(
-        [],
-        'testAlias',
+        Path.fromArray([]),
+        Path.fromString('testAlias'),
         'test',
         '_id',
         data
@@ -107,7 +107,7 @@ Array [
       ],
     },
     "displayField": "testAlias",
-    "path": Array [],
+    "path": "",
     "relationField": "_id",
     "storeField": "test",
   },
