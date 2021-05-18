@@ -24,13 +24,15 @@ export class AMConnectionTypeFactory extends AMTypeFactory<AMObjectType> {
           },
           totalCount: {
             type: GraphQLInt,
+            aggregateRelation: true,
+            amMapValue: v => v.count, // TODO: remove this amMapValue hack. Only used here
           },
           aggregate: {
             type: this.configResolver.resolveType(
               modelType,
               'aggregate'
             ) as GraphQLObjectType,
-            ...defaultSelectionVisitorHandler('aggregate'),
+            aggregateRelation: true,
           },
         };
 

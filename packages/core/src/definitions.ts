@@ -184,6 +184,8 @@ export type AMModelField = AMField & {
   defaultValue?: any;
   relation: RelationInfo;
   nodesRelation?: boolean; // indicates that this is a relation field, but it has no relation information (Connection type)
+  aggregateRelation?: boolean; // indicates that this is a relation field, but it has no relation information (Connection type)
+  amMapValue?: (v: any) => any; // hack for connection type
   noArrayFilter: boolean;
 };
 

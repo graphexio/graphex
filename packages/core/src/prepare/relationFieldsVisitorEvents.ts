@@ -8,6 +8,7 @@ import { AMModelField, RelationInfo } from '../definitions';
 import { AMFieldsSelectionContext } from '../execution/contexts/fieldsSelection';
 import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMOperation } from '../execution/operation';
+import { AMAggregateOperation } from '../execution/operations/aggregateOperation';
 import { AMConnectionOperation } from '../execution/operations/connectionOperation';
 import { AMReadDBRefOperation } from '../execution/operations/readDbRefOperation';
 import { AMReadOperation } from '../execution/operations/readOperation';
@@ -22,11 +23,18 @@ export const relationFieldsVisitorEvents = (schema: GraphQLSchema) => {
   Object.values(schema.getTypeMap()).forEach(type => {
     if (isObjectType(type) || isInterfaceType(type)) {
       Object.values(type.getFields()).forEach((field: AMModelField) => {
-        if (field.relation || field.nodesRelation) {
+        if (field.relation || field.nodesRelation || field.aggregateRelation) {
           field.resolve = (source, args, ctx, info) => {
-            return source[
-              getChildDataStoreField(info.fieldNodes[0]) //
-            ];
+            const value =
+              source[
+                getChildDataStoreField(info.fieldNodes[0]) //
+              ];
+            // TODO: remove this amMapValue hack. Only used in Connection type
+            if (field.amMapValue) {
+              return field.amMapValue(value);
+            } else {
+              return value;
+            }
           };
 
           field.amEnter = (node: FieldNode, transaction, stack) => {
@@ -82,11 +90,13 @@ export const relationFieldsVisitorEvents = (schema: GraphQLSchema) => {
              */
             if (!relationOperation) {
               // TODO replace with relation kind enum
-              const createOperation = relationInfo.abstract
-                ? createAbstractBelongsToRelationOperation
-                : relationInfo.external
-                ? createHasRelationOperation
-                : createBelongsToRelationOperation;
+              const createOperation = !field.aggregateRelation
+                ? relationInfo.abstract
+                  ? createAbstractBelongsToRelationOperation
+                  : relationInfo.external
+                  ? createHasRelationOperation
+                  : createBelongsToRelationOperation
+                : createHasAggregateRelationOperation;
 
               ({ relationOperation, transformation } = createOperation({
                 relationInfo,
@@ -285,6 +295,42 @@ const createHasRelationOperation = ({
     relationInfo.storeField,
     relationOperation,
     relationInfo.many
+  );
+
+  return { relationOperation, transformation };
+};
+
+const createHasAggregateRelationOperation = ({
+  relationInfo,
+  transaction,
+  parentDataOperation,
+  mapItemsPath,
+  displayFieldPath,
+}: CreateRelationOperationParams) => {
+  const relationOperation = new AMAggregateOperation(transaction, {
+    many: true,
+    collectionName: relationInfo.collection,
+    fieldsSelection: new AMFieldsSelectionContext(['totalCount']),
+    selector: new AMSelectorContext({
+      [relationInfo.storeField]: {
+        $in: parentDataOperation
+          .getResult()
+          .map(
+            new ResultPromiseTransforms.Distinct(relationInfo.relationField)
+          ),
+      },
+    }),
+  });
+  relationOperation.groupBy = relationInfo.storeField;
+
+  //TODO: Add runtime checking for existing unique index on relation field.
+  const transformation = new ResultPromiseTransforms.Lookup(
+    mapItemsPath,
+    displayFieldPath,
+    relationInfo.relationField,
+    relationInfo.storeField,
+    relationOperation,
+    false
   );
 
   return { relationOperation, transformation };
