@@ -35,7 +35,8 @@
     "lint": "eslint 'packages/*/{src,__tests__}/**/*.ts'",
     "build:migrations": "rimraf distdb && tsc -p tsconfig.migrations.json",
     "db:migrate": "yarn build:migrations && sequelize-cli db:migrate",
-    "db:migrate:dryrun": "yarn db:migrate && MIGRATIONS_DRYRUN=true sequelize-cli db:migrate"
+    "db:migrate:dryrun": "yarn db:migrate && MIGRATIONS_DRYRUN=true sequelize-cli db:migrate",
+    "db:seed:all": "yarn build:migrations && sequelize-cli db:seed:all"
   },
   "keywords": [],
   "author": "",
