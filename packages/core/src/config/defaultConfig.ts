@@ -1,5 +1,4 @@
 import { AMConfig } from '../definitions';
-import { AMModelMultipleQueryFieldFactory } from '../modelMethods/multipleQuery';
 import { AMWhereTypeFactory } from '../inputTypes/where';
 import { AMInterfaceWhereTypeFactory } from '../inputTypes/interfaceWhere';
 import { AMWhereACLTypeFactory } from '../inputTypes/whereACLClass';
@@ -25,10 +24,7 @@ import { SizeSelector } from '../inputTypes/fieldFactories/querySelectors/size';
 import { SomeRelationSelector } from '../inputTypes/fieldFactories/querySelectors/some-relation';
 import { SomeSelector } from '../inputTypes/fieldFactories/querySelectors/some';
 import { StartsWithSelector } from '../inputTypes/fieldFactories/querySelectors/startsWith';
-import { AMModelSingleQueryFieldFactory } from '../modelMethods/singleQuery';
 import { AMInterfaceWhereUniqueTypeFactory } from '../inputTypes/interfaceWhereUnique';
-import { AMModelConnectionQueryFieldFactory } from '../modelMethods/connectionQuery';
-import { AMModelCreateMutationFieldFactory } from '../modelMethods/createMutation';
 import { AMCreateFieldFactory } from '../inputTypes/fieldFactories/create';
 import { AMCreateTypeFactory } from '../inputTypes/create';
 import { AMCreateNestedFieldFactory } from '../inputTypes/fieldFactories/createNested';
@@ -47,96 +43,18 @@ import { AMUpdateOneRelationTypeFactory } from '../inputTypes/updateOneRelation'
 import { AMUpdateFieldFactory } from '../inputTypes/fieldFactories/update';
 import { AMUpdateNestedFieldFactory } from '../inputTypes/fieldFactories/updateNested';
 import { AMUpdateRelationFieldFactory } from '../inputTypes/fieldFactories/updateRelation';
-import { AMModelUpdateMutationFieldFactory } from '../modelMethods/updateMutation';
-import { AMModelDeleteOneMutationFieldFactory } from '../modelMethods/deleteOneMutation';
-import { AMModelDeleteManyMutationFieldFactory } from '../modelMethods/deleteManyMutation';
 import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
-import { AMConnectionTypeFactory } from '../types/connection';
-import { AMAggregateTypeFactory } from '../types/aggregate';
-import { AMAggregateNumericFieldsTypeFactory } from '../types/aggregateNumericFields';
+
 import { AMIdentityFieldFactory } from '../types/fieldFactories/identity';
 import { AMNamedTypeFieldFactory } from '../types/fieldFactories/namedType';
 import { AMAggregateNumericFieldsFieldFactory } from '../types/fieldFactories/aggregateNumericFields';
+import { methodFactories } from './methodFactories';
+import { typeFactories } from './typeFactories';
 
 const config = {
   _default: {
-    methodFactories: {
-      singleQuery: {
-        factory: AMModelSingleQueryFieldFactory,
-        links: {
-          whereUnique: ['whereUnique', 'interfaceWhereUnique'],
-        },
-      },
-      multipleQuery: {
-        factory: AMModelMultipleQueryFieldFactory,
-        links: {
-          where: ['where', 'interfaceWhere'],
-          orderBy: 'orderBy',
-        },
-      },
-      connectionQuery: {
-        factory: AMModelConnectionQueryFieldFactory,
-        links: {
-          where: ['where', 'interfaceWhere'],
-        },
-      },
-      createMutation: {
-        factory: AMModelCreateMutationFieldFactory,
-        links: {
-          data: ['create', 'interfaceCreate'],
-        },
-      },
-      updateMutation: {
-        factory: AMModelUpdateMutationFieldFactory,
-        links: {
-          data: 'update',
-          where: 'whereUnique',
-          whereInterface: 'interfaceWhereUnique',
-        },
-      },
-      deleteOneMutation: {
-        factory: AMModelDeleteOneMutationFieldFactory,
-        links: {
-          where: ['whereUnique', 'interfaceWhereUnique'],
-        },
-      },
-      deleteManyMutation: {
-        factory: AMModelDeleteManyMutationFieldFactory,
-        links: {
-          where: ['where', 'interfaceWhere'],
-        },
-      },
-    },
-    typeFactories: {
-      aggregate: {
-        factory: AMAggregateTypeFactory,
-        links: {
-          sum: 'aggregateNumericFields',
-          min: 'aggregateNumericFields',
-          max: 'aggregateNumericFields',
-        },
-      },
-      aggregateNumericFields: {
-        factory: AMAggregateNumericFieldsTypeFactory,
-        links: {
-          embedded: 'aggregateNumericFields',
-        },
-        dynamicLinks: {
-          _default: {
-            fieldFactories: ['aggregateNumericFields'],
-          },
-          Int: {
-            fieldFactories: ['namedType'],
-          },
-          Float: {
-            fieldFactories: ['namedType'],
-          },
-        },
-      },
-      connection: {
-        factory: AMConnectionTypeFactory,
-      },
-    },
+    methodFactories,
+    typeFactories,
     fieldFactories: {
       aggregateNumericFields: {
         factory: AMAggregateNumericFieldsFieldFactory,
