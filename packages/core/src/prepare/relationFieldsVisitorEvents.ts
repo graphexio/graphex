@@ -45,11 +45,13 @@ export const relationFieldsVisitorEvents = (schema: GraphQLSchema) => {
               parentDataOperation: lastOperation,
               field,
             });
+            const isRootConnectionQuery = relationInfo.storeField === null;
 
             // parent operation for relation inside connection is the previous one
-            const parentDataOperation = isInConnection
-              ? stack.lastOperation(1) // take previous operation
-              : lastOperation;
+            const parentDataOperation =
+              isInConnection && !isRootConnectionQuery
+                ? stack.lastOperation(1) // take previous operation
+                : lastOperation;
 
             /**
              * Relations data should be stored in field with name of an alias
@@ -69,7 +71,9 @@ export const relationFieldsVisitorEvents = (schema: GraphQLSchema) => {
             const displayFieldPath = Path.fromArray(
               [
                 mapItemsPath.pop(),
-                ...(isInConnection ? [mapItemsPath.pop()] : []), // for connections move one more item from map path into display path
+                ...(isInConnection && !isRootConnectionQuery
+                  ? [mapItemsPath.pop()]
+                  : []), // for connections move one more item from map path into display path
               ].reverse()
             );
             /**
@@ -90,7 +94,11 @@ export const relationFieldsVisitorEvents = (schema: GraphQLSchema) => {
              */
             if (!relationOperation) {
               // TODO replace with relation kind enum
-              const createOperation = !field.aggregateRelation
+              const createOperation = isRootConnectionQuery
+                ? !field.aggregateRelation
+                  ? createReadOperation
+                  : createAggregateOperation
+                : !field.aggregateRelation
                 ? relationInfo.abstract
                   ? createAbstractBelongsToRelationOperation
                   : relationInfo.external
@@ -105,6 +113,9 @@ export const relationFieldsVisitorEvents = (schema: GraphQLSchema) => {
                 parentDataDbPath,
                 mapItemsPath,
                 displayFieldPath,
+                filter: isInConnection
+                  ? lastOperation.selector?.selector
+                  : undefined,
               }));
               rootOperation.addFieldTransformation(
                 childDataPath,
@@ -199,11 +210,11 @@ const pushFieldIntoSelectionContext = ({
 type CreateRelationOperationParams = {
   relationInfo: RelationInfo;
   transaction: AMTransaction;
-
   parentDataOperation: AMOperation;
   parentDataDbPath: Path;
   mapItemsPath: Path;
   displayFieldPath: Path;
+  filter?: Record<any, any>;
 };
 
 const createAbstractBelongsToRelationOperation = ({
@@ -238,12 +249,14 @@ const createBelongsToRelationOperation = ({
   parentDataDbPath,
   mapItemsPath,
   displayFieldPath,
+  filter,
 }: CreateRelationOperationParams) => {
   const relationOperation = new AMReadOperation(transaction, {
     many: true,
     collectionName: relationInfo.collection,
     fieldsSelection: new AMFieldsSelectionContext([relationInfo.relationField]),
     selector: new AMSelectorContext({
+      ...(filter ? { $and: [filter] } : {}),
       [relationInfo.relationField]: {
         $in: parentDataOperation
           .getResult()
@@ -271,12 +284,14 @@ const createHasRelationOperation = ({
   parentDataOperation,
   mapItemsPath,
   displayFieldPath,
+  filter,
 }: CreateRelationOperationParams) => {
   const relationOperation = new AMReadOperation(transaction, {
     many: true,
     collectionName: relationInfo.collection,
     fieldsSelection: new AMFieldsSelectionContext([relationInfo.storeField]),
     selector: new AMSelectorContext({
+      ...(filter ? { $and: [filter] } : {}),
       [relationInfo.storeField]: {
         $in: parentDataOperation
           .getResult()
@@ -306,12 +321,14 @@ const createHasAggregateRelationOperation = ({
   parentDataOperation,
   mapItemsPath,
   displayFieldPath,
+  filter,
 }: CreateRelationOperationParams) => {
   const relationOperation = new AMAggregateOperation(transaction, {
     many: true,
     collectionName: relationInfo.collection,
     fieldsSelection: new AMFieldsSelectionContext(['totalCount']),
     selector: new AMSelectorContext({
+      ...(filter ? { $and: [filter] } : {}),
       [relationInfo.storeField]: {
         $in: parentDataOperation
           .getResult()
@@ -329,6 +346,64 @@ const createHasAggregateRelationOperation = ({
     displayFieldPath,
     relationInfo.relationField,
     relationInfo.storeField,
+    relationOperation,
+    false
+  );
+
+  return { relationOperation, transformation };
+};
+
+const createReadOperation = ({
+  relationInfo,
+  transaction,
+  mapItemsPath,
+  displayFieldPath,
+  filter,
+}: CreateRelationOperationParams) => {
+  const relationOperation = new AMReadOperation(transaction, {
+    many: true,
+    collectionName: relationInfo.collection,
+    fieldsSelection: new AMFieldsSelectionContext([]),
+    selector: new AMSelectorContext({
+      ...(filter ? { $and: [filter] } : {}),
+    }),
+  });
+
+  //TODO: Add runtime checking for existing unique index on relation field.
+  const transformation = new ResultPromiseTransforms.Lookup(
+    mapItemsPath,
+    displayFieldPath,
+    '$non-existing-field', // TODO: replace this hack with new transformation. The way it works - it groups by "undefined" key and then copy by "undefined" value.
+    '$non-existing-field',
+    relationOperation,
+    true
+  );
+
+  return { relationOperation, transformation };
+};
+
+const createAggregateOperation = ({
+  relationInfo,
+  transaction,
+  mapItemsPath,
+  displayFieldPath,
+  filter,
+}: CreateRelationOperationParams) => {
+  const relationOperation = new AMAggregateOperation(transaction, {
+    many: true,
+    collectionName: relationInfo.collection,
+    fieldsSelection: new AMFieldsSelectionContext([]),
+    selector: new AMSelectorContext({
+      ...(filter ? { $and: [filter] } : {}),
+    }),
+  });
+
+  //TODO: Add runtime checking for existing unique index on relation field.
+  const transformation = new ResultPromiseTransforms.Lookup(
+    mapItemsPath,
+    displayFieldPath,
+    '$non-existing-field', // TODO: replace this hack with new transformation
+    '$non-existing-field',
     relationOperation,
     false
   );

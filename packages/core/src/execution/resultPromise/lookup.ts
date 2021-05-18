@@ -18,15 +18,15 @@ const groupForLookup = (storeField: string) => (
 
   data.forEach(item => {
     const relationValue = item[storeField];
-    if (relationValue) {
-      if (Array.isArray(relationValue)) {
-        relationValue.forEach(relationValueArrayItem => {
-          storeValue(relationValueArrayItem, item);
-        });
-      } else {
-        storeValue(relationValue, item);
-      }
+    // if (relationValue) {
+    if (Array.isArray(relationValue)) {
+      relationValue.forEach(relationValueArrayItem => {
+        storeValue(relationValueArrayItem, item);
+      });
+    } else {
+      storeValue(relationValue, item);
     }
+    // }
   });
   return result;
 };
