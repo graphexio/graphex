@@ -408,6 +408,24 @@ const createAggregateOperation = ({
     false
   );
 
+  /**
+   * Example of how his hack works
+   */
+  /*
+    Normal:
+  Op1 - [{id: 1, username:"admin"}]
+  Op2 - [{owner_id: 1, title: "post1"}, {owner_id: 1, title: "post2"}, {owner_id: 2, title: "post3"}]
+  Lookup('posts', 'id', 'owner_id')
+  Result - [{id: 1, username:"admin", posts: [{owner_id: 1, title: "post1"}, {owner_id: 1, title: "post2"}]}]
+
+  Hack
+  Op1 - {}
+  Op2 - [{count:1}]
+  Lookup('totalCount', '$non-existing-field', '$non-existing-field')
+  Result - {totalCount: {count:1}}
+
+  */
+
   return { relationOperation, transformation };
 };
 
