@@ -299,7 +299,7 @@ test('Query categories pagination', async () => {
   const { errors, data } = await query({
     query: gql`
       {
-        categories(skip: 2, first: 1) {
+        categories(offset: 2, first: 1) {
           title
         }
       }

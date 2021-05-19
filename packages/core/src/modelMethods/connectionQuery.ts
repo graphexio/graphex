@@ -1,15 +1,13 @@
 import pluralize from 'pluralize';
 import R from 'ramda';
 import { firstArg } from '../args/first';
-import { skipArg } from '../args/skip';
+import { offsetArg } from '../args/offset';
 import {
   AMField,
   AMMethodFieldFactory,
   AMModelType,
   GraphQLOperationType,
 } from '../definitions';
-import { AMSelectorContext } from '../execution/contexts/selector';
-import { AMAggregateOperation } from '../execution/operations/aggregateOperation';
 import { AMConnectionOperation } from '../execution/operations/connectionOperation';
 import { resolve } from '../resolve';
 import { lowercaseFirstLetter } from '../utils';
@@ -44,7 +42,7 @@ export class AMModelConnectionQueryFieldFactory extends AMMethodFieldFactory {
             this.links.orderBy
           ),
         },
-        skipArg,
+        offsetArg,
         firstArg,
       ],
       amEnter(node, transaction, stack) {

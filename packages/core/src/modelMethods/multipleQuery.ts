@@ -2,7 +2,7 @@ import { GraphQLList, GraphQLNonNull } from 'graphql';
 import pluralize from 'pluralize';
 import R from 'ramda';
 import { firstArg } from '../args/first';
-import { skipArg } from '../args/skip';
+import { offsetArg } from '../args/offset';
 import {
   AMField,
   AMMethodFieldFactory,
@@ -45,7 +45,7 @@ export class AMModelMultipleQueryFieldFactory extends AMMethodFieldFactory {
             this.links.orderBy
           ),
         },
-        skipArg,
+        offsetArg,
         firstArg,
       ],
       amEnter(node, transaction, stack) {

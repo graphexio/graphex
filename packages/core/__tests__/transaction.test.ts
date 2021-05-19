@@ -314,7 +314,7 @@ describe('simple schema', () => {
   test('connection', () => {
     const rq = gql`
       {
-        postsConnection(skip: 2, first: 1) {
+        postsConnection(offset: 2, first: 1) {
           aggregate {
             count
           }

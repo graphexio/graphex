@@ -6,7 +6,7 @@ import {
   isOutputType,
 } from 'graphql';
 import { firstArg } from '../args/first';
-import { skipArg } from '../args/skip';
+import { offsetArg } from '../args/offset';
 import { AMConfigResolver } from '../config/resolver';
 import { AMModelField, AMModelType } from '../definitions';
 
@@ -42,7 +42,7 @@ export const relationsArguments = (
                   },
                 ]
               : []),
-            skipArg,
+            offsetArg,
             firstArg,
           ];
         }

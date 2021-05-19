@@ -270,21 +270,21 @@ describe('interface', () => {
   test('Query', () => {
     expect(printType(schema.getQueryType())).toMatchInlineSnapshot(`
 "type Query {
-  posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, first: Int): [Post!]!
+  posts(where: PostWhereInput, orderBy: PostOrderByInput, offset: Int, first: Int): [Post!]!
   post(where: PostWhereUniqueInput): Post
-  postsConnection(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, first: Int): PostConnection
-  users(where: UserInterfaceWhereInput, orderBy: UserOrderByInput, skip: Int, first: Int): [User!]!
+  postsConnection(where: PostWhereInput, orderBy: PostOrderByInput, offset: Int, first: Int): PostConnection
+  users(where: UserInterfaceWhereInput, orderBy: UserOrderByInput, offset: Int, first: Int): [User!]!
   user(where: UserInterfaceWhereUniqueInput): User
-  usersConnection(where: UserInterfaceWhereInput, orderBy: UserOrderByInput, skip: Int, first: Int): UserConnection
-  admins(where: AdminWhereInput, orderBy: AdminOrderByInput, skip: Int, first: Int): [Admin!]!
+  usersConnection(where: UserInterfaceWhereInput, orderBy: UserOrderByInput, offset: Int, first: Int): UserConnection
+  admins(where: AdminWhereInput, orderBy: AdminOrderByInput, offset: Int, first: Int): [Admin!]!
   admin(where: AdminWhereUniqueInput): Admin
-  adminsConnection(where: AdminWhereInput, orderBy: AdminOrderByInput, skip: Int, first: Int): AdminConnection
-  subscribers(where: SubscriberWhereInput, orderBy: SubscriberOrderByInput, skip: Int, first: Int): [Subscriber!]!
+  adminsConnection(where: AdminWhereInput, orderBy: AdminOrderByInput, offset: Int, first: Int): AdminConnection
+  subscribers(where: SubscriberWhereInput, orderBy: SubscriberOrderByInput, offset: Int, first: Int): [Subscriber!]!
   subscriber(where: SubscriberWhereUniqueInput): Subscriber
-  subscribersConnection(where: SubscriberWhereInput, orderBy: SubscriberOrderByInput, skip: Int, first: Int): SubscriberConnection
-  managers(where: ManagerWhereInput, orderBy: ManagerOrderByInput, skip: Int, first: Int): [Manager!]!
+  subscribersConnection(where: SubscriberWhereInput, orderBy: SubscriberOrderByInput, offset: Int, first: Int): SubscriberConnection
+  managers(where: ManagerWhereInput, orderBy: ManagerOrderByInput, offset: Int, first: Int): [Manager!]!
   manager(where: ManagerWhereUniqueInput): Manager
-  managersConnection(where: ManagerWhereInput, orderBy: ManagerOrderByInput, skip: Int, first: Int): ManagerConnection
+  managersConnection(where: ManagerWhereInput, orderBy: ManagerOrderByInput, offset: Int, first: Int): ManagerConnection
 }"
 `);
   });
@@ -317,14 +317,14 @@ describe('interface', () => {
 
   test('Post', () => {
     expect(printType(schema.getType('Post'))).toMatchInlineSnapshot(`
-      "type Post {
-        id: ID
-        title: String
-        likes(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, first: Int): [User]!
-        owner(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, first: Int): User
-        likesConnection(where: UserWhereInput, skip: Int, first: Int): UserConnection
-      }"
-    `);
+"type Post {
+  id: ID
+  title: String
+  likes(where: UserWhereInput, orderBy: UserOrderByInput, offset: Int, first: Int): [User]!
+  owner(where: UserWhereInput, orderBy: UserOrderByInput, offset: Int, first: Int): User
+  likesConnection(where: UserWhereInput, offset: Int, first: Int): UserConnection
+}"
+`);
   });
 
   test('PostWhereInput', () => {
@@ -544,9 +544,9 @@ describe('modelFields', () => {
 
     expect(queryStr).toMatchInlineSnapshot(`
 "type Query {
-  posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, first: Int): [Post!]!
+  posts(where: PostWhereInput, orderBy: PostOrderByInput, offset: Int, first: Int): [Post!]!
   post(where: PostWhereUniqueInput): Post
-  postsConnection(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, first: Int): PostConnection
+  postsConnection(where: PostWhereInput, orderBy: PostOrderByInput, offset: Int, first: Int): PostConnection
 }"
 `);
 
@@ -679,9 +679,9 @@ describe('empty', () => {
   test('Query', () => {
     expect(printType(schema.getQueryType())).toMatchInlineSnapshot(`
 "type Query {
-  empties(where: EmptyWhereInput, orderBy: EmptyOrderByInput, skip: Int, first: Int): [Empty!]!
+  empties(where: EmptyWhereInput, orderBy: EmptyOrderByInput, offset: Int, first: Int): [Empty!]!
   empty: Empty
-  emptiesConnection(where: EmptyWhereInput, orderBy: EmptyOrderByInput, skip: Int, first: Int): EmptyConnection
+  emptiesConnection(where: EmptyWhereInput, orderBy: EmptyOrderByInput, offset: Int, first: Int): EmptyConnection
 }"
 `);
   });
@@ -811,11 +811,11 @@ describe('nested arrays', () => {
 
   test('Post', () => {
     expect(printType(schema.getType('Post'))).toMatchInlineSnapshot(`
-          "type Post {
-            id: ID
-            comments(where: CommentWhereInput, orderBy: CommentOrderByInput, skip: Int, first: Int): [Comment]
-          }"
-    `);
+"type Post {
+  id: ID
+  comments(where: CommentWhereInput, orderBy: CommentOrderByInput, offset: Int, first: Int): [Comment]
+}"
+`);
   });
 
   test('Poi', () => {
@@ -831,7 +831,7 @@ describe('nested arrays', () => {
     expect(printType(schema.getType('Hotel'))).toMatchInlineSnapshot(`
 "type Hotel implements Poi {
   id: ID
-  reviews(where: HotelReviewWhereInput, orderBy: HotelReviewOrderByInput, skip: Int, first: Int): [HotelReview]
+  reviews(where: HotelReviewWhereInput, orderBy: HotelReviewOrderByInput, offset: Int, first: Int): [HotelReview]
   title: String
 }"
 `);
