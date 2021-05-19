@@ -31,9 +31,9 @@ describe('interface', () => {
   test('Query', () => {
     expect(printType(schema.getQueryType())).toMatchInlineSnapshot(`
       "type Query {
-        pois(where: PoiWhereInput, orderBy: PoiOrderByInput, skip: Int, first: Int): [Poi!]!
+        pois(where: PoiWhereInput, orderBy: PoiOrderByInput, offset: Int, first: Int): [Poi!]!
         poi(where: PoiWhereUniqueInput): Poi
-        poisConnection(where: PoiWhereInput, orderBy: PoiOrderByInput, skip: Int, first: Int): PoiConnection
+        poisConnection(where: PoiWhereInput, orderBy: PoiOrderByInput, offset: Int, first: Int): PoiConnection
       }"
     `);
   });
