@@ -1,7 +1,6 @@
 import { Transformation } from './resultPromise';
 import { AMModelType } from '../../definitions';
 import { FieldNode } from 'graphql';
-import { AMOperation } from '../operation';
 
 export type TransformCondition = Map<string, AMModelType>;
 
@@ -33,7 +32,6 @@ function findConditionsUnion(
 export abstract class RelationTransformation extends Transformation {
   private conditions?: readonly TransformCondition[] = [];
   private fieldNodes?: FieldNode[] = [];
-  public dataOp: AMOperation;
 
   addCondition(cond: TransformCondition) {
     const newConditions = [];
@@ -62,5 +60,15 @@ export abstract class RelationTransformation extends Transformation {
   }
   getFieldNodes() {
     return this.fieldNodes as readonly FieldNode[];
+  }
+
+  /**
+   * TODO: remove this logic after full migration to new transformation classes
+   */
+  get dataOp() {
+    return (this as any)?._dataOp ?? (this as any)?.params?.dataOp;
+  }
+  set dataOp(value) {
+    (this as any)._dataOp = value;
   }
 }

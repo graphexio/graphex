@@ -2,6 +2,7 @@ import * as R from 'ramda';
 import { AMContext } from './context';
 import { AMOperation } from './operation';
 import { isOperation } from './utils';
+import { Path } from './path';
 import {
   AMFieldsSelectionContext,
   AMObjectFieldContext,
@@ -65,15 +66,32 @@ export class AMVisitorStack {
     return this.contexts[this.contexts.length - 1 - drop];
   }
 
-  lastOperation() {
-    return R.findLast(isOperation, this.contexts) as AMOperation;
+  lastOperation(n = 0) {
+    for (let i = this.contexts.length - 1; i >= 0; i--) {
+      const ctx = this.contexts[i];
+      if (isOperation(ctx)) {
+        n = n - 1;
+        if (n < 0) return ctx;
+      }
+    }
+    return null;
+  }
+
+  rightIndexOf(item: AMContext) {
+    for (let i = 0; i < this.contexts.length - 1; i++) {
+      const ctx = this.contexts[this.contexts.length - 1 - i];
+      if (ctx === item) return i;
+    }
+    return -1;
   }
 
   path(operation: AMOperation) {
-    return this.operationsInfo.get(operation).path.map(displayItem);
+    return Path.fromArray(
+      this.operationsInfo.get(operation).path.map(displayItem)
+    );
   }
   dbPath(operation: AMOperation) {
-    return this.operationsInfo.get(operation).path.map(dbItem);
+    return Path.fromArray(this.operationsInfo.get(operation).path.map(dbItem));
   }
 
   condition(operation: AMOperation) {

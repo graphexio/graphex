@@ -10,6 +10,7 @@ import { AMListValueContext } from '../src/execution/contexts/listValue';
 import { AMReadDBRefOperation } from '../src/execution/operations/readDbRefOperation';
 import { DBRef, ObjectID } from 'mongodb';
 import { ResultPromiseTransforms } from '../src/execution/resultPromise';
+import { Path } from '../src/execution/path';
 
 test('read many', () => {
   const executor = (params: AMDBExecutorParams) => {
@@ -193,8 +194,8 @@ test('read many relation', async () => {
       .getOutput()
       .map(
         new ResultPromiseTransforms.DistinctReplace(
-          [],
-          'commentIds',
+          Path.fromArray([]),
+          Path.fromString('commentIds'),
           'commentIds',
           '_id',
           subOperation

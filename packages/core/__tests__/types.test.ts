@@ -269,24 +269,24 @@ describe('interface', () => {
 
   test('Query', () => {
     expect(printType(schema.getQueryType())).toMatchInlineSnapshot(`
-    "type Query {
-      posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, first: Int): [Post!]!
-      post(where: PostWhereUniqueInput): Post
-      postsConnection(where: PostWhereInput, skip: Int, first: Int): PostConnection
-      users(where: UserInterfaceWhereInput, orderBy: UserOrderByInput, skip: Int, first: Int): [User!]!
-      user(where: UserInterfaceWhereUniqueInput): User
-      usersConnection(where: UserInterfaceWhereInput, skip: Int, first: Int): UserConnection
-      admins(where: AdminWhereInput, orderBy: AdminOrderByInput, skip: Int, first: Int): [Admin!]!
-      admin(where: AdminWhereUniqueInput): Admin
-      adminsConnection(where: AdminWhereInput, skip: Int, first: Int): AdminConnection
-      subscribers(where: SubscriberWhereInput, orderBy: SubscriberOrderByInput, skip: Int, first: Int): [Subscriber!]!
-      subscriber(where: SubscriberWhereUniqueInput): Subscriber
-      subscribersConnection(where: SubscriberWhereInput, skip: Int, first: Int): SubscriberConnection
-      managers(where: ManagerWhereInput, orderBy: ManagerOrderByInput, skip: Int, first: Int): [Manager!]!
-      manager(where: ManagerWhereUniqueInput): Manager
-      managersConnection(where: ManagerWhereInput, skip: Int, first: Int): ManagerConnection
-    }"
-    `);
+"type Query {
+  posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, first: Int): [Post!]!
+  post(where: PostWhereUniqueInput): Post
+  postsConnection(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, first: Int): PostConnection
+  users(where: UserInterfaceWhereInput, orderBy: UserOrderByInput, skip: Int, first: Int): [User!]!
+  user(where: UserInterfaceWhereUniqueInput): User
+  usersConnection(where: UserInterfaceWhereInput, orderBy: UserOrderByInput, skip: Int, first: Int): UserConnection
+  admins(where: AdminWhereInput, orderBy: AdminOrderByInput, skip: Int, first: Int): [Admin!]!
+  admin(where: AdminWhereUniqueInput): Admin
+  adminsConnection(where: AdminWhereInput, orderBy: AdminOrderByInput, skip: Int, first: Int): AdminConnection
+  subscribers(where: SubscriberWhereInput, orderBy: SubscriberOrderByInput, skip: Int, first: Int): [Subscriber!]!
+  subscriber(where: SubscriberWhereUniqueInput): Subscriber
+  subscribersConnection(where: SubscriberWhereInput, orderBy: SubscriberOrderByInput, skip: Int, first: Int): SubscriberConnection
+  managers(where: ManagerWhereInput, orderBy: ManagerOrderByInput, skip: Int, first: Int): [Manager!]!
+  manager(where: ManagerWhereUniqueInput): Manager
+  managersConnection(where: ManagerWhereInput, orderBy: ManagerOrderByInput, skip: Int, first: Int): ManagerConnection
+}"
+`);
   });
   test('Mutation', () => {
     expect(printType(schema.getMutationType())).toMatchInlineSnapshot(`
@@ -543,12 +543,12 @@ describe('modelFields', () => {
     //postsPaged(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, first: Int): PostPagination!
 
     expect(queryStr).toMatchInlineSnapshot(`
-      "type Query {
-        posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, first: Int): [Post!]!
-        post(where: PostWhereUniqueInput): Post
-        postsConnection(where: PostWhereInput, skip: Int, first: Int): PostConnection
-      }"
-    `);
+"type Query {
+  posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, first: Int): [Post!]!
+  post(where: PostWhereUniqueInput): Post
+  postsConnection(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, first: Int): PostConnection
+}"
+`);
 
     expect(mutationStr).toMatchInlineSnapshot(`
             "type Mutation {
@@ -678,12 +678,12 @@ describe('empty', () => {
 
   test('Query', () => {
     expect(printType(schema.getQueryType())).toMatchInlineSnapshot(`
-            "type Query {
-              empties(where: EmptyWhereInput, orderBy: EmptyOrderByInput, skip: Int, first: Int): [Empty!]!
-              empty: Empty
-              emptiesConnection(where: EmptyWhereInput, skip: Int, first: Int): EmptyConnection
-            }"
-          `);
+"type Query {
+  empties(where: EmptyWhereInput, orderBy: EmptyOrderByInput, skip: Int, first: Int): [Empty!]!
+  empty: Empty
+  emptiesConnection(where: EmptyWhereInput, orderBy: EmptyOrderByInput, skip: Int, first: Int): EmptyConnection
+}"
+`);
   });
 });
 

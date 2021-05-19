@@ -24,6 +24,7 @@ export const methodFactories = {
     factory: AMModelConnectionQueryFieldFactory,
     links: {
       where: ['where', 'interfaceWhere'],
+      orderBy: 'orderBy',
     },
   },
   createMutation: {

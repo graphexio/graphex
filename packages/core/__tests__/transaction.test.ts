@@ -324,29 +324,58 @@ describe('simple schema', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-      Object {
-        "operations": Array [
-          Object {
-            "collectionName": "posts",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "aggregate.count",
-              ],
-            },
-            "first": 1,
-            "identifier": "Operation-0",
-            "kind": "AMAggregateOperation",
-            "many": false,
-            "output": ResultPromise {
+Object {
+  "operations": Array [
+    Object {
+      "fieldsSelection": Object {
+        "fields": Array [],
+      },
+      "first": 1,
+      "identifier": "Operation-0",
+      "kind": "AMConnectionOperation",
+      "many": false,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+          Lookup {
+            "conditions": Array [
+              Map {},
+            ],
+            "data": ResultPromise {
               "source": Array [
-                "Operation-0",
+                "Operation-1",
               ],
             },
-            "skip": 2,
+            "displayFieldPath": "aggregate",
+            "many": false,
+            "path": "",
+            "relationField": "$non-existing-field",
+            "storeField": "$non-existing-field",
           },
         ],
-      }
-    `);
+      },
+      "skip": 2,
+    },
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "count",
+        ],
+      },
+      "identifier": "Operation-1",
+      "kind": "AMAggregateOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+      "selector": Object {},
+    },
+  ],
+}
+`);
   });
 });
 
@@ -786,70 +815,70 @@ describe('relation', () => {
     const transaction = prepareTransaction(schema, rq);
 
     expect(transaction).toMatchInlineSnapshot(`
-      Object {
-        "operations": Array [
-          Object {
-            "collectionName": "comments",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-                "postId",
-              ],
-            },
-            "identifier": "Operation-0",
-            "kind": "AMReadOperation",
-            "many": true,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-0",
-                DistinctReplace {
-                  "conditions": Array [
-                    Map {},
-                  ],
-                  "data": ResultPromise {
-                    "source": Array [
-                      "Operation-1",
-                    ],
-                  },
-                  "displayField": "post",
-                  "path": Array [],
-                  "relationField": "_id",
-                  "storeField": "postId",
-                },
-              ],
-            },
-          },
-          Object {
-            "collectionName": "posts",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-              ],
-            },
-            "identifier": "Operation-1",
-            "kind": "AMReadOperation",
-            "many": true,
-            "output": ResultPromise {
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "comments",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+          "postId",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+          DistinctReplace {
+            "conditions": Array [
+              Map {},
+            ],
+            "data": ResultPromise {
               "source": Array [
                 "Operation-1",
               ],
             },
-            "selector": Object {
-              "_id": Object {
-                "$in": ResultPromise {
-                  "source": Array [
-                    "Operation-0",
-                    Distinct {
-                      "path": "postId",
-                    },
-                  ],
-                },
-              },
-            },
+            "displayField": "post",
+            "path": "",
+            "relationField": "_id",
+            "storeField": "postId",
           },
         ],
-      }
-    `);
+      },
+    },
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-1",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+      "selector": Object {
+        "_id": Object {
+          "$in": ResultPromise {
+            "source": Array [
+              "Operation-0",
+              Distinct {
+                "path": "postId",
+              },
+            ],
+          },
+        },
+      },
+    },
+  ],
+}
+`);
   });
 
   test('connect', () => {
@@ -1405,8 +1434,9 @@ Object {
                 "Operation-1",
               ],
             },
+            "displayFieldPath": "comments",
             "many": true,
-            "path": "comments",
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -1484,8 +1514,9 @@ Object {
                 "Operation-1",
               ],
             },
+            "displayFieldPath": "lastComment",
             "many": false,
-            "path": "lastComment",
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -1565,8 +1596,9 @@ Object {
                 "Operation-1",
               ],
             },
+            "displayFieldPath": "comment",
             "many": false,
-            "path": "nested.comment",
+            "path": "nested",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -2287,7 +2319,7 @@ Object {
               ],
             },
             "displayField": "approves",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "approvesPostIds",
           },
@@ -2303,7 +2335,7 @@ Object {
               ],
             },
             "displayField": "likes",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "likesPostIds",
           },
@@ -2412,9 +2444,7 @@ Object {
               ],
             },
             "displayField": "invitedBy",
-            "path": Array [
-              "profile",
-            ],
+            "path": "profile",
             "relationField": "_id",
             "storeField": "userId",
           },
@@ -2561,7 +2591,6 @@ Object {
       },
     },
     Object {
-      "collectionName": undefined,
       "dbRefList": ResultPromise {
         "source": Array [
           "Operation-0",
@@ -2671,7 +2700,6 @@ Object {
       },
     },
     Object {
-      "collectionName": undefined,
       "dbRefList": ResultPromise {
         "source": Array [
           "Operation-0",
@@ -2840,7 +2868,6 @@ Object {
       },
     },
     Object {
-      "collectionName": undefined,
       "dbRefList": ResultPromise {
         "source": Array [
           "Operation-0",
@@ -2864,7 +2891,6 @@ Object {
       },
     },
     Object {
-      "collectionName": undefined,
       "dbRefList": ResultPromise {
         "source": Array [
           "Operation-0",
@@ -3626,7 +3652,7 @@ Object {
               ],
             },
             "displayField": "$mainCategory",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "categoryId",
           },
@@ -3708,8 +3734,9 @@ Object {
                 "Operation-1",
               ],
             },
+            "displayFieldPath": "$firstComment",
             "many": true,
-            "path": "$firstComment",
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -3722,8 +3749,9 @@ Object {
                 "Operation-2",
               ],
             },
+            "displayFieldPath": "$secondComment",
             "many": true,
-            "path": "$secondComment",
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -3855,7 +3883,7 @@ Object {
               ],
             },
             "displayField": "post",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -3940,7 +3968,7 @@ Object {
               ],
             },
             "displayField": "post",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -3954,9 +3982,7 @@ Object {
               ],
             },
             "displayField": "category",
-            "path": Array [
-              "post",
-            ],
+            "path": "post",
             "relationField": "_id",
             "storeField": "categoryId",
           },
@@ -4071,7 +4097,7 @@ Object {
               ],
             },
             "displayField": "post",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -4164,7 +4190,7 @@ Object {
               ],
             },
             "displayField": "post",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -4254,7 +4280,7 @@ Object {
               ],
             },
             "displayField": "post",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -4270,7 +4296,7 @@ Object {
               ],
             },
             "displayField": "post",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -4380,7 +4406,7 @@ Object {
               ],
             },
             "displayField": "post",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -4471,7 +4497,7 @@ Object {
               ],
             },
             "displayField": "post",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -4568,7 +4594,7 @@ Object {
               ],
             },
             "displayField": "post",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -4587,9 +4613,7 @@ Object {
               ],
             },
             "displayField": "category",
-            "path": Array [
-              "post",
-            ],
+            "path": "post",
             "relationField": "_id",
             "storeField": "categoryId",
           },
@@ -4721,7 +4745,7 @@ Object {
               ],
             },
             "displayField": "post",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -4740,9 +4764,7 @@ Object {
               ],
             },
             "displayField": "category",
-            "path": Array [
-              "post",
-            ],
+            "path": "post",
             "relationField": "_id",
             "storeField": "categoryId",
           },
@@ -4759,10 +4781,7 @@ Object {
               ],
             },
             "displayField": "parentCategory",
-            "path": Array [
-              "post",
-              "category",
-            ],
+            "path": "post.category",
             "relationField": "_id",
             "storeField": "categoryId",
           },
@@ -4923,7 +4942,7 @@ Object {
               ],
             },
             "displayField": "post",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -4942,9 +4961,7 @@ Object {
               ],
             },
             "displayField": "category",
-            "path": Array [
-              "post",
-            ],
+            "path": "post",
             "relationField": "_id",
             "storeField": "categoryId",
           },
@@ -4961,10 +4978,7 @@ Object {
               ],
             },
             "displayField": "parentCategory",
-            "path": Array [
-              "post",
-              "category",
-            ],
+            "path": "post.category",
             "relationField": "_id",
             "storeField": "categoryId",
           },
@@ -5106,7 +5120,7 @@ Object {
               ],
             },
             "displayField": "post",
-            "path": Array [],
+            "path": "",
             "relationField": "_id",
             "storeField": "postId",
           },
@@ -5163,7 +5177,7 @@ describe('aggregation', () => {
     `
   );
 
-  test('min max', () => {
+  test.skip('min max', () => {
     const rq = gql`
       query {
         dishesConnection(where: { price_lt: 10000 }) {

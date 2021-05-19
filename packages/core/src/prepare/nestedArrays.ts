@@ -46,7 +46,7 @@ export const nestedArrays = (
                 operation.setOutput(
                   operation.getOutput().map(
                     new ResultPromiseTransforms.TransformArray(
-                      path,
+                      path.asArray(),
                       displayField,
                       field.dbName,
                       {

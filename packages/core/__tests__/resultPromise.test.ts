@@ -10,6 +10,7 @@ import { ObjectID, DBRef } from 'mongodb';
 import Serializer from '../src/serializer';
 import { AMOperation } from '../src/execution/operation';
 import { AMModelType } from '../src/definitions';
+import { Path } from '../src/execution/path';
 
 expect.addSnapshotSerializer(Serializer);
 
@@ -39,6 +40,25 @@ describe('simple', () => {
     `);
   });
 
+  test('indexBy', () => {
+    const result = { value: { test: 'value' } };
+    const indexByResultPromise = resultPromise.map(
+      new ResultPromiseTransforms.IndexBy({ groupingField: 'test' })
+    );
+    expect(indexByResultPromise.getValueSource()).toMatchInlineSnapshot(`
+      Array [
+        "Operation-0",
+        IndexBy {
+          "params": Object {
+            "groupingField": "test",
+          },
+        },
+      ]
+    `);
+
+    return expect(indexByResultPromise).resolves.toEqual(result);
+  });
+
   test('distinct', () => {
     const result = ['value'];
     const distinctResultPromise = resultPromise.map(
@@ -66,8 +86,8 @@ describe('simple', () => {
 
     const distinctReplaceResultPromise = resultPromise.map(
       new ResultPromiseTransforms.DistinctReplace(
-        [],
-        'testAlias',
+        Path.fromArray([]),
+        Path.fromString('testAlias'),
         'test',
         '_id',
         data
@@ -87,7 +107,7 @@ Array [
       ],
     },
     "displayField": "testAlias",
-    "path": Array [],
+    "path": "",
     "relationField": "_id",
     "storeField": "test",
   },
@@ -95,6 +115,42 @@ Array [
 `);
 
     return expect(distinctReplaceResultPromise).resolves.toEqual(result);
+  });
+
+  test('join', () => {
+    const data = ({
+      getOutput() {
+        return new AMDataResultPromise({ value: { _id: 'value' } });
+      },
+    } as any) as AMOperation;
+    const result = [{ test: 'value', testAlias: { _id: 'value' } }];
+
+    const joinResultPromise = resultPromise.map(
+      new ResultPromiseTransforms.Join({
+        dataOp: data,
+        storeField: 'testAlias',
+        keyField: 'test',
+      }).addCondition(new Map())
+    );
+    expect(joinResultPromise.getValueSource()).toMatchInlineSnapshot(`
+Array [
+  "Operation-0",
+  Join {
+    "conditions": Array [
+      Map {},
+    ],
+    "data": ResultPromise {
+      "source": Array [
+        "Static Data",
+      ],
+    },
+    "keyField": "test",
+    "storeField": "testAlias",
+  },
+]
+`);
+
+    return expect(joinResultPromise).resolves.toEqual(result);
   });
 });
 
@@ -122,7 +178,8 @@ describe('lookup', () => {
 
     const lookupResultPromise = resultPromise.map(
       new ResultPromiseTransforms.Lookup(
-        'children',
+        Path.fromArray([]),
+        Path.fromArray(['children']),
         'id',
         'parentId',
         data
@@ -140,8 +197,9 @@ Array [
         "Static Data",
       ],
     },
+    "displayFieldPath": "children",
     "many": true,
-    "path": "children",
+    "path": "",
     "relationField": "id",
     "storeField": "parentId",
   },
@@ -173,7 +231,8 @@ Array [
 
     const lookupResultPromise = resultPromise.map(
       new ResultPromiseTransforms.Lookup(
-        'children',
+        Path.fromArray([]),
+        Path.fromArray(['children']),
         'id',
         'parentId',
         data,
@@ -192,8 +251,9 @@ Array [
         "Static Data",
       ],
     },
+    "displayFieldPath": "children",
     "many": false,
-    "path": "children",
+    "path": "",
     "relationField": "id",
     "storeField": "parentId",
   },
@@ -231,7 +291,8 @@ Array [
 
     const lookupResultPromise = resultPromise.map(
       new ResultPromiseTransforms.Lookup(
-        'nested.children',
+        Path.fromArray(['nested']),
+        Path.fromArray(['children']),
         'id',
         'parentId',
         data,
@@ -250,8 +311,9 @@ Array [
         "Static Data",
       ],
     },
+    "displayFieldPath": "children",
     "many": false,
-    "path": "nested.children",
+    "path": "nested",
     "relationField": "id",
     "storeField": "parentId",
   },
@@ -297,7 +359,8 @@ Array [
 
     const lookupResultPromise = resultPromise.map(
       new ResultPromiseTransforms.Lookup(
-        'nested.children',
+        Path.fromArray(['nested']),
+        Path.fromArray(['children']),
         'id',
         'parentId',
         data,
@@ -331,8 +394,9 @@ Array [
         "Static Data",
       ],
     },
+    "displayFieldPath": "children",
     "many": false,
-    "path": "nested.children",
+    "path": "nested",
     "relationField": "id",
     "storeField": "parentId",
   },

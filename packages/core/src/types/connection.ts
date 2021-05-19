@@ -5,7 +5,6 @@ import {
   GraphQLObjectType,
 } from 'graphql';
 import { AMObjectType, AMTypeFactory } from '../definitions';
-import { defaultSelectionVisitorHandler } from './visitorHandlers';
 
 export class AMConnectionTypeFactory extends AMTypeFactory<AMObjectType> {
   getTypeName(modelType): string {
@@ -20,16 +19,19 @@ export class AMConnectionTypeFactory extends AMTypeFactory<AMObjectType> {
             type: new GraphQLNonNull(
               new GraphQLList(new GraphQLNonNull(modelType))
             ),
+            nodesRelation: true,
           },
           totalCount: {
             type: GraphQLInt,
+            aggregateRelation: true,
+            amMapValue: v => v?.count ?? 0, // TODO: remove this amMapValue hack. Only used here
           },
           aggregate: {
             type: this.configResolver.resolveType(
               modelType,
               'aggregate'
             ) as GraphQLObjectType,
-            ...defaultSelectionVisitorHandler('aggregate'),
+            aggregateRelation: true,
           },
         };
 

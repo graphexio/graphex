@@ -1,13 +1,17 @@
+import TypeWrap from '@apollo-model/type-wrap';
 import {
   GraphQLSchema,
-  isCompositeType,
-  isObjectType,
   isInterfaceType,
+  isListType,
+  isNonNullType,
+  isObjectType,
 } from 'graphql';
 import { AMModelField, AMModelType } from '../definitions';
-import { getDirectiveAST, getArgValueFromDirectiveAST } from '../utils';
-import TypeWrap from '@apollo-model/type-wrap';
-import { getRelationFieldName } from '../utils';
+import {
+  getArgValueFromDirectiveAST,
+  getDirectiveAST,
+  getRelationFieldName,
+} from '../utils';
 
 export const extRelationDirective = (schema: GraphQLSchema) => {
   Object.values(schema.getTypeMap()).forEach(modelType => {
@@ -42,15 +46,13 @@ export const extRelationDirective = (schema: GraphQLSchema) => {
           relationField: relationField,
           storeField: storeField,
           collection: fieldType.mmCollectionName,
+          many:
+            isListType(field.type) ||
+            (isNonNullType(field.type) && isListType(field.type.ofType)),
         };
-        field.resolve = (source, args, ctx, info) => {
-          if (source.fieldName !== info.path.key) {
-            if (info.fieldNodes[0].alias) {
-              return source[`$${info.path.key}`];
-            }
-          }
-          return source[info.fieldName];
-        };
+        /**
+         * Field resolver is added in relationFieldsVisitorEvents
+         */
       });
     }
   });

@@ -9,9 +9,10 @@ export class DbRefReplace extends RelationTransformation {
     public path: string[],
     public displayField: string,
     public storeField: string,
-    public dataOp: AMOperation
+    dataOp: AMOperation
   ) {
     super();
+    this.dataOp = dataOp;
   }
 
   transform(source: AMResultPromise<any>, dest: AMResultPromise<any>) {

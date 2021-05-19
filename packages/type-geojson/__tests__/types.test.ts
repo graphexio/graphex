@@ -33,7 +33,7 @@ describe('interface', () => {
       "type Query {
         pois(where: PoiWhereInput, orderBy: PoiOrderByInput, skip: Int, first: Int): [Poi!]!
         poi(where: PoiWhereUniqueInput): Poi
-        poisConnection(where: PoiWhereInput, skip: Int, first: Int): PoiConnection
+        poisConnection(where: PoiWhereInput, orderBy: PoiOrderByInput, skip: Int, first: Int): PoiConnection
       }"
     `);
   });

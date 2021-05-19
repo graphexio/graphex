@@ -15,6 +15,9 @@ import {
   IAMFieldFactory,
 } from './definitions';
 import { makeSchemaInfo } from './schemaInfo';
+import { reject, isNil } from 'ramda';
+
+export const compact = reject(isNil);
 
 export function lowercaseFirstLetter(string: string) {
   return string.charAt(0).toLowerCase() + string.slice(1);

@@ -116,53 +116,53 @@ const queryExecutor = DB => async (params: {
       /**
        * If request contains only count then we can improve performance with simple query
        */
-      if (fields.length === 1 && fields[0] === 'aggregate.count') {
-        let cursor = Collection.find(selector);
-        if (skip) cursor = cursor.skip(skip);
-        if (limit) cursor = cursor.limit(limit);
-        if (sort) cursor = cursor.sort(sort);
-        return { aggregate: { count: await cursor.count(true) } };
-      } else {
-        const pipeline = [];
+      // if (fields.length === 1 && fields[0] === 'aggregate.count') {
+      const cursor = Collection.find(selector);
+      // if (skip) cursor = cursor.skip(skip);
+      // if (limit) cursor = cursor.limit(limit);
+      // if (sort) cursor = cursor.sort(sort);
+      return [{ count: await cursor.count(true) }];
+      // } else {
+      //   const pipeline = [];
 
-        if (selector) {
-          pipeline.push({ $match: selector });
-        }
-        if (skip) {
-          pipeline.push({ $skip: skip });
-        }
-        if (limit) {
-          pipeline.push({ $limit: limit });
-        }
+      //   if (selector) {
+      //     pipeline.push({ $match: selector });
+      //   }
+      //   if (skip) {
+      //     pipeline.push({ $skip: skip });
+      //   }
+      //   if (limit) {
+      //     pipeline.push({ $limit: limit });
+      //   }
 
-        const group = { _id: null };
-        const backMap = [];
+      //   const group = { _id: null };
+      //   const backMap = [];
 
-        fields.forEach((field, i) => {
-          const path = field.split('.');
-          path.shift();
-          const op = path.shift();
-          if (!['min', 'max', 'sum'].includes(op)) {
-            throw new Error('unsupported opperation');
-          }
-          const aggregationField = `f${i}`;
-          group[aggregationField] = { [`$${op}`]: `$${path.join('.')}` };
-          backMap.push({ path: [op, ...path], field: aggregationField });
-        });
-        pipeline.push({ $group: group });
+      //   fields.forEach((field, i) => {
+      //     const path = field.split('.');
+      //     path.shift();
+      //     const op = path.shift();
+      //     if (!['min', 'max', 'sum'].includes(op)) {
+      //       throw new Error('unsupported opperation');
+      //     }
+      //     const aggregationField = `f${i}`;
+      //     group[aggregationField] = { [`$${op}`]: `$${path.join('.')}` };
+      //     backMap.push({ path: [op, ...path], field: aggregationField });
+      //   });
+      //   pipeline.push({ $group: group });
 
-        const aggregationResult = head(
-          await Collection.aggregate(pipeline).toArray()
-        );
-        if (!aggregationResult) {
-          return { aggregate: { count: 0, min: null, max: null, sum: null } };
-        }
-        const aggregate = backMap.reduce((acc, { field, path }) => {
-          return assocPath(path, aggregationResult[field], acc);
-        }, {});
+      //   const aggregationResult = head(
+      //     await Collection.aggregate(pipeline).toArray()
+      //   );
+      //   if (!aggregationResult) {
+      //     return { aggregate: { count: 0, min: null, max: null, sum: null } };
+      //   }
+      //   const aggregate = backMap.reduce((acc, { field, path }) => {
+      //     return assocPath(path, aggregationResult[field], acc);
+      //   }, {});
 
-        return { aggregate };
-      }
+      //   return { aggregate };
+      // }
     }
     case AMDBExecutorOperationType.DISTINCT: {
       let cursor = Collection.find(selector);
