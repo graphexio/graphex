@@ -3,8 +3,8 @@ import { AMArgumet } from '../definitions';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMOperation } from '../execution/operation';
 
-export const skipArg: AMArgumet = {
-  name: 'skip',
+export const offsetArg: AMArgumet = {
+  name: 'offset',
   type: GraphQLInt,
   description: undefined,
   defaultValue: undefined,

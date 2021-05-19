@@ -6,10 +6,9 @@ import {
   isOutputType,
 } from 'graphql';
 import { firstArg } from '../args/first';
-import { skipArg } from '../args/skip';
+import { offsetArg } from '../args/offset';
 import { AMConfigResolver } from '../config/resolver';
 import { AMField, AMModelField, AMModelType } from '../definitions';
-import { AMAggregateOperation } from '../execution/operations/aggregateOperation';
 import { AMConnectionOperation } from '../execution/operations/connectionOperation';
 
 export const connectionFields = (
@@ -37,7 +36,7 @@ export const connectionFields = (
                   name: 'where',
                   type: configResolver.resolveInputType(realType, 'where'),
                 },
-                skipArg,
+                offsetArg,
                 firstArg,
               ],
               amEnter(node, transaction, stack) {

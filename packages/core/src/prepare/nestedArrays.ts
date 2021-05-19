@@ -6,7 +6,7 @@ import {
   FieldNode,
 } from 'graphql';
 import { firstArg } from '../args/first';
-import { skipArg } from '../args/skip';
+import { offsetArg } from '../args/offset';
 import { AMConfigResolver } from '../config/resolver';
 import { AMModelField, AMModelType } from '../definitions';
 import { AMObjectFieldContext, AMFieldsSelectionContext } from '../execution';
@@ -67,7 +67,7 @@ export const nestedArrays = (
               type: configResolver.resolveInputType(realType, 'orderBy'),
               defaultValue: undefined,
             },
-            skipArg,
+            offsetArg,
             firstArg,
           ];
 
