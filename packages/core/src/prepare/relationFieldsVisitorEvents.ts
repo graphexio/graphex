@@ -14,7 +14,6 @@ import { AMReadDBRefOperation } from '../execution/operations/readDbRefOperation
 import { AMReadOperation } from '../execution/operations/readOperation';
 import { Path } from '../execution/path';
 import { ResultPromiseTransforms } from '../execution/resultPromise';
-import { RelationTransformation } from '../execution/resultPromise/relationTransformation';
 import { AMTransaction } from '../execution/transaction';
 import { AMVisitorStack } from '../execution/visitorStack';
 import { sameArguments } from './utils';
@@ -24,17 +23,8 @@ export const relationFieldsVisitorEvents = (schema: GraphQLSchema) => {
     if (isObjectType(type) || isInterfaceType(type)) {
       Object.values(type.getFields()).forEach((field: AMModelField) => {
         if (field.relation || field.nodesRelation || field.aggregateRelation) {
-          field.resolve = (source, args, ctx, info) => {
-            const value =
-              source[
-                getChildDataStoreField(info.fieldNodes[0]) //
-              ];
-            // TODO: remove this amMapValue hack. Only used in Connection type
-            if (field.amMapValue) {
-              return field.amMapValue(value);
-            } else {
-              return value;
-            }
+          field.resolve = async (source, args, ctx, info) => {
+            return ctx.fieldsRegistry.get(info.fieldNodes[0])(source);
           };
 
           field.amEnter = (node: FieldNode, transaction, stack) => {
@@ -61,29 +51,12 @@ export const relationFieldsVisitorEvents = (schema: GraphQLSchema) => {
             pushFieldIntoSelectionContext({ relationInfo, stack });
 
             const rootOperation = transaction.operations[0];
-            const rootCondition = stack.condition(rootOperation);
+            // const rootCondition = stack.condition(rootOperation);
 
             const parentDataDbPath = stack.dbPath(parentDataOperation);
-
             const childDataPath = stack.path(rootOperation);
 
-            const mapItemsPath = childDataPath.clone();
-            const displayFieldPath = Path.fromArray(
-              [
-                mapItemsPath.pop(),
-                ...(isInConnection && !isRootConnectionQuery
-                  ? [mapItemsPath.pop()]
-                  : []), // for connections move one more item from map path into display path
-              ].reverse()
-            );
-            /**
-             * When using fragments there is a chance that the same field
-             * will be requested multiple times from different fragments but with
-             * the same arguments. In this case we can reuse one operation for both
-             * fields. All transformations are stored in a hashmap
-             * in root operation. Keys are paths to the fields.
-             */
-            let { relationOperation, transformation } = getExistingOperation({
+            let { relationOperation, resolve } = getExistingOperation({
               args: node.arguments,
               rootOperation,
               childDataPath,
@@ -106,26 +79,26 @@ export const relationFieldsVisitorEvents = (schema: GraphQLSchema) => {
                   : createBelongsToRelationOperation
                 : createHasAggregateRelationOperation;
 
-              ({ relationOperation, transformation } = createOperation({
+              ({ relationOperation, resolve } = createOperation({
                 relationInfo,
                 transaction,
                 parentDataOperation,
                 parentDataDbPath,
-                mapItemsPath,
-                displayFieldPath,
                 filter: isInConnection
                   ? lastOperation.selector?.selector
                   : undefined,
               }));
-              rootOperation.addFieldTransformation(
-                childDataPath,
-                transformation
-              );
+
+              rootOperation.addRelationOperation(childDataPath, {
+                relationOperation,
+                resolve,
+                args: node.arguments,
+              });
             }
 
             stack.push(relationOperation);
-            transformation.addCondition(rootCondition);
-            transformation.addFieldNode(node);
+
+            transaction.fieldsRegistry.set(node, resolve);
           };
           field.amLeave = (node, transaction, stack) => {
             stack.pop();
@@ -212,8 +185,6 @@ type CreateRelationOperationParams = {
   transaction: AMTransaction;
   parentDataOperation: AMOperation;
   parentDataDbPath: Path;
-  mapItemsPath: Path;
-  displayFieldPath: Path;
   filter?: Record<any, any>;
 };
 
@@ -222,8 +193,6 @@ const createAbstractBelongsToRelationOperation = ({
   transaction,
   parentDataOperation,
   parentDataDbPath,
-  mapItemsPath,
-  displayFieldPath,
 }: CreateRelationOperationParams) => {
   const relationOperation = new AMReadDBRefOperation(transaction, {
     many: true,
@@ -232,14 +201,23 @@ const createAbstractBelongsToRelationOperation = ({
       .map(new ResultPromiseTransforms.Distinct(parentDataDbPath.asString())),
   });
 
-  const transformation = new ResultPromiseTransforms.DbRefReplace(
-    mapItemsPath.asArray(),
-    displayFieldPath.asString(),
-    relationInfo.storeField,
-    relationOperation
-  );
+  const resolve = async parent => {
+    const dataMap = await relationOperation.getOutput().getPromise();
+    const ref = parent[relationInfo.storeField];
+    if (Array.isArray(ref)) {
+      return ref.map(ref => ({
+        ...dataMap[ref.namespace][ref.oid.toHexString()],
+        mmCollectionName: ref.namespace,
+      }));
+    } else {
+      return {
+        ...dataMap[ref.namespace][ref.oid.toHexString()],
+        mmCollectionName: ref.namespace,
+      };
+    }
+  };
 
-  return { relationOperation, transformation };
+  return { relationOperation, resolve };
 };
 
 const createBelongsToRelationOperation = ({
@@ -247,8 +225,6 @@ const createBelongsToRelationOperation = ({
   transaction,
   parentDataOperation,
   parentDataDbPath,
-  mapItemsPath,
-  displayFieldPath,
   filter,
 }: CreateRelationOperationParams) => {
   const relationOperation = new AMReadOperation(transaction, {
@@ -267,23 +243,29 @@ const createBelongsToRelationOperation = ({
     }),
   });
 
-  const transformation = new ResultPromiseTransforms.DistinctReplace(
-    mapItemsPath,
-    displayFieldPath,
-    relationInfo.storeField,
-    relationInfo.relationField,
-    relationOperation
+  relationOperation.addTransformation(
+    new ResultPromiseTransforms.IndexBy({
+      groupingField: relationInfo.relationField,
+    })
   );
 
-  return { relationOperation, transformation };
+  const resolve = async parent => {
+    const dataMap = await relationOperation.getOutput().getPromise();
+    const ids = parent[relationInfo.storeField];
+    if (relationInfo.many) {
+      return ids?.map(id => dataMap[id]).filter(Boolean) ?? [];
+    } else {
+      return dataMap[ids];
+    }
+  };
+
+  return { relationOperation, resolve };
 };
 
 const createHasRelationOperation = ({
   relationInfo,
   transaction,
   parentDataOperation,
-  mapItemsPath,
-  displayFieldPath,
   filter,
 }: CreateRelationOperationParams) => {
   const relationOperation = new AMReadOperation(transaction, {
@@ -302,25 +284,28 @@ const createHasRelationOperation = ({
     }),
   });
 
-  //TODO: Add runtime checking for existing unique index on relation field.
-  const transformation = new ResultPromiseTransforms.Lookup(
-    mapItemsPath,
-    displayFieldPath,
-    relationInfo.relationField,
-    relationInfo.storeField,
-    relationOperation,
-    relationInfo.many
+  relationOperation.addTransformation(
+    new ResultPromiseTransforms.GroupBy({
+      groupingField: relationInfo.storeField,
+    })
   );
 
-  return { relationOperation, transformation };
+  const resolve = async parent => {
+    const dataMap = await relationOperation.getOutput().getPromise();
+    if (relationInfo.many) {
+      return dataMap[parent[relationInfo.relationField]] ?? [];
+    } else {
+      return dataMap[parent[relationInfo.relationField]]?.[0];
+    }
+  };
+
+  return { relationOperation, resolve };
 };
 
 const createHasAggregateRelationOperation = ({
   relationInfo,
   transaction,
   parentDataOperation,
-  mapItemsPath,
-  displayFieldPath,
   filter,
 }: CreateRelationOperationParams) => {
   const relationOperation = new AMAggregateOperation(transaction, {
@@ -340,24 +325,23 @@ const createHasAggregateRelationOperation = ({
   });
   relationOperation.groupBy = relationInfo.storeField;
 
-  //TODO: Add runtime checking for existing unique index on relation field.
-  const transformation = new ResultPromiseTransforms.Lookup(
-    mapItemsPath,
-    displayFieldPath,
-    relationInfo.relationField,
-    relationInfo.storeField,
-    relationOperation,
-    false
+  relationOperation.addTransformation(
+    new ResultPromiseTransforms.IndexBy({
+      groupingField: relationInfo.storeField,
+    })
   );
 
-  return { relationOperation, transformation };
+  const resolve = async parent => {
+    const dataMap = await relationOperation.getOutput().getPromise();
+    return dataMap[parent[relationInfo.relationField]].count;
+  };
+
+  return { relationOperation, resolve };
 };
 
 const createReadOperation = ({
   relationInfo,
   transaction,
-  mapItemsPath,
-  displayFieldPath,
   filter,
 }: CreateRelationOperationParams) => {
   const relationOperation = new AMReadOperation(transaction, {
@@ -369,24 +353,16 @@ const createReadOperation = ({
     }),
   });
 
-  //TODO: Add runtime checking for existing unique index on relation field.
-  const transformation = new ResultPromiseTransforms.Lookup(
-    mapItemsPath,
-    displayFieldPath,
-    '$non-existing-field', // TODO: replace this hack with new transformation. The way it works - it groups by "undefined" key and then copy by "undefined" value.
-    '$non-existing-field',
-    relationOperation,
-    true
-  );
+  const resolve = async () => {
+    return relationOperation.getOutput().getPromise();
+  };
 
-  return { relationOperation, transformation };
+  return { relationOperation, resolve };
 };
 
 const createAggregateOperation = ({
   relationInfo,
   transaction,
-  mapItemsPath,
-  displayFieldPath,
   filter,
 }: CreateRelationOperationParams) => {
   const relationOperation = new AMAggregateOperation(transaction, {
@@ -398,35 +374,11 @@ const createAggregateOperation = ({
     }),
   });
 
-  //TODO: Add runtime checking for existing unique index on relation field.
-  const transformation = new ResultPromiseTransforms.Lookup(
-    mapItemsPath,
-    displayFieldPath,
-    '$non-existing-field', // TODO: replace this hack with new transformation
-    '$non-existing-field',
-    relationOperation,
-    false
-  );
+  const resolve = async () => {
+    return (await relationOperation.getOutput().getPromise())?.[0]?.count ?? 0;
+  };
 
-  /**
-   * Example of how his hack works
-   */
-  /*
-    Normal:
-  Op1 - [{id: 1, username:"admin"}]
-  Op2 - [{owner_id: 1, title: "post1"}, {owner_id: 1, title: "post2"}, {owner_id: 2, title: "post3"}]
-  Lookup('posts', 'id', 'owner_id')
-  Result - [{id: 1, username:"admin", posts: [{owner_id: 1, title: "post1"}, {owner_id: 1, title: "post2"}]}]
-
-  Hack
-  Op1 - {}
-  Op2 - [{count:1}]
-  Lookup('totalCount', '$non-existing-field', '$non-existing-field')
-  Result - {totalCount: {count:1}}
-
-  */
-
-  return { relationOperation, transformation };
+  return { relationOperation, resolve };
 };
 
 const getExistingOperation = ({
@@ -438,18 +390,14 @@ const getExistingOperation = ({
   rootOperation: AMOperation;
   childDataPath: Path;
 }) => {
-  const existingTransformations =
-    rootOperation.fieldTransformations.get(childDataPath.asString()) || [];
+  const existingOperations =
+    rootOperation.relationOperations.get(childDataPath.asString()) || [];
 
   const fieldArgs = args || [];
-  for (const transformation of existingTransformations) {
-    if (transformation instanceof RelationTransformation) {
-      const transformationArgs =
-        transformation.getFieldNodes()?.[0]?.arguments || [];
-      if (sameArguments(fieldArgs, transformationArgs)) {
-        return { relationOperation: transformation.dataOp, transformation };
-      }
+  for (const op of existingOperations) {
+    if (sameArguments(fieldArgs, op.args)) {
+      return op;
     }
   }
-  return { relationOperation: undefined, transformation: undefined };
+  return { relationOperation: undefined, resolve: undefined };
 };

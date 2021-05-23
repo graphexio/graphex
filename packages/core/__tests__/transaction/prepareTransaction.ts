@@ -7,7 +7,7 @@ export const prepareTransaction = (schema, rq, variables = {}) => {
   if (errors.length > 0) {
     throw errors;
   }
-  const transaction = new AMTransaction();
+  const transaction = new AMTransaction(new Map());
   AMVisitor.visit(schema, rq, variables, transaction);
   return transaction;
 };

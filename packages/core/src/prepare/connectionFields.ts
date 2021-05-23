@@ -47,6 +47,7 @@ export const connectionFields = (
               amLeave(node, transaction, stack) {
                 stack.pop();
               },
+              resolve: parent => parent,
             } as AMField;
           }
         }

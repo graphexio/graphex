@@ -48,70 +48,61 @@ describe('relation', () => {
     const transaction = prepareTransaction(schema, rq);
 
     expect(transaction).toMatchInlineSnapshot(`
-Object {
-  "operations": Array [
-    Object {
-      "collectionName": "comments",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-          "postId",
-        ],
-      },
-      "identifier": "Operation-0",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-0",
-          DistinctReplace {
-            "conditions": Array [
-              Map {},
-            ],
-            "data": ResultPromise {
-              "source": Array [
-                "Operation-1",
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "comments",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "postId",
               ],
             },
-            "displayField": "post",
-            "path": "",
-            "relationField": "_id",
-            "storeField": "postId",
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
           },
-        ],
-      },
-    },
-    Object {
-      "collectionName": "posts",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-        ],
-      },
-      "identifier": "Operation-1",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-1",
-        ],
-      },
-      "selector": Object {
-        "_id": Object {
-          "$in": ResultPromise {
-            "source": Array [
-              "Operation-0",
-              Distinct {
-                "path": "postId",
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+              ],
+            },
+            "identifier": "Operation-1",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+                IndexBy {
+                  "params": Object {
+                    "groupingField": "_id",
+                  },
+                },
+              ],
+            },
+            "selector": Object {
+              "_id": Object {
+                "$in": ResultPromise {
+                  "source": Array [
+                    "Operation-0",
+                    Distinct {
+                      "path": "postId",
+                    },
+                  ],
+                },
               },
-            ],
+            },
           },
-        },
-      },
-    },
-  ],
-}
-`);
+        ],
+      }
+    `);
   });
 
   test('connect', () => {

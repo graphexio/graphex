@@ -7,6 +7,7 @@ import { DbRefReplace } from './dbRefReplace';
 import { TransformArray } from './transformArray';
 import { IndexBy } from './indexBy';
 import { Join } from './join';
+import { GroupBy } from './groupBy';
 
 export const ResultPromiseTransforms = {
   Distinct,
@@ -18,5 +19,6 @@ export const ResultPromiseTransforms = {
   TransformArray,
   IndexBy,
   Join,
+  GroupBy,
   WildcardCondition: new Map(),
 };

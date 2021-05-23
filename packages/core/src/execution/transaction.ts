@@ -2,6 +2,8 @@ import { AMOperation } from './operation';
 import { AMDBExecutor } from '../definitions';
 
 export class AMTransaction {
+  constructor(public fieldsRegistry: Map<any, any>) {}
+
   operations: AMOperation[] = [];
   addOperation(operation: AMOperation) {
     this.operations.push(operation);
