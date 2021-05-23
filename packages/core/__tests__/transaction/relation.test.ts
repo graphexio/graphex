@@ -90,12 +90,7 @@ describe('relation', () => {
             "selector": Object {
               "_id": Object {
                 "$in": ResultPromise {
-                  "source": Array [
-                    "Operation-0",
-                    Distinct {
-                      "path": "postId",
-                    },
-                  ],
+                  "source": "<Batch>",
                 },
               },
             },

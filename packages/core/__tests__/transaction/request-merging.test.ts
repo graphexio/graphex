@@ -136,12 +136,7 @@ describe('request merging', () => {
             "selector": Object {
               "_id": Object {
                 "$in": ResultPromise {
-                  "source": Array [
-                    "Operation-0",
-                    Distinct {
-                      "path": "categoryId",
-                    },
-                  ],
+                  "source": "<Batch>",
                 },
               },
             },
@@ -337,12 +332,7 @@ describe('request merging', () => {
             "selector": Object {
               "_id": Object {
                 "$in": ResultPromise {
-                  "source": Array [
-                    "Operation-0",
-                    Distinct {
-                      "path": "postId",
-                    },
-                  ],
+                  "source": "<Batch>",
                 },
               },
             },
@@ -414,12 +404,7 @@ describe('request merging', () => {
             "selector": Object {
               "_id": Object {
                 "$in": ResultPromise {
-                  "source": Array [
-                    "Operation-0",
-                    Distinct {
-                      "path": "postId",
-                    },
-                  ],
+                  "source": "<Batch>",
                 },
               },
             },
@@ -448,12 +433,7 @@ describe('request merging', () => {
             "selector": Object {
               "_id": Object {
                 "$in": ResultPromise {
-                  "source": Array [
-                    "Operation-1",
-                    Distinct {
-                      "path": "categoryId",
-                    },
-                  ],
+                  "source": "<Batch>",
                 },
               },
             },
@@ -525,12 +505,7 @@ describe('request merging', () => {
             "selector": Object {
               "_id": Object {
                 "$in": ResultPromise {
-                  "source": Array [
-                    "Operation-0",
-                    Distinct {
-                      "path": "postId",
-                    },
-                  ],
+                  "source": "<Batch>",
                 },
               },
             },
@@ -604,12 +579,7 @@ describe('request merging', () => {
             "selector": Object {
               "_id": Object {
                 "$in": ResultPromise {
-                  "source": Array [
-                    "Operation-0",
-                    Distinct {
-                      "path": "postId",
-                    },
-                  ],
+                  "source": "<Batch>",
                 },
               },
             },
@@ -707,12 +677,7 @@ describe('request merging', () => {
             "selector": Object {
               "_id": Object {
                 "$in": ResultPromise {
-                  "source": Array [
-                    "Operation-0",
-                    Distinct {
-                      "path": "postId",
-                    },
-                  ],
+                  "source": "<Batch>",
                 },
               },
             },
@@ -789,12 +754,7 @@ describe('request merging', () => {
             "selector": Object {
               "_id": Object {
                 "$in": ResultPromise {
-                  "source": Array [
-                    "Operation-0",
-                    Distinct {
-                      "path": "postId",
-                    },
-                  ],
+                  "source": "<Batch>",
                 },
               },
             },
@@ -871,12 +831,7 @@ describe('request merging', () => {
             "selector": Object {
               "_id": Object {
                 "$in": ResultPromise {
-                  "source": Array [
-                    "Operation-0",
-                    Distinct {
-                      "path": "postId",
-                    },
-                  ],
+                  "source": "<Batch>",
                 },
               },
             },
@@ -960,12 +915,7 @@ describe('request merging', () => {
             "selector": Object {
               "_id": Object {
                 "$in": ResultPromise {
-                  "source": Array [
-                    "Operation-0",
-                    Distinct {
-                      "path": "postId",
-                    },
-                  ],
+                  "source": "<Batch>",
                 },
               },
             },
@@ -994,174 +944,7 @@ describe('request merging', () => {
             "selector": Object {
               "_id": Object {
                 "$in": ResultPromise {
-                  "source": Array [
-                    "Operation-1",
-                    Distinct {
-                      "path": "categoryId",
-                    },
-                  ],
-                },
-              },
-            },
-          },
-        ],
-      }
-    `);
-  });
-
-  test('multiple nested fragments', () => {
-    const rq = gql`
-      {
-        comments {
-          id
-          post {
-            title
-          }
-          ... on RootComment {
-            post {
-              title
-              category {
-                ... on SubCategory {
-                  parentCategory {
-                    id
-                  }
-                }
-                title
-              }
-            }
-          }
-          ... on SubComment {
-            post {
-              id
-              category {
-                id
-              }
-            }
-          }
-        }
-      }
-    `;
-
-    const transaction = prepareTransaction(schema, rq);
-    expect(transaction).toMatchInlineSnapshot(`
-      Object {
-        "operations": Array [
-          Object {
-            "collectionName": "comments",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-                "postId",
-              ],
-            },
-            "identifier": "Operation-0",
-            "kind": "AMReadOperation",
-            "many": true,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-0",
-              ],
-            },
-          },
-          Object {
-            "collectionName": "posts",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-                "title",
-                "categoryId",
-              ],
-            },
-            "identifier": "Operation-1",
-            "kind": "AMReadOperation",
-            "many": true,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-1",
-                IndexBy {
-                  "params": Object {
-                    "groupingField": "_id",
-                  },
-                },
-              ],
-            },
-            "selector": Object {
-              "_id": Object {
-                "$in": ResultPromise {
-                  "source": Array [
-                    "Operation-0",
-                    Distinct {
-                      "path": "postId",
-                    },
-                  ],
-                },
-              },
-            },
-          },
-          Object {
-            "collectionName": "categories",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-                "categoryId",
-                "title",
-              ],
-            },
-            "identifier": "Operation-2",
-            "kind": "AMReadOperation",
-            "many": true,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-2",
-                IndexBy {
-                  "params": Object {
-                    "groupingField": "_id",
-                  },
-                },
-              ],
-            },
-            "selector": Object {
-              "_id": Object {
-                "$in": ResultPromise {
-                  "source": Array [
-                    "Operation-1",
-                    Distinct {
-                      "path": "categoryId",
-                    },
-                  ],
-                },
-              },
-            },
-          },
-          Object {
-            "collectionName": "categories",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-              ],
-            },
-            "identifier": "Operation-3",
-            "kind": "AMReadOperation",
-            "many": true,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-3",
-                IndexBy {
-                  "params": Object {
-                    "groupingField": "_id",
-                  },
-                },
-              ],
-            },
-            "selector": Object {
-              "_id": Object {
-                "$in": ResultPromise {
-                  "source": Array [
-                    "Operation-2",
-                    Distinct {
-                      "path": "categoryId",
-                    },
-                  ],
+                  "source": "<Batch>",
                 },
               },
             },
@@ -1250,12 +1033,7 @@ Object {
       "selector": Object {
         "_id": Object {
           "$in": ResultPromise {
-            "source": Array [
-              "Operation-0",
-              Distinct {
-                "path": "postId",
-              },
-            ],
+            "source": "<Batch>",
           },
         },
       },
@@ -1285,12 +1063,7 @@ Object {
       "selector": Object {
         "_id": Object {
           "$in": ResultPromise {
-            "source": Array [
-              "Operation-1",
-              Distinct {
-                "path": "categoryId",
-              },
-            ],
+            "source": "<Batch>",
           },
         },
       },
@@ -1318,12 +1091,154 @@ Object {
       "selector": Object {
         "_id": Object {
           "$in": ResultPromise {
-            "source": Array [
-              "Operation-2",
-              Distinct {
-                "path": "categoryId",
-              },
-            ],
+            "source": "<Batch>",
+          },
+        },
+      },
+    },
+  ],
+}
+`);
+  });
+
+  test('multiple nested fragments', () => {
+    const rq = gql`
+      {
+        comments {
+          id
+          post {
+            title
+          }
+          ... on RootComment {
+            post {
+              title
+              category {
+                ... on SubCategory {
+                  parentCategory {
+                    id
+                  }
+                }
+                title
+              }
+            }
+          }
+          ... on SubComment {
+            post {
+              id
+              category {
+                id
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const transaction = prepareTransaction(schema, rq);
+    expect(transaction).toMatchInlineSnapshot(`
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "comments",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+          "postId",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+        ],
+      },
+    },
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+          "title",
+          "categoryId",
+        ],
+      },
+      "identifier": "Operation-1",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+          IndexBy {
+            "params": Object {
+              "groupingField": "_id",
+            },
+          },
+        ],
+      },
+      "selector": Object {
+        "_id": Object {
+          "$in": ResultPromise {
+            "source": "<Batch>",
+          },
+        },
+      },
+    },
+    Object {
+      "collectionName": "categories",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+          "categoryId",
+          "title",
+        ],
+      },
+      "identifier": "Operation-2",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-2",
+          IndexBy {
+            "params": Object {
+              "groupingField": "_id",
+            },
+          },
+        ],
+      },
+      "selector": Object {
+        "_id": Object {
+          "$in": ResultPromise {
+            "source": "<Batch>",
+          },
+        },
+      },
+    },
+    Object {
+      "collectionName": "categories",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-3",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-3",
+          IndexBy {
+            "params": Object {
+              "groupingField": "_id",
+            },
+          },
+        ],
+      },
+      "selector": Object {
+        "_id": Object {
+          "$in": ResultPromise {
+            "source": "<Batch>",
           },
         },
       },
@@ -1391,12 +1306,7 @@ Object {
       "selector": Object {
         "_id": Object {
           "$in": ResultPromise {
-            "source": Array [
-              "Operation-0",
-              Distinct {
-                "path": "postId",
-              },
-            ],
+            "source": "<Batch>",
           },
         },
       },

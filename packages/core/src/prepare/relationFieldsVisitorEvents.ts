@@ -14,6 +14,7 @@ import { AMReadDBRefOperation } from '../execution/operations/readDbRefOperation
 import { AMReadOperation } from '../execution/operations/readOperation';
 import { Path } from '../execution/path';
 import { ResultPromiseTransforms } from '../execution/resultPromise';
+import { Batch } from '../execution/resultPromise/batch';
 import { AMTransaction } from '../execution/transaction';
 import { AMVisitorStack } from '../execution/visitorStack';
 import { sameArguments } from './utils';
@@ -223,10 +224,10 @@ const createAbstractBelongsToRelationOperation = ({
 const createBelongsToRelationOperation = ({
   relationInfo,
   transaction,
-  parentDataOperation,
-  parentDataDbPath,
   filter,
 }: CreateRelationOperationParams) => {
+  const batch = new Batch();
+
   const relationOperation = new AMReadOperation(transaction, {
     many: true,
     collectionName: relationInfo.collection,
@@ -234,11 +235,7 @@ const createBelongsToRelationOperation = ({
     selector: new AMSelectorContext({
       ...(filter ? { $and: [filter] } : {}),
       [relationInfo.relationField]: {
-        $in: parentDataOperation
-          .getResult()
-          .map(
-            new ResultPromiseTransforms.Distinct(parentDataDbPath.asString())
-          ),
+        $in: batch,
       },
     }),
   });
@@ -250,8 +247,15 @@ const createBelongsToRelationOperation = ({
   );
 
   const resolve = async parent => {
-    const dataMap = await relationOperation.getOutput().getPromise();
     const ids = parent[relationInfo.storeField];
+    if (relationInfo.many) {
+      batch.addIds(ids);
+    } else {
+      batch.addId(ids);
+    }
+    await batch.getPromise();
+
+    const dataMap = await relationOperation.getOutput().getPromise();
     if (relationInfo.many) {
       return ids?.map(id => dataMap[id]).filter(Boolean) ?? [];
     } else {
@@ -265,9 +269,10 @@ const createBelongsToRelationOperation = ({
 const createHasRelationOperation = ({
   relationInfo,
   transaction,
-  parentDataOperation,
   filter,
 }: CreateRelationOperationParams) => {
+  const batch = new Batch();
+
   const relationOperation = new AMReadOperation(transaction, {
     many: true,
     collectionName: relationInfo.collection,
@@ -275,11 +280,7 @@ const createHasRelationOperation = ({
     selector: new AMSelectorContext({
       ...(filter ? { $and: [filter] } : {}),
       [relationInfo.storeField]: {
-        $in: parentDataOperation
-          .getResult()
-          .map(
-            new ResultPromiseTransforms.Distinct(relationInfo.relationField)
-          ),
+        $in: batch,
       },
     }),
   });
@@ -291,11 +292,15 @@ const createHasRelationOperation = ({
   );
 
   const resolve = async parent => {
+    const id = parent[relationInfo.relationField];
+    batch.addId(id);
+    await batch.getPromise();
+
     const dataMap = await relationOperation.getOutput().getPromise();
     if (relationInfo.many) {
-      return dataMap[parent[relationInfo.relationField]] ?? [];
+      return dataMap[id] ?? [];
     } else {
-      return dataMap[parent[relationInfo.relationField]]?.[0];
+      return dataMap[id]?.[0];
     }
   };
 
@@ -305,9 +310,10 @@ const createHasRelationOperation = ({
 const createHasAggregateRelationOperation = ({
   relationInfo,
   transaction,
-  parentDataOperation,
   filter,
 }: CreateRelationOperationParams) => {
+  const batch = new Batch();
+
   const relationOperation = new AMAggregateOperation(transaction, {
     many: true,
     collectionName: relationInfo.collection,
@@ -315,11 +321,7 @@ const createHasAggregateRelationOperation = ({
     selector: new AMSelectorContext({
       ...(filter ? { $and: [filter] } : {}),
       [relationInfo.storeField]: {
-        $in: parentDataOperation
-          .getResult()
-          .map(
-            new ResultPromiseTransforms.Distinct(relationInfo.relationField)
-          ),
+        $in: batch,
       },
     }),
   });
@@ -332,8 +334,12 @@ const createHasAggregateRelationOperation = ({
   );
 
   const resolve = async parent => {
+    const id = parent[relationInfo.relationField];
+    batch.addId(id);
+    await batch.getPromise();
+
     const dataMap = await relationOperation.getOutput().getPromise();
-    return dataMap[parent[relationInfo.relationField]].count;
+    return dataMap[id].count;
   };
 
   return { relationOperation, resolve };

@@ -679,12 +679,7 @@ Object {
       "selector": Object {
         "_id": Object {
           "$in": ResultPromise {
-            "source": Array [
-              "Operation-0",
-              Distinct {
-                "path": "approvesPostIds",
-              },
-            ],
+            "source": "<Batch>",
           },
         },
       },
@@ -712,12 +707,7 @@ Object {
       "selector": Object {
         "_id": Object {
           "$in": ResultPromise {
-            "source": Array [
-              "Operation-0",
-              Distinct {
-                "path": "likesPostIds",
-              },
-            ],
+            "source": "<Batch>",
           },
         },
       },
@@ -784,12 +774,7 @@ Object {
       "selector": Object {
         "_id": Object {
           "$in": ResultPromise {
-            "source": Array [
-              "Operation-0",
-              Distinct {
-                "path": "profile.userId",
-              },
-            ],
+            "source": "<Batch>",
           },
         },
       },

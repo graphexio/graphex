@@ -86,12 +86,7 @@ describe('extRelation', () => {
             "selector": Object {
               "postId": Object {
                 "$in": ResultPromise {
-                  "source": Array [
-                    "Operation-0",
-                    Distinct {
-                      "path": "_id",
-                    },
-                  ],
+                  "source": "<Batch>",
                 },
               },
             },
@@ -156,12 +151,7 @@ describe('extRelation', () => {
             "selector": Object {
               "postId": Object {
                 "$in": ResultPromise {
-                  "source": Array [
-                    "Operation-0",
-                    Distinct {
-                      "path": "_id",
-                    },
-                  ],
+                  "source": "<Batch>",
                 },
               },
             },
@@ -228,12 +218,7 @@ describe('extRelation', () => {
             "selector": Object {
               "postId": Object {
                 "$in": ResultPromise {
-                  "source": Array [
-                    "Operation-0",
-                    Distinct {
-                      "path": "_id",
-                    },
-                  ],
+                  "source": "<Batch>",
                 },
               },
             },
