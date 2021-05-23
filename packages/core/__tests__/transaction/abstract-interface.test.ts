@@ -99,12 +99,7 @@ describe('abstract interface', () => {
           },
           Object {
             "dbRefList": ResultPromise {
-              "source": Array [
-                "Operation-0",
-                Distinct {
-                  "path": "userId",
-                },
-              ],
+              "source": "<Batch>",
             },
             "fieldsSelection": Object {
               "fields": Array [
@@ -195,12 +190,7 @@ describe('abstract interface', () => {
           },
           Object {
             "dbRefList": ResultPromise {
-              "source": Array [
-                "Operation-0",
-                Distinct {
-                  "path": "userId",
-                },
-              ],
+              "source": "<Batch>",
             },
             "fieldsSelection": Object {
               "fields": Array [
@@ -337,12 +327,7 @@ Object {
     },
     Object {
       "dbRefList": ResultPromise {
-        "source": Array [
-          "Operation-0",
-          Distinct {
-            "path": "userId",
-          },
-        ],
+        "source": "<Batch>",
       },
       "fieldsSelection": Object {
         "fields": Array [
@@ -360,12 +345,7 @@ Object {
     },
     Object {
       "dbRefList": ResultPromise {
-        "source": Array [
-          "Operation-0",
-          Distinct {
-            "path": "userIds",
-          },
-        ],
+        "source": "<Batch>",
       },
       "fieldsSelection": Object {
         "fields": Array [

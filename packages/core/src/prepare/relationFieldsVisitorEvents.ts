@@ -1,3 +1,4 @@
+import { DBRef } from 'bson';
 import {
   FieldNode,
   GraphQLSchema,
@@ -38,12 +39,6 @@ export const relationFieldsVisitorEvents = (schema: GraphQLSchema) => {
             });
             const isRootConnectionQuery = relationInfo.storeField === null;
 
-            // parent operation for relation inside connection is the previous one
-            const parentDataOperation =
-              isInConnection && !isRootConnectionQuery
-                ? stack.lastOperation(1) // take previous operation
-                : lastOperation;
-
             /**
              * Relations data should be stored in field with name of an alias
              * Add $ prefix to prevent collision with real fields
@@ -54,7 +49,6 @@ export const relationFieldsVisitorEvents = (schema: GraphQLSchema) => {
             const rootOperation = transaction.operations[0];
             // const rootCondition = stack.condition(rootOperation);
 
-            const parentDataDbPath = stack.dbPath(parentDataOperation);
             const childDataPath = stack.path(rootOperation);
 
             let { relationOperation, resolve } = getExistingOperation({
@@ -83,8 +77,6 @@ export const relationFieldsVisitorEvents = (schema: GraphQLSchema) => {
               ({ relationOperation, resolve } = createOperation({
                 relationInfo,
                 transaction,
-                parentDataOperation,
-                parentDataDbPath,
                 filter: isInConnection
                   ? lastOperation.selector?.selector
                   : undefined,
@@ -184,27 +176,30 @@ const pushFieldIntoSelectionContext = ({
 type CreateRelationOperationParams = {
   relationInfo: RelationInfo;
   transaction: AMTransaction;
-  parentDataOperation: AMOperation;
-  parentDataDbPath: Path;
   filter?: Record<any, any>;
 };
 
 const createAbstractBelongsToRelationOperation = ({
   relationInfo,
   transaction,
-  parentDataOperation,
-  parentDataDbPath,
 }: CreateRelationOperationParams) => {
+  const batch = new Batch<DBRef>();
+
   const relationOperation = new AMReadDBRefOperation(transaction, {
     many: true,
-    dbRefList: parentDataOperation
-      .getResult()
-      .map(new ResultPromiseTransforms.Distinct(parentDataDbPath.asString())),
+    dbRefList: batch,
   });
 
   const resolve = async parent => {
-    const dataMap = await relationOperation.getOutput().getPromise();
     const ref = parent[relationInfo.storeField];
+    if (Array.isArray(ref)) {
+      batch.addIds(ref);
+    } else {
+      batch.addId(ref);
+    }
+    await batch.getPromise();
+
+    const dataMap = await relationOperation.getOutput().getPromise();
     if (Array.isArray(ref)) {
       return ref.map(ref => ({
         ...dataMap[ref.namespace][ref.oid.toHexString()],
