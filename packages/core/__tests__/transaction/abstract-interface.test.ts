@@ -50,92 +50,74 @@ describe('abstract interface', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-Object {
-  "operations": Array [
-    Object {
-      "collectionName": "posts",
-      "data": Object {
-        "title": "post title",
-        "userId": ResultPromise {
-          "source": Array [
-            "Operation-1",
-            Path {
-              "path": "_id",
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "data": Object {
+              "title": "post title",
+              "userId": ResultPromise {
+                "source": Array [
+                  "Operation-1",
+                  Path {
+                    "path": "_id",
+                  },
+                  ToDbRef {
+                    "collectionName": "admins",
+                  },
+                ],
+              },
             },
-            ToDbRef {
-              "collectionName": "admins",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "userId",
+              ],
             },
-          ],
-        },
-      },
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-          "userId",
-        ],
-      },
-      "identifier": "Operation-0",
-      "kind": "AMCreateOperation",
-      "many": false,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-0",
-          DbRefReplace {
-            "conditions": Array [
-              Map {},
-            ],
-            "data": ResultPromise {
+            "identifier": "Operation-0",
+            "kind": "AMCreateOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+          },
+          Object {
+            "collectionName": "admins",
+            "data": Object {
+              "username": "new admin",
+            },
+            "identifier": "Operation-1",
+            "kind": "AMCreateOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+          },
+          Object {
+            "dbRefList": ResultPromise {
+              "source": "<Batch>",
+            },
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+              ],
+            },
+            "identifier": "Operation-2",
+            "kind": "AMReadDBRefOperation",
+            "many": true,
+            "output": ResultPromise {
               "source": Array [
                 "Operation-2",
               ],
             },
-            "displayField": "owner",
-            "path": Array [],
-            "storeField": "userId",
           },
         ],
-      },
-    },
-    Object {
-      "collectionName": "admins",
-      "data": Object {
-        "username": "new admin",
-      },
-      "identifier": "Operation-1",
-      "kind": "AMCreateOperation",
-      "many": false,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-1",
-        ],
-      },
-    },
-    Object {
-      "dbRefList": ResultPromise {
-        "source": Array [
-          "Operation-0",
-          Distinct {
-            "path": "userId",
-          },
-        ],
-      },
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-        ],
-      },
-      "identifier": "Operation-2",
-      "kind": "AMReadDBRefOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-2",
-        ],
-      },
-    },
-  ],
-}
-`);
+      }
+    `);
   });
 
   test('create relation many', () => {
@@ -157,94 +139,76 @@ Object {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-Object {
-  "operations": Array [
-    Object {
-      "collectionName": "posts",
-      "data": Object {
-        "title": "post title",
-        "userIds": Array [
-          ResultPromise {
-            "source": Array [
-              "Operation-1",
-              Path {
-                "path": "_id",
-              },
-              ToDbRef {
-                "collectionName": "admins",
-              },
-            ],
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "data": Object {
+              "title": "post title",
+              "userIds": Array [
+                ResultPromise {
+                  "source": Array [
+                    "Operation-1",
+                    Path {
+                      "path": "_id",
+                    },
+                    ToDbRef {
+                      "collectionName": "admins",
+                    },
+                  ],
+                },
+              ],
+            },
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "userId",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMCreateOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
           },
-        ],
-      },
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-          "userId",
-        ],
-      },
-      "identifier": "Operation-0",
-      "kind": "AMCreateOperation",
-      "many": false,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-0",
-          DbRefReplace {
-            "conditions": Array [
-              Map {},
-            ],
-            "data": ResultPromise {
+          Object {
+            "collectionName": "admins",
+            "data": Object {
+              "username": "new admin",
+            },
+            "identifier": "Operation-1",
+            "kind": "AMCreateOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+          },
+          Object {
+            "dbRefList": ResultPromise {
+              "source": "<Batch>",
+            },
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+              ],
+            },
+            "identifier": "Operation-2",
+            "kind": "AMReadDBRefOperation",
+            "many": true,
+            "output": ResultPromise {
               "source": Array [
                 "Operation-2",
               ],
             },
-            "displayField": "owner",
-            "path": Array [],
-            "storeField": "userId",
           },
         ],
-      },
-    },
-    Object {
-      "collectionName": "admins",
-      "data": Object {
-        "username": "new admin",
-      },
-      "identifier": "Operation-1",
-      "kind": "AMCreateOperation",
-      "many": false,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-1",
-        ],
-      },
-    },
-    Object {
-      "dbRefList": ResultPromise {
-        "source": Array [
-          "Operation-0",
-          Distinct {
-            "path": "userId",
-          },
-        ],
-      },
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-        ],
-      },
-      "identifier": "Operation-2",
-      "kind": "AMReadDBRefOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-2",
-        ],
-      },
-    },
-  ],
-}
-`);
+      }
+    `);
   });
 
   test('create relation many with single item', () => {
@@ -341,32 +305,6 @@ Object {
       "output": ResultPromise {
         "source": Array [
           "Operation-0",
-          DbRefReplace {
-            "conditions": Array [
-              Map {},
-            ],
-            "data": ResultPromise {
-              "source": Array [
-                "Operation-2",
-              ],
-            },
-            "displayField": "owner",
-            "path": Array [],
-            "storeField": "userId",
-          },
-          DbRefReplace {
-            "conditions": Array [
-              Map {},
-            ],
-            "data": ResultPromise {
-              "source": Array [
-                "Operation-3",
-              ],
-            },
-            "displayField": "likes",
-            "path": Array [],
-            "storeField": "userIds",
-          },
         ],
       },
       "selector": Object {
@@ -389,12 +327,7 @@ Object {
     },
     Object {
       "dbRefList": ResultPromise {
-        "source": Array [
-          "Operation-0",
-          Distinct {
-            "path": "userId",
-          },
-        ],
+        "source": "<Batch>",
       },
       "fieldsSelection": Object {
         "fields": Array [
@@ -412,12 +345,7 @@ Object {
     },
     Object {
       "dbRefList": ResultPromise {
-        "source": Array [
-          "Operation-0",
-          Distinct {
-            "path": "userIds",
-          },
-        ],
+        "source": "<Batch>",
       },
       "fieldsSelection": Object {
         "fields": Array [

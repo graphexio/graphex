@@ -56,27 +56,27 @@ describe('request merging', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-  Object {
-    "operations": Array [
-      Object {
-        "collectionName": "comments",
-        "fieldsSelection": Object {
-          "fields": Array [
-            "_id",
+        Object {
+          "operations": Array [
+            Object {
+              "collectionName": "comments",
+              "fieldsSelection": Object {
+                "fields": Array [
+                  "_id",
+                ],
+              },
+              "identifier": "Operation-0",
+              "kind": "AMReadOperation",
+              "many": true,
+              "output": ResultPromise {
+                "source": Array [
+                  "Operation-0",
+                ],
+              },
+            },
           ],
-        },
-        "identifier": "Operation-0",
-        "kind": "AMReadOperation",
-        "many": true,
-        "output": ResultPromise {
-          "source": Array [
-            "Operation-0",
-          ],
-        },
-      },
-    ],
-  }
-`);
+        }
+    `);
   });
 
   test('relation with aliases', () => {
@@ -93,71 +93,57 @@ describe('request merging', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-Object {
-  "operations": Array [
-    Object {
-      "collectionName": "posts",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-          "categoryId",
-        ],
-      },
-      "identifier": "Operation-0",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-0",
-          DistinctReplace {
-            "conditions": Array [
-              Map {},
-            ],
-            "data": ResultPromise {
-              "source": Array [
-                "Operation-1",
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "categoryId",
               ],
             },
-            "displayField": "$mainCategory",
-            "path": "",
-            "relationField": "_id",
-            "storeField": "categoryId",
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
           },
-        ],
-      },
-    },
-    Object {
-      "collectionName": "categories",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-          "title",
-        ],
-      },
-      "identifier": "Operation-1",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-1",
-        ],
-      },
-      "selector": Object {
-        "_id": Object {
-          "$in": ResultPromise {
-            "source": Array [
-              "Operation-0",
-              Distinct {
-                "path": "categoryId",
+          Object {
+            "collectionName": "categories",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "title",
+              ],
+            },
+            "identifier": "Operation-1",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+                IndexBy {
+                  "params": Object {
+                    "groupingField": "_id",
+                  },
+                },
+              ],
+            },
+            "selector": Object {
+              "_id": Object {
+                "$in": ResultPromise {
+                  "source": "<Batch>",
+                },
               },
-            ],
+            },
           },
-        },
-      },
-    },
-  ],
-}
-`);
+        ],
+      }
+    `);
   });
 
   test('multiple requests on same field with aliases', () => {
@@ -177,97 +163,77 @@ Object {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-Object {
-  "operations": Array [
-    Object {
-      "collectionName": "posts",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-        ],
-      },
-      "identifier": "Operation-0",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-0",
-          Lookup {
-            "conditions": Array [
-              Map {},
-            ],
-            "data": ResultPromise {
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+          },
+          Object {
+            "collectionName": "comments",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "postId",
+                "body",
+              ],
+            },
+            "identifier": "Operation-1",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
               "source": Array [
                 "Operation-1",
+                GroupBy {
+                  "params": Object {
+                    "groupingField": "postId",
+                  },
+                },
               ],
             },
-            "displayFieldPath": "$firstComment",
-            "many": true,
-            "path": "",
-            "relationField": "_id",
-            "storeField": "postId",
+            "selector": Object {
+              "body": "test1",
+            },
           },
-          Lookup {
-            "conditions": Array [
-              Map {},
-            ],
-            "data": ResultPromise {
+          Object {
+            "collectionName": "comments",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "postId",
+                "body",
+              ],
+            },
+            "identifier": "Operation-2",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
               "source": Array [
                 "Operation-2",
+                GroupBy {
+                  "params": Object {
+                    "groupingField": "postId",
+                  },
+                },
               ],
             },
-            "displayFieldPath": "$secondComment",
-            "many": true,
-            "path": "",
-            "relationField": "_id",
-            "storeField": "postId",
+            "selector": Object {
+              "body": "test2",
+            },
           },
         ],
-      },
-    },
-    Object {
-      "collectionName": "comments",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "postId",
-          "body",
-        ],
-      },
-      "identifier": "Operation-1",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-1",
-        ],
-      },
-      "selector": Object {
-        "body": "test1",
-      },
-    },
-    Object {
-      "collectionName": "comments",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "postId",
-          "body",
-        ],
-      },
-      "identifier": "Operation-2",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-2",
-        ],
-      },
-      "selector": Object {
-        "body": "test2",
-      },
-    },
-  ],
-}
-`);
+      }
+    `);
   });
 
   test('repeat field', () => {
@@ -284,27 +250,27 @@ Object {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-  Object {
-    "operations": Array [
-      Object {
-        "collectionName": "comments",
-        "fieldsSelection": Object {
-          "fields": Array [
-            "_id",
+        Object {
+          "operations": Array [
+            Object {
+              "collectionName": "comments",
+              "fieldsSelection": Object {
+                "fields": Array [
+                  "_id",
+                ],
+              },
+              "identifier": "Operation-0",
+              "kind": "AMReadOperation",
+              "many": true,
+              "output": ResultPromise {
+                "source": Array [
+                  "Operation-0",
+                ],
+              },
+            },
           ],
-        },
-        "identifier": "Operation-0",
-        "kind": "AMReadOperation",
-        "many": true,
-        "output": ResultPromise {
-          "source": Array [
-            "Operation-0",
-          ],
-        },
-      },
-    ],
-  }
-`);
+        }
+    `);
   });
 
   test('repeat relation field', () => {
@@ -324,70 +290,56 @@ Object {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-Object {
-  "operations": Array [
-    Object {
-      "collectionName": "comments",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-          "postId",
-        ],
-      },
-      "identifier": "Operation-0",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-0",
-          DistinctReplace {
-            "conditions": Array [
-              Map {},
-            ],
-            "data": ResultPromise {
-              "source": Array [
-                "Operation-1",
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "comments",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "postId",
               ],
             },
-            "displayField": "post",
-            "path": "",
-            "relationField": "_id",
-            "storeField": "postId",
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
           },
-        ],
-      },
-    },
-    Object {
-      "collectionName": "posts",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-        ],
-      },
-      "identifier": "Operation-1",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-1",
-        ],
-      },
-      "selector": Object {
-        "_id": Object {
-          "$in": ResultPromise {
-            "source": Array [
-              "Operation-0",
-              Distinct {
-                "path": "postId",
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+              ],
+            },
+            "identifier": "Operation-1",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+                IndexBy {
+                  "params": Object {
+                    "groupingField": "_id",
+                  },
+                },
+              ],
+            },
+            "selector": Object {
+              "_id": Object {
+                "$in": ResultPromise {
+                  "source": "<Batch>",
+                },
               },
-            ],
+            },
           },
-        },
-      },
-    },
-  ],
-}
-`);
+        ],
+      }
+    `);
   });
 
   test('repeat relation field with extended selection', () => {
@@ -409,114 +361,86 @@ Object {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-Object {
-  "operations": Array [
-    Object {
-      "collectionName": "comments",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-          "postId",
-        ],
-      },
-      "identifier": "Operation-0",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-0",
-          DistinctReplace {
-            "conditions": Array [
-              Map {},
-            ],
-            "data": ResultPromise {
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "comments",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "postId",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+          },
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "categoryId",
+              ],
+            },
+            "identifier": "Operation-1",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
               "source": Array [
                 "Operation-1",
+                IndexBy {
+                  "params": Object {
+                    "groupingField": "_id",
+                  },
+                },
               ],
             },
-            "displayField": "post",
-            "path": "",
-            "relationField": "_id",
-            "storeField": "postId",
+            "selector": Object {
+              "_id": Object {
+                "$in": ResultPromise {
+                  "source": "<Batch>",
+                },
+              },
+            },
           },
-          DistinctReplace {
-            "conditions": Array [
-              Map {},
-            ],
-            "data": ResultPromise {
+          Object {
+            "collectionName": "categories",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "title",
+              ],
+            },
+            "identifier": "Operation-2",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
               "source": Array [
                 "Operation-2",
+                IndexBy {
+                  "params": Object {
+                    "groupingField": "_id",
+                  },
+                },
               ],
             },
-            "displayField": "category",
-            "path": "post",
-            "relationField": "_id",
-            "storeField": "categoryId",
-          },
-        ],
-      },
-    },
-    Object {
-      "collectionName": "posts",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-          "categoryId",
-        ],
-      },
-      "identifier": "Operation-1",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-1",
-        ],
-      },
-      "selector": Object {
-        "_id": Object {
-          "$in": ResultPromise {
-            "source": Array [
-              "Operation-0",
-              Distinct {
-                "path": "postId",
+            "selector": Object {
+              "_id": Object {
+                "$in": ResultPromise {
+                  "source": "<Batch>",
+                },
               },
-            ],
+            },
           },
-        },
-      },
-    },
-    Object {
-      "collectionName": "categories",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-          "title",
         ],
-      },
-      "identifier": "Operation-2",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-2",
-        ],
-      },
-      "selector": Object {
-        "_id": Object {
-          "$in": ResultPromise {
-            "source": Array [
-              "Operation-1",
-              Distinct {
-                "path": "categoryId",
-              },
-            ],
-          },
-        },
-      },
-    },
-  ],
-}
-`);
+      }
+    `);
   });
 
   test('fragment', () => {
@@ -538,71 +462,57 @@ Object {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-Object {
-  "operations": Array [
-    Object {
-      "collectionName": "comments",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-          "postId",
-        ],
-      },
-      "identifier": "Operation-0",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-0",
-          DistinctReplace {
-            "conditions": Array [
-              Map {},
-            ],
-            "data": ResultPromise {
-              "source": Array [
-                "Operation-1",
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "comments",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "postId",
               ],
             },
-            "displayField": "post",
-            "path": "",
-            "relationField": "_id",
-            "storeField": "postId",
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
           },
-        ],
-      },
-    },
-    Object {
-      "collectionName": "posts",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-          "title",
-        ],
-      },
-      "identifier": "Operation-1",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-1",
-        ],
-      },
-      "selector": Object {
-        "_id": Object {
-          "$in": ResultPromise {
-            "source": Array [
-              "Operation-0",
-              Distinct {
-                "path": "postId",
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "title",
+              ],
+            },
+            "identifier": "Operation-1",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+                IndexBy {
+                  "params": Object {
+                    "groupingField": "_id",
+                  },
+                },
+              ],
+            },
+            "selector": Object {
+              "_id": Object {
+                "$in": ResultPromise {
+                  "source": "<Batch>",
+                },
               },
-            ],
+            },
           },
-        },
-      },
-    },
-  ],
-}
-`);
+        ],
+      }
+    `);
   });
 
   test('fragments with not intersecting conditions', () => {
@@ -626,76 +536,57 @@ Object {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-Object {
-  "operations": Array [
-    Object {
-      "collectionName": "comments",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-          "postId",
-        ],
-      },
-      "identifier": "Operation-0",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-0",
-          DistinctReplace {
-            "conditions": Array [
-              Map {
-                "" => "RootComment",
-              },
-              Map {
-                "" => "SubComment",
-              },
-            ],
-            "data": ResultPromise {
-              "source": Array [
-                "Operation-1",
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "comments",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "postId",
               ],
             },
-            "displayField": "post",
-            "path": "",
-            "relationField": "_id",
-            "storeField": "postId",
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
           },
-        ],
-      },
-    },
-    Object {
-      "collectionName": "posts",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-          "title",
-        ],
-      },
-      "identifier": "Operation-1",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-1",
-        ],
-      },
-      "selector": Object {
-        "_id": Object {
-          "$in": ResultPromise {
-            "source": Array [
-              "Operation-0",
-              Distinct {
-                "path": "postId",
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "title",
+              ],
+            },
+            "identifier": "Operation-1",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+                IndexBy {
+                  "params": Object {
+                    "groupingField": "_id",
+                  },
+                },
+              ],
+            },
+            "selector": Object {
+              "_id": Object {
+                "$in": ResultPromise {
+                  "source": "<Batch>",
+                },
               },
-            ],
+            },
           },
-        },
-      },
-    },
-  ],
-}
-`);
+        ],
+      }
+    `);
   });
 
   test('fragments with not intersecting conditions and different args', () => {
@@ -719,108 +610,81 @@ Object {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-Object {
-  "operations": Array [
-    Object {
-      "collectionName": "comments",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-          "postId",
-        ],
-      },
-      "identifier": "Operation-0",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-0",
-          DistinctReplace {
-            "conditions": Array [
-              Map {
-                "" => "RootComment",
-              },
-            ],
-            "data": ResultPromise {
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "comments",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "postId",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+          },
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "title",
+              ],
+            },
+            "identifier": "Operation-1",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
               "source": Array [
                 "Operation-1",
+                IndexBy {
+                  "params": Object {
+                    "groupingField": "_id",
+                  },
+                },
               ],
             },
-            "displayField": "post",
-            "path": "",
-            "relationField": "_id",
-            "storeField": "postId",
+            "selector": Object {
+              "title": "test",
+            },
           },
-          DistinctReplace {
-            "conditions": Array [
-              Map {
-                "" => "SubComment",
-              },
-            ],
-            "data": ResultPromise {
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+              ],
+            },
+            "identifier": "Operation-2",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
               "source": Array [
                 "Operation-2",
+                IndexBy {
+                  "params": Object {
+                    "groupingField": "_id",
+                  },
+                },
               ],
             },
-            "displayField": "post",
-            "path": "",
-            "relationField": "_id",
-            "storeField": "postId",
-          },
-        ],
-      },
-    },
-    Object {
-      "collectionName": "posts",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-          "title",
-        ],
-      },
-      "identifier": "Operation-1",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-1",
-        ],
-      },
-      "selector": Object {
-        "title": "test",
-      },
-    },
-    Object {
-      "collectionName": "posts",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-        ],
-      },
-      "identifier": "Operation-2",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-2",
-        ],
-      },
-      "selector": Object {
-        "_id": Object {
-          "$in": ResultPromise {
-            "source": Array [
-              "Operation-0",
-              Distinct {
-                "path": "postId",
+            "selector": Object {
+              "_id": Object {
+                "$in": ResultPromise {
+                  "source": "<Batch>",
+                },
               },
-            ],
+            },
           },
-        },
-      },
-    },
-  ],
-}
-`);
+        ],
+      }
+    `);
   });
 
   test('wildcard before fragments with not intersecting conditions', () => {
@@ -847,71 +711,57 @@ Object {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-Object {
-  "operations": Array [
-    Object {
-      "collectionName": "comments",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-          "postId",
-        ],
-      },
-      "identifier": "Operation-0",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-0",
-          DistinctReplace {
-            "conditions": Array [
-              Map {},
-            ],
-            "data": ResultPromise {
-              "source": Array [
-                "Operation-1",
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "comments",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "postId",
               ],
             },
-            "displayField": "post",
-            "path": "",
-            "relationField": "_id",
-            "storeField": "postId",
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
           },
-        ],
-      },
-    },
-    Object {
-      "collectionName": "posts",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-          "title",
-        ],
-      },
-      "identifier": "Operation-1",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-1",
-        ],
-      },
-      "selector": Object {
-        "_id": Object {
-          "$in": ResultPromise {
-            "source": Array [
-              "Operation-0",
-              Distinct {
-                "path": "postId",
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "title",
+              ],
+            },
+            "identifier": "Operation-1",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+                IndexBy {
+                  "params": Object {
+                    "groupingField": "_id",
+                  },
+                },
+              ],
+            },
+            "selector": Object {
+              "_id": Object {
+                "$in": ResultPromise {
+                  "source": "<Batch>",
+                },
               },
-            ],
+            },
           },
-        },
-      },
-    },
-  ],
-}
-`);
+        ],
+      }
+    `);
   });
 
   test('wildcard after fragments with not intersecting conditions', () => {
@@ -938,71 +788,57 @@ Object {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-Object {
-  "operations": Array [
-    Object {
-      "collectionName": "comments",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-          "postId",
-        ],
-      },
-      "identifier": "Operation-0",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-0",
-          DistinctReplace {
-            "conditions": Array [
-              Map {},
-            ],
-            "data": ResultPromise {
-              "source": Array [
-                "Operation-1",
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "comments",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "postId",
               ],
             },
-            "displayField": "post",
-            "path": "",
-            "relationField": "_id",
-            "storeField": "postId",
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
           },
-        ],
-      },
-    },
-    Object {
-      "collectionName": "posts",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-          "title",
-        ],
-      },
-      "identifier": "Operation-1",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-1",
-        ],
-      },
-      "selector": Object {
-        "_id": Object {
-          "$in": ResultPromise {
-            "source": Array [
-              "Operation-0",
-              Distinct {
-                "path": "postId",
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "title",
+              ],
+            },
+            "identifier": "Operation-1",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+                IndexBy {
+                  "params": Object {
+                    "groupingField": "_id",
+                  },
+                },
+              ],
+            },
+            "selector": Object {
+              "_id": Object {
+                "$in": ResultPromise {
+                  "source": "<Batch>",
+                },
               },
-            ],
+            },
           },
-        },
-      },
-    },
-  ],
-}
-`);
+        ],
+      }
+    `);
   });
 
   test('wildcard before fragments with not intersecting conditions with nested operations', () => {
@@ -1035,6 +871,124 @@ Object {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "comments",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "postId",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
+          },
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "title",
+                "categoryId",
+              ],
+            },
+            "identifier": "Operation-1",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+                IndexBy {
+                  "params": Object {
+                    "groupingField": "_id",
+                  },
+                },
+              ],
+            },
+            "selector": Object {
+              "_id": Object {
+                "$in": ResultPromise {
+                  "source": "<Batch>",
+                },
+              },
+            },
+          },
+          Object {
+            "collectionName": "categories",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "title",
+              ],
+            },
+            "identifier": "Operation-2",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-2",
+                IndexBy {
+                  "params": Object {
+                    "groupingField": "_id",
+                  },
+                },
+              ],
+            },
+            "selector": Object {
+              "_id": Object {
+                "$in": ResultPromise {
+                  "source": "<Batch>",
+                },
+              },
+            },
+          },
+        ],
+      }
+    `);
+  });
+
+  test('multiple nested fragments', () => {
+    const rq = gql`
+      {
+        comments {
+          id
+          post {
+            title
+          }
+          ... on RootComment {
+            post {
+              title
+              category {
+                ... on SubCategory {
+                  parentCategory {
+                    id
+                  }
+                }
+                title
+              }
+            }
+          }
+          ... on SubComment {
+            post {
+              id
+              category {
+                id
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const transaction = prepareTransaction(schema, rq);
+    expect(transaction).toMatchInlineSnapshot(`
 Object {
   "operations": Array [
     Object {
@@ -1051,39 +1005,6 @@ Object {
       "output": ResultPromise {
         "source": Array [
           "Operation-0",
-          DistinctReplace {
-            "conditions": Array [
-              Map {},
-            ],
-            "data": ResultPromise {
-              "source": Array [
-                "Operation-1",
-              ],
-            },
-            "displayField": "post",
-            "path": "",
-            "relationField": "_id",
-            "storeField": "postId",
-          },
-          DistinctReplace {
-            "conditions": Array [
-              Map {
-                "" => "RootComment",
-              },
-              Map {
-                "" => "SubComment",
-              },
-            ],
-            "data": ResultPromise {
-              "source": Array [
-                "Operation-2",
-              ],
-            },
-            "displayField": "category",
-            "path": "post",
-            "relationField": "_id",
-            "storeField": "categoryId",
-          },
         ],
       },
     },
@@ -1102,17 +1023,17 @@ Object {
       "output": ResultPromise {
         "source": Array [
           "Operation-1",
+          IndexBy {
+            "params": Object {
+              "groupingField": "_id",
+            },
+          },
         ],
       },
       "selector": Object {
         "_id": Object {
           "$in": ResultPromise {
-            "source": Array [
-              "Operation-0",
-              Distinct {
-                "path": "postId",
-              },
-            ],
+            "source": "<Batch>",
           },
         },
       },
@@ -1122,6 +1043,7 @@ Object {
       "fieldsSelection": Object {
         "fields": Array [
           "_id",
+          "categoryId",
           "title",
         ],
       },
@@ -1131,17 +1053,45 @@ Object {
       "output": ResultPromise {
         "source": Array [
           "Operation-2",
+          IndexBy {
+            "params": Object {
+              "groupingField": "_id",
+            },
+          },
         ],
       },
       "selector": Object {
         "_id": Object {
           "$in": ResultPromise {
-            "source": Array [
-              "Operation-1",
-              Distinct {
-                "path": "categoryId",
-              },
-            ],
+            "source": "<Batch>",
+          },
+        },
+      },
+    },
+    Object {
+      "collectionName": "categories",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-3",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-3",
+          IndexBy {
+            "params": Object {
+              "groupingField": "_id",
+            },
+          },
+        ],
+      },
+      "selector": Object {
+        "_id": Object {
+          "$in": ResultPromise {
+            "source": "<Batch>",
           },
         },
       },
@@ -1202,56 +1152,6 @@ Object {
       "output": ResultPromise {
         "source": Array [
           "Operation-0",
-          DistinctReplace {
-            "conditions": Array [
-              Map {},
-            ],
-            "data": ResultPromise {
-              "source": Array [
-                "Operation-1",
-              ],
-            },
-            "displayField": "post",
-            "path": "",
-            "relationField": "_id",
-            "storeField": "postId",
-          },
-          DistinctReplace {
-            "conditions": Array [
-              Map {
-                "" => "RootComment",
-              },
-              Map {
-                "" => "SubComment",
-              },
-            ],
-            "data": ResultPromise {
-              "source": Array [
-                "Operation-2",
-              ],
-            },
-            "displayField": "category",
-            "path": "post",
-            "relationField": "_id",
-            "storeField": "categoryId",
-          },
-          DistinctReplace {
-            "conditions": Array [
-              Map {
-                "" => "RootComment",
-                "post.category" => "SubCategory",
-              },
-            ],
-            "data": ResultPromise {
-              "source": Array [
-                "Operation-3",
-              ],
-            },
-            "displayField": "parentCategory",
-            "path": "post.category",
-            "relationField": "_id",
-            "storeField": "categoryId",
-          },
         ],
       },
     },
@@ -1270,17 +1170,17 @@ Object {
       "output": ResultPromise {
         "source": Array [
           "Operation-1",
+          IndexBy {
+            "params": Object {
+              "groupingField": "_id",
+            },
+          },
         ],
       },
       "selector": Object {
         "_id": Object {
           "$in": ResultPromise {
-            "source": Array [
-              "Operation-0",
-              Distinct {
-                "path": "postId",
-              },
-            ],
+            "source": "<Batch>",
           },
         },
       },
@@ -1300,17 +1200,17 @@ Object {
       "output": ResultPromise {
         "source": Array [
           "Operation-2",
+          IndexBy {
+            "params": Object {
+              "groupingField": "_id",
+            },
+          },
         ],
       },
       "selector": Object {
         "_id": Object {
           "$in": ResultPromise {
-            "source": Array [
-              "Operation-1",
-              Distinct {
-                "path": "categoryId",
-              },
-            ],
+            "source": "<Batch>",
           },
         },
       },
@@ -1328,214 +1228,17 @@ Object {
       "output": ResultPromise {
         "source": Array [
           "Operation-3",
-        ],
-      },
-      "selector": Object {
-        "_id": Object {
-          "$in": ResultPromise {
-            "source": Array [
-              "Operation-2",
-              Distinct {
-                "path": "categoryId",
-              },
-            ],
-          },
-        },
-      },
-    },
-  ],
-}
-`);
-  });
-
-  test('multiple nested fragments', () => {
-    const rq = gql`
-      {
-        comments {
-          id
-          post {
-            title
-          }
-          ... on RootComment {
-            post {
-              title
-              category {
-                ... on SubCategory {
-                  parentCategory {
-                    id
-                  }
-                }
-                title
-              }
-            }
-          }
-          ... on SubComment {
-            post {
-              id
-              category {
-                id
-              }
-            }
-          }
-        }
-      }
-    `;
-
-    const transaction = prepareTransaction(schema, rq);
-    expect(transaction).toMatchInlineSnapshot(`
-Object {
-  "operations": Array [
-    Object {
-      "collectionName": "comments",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-          "postId",
-        ],
-      },
-      "identifier": "Operation-0",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-0",
-          DistinctReplace {
-            "conditions": Array [
-              Map {},
-            ],
-            "data": ResultPromise {
-              "source": Array [
-                "Operation-1",
-              ],
+          IndexBy {
+            "params": Object {
+              "groupingField": "_id",
             },
-            "displayField": "post",
-            "path": "",
-            "relationField": "_id",
-            "storeField": "postId",
           },
-          DistinctReplace {
-            "conditions": Array [
-              Map {
-                "" => "RootComment",
-              },
-              Map {
-                "" => "SubComment",
-              },
-            ],
-            "data": ResultPromise {
-              "source": Array [
-                "Operation-2",
-              ],
-            },
-            "displayField": "category",
-            "path": "post",
-            "relationField": "_id",
-            "storeField": "categoryId",
-          },
-          DistinctReplace {
-            "conditions": Array [
-              Map {
-                "" => "RootComment",
-                "post.category" => "SubCategory",
-              },
-            ],
-            "data": ResultPromise {
-              "source": Array [
-                "Operation-3",
-              ],
-            },
-            "displayField": "parentCategory",
-            "path": "post.category",
-            "relationField": "_id",
-            "storeField": "categoryId",
-          },
-        ],
-      },
-    },
-    Object {
-      "collectionName": "posts",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-          "title",
-          "categoryId",
-        ],
-      },
-      "identifier": "Operation-1",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-1",
         ],
       },
       "selector": Object {
         "_id": Object {
           "$in": ResultPromise {
-            "source": Array [
-              "Operation-0",
-              Distinct {
-                "path": "postId",
-              },
-            ],
-          },
-        },
-      },
-    },
-    Object {
-      "collectionName": "categories",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-          "categoryId",
-          "title",
-        ],
-      },
-      "identifier": "Operation-2",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-2",
-        ],
-      },
-      "selector": Object {
-        "_id": Object {
-          "$in": ResultPromise {
-            "source": Array [
-              "Operation-1",
-              Distinct {
-                "path": "categoryId",
-              },
-            ],
-          },
-        },
-      },
-    },
-    Object {
-      "collectionName": "categories",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-        ],
-      },
-      "identifier": "Operation-3",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-3",
-        ],
-      },
-      "selector": Object {
-        "_id": Object {
-          "$in": ResultPromise {
-            "source": Array [
-              "Operation-2",
-              Distinct {
-                "path": "categoryId",
-              },
-            ],
+            "source": "<Batch>",
           },
         },
       },
@@ -1577,20 +1280,6 @@ Object {
       "output": ResultPromise {
         "source": Array [
           "Operation-0",
-          DistinctReplace {
-            "conditions": Array [
-              Map {},
-            ],
-            "data": ResultPromise {
-              "source": Array [
-                "Operation-1",
-              ],
-            },
-            "displayField": "post",
-            "path": "",
-            "relationField": "_id",
-            "storeField": "postId",
-          },
         ],
       },
     },
@@ -1607,17 +1296,17 @@ Object {
       "output": ResultPromise {
         "source": Array [
           "Operation-1",
+          IndexBy {
+            "params": Object {
+              "groupingField": "_id",
+            },
+          },
         ],
       },
       "selector": Object {
         "_id": Object {
           "$in": ResultPromise {
-            "source": Array [
-              "Operation-0",
-              Distinct {
-                "path": "postId",
-              },
-            ],
+            "source": "<Batch>",
           },
         },
       },

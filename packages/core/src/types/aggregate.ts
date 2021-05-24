@@ -13,6 +13,7 @@ export class AMAggregateTypeFactory extends AMTypeFactory<AMObjectType> {
         const fields = {
           count: {
             type: new GraphQLNonNull(GraphQLInt),
+            resolve: parent => parent,
             ...defaultSelectionVisitorHandler('count'),
           },
           sum: {

@@ -4,7 +4,8 @@ import { AMVisitor } from './execution/visitor';
 // import Serializer from './serializer';
 
 export const resolve = (parent, args, context, info: GraphQLResolveInfo) => {
-  const transaction = new AMTransaction();
+  context.fieldsRegistry = new Map();
+  const transaction = new AMTransaction(context.fieldsRegistry);
 
   const rq: DocumentNode = {
     kind: 'Document',
