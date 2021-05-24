@@ -2426,7 +2426,7 @@ Object {
 `);
   });
 
-  test('aaa', async () => {
+  test('Relaction Connection nodes and totalCount', async () => {
     let relationTestPostId;
     {
       const { errors, data } = await query({
