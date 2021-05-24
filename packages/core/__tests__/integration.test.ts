@@ -2426,6 +2426,148 @@ Object {
 `);
   });
 
+  test('Relaction Connection nodes and totalCount', async () => {
+    let relationTestPostId;
+    {
+      const { errors, data } = await query({
+        query: gql`
+          mutation {
+            createPost(
+              data: {
+                title: "Empty comments post title"
+                body: "Empty comments post body"
+                owner: { create: { Admin: { username: "UserForPost1" } } }
+                comments: {
+                  create: [
+                    {
+                      body: "comment1"
+                      user: {
+                        create: { Admin: { username: "UserForComments1" } }
+                      }
+                      color: red
+                      tags: ["tag1", "tag2"]
+                    }
+                    {
+                      body: "comment2"
+                      user: {
+                        create: { Admin: { username: "UserForComments2" } }
+                      }
+                      color: blue
+                      tags: ["tag2", "tag3"]
+                    }
+                  ]
+                }
+                likes: {
+                  create: [
+                    { Subscriber: { username: "Asd" } }
+                    { Subscriber: { username: "Dsa" } }
+                  ]
+                }
+              }
+            ) {
+              id
+              title
+              comments {
+                body
+                user {
+                  username
+                }
+              }
+              likesConnection {
+                nodes {
+                  username
+                }
+                totalCount
+              }
+            }
+          }
+        `,
+      });
+      expect(errors).toBeUndefined();
+      relationTestPostId = data.createPost.id;
+      delete data.createPost.id;
+      expect(data).toMatchInlineSnapshot(`
+Object {
+  "createPost": Object {
+    "comments": Array [
+      Object {
+        "body": "comment1",
+        "user": Object {
+          "username": "UserForComments1",
+        },
+      },
+      Object {
+        "body": "comment2",
+        "user": Object {
+          "username": "UserForComments2",
+        },
+      },
+    ],
+    "likesConnection": Object {
+      "nodes": Array [],
+      "totalCount": 0,
+    },
+    "title": "Empty comments post title",
+  },
+}
+`);
+    }
+    const { data, errors } = await query({
+      query: gql`
+        query getPost($relationTestPostId: ObjectID) {
+          post(where: { id: $relationTestPostId }) {
+            title
+            owner {
+              username
+            }
+            comments {
+              body
+              user {
+                username
+              }
+            }
+            likesConnection {
+              nodes {
+                username
+              }
+              totalCount
+            }
+          }
+        }
+      `,
+      variables: { relationTestPostId },
+    });
+    expect(errors).toBeUndefined();
+    expect(data).toMatchInlineSnapshot(`
+Object {
+  "post": Object {
+    "comments": Array [
+      Object {
+        "body": "comment1",
+        "user": Object {
+          "username": "UserForComments1",
+        },
+      },
+      Object {
+        "body": "comment2",
+        "user": Object {
+          "username": "UserForComments2",
+        },
+      },
+    ],
+    "likesConnection": Object {
+      "nodes": Array [],
+      "totalCount": 0,
+    },
+    "owner": Object {
+      "username": "UserForPost1",
+    },
+    "title": "Empty comments post title",
+  },
+}
+`);
+  });
+
   test('relation inside nested object after alias', async () => {
     {
       const { errors } = await mutate({
