@@ -39,16 +39,9 @@ export const relationFieldsVisitorEvents = (schema: GraphQLSchema) => {
             });
             const isRootConnectionQuery = relationInfo.storeField === null;
 
-            /**
-             * Relations data should be stored in field with name of an alias
-             * Add $ prefix to prevent collision with real fields
-             */
-            changeContextCurrentPath({ node, relationInfo, stack });
             pushFieldIntoSelectionContext({ relationInfo, stack });
 
             const rootOperation = transaction.operations[0];
-            // const rootCondition = stack.condition(rootOperation);
-
             const childDataPath = stack.path(rootOperation);
 
             let { relationOperation, resolve } = getExistingOperation({
@@ -113,35 +106,6 @@ const getRelationInfo = ({
     return parentDataOperation.relationInfo;
   }
   return field.relation;
-};
-
-const getChildDataStoreField = (node: FieldNode) => {
-  /**
-   * Results of children operations should be stored
-   * in parent operation result
-   * under different keys for each alias.
-   */
-  return node.alias //
-    ? `$${node.alias.value}`
-    : node.name.value;
-};
-
-const changeContextCurrentPath = ({
-  node,
-  relationInfo,
-  stack,
-}: {
-  node: FieldNode;
-  relationInfo: RelationInfo;
-  stack: AMVisitorStack;
-}) => {
-  const pathItem = getChildDataStoreField(node);
-  const dbPathItem = relationInfo.external
-    ? undefined
-    : relationInfo.storeField;
-
-  stack.leavePath();
-  stack.enterPath(pathItem, dbPathItem);
 };
 
 const pushFieldIntoSelectionContext = ({

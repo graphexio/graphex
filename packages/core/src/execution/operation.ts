@@ -29,7 +29,6 @@ export abstract class AMOperation extends AMContext {
   orderBy: { [key: string]: number };
   skip: number;
   first: number;
-  fieldTransformations: Map<string, Transformation[]> = new Map();
   relationOperations: Map<string, RelationOperationData[]> = new Map();
 
   _result: AMResultPromise<any>;
@@ -136,17 +135,6 @@ export abstract class AMOperation extends AMContext {
   }
 
   addTransformation(transformation: Transformation) {
-    this.setOutput(this.getOutput().map(transformation));
-  }
-
-  addFieldTransformation(path: Path, transformation: Transformation) {
-    let transformations = this.fieldTransformations.get(path.asString());
-    if (!transformations) {
-      transformations = [transformation];
-      this.fieldTransformations.set(path.asString(), transformations);
-    } else {
-      transformations.push(transformation);
-    }
     this.setOutput(this.getOutput().map(transformation));
   }
 

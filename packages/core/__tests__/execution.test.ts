@@ -34,7 +34,7 @@ test('read many', () => {
     return Promise.resolve([]);
   };
 
-  const transaction = new AMTransaction();
+  const transaction = new AMTransaction(new Map());
   new AMReadOperation(transaction, {
     many: true,
     collectionName: 'posts',
@@ -67,7 +67,7 @@ test('read one', () => {
     return Promise.resolve([]);
   };
 
-  const transaction = new AMTransaction();
+  const transaction = new AMTransaction(new Map());
   new AMReadOperation(transaction, {
     many: false,
     collectionName: 'posts',
@@ -100,7 +100,7 @@ test('read where', () => {
     return Promise.resolve([]);
   };
 
-  const transaction = new AMTransaction();
+  const transaction = new AMTransaction(new Map());
   new AMReadOperation(transaction, {
     many: false,
     collectionName: 'posts',
@@ -109,130 +109,6 @@ test('read where', () => {
   });
 
   transaction.execute(executor);
-});
-
-test('read many relation', async () => {
-  let execN = 0;
-  const executor = (params: AMDBExecutorParams) => {
-    execN++;
-
-    switch (execN) {
-      case 1: {
-        return Promise.resolve([
-          { title: 'post1', commentIds: ['comment1', 'comment2'] },
-          { title: 'post2', commentIds: ['comment3', 'comment4'] },
-        ]);
-        break;
-      }
-      case 2: {
-        expect(params).toMatchInlineSnapshot(`
-              Object {
-                "collection": "comments",
-                "fields": undefined,
-                "options": Object {
-                  "limit": undefined,
-                  "skip": undefined,
-                  "sort": undefined,
-                },
-                "selector": Object {
-                  "_id": Object {
-                    "$in": Array [
-                      "comment1",
-                      "comment2",
-                      "comment3",
-                      "comment4",
-                    ],
-                  },
-                },
-                "type": "find",
-              }
-        `);
-        return Promise.resolve([
-          {
-            _id: 'comment1',
-            message: 'message1',
-          },
-          {
-            _id: 'comment2',
-            message: 'message2',
-          },
-          {
-            _id: 'comment3',
-            message: 'message3',
-          },
-
-          {
-            _id: 'comment4',
-            message: 'message4',
-          },
-        ]);
-      }
-    }
-  };
-
-  const transaction = new AMTransaction();
-  const operation = new AMReadOperation(transaction, {
-    many: true,
-    collectionName: 'posts',
-    fieldsSelection: new AMFieldsSelectionContext(['title', 'commentIds']),
-  });
-
-  const subOperation = new AMReadOperation(transaction, {
-    many: true,
-    collectionName: 'comments',
-    selector: new AMSelectorContext({
-      _id: {
-        $in: operation
-          .getResult()
-          .map(new ResultPromiseTransforms.Distinct('commentIds')),
-      },
-    }),
-  });
-
-  operation.setOutput(
-    operation
-      .getOutput()
-      .map(
-        new ResultPromiseTransforms.DistinctReplace(
-          Path.fromArray([]),
-          Path.fromString('commentIds'),
-          'commentIds',
-          '_id',
-          subOperation
-        ).addCondition(new Map())
-      )
-  );
-
-  const result = await transaction.execute(executor);
-
-  expect(result).toEqual([
-    {
-      title: 'post1',
-      commentIds: [
-        {
-          _id: 'comment1',
-          message: 'message1',
-        },
-        {
-          _id: 'comment2',
-          message: 'message2',
-        },
-      ],
-    },
-    {
-      title: 'post2',
-      commentIds: [
-        {
-          _id: 'comment3',
-          message: 'message3',
-        },
-        {
-          _id: 'comment4',
-          message: 'message4',
-        },
-      ],
-    },
-  ]);
 });
 
 test('create', () => {
@@ -253,7 +129,7 @@ test('create', () => {
     return Promise.resolve([]);
   };
 
-  const transaction = new AMTransaction();
+  const transaction = new AMTransaction(new Map());
   new AMCreateOperation(transaction, {
     many: false,
     collectionName: 'posts',
@@ -290,7 +166,7 @@ test('update', () => {
     return Promise.resolve([]);
   };
 
-  const transaction = new AMTransaction();
+  const transaction = new AMTransaction(new Map());
   new AMUpdateOperation(transaction, {
     many: false,
     collectionName: 'posts',
@@ -334,7 +210,7 @@ test('update with arrayfilter', () => {
     return Promise.resolve([]);
   };
 
-  const transaction = new AMTransaction();
+  const transaction = new AMTransaction(new Map());
   const operation = new AMUpdateOperation(transaction, {
     many: false,
     collectionName: 'posts',
@@ -364,7 +240,7 @@ test('create many', () => {
     return Promise.resolve([]);
   };
 
-  const transaction = new AMTransaction();
+  const transaction = new AMTransaction(new Map());
   new AMCreateOperation(transaction, {
     many: true,
     collectionName: 'posts',
@@ -436,7 +312,7 @@ test('read dbref', async () => {
     return Promise.resolve([]);
   };
 
-  const transaction = new AMTransaction();
+  const transaction = new AMTransaction(new Map());
   new AMReadDBRefOperation(transaction, {
     many: true,
     fieldsSelection: new AMFieldsSelectionContext(['_id', 'title']),
@@ -469,7 +345,7 @@ test('orderBy', () => {
     return Promise.resolve([]);
   };
 
-  const transaction = new AMTransaction();
+  const transaction = new AMTransaction(new Map());
   new AMReadOperation(transaction, {
     many: false,
     collectionName: 'posts',
