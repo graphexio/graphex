@@ -347,55 +347,55 @@ describe('relation', () => {
     const transaction = prepareTransaction(schema, rq);
 
     expect(transaction).toMatchInlineSnapshot(`
-      Object {
-        "operations": Array [
-          Object {
-            "collectionName": "comments",
-            "data": Object {
-              "message": "comment-1",
-              "userIds": ResultPromise {
-                "source": Array [
-                  "Operation-1",
-                  Path {
-                    "path": "insertedIds",
-                  },
-                ],
-              },
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "comments",
+      "data": Object {
+        "message": "comment-1",
+        "userIds": ResultPromise {
+          "source": Array [
+            "Operation-1",
+            Distinct {
+              "path": "_id",
             },
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-                "message",
-              ],
-            },
-            "identifier": "Operation-0",
-            "kind": "AMCreateOperation",
-            "many": false,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-0",
-              ],
-            },
-          },
-          Object {
-            "collectionName": "users",
-            "dataList": Array [
-              Object {
-                "username": "new user",
-              },
-            ],
-            "identifier": "Operation-1",
-            "kind": "AMCreateOperation",
-            "many": true,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-1",
-              ],
-            },
-          },
+          ],
+        },
+      },
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+          "message",
         ],
-      }
-    `);
+      },
+      "identifier": "Operation-0",
+      "kind": "AMCreateOperation",
+      "many": false,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+        ],
+      },
+    },
+    Object {
+      "collectionName": "users",
+      "dataList": Array [
+        Object {
+          "username": "new user",
+        },
+      ],
+      "identifier": "Operation-1",
+      "kind": "AMCreateOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+    },
+  ],
+}
+`);
   });
 
   test('where relation', () => {
@@ -533,59 +533,59 @@ describe('relation', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-      Object {
-        "operations": Array [
-          Object {
-            "collectionName": "comments",
-            "data": Object {
-              "$push": Object {
-                "userIds": Object {
-                  "$each": ResultPromise {
-                    "source": Array [
-                      "Operation-1",
-                      Path {
-                        "path": "insertedIds",
-                      },
-                    ],
-                  },
-                },
-              },
-            },
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-              ],
-            },
-            "identifier": "Operation-0",
-            "kind": "AMUpdateOperation",
-            "many": false,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-0",
-              ],
-            },
-            "selector": Object {
-              "_id": "test-id",
-            },
-          },
-          Object {
-            "collectionName": "users",
-            "dataList": Array [
-              Object {
-                "username": "new-user",
-              },
-            ],
-            "identifier": "Operation-1",
-            "kind": "AMCreateOperation",
-            "many": true,
-            "output": ResultPromise {
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "comments",
+      "data": Object {
+        "$push": Object {
+          "userIds": Object {
+            "$each": ResultPromise {
               "source": Array [
                 "Operation-1",
+                Distinct {
+                  "path": "_id",
+                },
               ],
             },
           },
+        },
+      },
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
         ],
-      }
-    `);
+      },
+      "identifier": "Operation-0",
+      "kind": "AMUpdateOperation",
+      "many": false,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+        ],
+      },
+      "selector": Object {
+        "_id": "test-id",
+      },
+    },
+    Object {
+      "collectionName": "users",
+      "dataList": Array [
+        Object {
+          "username": "new-user",
+        },
+      ],
+      "identifier": "Operation-1",
+      "kind": "AMCreateOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+    },
+  ],
+}
+`);
   });
 });

@@ -60,24 +60,24 @@ test('Empty WhereUnique', async () => {
     variables: {},
   });
   expect(errors).toMatchInlineSnapshot(`
-Array [
-  Object {
-    "extensions": Object {
-      "code": "BAD_USER_INPUT",
-    },
-    "locations": Array [
+    Array [
       Object {
-        "column": 3,
-        "line": 2,
+        "extensions": Object {
+          "code": "BAD_USER_INPUT",
+        },
+        "locations": Array [
+          Object {
+            "column": 3,
+            "line": 2,
+          },
+        ],
+        "message": "WhereUniqueType cannot be empty. Provided value is {}",
+        "path": Array [
+          "category",
+        ],
       },
-    ],
-    "message": "WhereUniqueType cannot be empty. Provided value is {}",
-    "path": Array [
-      "category",
-    ],
-  },
-]
-`);
+    ]
+  `);
 });
 
 test('CreateCategory', async () => {
@@ -2504,8 +2504,15 @@ Object {
       },
     ],
     "likesConnection": Object {
-      "nodes": Array [],
-      "totalCount": 0,
+      "nodes": Array [
+        Object {
+          "username": "Asd",
+        },
+        Object {
+          "username": "Dsa",
+        },
+      ],
+      "totalCount": 2,
     },
     "title": "Empty comments post title",
   },
@@ -2556,8 +2563,15 @@ Object {
       },
     ],
     "likesConnection": Object {
-      "nodes": Array [],
-      "totalCount": 0,
+      "nodes": Array [
+        Object {
+          "username": "Asd",
+        },
+        Object {
+          "username": "Dsa",
+        },
+      ],
+      "totalCount": 2,
     },
     "owner": Object {
       "username": "UserForPost1",

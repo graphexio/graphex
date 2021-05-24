@@ -11,9 +11,7 @@ import { AMCreateOperation } from '../execution/operations/createOperation';
 import { AMReadOperation } from '../execution/operations/readOperation';
 import { ResultPromiseTransforms } from '../execution/resultPromise';
 
-export class AMCreateManyRelationTypeFactory extends AMTypeFactory<
-  GraphQLInputObjectType
-> {
+export class AMCreateManyRelationTypeFactory extends AMTypeFactory<GraphQLInputObjectType> {
   getTypeName(modelType: AMModelType): string {
     return `${modelType.name}CreateManyRelationInput`;
   }
@@ -56,7 +54,11 @@ export class AMCreateManyRelationTypeFactory extends AMTypeFactory<
                       lastInStack.setValue(
                         opContext
                           .getOutput()
-                          .map(new ResultPromiseTransforms.Path('insertedIds'))
+                          .map(
+                            new ResultPromiseTransforms.Distinct(
+                              lastInStack.field.relation.relationField
+                            )
+                          )
                       );
                     }
                   },
