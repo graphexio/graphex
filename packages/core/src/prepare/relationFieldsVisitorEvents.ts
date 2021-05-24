@@ -161,7 +161,6 @@ const createAbstractBelongsToRelationOperation = ({
     } else {
       batch.addId(ref);
     }
-    await batch.getPromise();
 
     const dataMap = await relationOperation.getOutput().getPromise();
     if (Array.isArray(ref)) {
@@ -212,7 +211,6 @@ const createBelongsToRelationOperation = ({
     } else {
       batch.addId(ids);
     }
-    await batch.getPromise();
 
     const dataMap = await relationOperation.getOutput().getPromise();
     if (relationInfo.many) {
@@ -253,7 +251,6 @@ const createHasRelationOperation = ({
   const resolve = async parent => {
     const id = parent[relationInfo.relationField];
     batch.addId(id);
-    await batch.getPromise();
 
     const dataMap = await relationOperation.getOutput().getPromise();
     if (relationInfo.many) {
@@ -295,7 +292,6 @@ const createHasAggregateRelationOperation = ({
   const resolve = async parent => {
     const id = parent[relationInfo.relationField];
     batch.addId(id);
-    await batch.getPromise();
 
     const dataMap = await relationOperation.getOutput().getPromise();
     return dataMap[id].count;
