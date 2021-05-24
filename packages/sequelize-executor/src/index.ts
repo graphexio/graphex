@@ -32,9 +32,17 @@ export const SequelizeExecutor = (SQ: Sequelize) => {
         .create(params.doc)
         .then(res => res?.get({ plain: true }));
     },
+    insertMany: params => {
+      return SQ.model(params.collection)
+        .bulkCreate(params.docs)
+        .then(res => res?.map(item => item?.get({ plain: true })));
+    },
     updateOne: params => {
       return SQ.model(params.collection)
-        .update(params.doc['$set'], { where: params.selector, returning: true })
+        .update(mapUpdateDoc(params.doc), {
+          where: params.selector,
+          returning: true,
+        })
         .then(([, res]) => res?.[0]?.get({ plain: true }));
     },
     deleteOne: async params => {
@@ -94,6 +102,40 @@ export const SequelizeExecutor = (SQ: Sequelize) => {
         return [mapSelectorKeys[key] ?? key, mapSelector(value)];
       })
     );
+  };
+
+  const mapUpdateDoc = doc => {
+    const $set = doc['$set'] ?? {};
+    if (doc['$push']) {
+      Object.entries(doc['$push']).forEach(([fieldName, data]) => {
+        if (data['$each']) {
+          if (data['$each'].length > 0) {
+            $set[fieldName] = Sequelize.fn(
+              'array_cat',
+              Sequelize.col(fieldName),
+              data['$each']
+            );
+          }
+        } else {
+          $set[fieldName] = Sequelize.fn(
+            'array_append',
+            Sequelize.col(fieldName),
+            data
+          );
+        }
+      });
+    }
+    if (doc['$pullAll']) {
+      Object.entries(doc['$pullAll']).forEach(([fieldName, data]: any) => {
+        let val = Sequelize.col(fieldName) as any;
+        data.forEach(id => {
+          val = Sequelize.fn('array_remove', val, id);
+        });
+        $set[fieldName] = val;
+      });
+    }
+
+    return $set;
   };
 
   const executor = async params => {
