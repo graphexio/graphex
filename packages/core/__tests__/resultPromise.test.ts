@@ -16,7 +16,7 @@ expect.addSnapshotSerializer(Serializer);
 
 describe('simple', () => {
   const arr = [{ test: 'value' }];
-  const transaction = new AMTransaction();
+  const transaction = new AMTransaction(new Map());
   const operation = new AMCreateOperation(transaction, { collectionName: '' });
   const resultPromise = new AMOperationResultPromise<any>(operation);
 
