@@ -59,6 +59,25 @@ describe('simple', () => {
     return expect(indexByResultPromise).resolves.toEqual(result);
   });
 
+  test('groupBy', () => {
+    const result = { value: [{ test: 'value' }] };
+    const groupByResultPromise = resultPromise.map(
+      new ResultPromiseTransforms.GroupBy({ groupingField: 'test' })
+    );
+    expect(groupByResultPromise.getValueSource()).toMatchInlineSnapshot(`
+      Array [
+        "Operation-0",
+        GroupBy {
+          "params": Object {
+            "groupingField": "test",
+          },
+        },
+      ]
+    `);
+
+    return expect(groupByResultPromise).resolves.toEqual(result);
+  });
+
   test('distinct', () => {
     const result = ['value'];
     const distinctResultPromise = resultPromise.map(
