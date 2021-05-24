@@ -65,7 +65,9 @@ export const relationFieldsVisitorEvents = (schema: GraphQLSchema) => {
                   : relationInfo.external
                   ? createHasRelationOperation
                   : createBelongsToRelationOperation
-                : createHasAggregateRelationOperation;
+                : relationInfo.external
+                ? createHasAggregateRelationOperation
+                : createBelongsAggregateRelationOperation;
 
               ({ relationOperation, resolve } = createOperation({
                 relationInfo,
@@ -295,6 +297,50 @@ const createHasAggregateRelationOperation = ({
 
     const dataMap = await relationOperation.getOutput().getPromise();
     return dataMap[id].count;
+  };
+
+  return { relationOperation, resolve };
+};
+
+const createBelongsAggregateRelationOperation = ({
+  relationInfo,
+  transaction,
+  filter,
+}: CreateRelationOperationParams) => {
+  const batch = new Batch();
+
+  const relationOperation = new AMReadOperation(transaction, {
+    many: true,
+    collectionName: relationInfo.collection,
+    fieldsSelection: new AMFieldsSelectionContext([relationInfo.relationField]),
+    selector: new AMSelectorContext({
+      ...(filter ? { $and: [filter] } : {}),
+      [relationInfo.relationField]: {
+        $in: batch,
+      },
+    }),
+  });
+
+  relationOperation.addTransformation(
+    new ResultPromiseTransforms.IndexBy({
+      groupingField: relationInfo.relationField,
+    })
+  );
+
+  const resolve = async parent => {
+    const ids = parent[relationInfo.storeField];
+    if (relationInfo.many) {
+      batch.addIds(ids);
+    } else {
+      throw 'unreachable';
+    }
+
+    const dataMap = await relationOperation.getOutput().getPromise();
+    if (relationInfo.many) {
+      return ids?.filter(id => Boolean(dataMap[id])).length ?? 0;
+    } else {
+      throw 'unreachable';
+    }
   };
 
   return { relationOperation, resolve };

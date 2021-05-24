@@ -33,6 +33,12 @@ export default class Post extends Model<Post> {
   owner_id: number;
 
   @Column({
+    allowNull: true,
+    type: DataType.ARRAY(DataType.INTEGER),
+  })
+  like_ids?: number[];
+
+  @Column({
     field: 'created_at',
     allowNull: true,
     type: DataType.DATE,

@@ -18,5 +18,6 @@ export default gql`
     title: String
     body: String
     owner: User @relation(storeField: "owner_id", field: "id")
+    likes: [User] @relation(storeField: "like_ids", field: "id")
   }
 `;
