@@ -21,6 +21,8 @@ services:
       << : *db-env
     depends_on:
       - postgres
+    volumes:
+      - .:/workspace
 
   postgres:
     image: postgres:11.8
