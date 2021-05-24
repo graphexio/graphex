@@ -2,6 +2,15 @@ import { QueryInterface } from 'sequelize';
 
 module.exports = {
   up: async (queryInterface: QueryInterface) => {
+    // test if seed was already ran
+    await queryInterface.sequelize
+      .query('SELECT count(*) FROM post')
+      .then(res => {
+        if (res.length > 0) {
+          throw new Error('Seed for post was already ran');
+        }
+      });
+
     const transaction = await queryInterface.sequelize.transaction();
     try {
       await queryInterface.bulkInsert(
