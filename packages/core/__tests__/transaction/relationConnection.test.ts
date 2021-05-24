@@ -11,6 +11,7 @@ describe('relation Connection', () => {
     type Post @model {
       id: ID @id @unique @db(name: "_id")
       title: String
+      likes: [User] @relation
       owner: User @relation(storeField: "owner_id", field: "_id")
     }
 
@@ -21,6 +22,243 @@ describe('relation Connection', () => {
         @extRelation(storeField: "owner_id", field: "_id", many: true)
     }
   `);
+
+  test('Root Connection and total count', () => {
+    const rq = gql`
+      {
+        post(where: { id: 1 }) {
+          id
+          likesConnection {
+            nodes {
+              id
+            }
+            totalCount
+          }
+        }
+      }
+    `;
+    const transaction = prepareTransaction(schema, rq);
+    expect(transaction).toMatchInlineSnapshot(`
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+                "userIds",
+              ],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+                DistinctReplace {
+                  "conditions": Array [
+                    Map {},
+                  ],
+                  "data": ResultPromise {
+                    "source": Array [
+                      "Operation-2",
+                    ],
+                  },
+                  "displayField": "likesConnection.nodes",
+                  "path": "",
+                  "relationField": "_id",
+                  "storeField": "userIds",
+                },
+                Lookup {
+                  "conditions": Array [
+                    Map {},
+                  ],
+                  "data": ResultPromise {
+                    "source": Array [
+                      "Operation-3",
+                    ],
+                  },
+                  "displayFieldPath": "likesConnection.totalCount",
+                  "many": false,
+                  "path": "",
+                  "relationField": "_id",
+                  "storeField": "userIds",
+                },
+              ],
+            },
+            "selector": Object {
+              "_id": "1",
+            },
+          },
+          Object {
+            "fieldsSelection": Object {
+              "fields": Array [],
+            },
+            "identifier": "Operation-1",
+            "kind": "AMConnectionOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+          },
+          Object {
+            "collectionName": "users",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+              ],
+            },
+            "identifier": "Operation-2",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-2",
+              ],
+            },
+            "selector": Object {
+              "_id": Object {
+                "$in": ResultPromise {
+                  "source": Array [
+                    "Operation-0",
+                    Distinct {
+                      "path": ".userIds",
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          Object {
+            "collectionName": "users",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "totalCount",
+              ],
+            },
+            "groupBy": "userIds",
+            "identifier": "Operation-3",
+            "kind": "AMAggregateOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-3",
+              ],
+            },
+            "selector": Object {
+              "userIds": Object {
+                "$in": ResultPromise {
+                  "source": Array [
+                    "Operation-0",
+                    Distinct {
+                      "path": "_id",
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        ],
+      }
+    `);
+  });
+
+  test('Root Connection and total count', () => {
+    const rq = gql`
+      {
+        usersConnection {
+          nodes {
+            id
+          }
+          totalCount
+        }
+      }
+    `;
+    const transaction = prepareTransaction(schema, rq);
+    expect(transaction).toMatchInlineSnapshot(`
+      Object {
+        "operations": Array [
+          Object {
+            "fieldsSelection": Object {
+              "fields": Array [],
+            },
+            "identifier": "Operation-0",
+            "kind": "AMConnectionOperation",
+            "many": false,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+                Lookup {
+                  "conditions": Array [
+                    Map {},
+                  ],
+                  "data": ResultPromise {
+                    "source": Array [
+                      "Operation-1",
+                    ],
+                  },
+                  "displayFieldPath": "nodes",
+                  "many": true,
+                  "path": "",
+                  "relationField": "$non-existing-field",
+                  "storeField": "$non-existing-field",
+                },
+                Lookup {
+                  "conditions": Array [
+                    Map {},
+                  ],
+                  "data": ResultPromise {
+                    "source": Array [
+                      "Operation-2",
+                    ],
+                  },
+                  "displayFieldPath": "totalCount",
+                  "many": false,
+                  "path": "",
+                  "relationField": "$non-existing-field",
+                  "storeField": "$non-existing-field",
+                },
+              ],
+            },
+          },
+          Object {
+            "collectionName": "users",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
+              ],
+            },
+            "identifier": "Operation-1",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+              ],
+            },
+            "selector": Object {},
+          },
+          Object {
+            "collectionName": "users",
+            "fieldsSelection": Object {
+              "fields": Array [],
+            },
+            "identifier": "Operation-2",
+            "kind": "AMAggregateOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-2",
+              ],
+            },
+            "selector": Object {},
+          },
+        ],
+      }
+    `);
+  });
 
   test('Connection total count', () => {
     const rq = gql`
