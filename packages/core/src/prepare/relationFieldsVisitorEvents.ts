@@ -55,19 +55,30 @@ export const relationFieldsVisitorEvents = (schema: GraphQLSchema) => {
              */
             if (!relationOperation) {
               // TODO replace with relation kind enum
-              const createOperation = isRootConnectionQuery
-                ? !field.aggregateRelation
-                  ? createReadOperation
-                  : createAggregateOperation
-                : !field.aggregateRelation
-                ? relationInfo.abstract
-                  ? createAbstractBelongsToRelationOperation
-                  : relationInfo.external
+              let createOperation: ({
+                relationInfo,
+                transaction,
+              }: CreateRelationOperationParams) => {
+                relationOperation: AMReadDBRefOperation;
+                resolve: (parent: any) => Promise<any>;
+              };
+
+              if (relationInfo.abstract) {
+                // TODO add missing logic
+                createOperation = createAbstractBelongsToRelationOperation;
+              } else if (isRootConnectionQuery) {
+                createOperation = field.aggregateRelation
+                  ? createAggregateOperation
+                  : createReadOperation;
+              } else if (field.aggregateRelation) {
+                createOperation = relationInfo.external
+                  ? createHasAggregateRelationOperation
+                  : createBelongsAggregateRelationOperation;
+              } else {
+                createOperation = relationInfo.external
                   ? createHasRelationOperation
-                  : createBelongsToRelationOperation
-                : relationInfo.external
-                ? createHasAggregateRelationOperation
-                : createBelongsAggregateRelationOperation;
+                  : createBelongsToRelationOperation;
+              }
 
               ({ relationOperation, resolve } = createOperation({
                 relationInfo,
