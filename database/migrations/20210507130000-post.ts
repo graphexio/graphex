@@ -27,6 +27,10 @@ export default {
           },
           onDelete: 'CASCADE',
         },
+        like_ids: {
+          type: Sequelize.ARRAY(Sequelize.INTEGER),
+          allowNull: true,
+        },
         created_at: {
           type: Sequelize.DATE,
           allowNull: false,
