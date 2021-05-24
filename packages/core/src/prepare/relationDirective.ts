@@ -40,6 +40,7 @@ export const relationDirective = (schema: GraphQLSchema) => {
           relationField: relationField,
           storeField: storeField,
           collection: type.mmCollectionName,
+          many: typeWrap.isMany(),
         };
         /**
          * Field resolver is added in relationFieldsVisitorEvents

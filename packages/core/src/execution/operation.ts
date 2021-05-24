@@ -11,6 +11,12 @@ import { DBRef } from 'mongodb';
 import { compact } from '../utils';
 import { Path } from './path';
 
+type RelationOperationData = {
+  relationOperation: AMOperation;
+  resolve: (any) => any;
+  args: any;
+};
+
 export abstract class AMOperation extends AMContext {
   collectionName: string;
   fieldsSelection: AMFieldsSelectionContext;
@@ -23,7 +29,7 @@ export abstract class AMOperation extends AMContext {
   orderBy: { [key: string]: number };
   skip: number;
   first: number;
-  fieldTransformations: Map<string, Transformation[]> = new Map();
+  relationOperations: Map<string, RelationOperationData[]> = new Map();
 
   _result: AMResultPromise<any>;
   _transactionNumber: number;
@@ -132,15 +138,14 @@ export abstract class AMOperation extends AMContext {
     this.setOutput(this.getOutput().map(transformation));
   }
 
-  addFieldTransformation(path: Path, transformation: Transformation) {
-    let transformations = this.fieldTransformations.get(path.asString());
-    if (!transformations) {
-      transformations = [transformation];
-      this.fieldTransformations.set(path.asString(), transformations);
+  addRelationOperation(path: Path, data: RelationOperationData) {
+    let operations = this.relationOperations.get(path.asString());
+    if (!operations) {
+      operations = [data];
+      this.relationOperations.set(path.asString(), operations);
     } else {
-      transformations.push(transformation);
+      operations.push(data);
     }
-    this.setOutput(this.getOutput().map(transformation));
   }
 
   toJSON(): { [key: string]: any } {

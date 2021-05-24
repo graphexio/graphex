@@ -7,9 +7,7 @@ import {
   AMFieldsSelectionContext,
   AMObjectFieldContext,
   AMDataContext,
-  AMFragmentContext,
 } from './contexts';
-import { TransformCondition } from './resultPromise/relationTransformation';
 
 const displayItem = R.prop('display');
 const dbItem = R.prop('db');
@@ -18,19 +16,12 @@ export class AMVisitorStack {
   private contexts: AMContext[] = [];
   private operationsInfo = new Map<
     AMOperation,
-    { path: { display: string; db: string }[]; condition: TransformCondition }
+    { path: { display: string; db: string }[] }
   >();
 
   push(ctx: AMContext) {
     if (ctx instanceof AMOperation) {
-      this.operationsInfo.set(ctx, { path: [], condition: new Map() });
-    } else if (ctx instanceof AMFragmentContext) {
-      const condType = ctx.getActualConditionType();
-      if (condType) {
-        for (const { path, condition } of this.operationsInfo.values()) {
-          condition.set(path.map(displayItem).join('.'), condType);
-        }
-      }
+      this.operationsInfo.set(ctx, { path: [] });
     }
     return this.contexts.push(ctx);
   }
@@ -39,13 +30,6 @@ export class AMVisitorStack {
     const ctx = this.contexts.pop();
     if (ctx instanceof AMOperation) {
       this.operationsInfo.delete(ctx);
-    } else if (ctx instanceof AMFragmentContext) {
-      const condType = ctx.getActualConditionType();
-      if (condType) {
-        for (const { path, condition } of this.operationsInfo.values()) {
-          condition.delete(path.map(displayItem).join('.'));
-        }
-      }
     }
     return ctx;
   }
@@ -94,11 +78,9 @@ export class AMVisitorStack {
     return Path.fromArray(this.operationsInfo.get(operation).path.map(dbItem));
   }
 
-  condition(operation: AMOperation) {
-    return new Map(this.operationsInfo.get(operation).condition);
-  }
-
-  //TODO: Method is deprecated. Replace it with `path`
+  /**
+   * @deprecated Replace with path
+   */
   getFieldPath(operation: AMOperation) {
     const path = [];
     const operationIndex = this.contexts.indexOf(operation);

@@ -653,38 +653,6 @@ Object {
       "output": ResultPromise {
         "source": Array [
           "Operation-0",
-          DistinctReplace {
-            "conditions": Array [
-              Map {
-                "" => "Admin",
-              },
-            ],
-            "data": ResultPromise {
-              "source": Array [
-                "Operation-1",
-              ],
-            },
-            "displayField": "approves",
-            "path": "",
-            "relationField": "_id",
-            "storeField": "approvesPostIds",
-          },
-          DistinctReplace {
-            "conditions": Array [
-              Map {
-                "" => "Subscriber",
-              },
-            ],
-            "data": ResultPromise {
-              "source": Array [
-                "Operation-2",
-              ],
-            },
-            "displayField": "likes",
-            "path": "",
-            "relationField": "_id",
-            "storeField": "likesPostIds",
-          },
         ],
       },
     },
@@ -701,17 +669,17 @@ Object {
       "output": ResultPromise {
         "source": Array [
           "Operation-1",
+          IndexBy {
+            "params": Object {
+              "groupingField": "_id",
+            },
+          },
         ],
       },
       "selector": Object {
         "_id": Object {
           "$in": ResultPromise {
-            "source": Array [
-              "Operation-0",
-              Distinct {
-                "path": "approvesPostIds",
-              },
-            ],
+            "source": "<Batch>",
           },
         },
       },
@@ -729,17 +697,17 @@ Object {
       "output": ResultPromise {
         "source": Array [
           "Operation-2",
+          IndexBy {
+            "params": Object {
+              "groupingField": "_id",
+            },
+          },
         ],
       },
       "selector": Object {
         "_id": Object {
           "$in": ResultPromise {
-            "source": Array [
-              "Operation-0",
-              Distinct {
-                "path": "likesPostIds",
-              },
-            ],
+            "source": "<Batch>",
           },
         },
       },
@@ -780,20 +748,6 @@ Object {
       "output": ResultPromise {
         "source": Array [
           "Operation-0",
-          DistinctReplace {
-            "conditions": Array [
-              Map {},
-            ],
-            "data": ResultPromise {
-              "source": Array [
-                "Operation-1",
-              ],
-            },
-            "displayField": "invitedBy",
-            "path": "profile",
-            "relationField": "_id",
-            "storeField": "userId",
-          },
         ],
       },
     },
@@ -810,17 +764,17 @@ Object {
       "output": ResultPromise {
         "source": Array [
           "Operation-1",
+          IndexBy {
+            "params": Object {
+              "groupingField": "_id",
+            },
+          },
         ],
       },
       "selector": Object {
         "_id": Object {
           "$in": ResultPromise {
-            "source": Array [
-              "Operation-0",
-              Distinct {
-                "path": "profile.userId",
-              },
-            ],
+            "source": "<Batch>",
           },
         },
       },

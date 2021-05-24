@@ -300,21 +300,6 @@ Object {
       "output": ResultPromise {
         "source": Array [
           "Operation-0",
-          Lookup {
-            "conditions": Array [
-              Map {},
-            ],
-            "data": ResultPromise {
-              "source": Array [
-                "Operation-1",
-              ],
-            },
-            "displayFieldPath": "aggregate",
-            "many": false,
-            "path": "",
-            "relationField": "$non-existing-field",
-            "storeField": "$non-existing-field",
-          },
         ],
       },
       "skip": 2,

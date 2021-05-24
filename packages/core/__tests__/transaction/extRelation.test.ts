@@ -44,71 +44,56 @@ describe('extRelation', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-Object {
-  "operations": Array [
-    Object {
-      "collectionName": "posts",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-        ],
-      },
-      "identifier": "Operation-0",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-0",
-          Lookup {
-            "conditions": Array [
-              Map {},
-            ],
-            "data": ResultPromise {
-              "source": Array [
-                "Operation-1",
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
               ],
             },
-            "displayFieldPath": "comments",
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
             "many": true,
-            "path": "",
-            "relationField": "_id",
-            "storeField": "postId",
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
           },
-        ],
-      },
-    },
-    Object {
-      "collectionName": "comments",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "postId",
-          "message",
-        ],
-      },
-      "identifier": "Operation-1",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-1",
-        ],
-      },
-      "selector": Object {
-        "postId": Object {
-          "$in": ResultPromise {
-            "source": Array [
-              "Operation-0",
-              Distinct {
-                "path": "_id",
+          Object {
+            "collectionName": "comments",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "postId",
+                "message",
+              ],
+            },
+            "identifier": "Operation-1",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+                GroupBy {
+                  "params": Object {
+                    "groupingField": "postId",
+                  },
+                },
+              ],
+            },
+            "selector": Object {
+              "postId": Object {
+                "$in": ResultPromise {
+                  "source": "<Batch>",
+                },
               },
-            ],
+            },
           },
-        },
-      },
-    },
-  ],
-}
-`);
+        ],
+      }
+    `);
   });
 
   test('extRelation single', () => {
@@ -124,71 +109,56 @@ Object {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-Object {
-  "operations": Array [
-    Object {
-      "collectionName": "posts",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "_id",
-        ],
-      },
-      "identifier": "Operation-0",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-0",
-          Lookup {
-            "conditions": Array [
-              Map {},
-            ],
-            "data": ResultPromise {
-              "source": Array [
-                "Operation-1",
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "posts",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "_id",
               ],
             },
-            "displayFieldPath": "lastComment",
-            "many": false,
-            "path": "",
-            "relationField": "_id",
-            "storeField": "postId",
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
           },
-        ],
-      },
-    },
-    Object {
-      "collectionName": "comments",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "postId",
-          "_id",
-        ],
-      },
-      "identifier": "Operation-1",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-1",
-        ],
-      },
-      "selector": Object {
-        "postId": Object {
-          "$in": ResultPromise {
-            "source": Array [
-              "Operation-0",
-              Distinct {
-                "path": "_id",
+          Object {
+            "collectionName": "comments",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "postId",
+                "_id",
+              ],
+            },
+            "identifier": "Operation-1",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+                GroupBy {
+                  "params": Object {
+                    "groupingField": "postId",
+                  },
+                },
+              ],
+            },
+            "selector": Object {
+              "postId": Object {
+                "$in": ResultPromise {
+                  "source": "<Batch>",
+                },
               },
-            ],
+            },
           },
-        },
-      },
-    },
-  ],
-}
-`);
+        ],
+      }
+    `);
   });
 
   test('extRelation nested single', () => {
@@ -206,71 +176,56 @@ Object {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-Object {
-  "operations": Array [
-    Object {
-      "collectionName": "favorites",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "nested._id",
-        ],
-      },
-      "identifier": "Operation-0",
-      "kind": "AMReadOperation",
-      "many": false,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-0",
-          Lookup {
-            "conditions": Array [
-              Map {},
-            ],
-            "data": ResultPromise {
-              "source": Array [
-                "Operation-1",
+      Object {
+        "operations": Array [
+          Object {
+            "collectionName": "favorites",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "nested._id",
               ],
             },
-            "displayFieldPath": "comment",
+            "identifier": "Operation-0",
+            "kind": "AMReadOperation",
             "many": false,
-            "path": "nested",
-            "relationField": "_id",
-            "storeField": "postId",
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-0",
+              ],
+            },
           },
-        ],
-      },
-    },
-    Object {
-      "collectionName": "comments",
-      "fieldsSelection": Object {
-        "fields": Array [
-          "postId",
-          "_id",
-        ],
-      },
-      "identifier": "Operation-1",
-      "kind": "AMReadOperation",
-      "many": true,
-      "output": ResultPromise {
-        "source": Array [
-          "Operation-1",
-        ],
-      },
-      "selector": Object {
-        "postId": Object {
-          "$in": ResultPromise {
-            "source": Array [
-              "Operation-0",
-              Distinct {
-                "path": "_id",
+          Object {
+            "collectionName": "comments",
+            "fieldsSelection": Object {
+              "fields": Array [
+                "postId",
+                "_id",
+              ],
+            },
+            "identifier": "Operation-1",
+            "kind": "AMReadOperation",
+            "many": true,
+            "output": ResultPromise {
+              "source": Array [
+                "Operation-1",
+                GroupBy {
+                  "params": Object {
+                    "groupingField": "postId",
+                  },
+                },
+              ],
+            },
+            "selector": Object {
+              "postId": Object {
+                "$in": ResultPromise {
+                  "source": "<Batch>",
+                },
               },
-            ],
+            },
           },
-        },
-      },
-    },
-  ],
-}
-`);
+        ],
+      }
+    `);
   });
 
   // test('request parent collection from extRelation', () => {
