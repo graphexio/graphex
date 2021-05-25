@@ -1,5 +1,5 @@
 import { GraphQLList } from 'graphql';
-import { connect, DBRef } from 'mongodb';
+import { DBRef } from 'mongodb';
 import {
   AMInputFieldConfigMap,
   AMInputObjectType,
@@ -80,9 +80,7 @@ const connectHandlerFactory = (modelType: AMModelType) => (
       };
 };
 
-export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
-  AMInputObjectType
-> {
+export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<AMInputObjectType> {
   getTypeName(modelType: AMModelType): string {
     return `${modelType.name}UpdateManyRelationInput`;
   }
@@ -129,11 +127,18 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
 
                     const lastInStack = stack.last();
                     if (lastInStack instanceof AMDataContext) {
+                      const objectFieldContext = stack.last(
+                        1
+                      ) as AMObjectFieldContext;
                       lastInStack.addValue(
                         'create',
                         opContext
                           .getOutput()
-                          .map(new ResultPromiseTransforms.Path('insertedIds'))
+                          .map(
+                            new ResultPromiseTransforms.Distinct(
+                              objectFieldContext.field.relation.relationField
+                            )
+                          )
                       );
                     }
                   },
@@ -184,11 +189,18 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
 
                     const lastInStack = stack.last();
                     if (lastInStack instanceof AMDataContext) {
+                      const objectFieldContext = stack.last(
+                        1
+                      ) as AMObjectFieldContext;
                       lastInStack.addValue(
                         'recreate',
                         opContext
                           .getOutput()
-                          .map(new ResultPromiseTransforms.Path('insertedIds'))
+                          .map(
+                            new ResultPromiseTransforms.Distinct(
+                              objectFieldContext.field.relation.relationField
+                            )
+                          )
                       );
                     }
                   },
@@ -242,6 +254,7 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
                 'interfaceWhereUnique',
               ])
             ),
+            ...connectHandler('disconnect'),
             ...(!modelType.mmAbstract
               ? {
                   //TODO: fix connect first, then copy
@@ -267,6 +280,7 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<
                 'interfaceWhereUnique',
               ])
             ),
+            ...connectHandler('delete'),
             ...(!modelType.mmAbstract
               ? {
                   //TODO: fix connect first, then copy
