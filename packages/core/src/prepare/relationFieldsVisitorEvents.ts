@@ -86,6 +86,8 @@ export const relationFieldsVisitorEvents = (schema: GraphQLSchema) => {
                 filter: isInConnection
                   ? lastOperation.selector?.selector
                   : undefined,
+                skip: isInConnection ? lastOperation.skip : undefined,
+                first: isInConnection ? lastOperation.first : undefined,
               }));
 
               rootOperation.addRelationOperation(childDataPath, {
@@ -154,6 +156,8 @@ type CreateRelationOperationParams = {
   relationInfo: RelationInfo;
   transaction: AMTransaction;
   filter?: Record<any, any>;
+  skip?: number;
+  first?: number;
 };
 
 const createAbstractBelongsToRelationOperation = ({
@@ -196,6 +200,8 @@ const createBelongsToRelationOperation = ({
   relationInfo,
   transaction,
   filter,
+  skip = 0,
+  first,
 }: CreateRelationOperationParams) => {
   const batch = new Batch();
 
@@ -227,7 +233,13 @@ const createBelongsToRelationOperation = ({
 
     const dataMap = await relationOperation.getOutput().getPromise();
     if (relationInfo.many) {
-      return ids?.map(id => dataMap[id]).filter(Boolean) ?? [];
+      const limit = first ? first + skip : ids?.length;
+      return (
+        ids
+          ?.map(id => dataMap[id])
+          .filter(Boolean)
+          .slice(skip, limit) ?? []
+      );
     } else {
       return dataMap[ids];
     }
@@ -240,6 +252,8 @@ const createHasRelationOperation = ({
   relationInfo,
   transaction,
   filter,
+  skip = 0,
+  first,
 }: CreateRelationOperationParams) => {
   const batch = new Batch();
 
@@ -267,7 +281,8 @@ const createHasRelationOperation = ({
 
     const dataMap = await relationOperation.getOutput().getPromise();
     if (relationInfo.many) {
-      return dataMap[id] ?? [];
+      const limit = first ? first + skip : dataMap[id]?.length;
+      return dataMap[id]?.slice(skip, limit) ?? [];
     } else {
       return dataMap[id]?.[0];
     }
