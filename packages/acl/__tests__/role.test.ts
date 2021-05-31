@@ -55,7 +55,13 @@ const execute = (
     throw new Error(errors.toString());
   }
 
-  return graphqlExecute(schema, document, undefined, {}, variableValues);
+  return graphqlExecute(
+    schema,
+    document,
+    undefined,
+    { userId: 'test-user-id' },
+    variableValues
+  );
 };
 
 describe('allow operation', () => {
@@ -267,6 +273,46 @@ describe('filter', () => {
       }
       `);
   });
+
+  test('read with context operator', async () => {
+    const [interceptedSchema, intercepted] = await intercept(schema);
+
+    const aclSchema = applyRole(interceptedSchema, {
+      Post: {
+        filter: {
+          title_contains: { $val: 'context.userId' },
+        },
+      },
+    });
+
+    await execute(
+      aclSchema,
+      gql`
+        {
+          posts {
+            id
+          }
+        }
+      `
+    );
+    expect(print(intercepted.data?.query)).toMatchInlineSnapshot(`
+      "query ($_v0_where: PostWhereInput) {
+        posts(where: $_v0_where) {
+          id
+        }
+      }
+      "
+    `);
+    expect(intercepted.data?.variables).toMatchInlineSnapshot(`
+      Object {
+        "_v0_where": Object {
+          "aclWhere": Object {
+            "title_contains": "test-user-id",
+          },
+        },
+      }
+      `);
+  });
 });
 
 describe('hydrate', () => {
@@ -276,7 +322,7 @@ describe('hydrate', () => {
         id: ObjectID @id @unique @db(name: "_id")
         title: String
         body: String
-        ownerId: Int
+        ownerId: ID
       }
     `,
     { aclWhere: true }
@@ -331,13 +377,13 @@ describe('hydrate', () => {
     const aclSchema = applyRole(interceptedSchema, {
       Post: {
         filter: {
-          ownerId: 1,
+          title: 'test',
         },
         update: {
           fields: {
-            title: {
+            ownerId: {
               allow: false,
-              hydrate: 'test',
+              hydrate: { $val: 'context.userId' },
             },
           },
         },
@@ -365,11 +411,11 @@ describe('hydrate', () => {
     expect(intercepted.data?.variables).toMatchInlineSnapshot(`
     Object {
       "_v0_data": Object {
-        "title": "test",
+        "ownerId": "test-user-id",
       },
       "_v1_where": Object {
         "aclWhere": Object {
-          "ownerId": 1,
+          "title": "test",
         },
       },
     }

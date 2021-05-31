@@ -4,6 +4,7 @@ import { allQueries, allMutations, anyField } from './rules';
 import { modelDefaultActions } from './modelDefaultActions';
 import { modelField } from './modelField';
 import { modelDefault } from './modelDefault';
+import { path } from 'ramda';
 
 type Role = {
   [typeName: string]: {
@@ -47,6 +48,23 @@ const OperationToAccess = {
   delete: 'D',
 };
 
+const executeOperators = (value, context) => {
+  if (Array.isArray(value))
+    return value.map((v) => executeOperators(v, context));
+
+  if (typeof value === 'object') {
+    if ('$val' in value) {
+      return path(value['$val'].split('.'), { context });
+    } else {
+      return Object.fromEntries(
+        Object.entries(value).map(([k, v]) => [k, executeOperators(v, context)])
+      );
+    }
+  }
+
+  return value;
+};
+
 export const applyRole = (schema: GraphQLSchema, role: Role) => {
   const denyRules = [];
   const defaults = [];
@@ -63,7 +81,7 @@ export const applyRole = (schema: GraphQLSchema, role: Role) => {
 
       defaults.push(
         modelDefault(modelName, 'aclWhere', 'R', ({ context }) => {
-          return filter;
+          return executeOperators(filter, context);
         })
       );
     }
@@ -85,7 +103,7 @@ export const applyRole = (schema: GraphQLSchema, role: Role) => {
             if ('hydrate' in field) {
               defaults.push(
                 modelDefault(modelName, fieldName, access, ({ context }) => {
-                  return field['hydrate'];
+                  return executeOperators(field['hydrate'], context);
                 })
               );
             }
