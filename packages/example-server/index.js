@@ -3,6 +3,16 @@ import ApolloModelMongo from '@apollo-model/core';
 import QueryExecutor from '@apollo-model/mongodb-executor';
 import { MongoClient } from 'mongodb';
 import typeDefs from './model.js';
+import {
+  allMutations,
+  modelDefaultActions,
+  allQueries,
+  anyField,
+  applyRules,
+  modelField,
+  allACLTypes,
+  modelDefault,
+} from '@apollo-model/acl';
 
 let DB = null;
 
@@ -12,13 +22,15 @@ export const connectToDatabase = () => {
   }
   return MongoClient.connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
-  }).then(client => {
+  }).then((client) => {
     DB = client.db(process.env.MONGO_DB);
     return DB;
   });
 };
 
-const schema = new ApolloModelMongo().makeExecutableSchema({
+const schema = new ApolloModelMongo({
+  options: { aclWhere: true },
+}).makeExecutableSchema({
   typeDefs,
 });
 
@@ -33,4 +45,43 @@ const server = new ApolloServer({
 
 server.listen().then(({ url }) => {
   console.log(`🚀  Server ready at ${url}`);
+});
+
+// ACL
+
+const aclSchema = applyRules(schema, {
+  allow: [
+    modelDefaultActions('Category', 'CRU'), //
+    anyField,
+  ],
+  deny: [
+    allACLTypes, //for aclWhere
+    modelField('Category', 'subcategories', 'CRU'),
+    modelField('Category', 'subcategoriesConnection', 'CRU'),
+  ],
+  defaults: [
+    modelDefault('Category', 'aclWhere', 'R', ({ context }) => {
+      return { parentCategory: { title: 'root' } };
+    }),
+  ],
+  argsDefaults: [
+    // set empty where arg
+    (schema) => ({
+      cond: modelDefaultActions('Category', 'RUD')(schema),
+      fn: () => ({ where: {} }),
+    }),
+  ],
+});
+
+const aclServer = new ApolloServer({
+  schema: aclSchema,
+  introspection: true,
+  playground: true,
+  context: () => ({
+    queryExecutor: QueryExecutor(connectToDatabase),
+  }),
+});
+
+aclServer.listen({ port: 4001 }).then(({ url }) => {
+  console.log(`🚀  ACL Server ready at ${url}`);
 });
