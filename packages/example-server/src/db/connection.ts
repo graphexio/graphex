@@ -6,7 +6,6 @@ const mongod = new MongoMemoryServer({
     version: '4.2.8',
   },
 });
-mongod.getUri().then(console.log);
 
 let DB: Db;
 let Client: MongoClient;
