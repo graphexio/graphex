@@ -55,16 +55,16 @@ const typeNameFromFactory = R.curry(
 
 export function modelField(typePattern, fieldName, access): ACLRule {
   return (schema: GraphQLSchema) => {
-    const isTypeExists = typeName => Boolean(schema.getType(typeName));
-    const concatFieldName = typeName => {
+    const isTypeExists = (typeName) => Boolean(schema.getType(typeName));
+    const concatFieldName = (typeName) => {
       return matchingFields(
         schema,
         typeName,
         new RegExp(`^(?:${fieldName})$`)
-      ).map(field => `${typeName}.${field.name}`);
+      ).map((field) => `${typeName}.${field.name}`);
     };
 
-    const typeToFieldSignature = type =>
+    const typeToFieldSignature = (type) =>
       R.pipe(
         R.split(''),
         R.chain(transformAccessToInputTypeFactories),
