@@ -3,7 +3,7 @@ stages:
 
 test:
   stage: test
-  image: node:14-slim
+  image: node:12
   script:
     - yarn install
     - yarn test
