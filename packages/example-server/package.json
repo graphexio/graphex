@@ -1,6 +1,6 @@
 {
   "name": "@graphex/example-server",
-  "version": "0.6.8-alpha.0",
+  "version": "0.7.0-alpha.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@graphex/core": "0.6.8-alpha.0",
+    "@graphex/core": "0.7.0-alpha.0",
     "apollo-server": "^2.2.6",
     "graphql": "14.6.0",
     "mongodb": "^3.1.10"

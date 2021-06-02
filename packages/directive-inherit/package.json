@@ -1,6 +1,6 @@
 {
   "name": "@graphex/directive-inherit",
-  "version": "0.6.0-alpha.32",
+  "version": "0.7.0-alpha.0",
   "description": "",
   "main": "lib/index.js",
   "files": [

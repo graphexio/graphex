@@ -1,6 +1,6 @@
 {
   "name": "@graphex/example-gateway",
-  "version": "0.5.4-alpha.1",
+  "version": "0.7.0-alpha.0",
   "description": "",
   "main": "index.js",
   "scripts": {
