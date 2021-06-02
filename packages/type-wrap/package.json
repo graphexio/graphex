@@ -1,6 +1,6 @@
 {
   "name": "@graphex/type-wrap",
-  "version": "0.7.0-alpha.3",
+  "version": "0.7.0",
   "description": "",
   "main": "lib/index.js",
   "files": [

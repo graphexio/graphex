@@ -1,6 +1,6 @@
 {
   "name": "@graphex/ast-from-value",
-  "version": "0.7.0-alpha.3",
+  "version": "0.7.0",
   "main": "lib/index.js",
   "license": "MIT",
   "devDependencies": {
