@@ -24,6 +24,9 @@
     "@babel/preset-typescript": "^7.9.0",
     "rimraf": "^2.6.3"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC"
