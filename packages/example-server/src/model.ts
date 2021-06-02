@@ -27,52 +27,34 @@ export default gql`
     category: Category @relation
     keywords: [String!]
     owner: User! @relation
-    # place: GeoJSONPoint
-    comments: [Comment!]
-    poi: Poi @relation
-    pois: [Poi] @relation
   }
 
-  type Session implements Node & Timestamp @model {
-    token: ID! @unique
-    user: User! @relation
-  }
-
-  interface User @inherit @model {
+  interface User @implements(name: "Node & Timestamp") @inherit @model {
     username: String! @unique
   }
 
-  enum AdminRole {
-    superadmin
+  enum AdminAccess {
+    owner
     moderator
   }
 
-  type Admin implements Node & Timestamp & User {
-    role: AdminRole
+  type Admin implements User {
+    access: AdminAccess
   }
 
-  enum SubscriberRole {
+  enum SubscriberPlan {
     free
     standard
     premium
   }
 
   type SubscriberProfile @embedded {
-    firstName: String!
-    lastName: String!
+    firstName: String
+    lastName: String
   }
 
-  type Subscriber implements Node & Timestamp & User {
-    role: SubscriberRole
-    profile: SubscriberProfile!
-  }
-
-  interface Poi @inherit @abstract {
-    title: String
-  }
-
-  type Shop implements Node & Timestamp & Poi @model
-  type Hotel implements Node & Timestamp & Poi @model {
-    stars: Int
+  type Subscriber implements User {
+    plan: SubscriberPlan!
+    profile: SubscriberProfile
   }
 `;
