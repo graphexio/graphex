@@ -1,6 +1,6 @@
 {
-  "name": "@apollo-model/type-geojson",
-  "version": "0.6.8-alpha.0",
+  "name": "@graphex/type-geojson",
+  "version": "0.7.0-alpha.1",
   "description": "",
   "main": "lib/index.js",
   "files": [
@@ -11,7 +11,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@apollo-model/core": "0.6.8-alpha.0"
+    "@graphex/core": "0.7.0-alpha.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.2",
@@ -23,6 +23,9 @@
     "@babel/preset-env": "^7.1.0",
     "@babel/preset-typescript": "^7.9.0",
     "rimraf": "^2.6.3"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "keywords": [],
   "author": "",

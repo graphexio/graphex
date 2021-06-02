@@ -1,6 +1,6 @@
-import AMM, { defaultConfig } from '@apollo-model/core';
-import * as DirectiveImplements from '@apollo-model/directive-implements';
-import * as TypeGeoJSON from '@apollo-model/type-geojson';
+import AMM, { defaultConfig } from '@graphex/core';
+import * as DirectiveImplements from '@graphex/directive-implements';
+import * as TypeGeoJSON from '@graphex/type-geojson';
 import { ApolloServer } from 'apollo-server';
 import { createTestClient } from 'apollo-server-testing';
 import { DocumentNode } from 'graphql';

@@ -1,10 +1,10 @@
 import { ApolloServer } from 'apollo-server';
 import AMM from '../src';
-import QueryExecutor from '@apollo-model/mongodb-executor';
+import QueryExecutor from '@graphex/mongodb-executor';
 import { MongoClient } from 'mongodb';
 import typeDefs from './model';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import * as DirectiveImplements from '@apollo-model/directive-implements';
+import * as DirectiveImplements from '@graphex/directive-implements';
 import { AMOptions } from '../src/definitions';
 import { createTestClient } from 'apollo-server-testing';
 

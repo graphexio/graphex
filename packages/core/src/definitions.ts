@@ -24,8 +24,8 @@ import Maybe from 'graphql/tsutils/Maybe';
 import { AMConfigResolver } from './config/resolver';
 import { AMTransaction } from './execution/transaction';
 import { AMVisitorStack } from './execution/visitorStack';
-import { AMDBExecutorOperationType } from '@apollo-model/mongodb-executor';
-export { AMDBExecutorOperationType } from '@apollo-model/mongodb-executor';
+import { AMDBExecutorOperationType } from '@graphex/mongodb-executor';
+export { AMDBExecutorOperationType } from '@graphex/mongodb-executor';
 
 export abstract class AMFactory {
   links: { [key: string]: string | string[] };

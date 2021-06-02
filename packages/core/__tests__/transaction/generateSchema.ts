@@ -1,4 +1,4 @@
-import * as DirectiveImplements from '@apollo-model/directive-implements';
+import * as DirectiveImplements from '@graphex/directive-implements';
 import AMM from '../../src';
 import { AMOptions } from '../../src/definitions';
 

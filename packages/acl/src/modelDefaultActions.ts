@@ -3,7 +3,7 @@ import {
   AMModelType,
   GraphQLOperationType,
   defaultConfig,
-} from '@apollo-model/core';
+} from '@graphex/core';
 
 import { GraphQLSchema, GraphQLType } from 'graphql';
 import R from 'ramda';

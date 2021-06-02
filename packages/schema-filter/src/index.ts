@@ -8,7 +8,7 @@ export const SchemaFilter: (transformOptions: {
   filterFields;
   defaultFields;
   defaultArgs;
-}) => Transform = transformOptions => {
+}) => Transform = (transformOptions) => {
   const transformContext: {
     initialSchema?: GraphQLSchema;
     defaults?: any;

@@ -1,4 +1,4 @@
-import * as DirectiveImplements from '@apollo-model/directive-implements';
+import * as DirectiveImplements from '@graphex/directive-implements';
 import gql from 'graphql-tag';
 import AMM from '../src/';
 import { AMTransaction } from '../src/execution/transaction';

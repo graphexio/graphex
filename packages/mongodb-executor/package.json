@@ -1,6 +1,6 @@
 {
-  "name": "@apollo-model/mongodb-executor",
-  "version": "0.6.8-alpha.0",
+  "name": "@graphex/mongodb-executor",
+  "version": "0.7.0-alpha.0",
   "description": "",
   "main": "lib/index.js",
   "files": [

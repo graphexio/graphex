@@ -1,4 +1,4 @@
-import TypeWrap from '@apollo-model/type-wrap';
+import TypeWrap from '@graphex/type-wrap';
 import { GraphQLSchema } from 'graphql';
 import { AMConfigResolver } from '../config/resolver';
 import { AMModelType, AMOptions, GraphQLOperationType } from '../definitions';

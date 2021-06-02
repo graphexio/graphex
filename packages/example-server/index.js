@@ -1,6 +1,6 @@
 import { ApolloServer } from 'apollo-server';
-import ApolloModelMongo from '@apollo-model/core';
-import QueryExecutor from '@apollo-model/mongodb-executor';
+import ApolloModelMongo from '@graphex/core';
+import QueryExecutor from '@graphex/mongodb-executor';
 import { MongoClient } from 'mongodb';
 import typeDefs from './model.js';
 import {
@@ -12,7 +12,7 @@ import {
   modelField,
   allACLTypes,
   modelDefault,
-} from '@apollo-model/acl';
+} from '@graphex/acl';
 
 let DB = null;
 

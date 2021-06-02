@@ -26,14 +26,14 @@ const resolveType = createResolveType((typeName, type) => {
 export const transformSchema = (
   { filterFields, defaultFields, defaultArgs },
   transformContext
-) => schema => {
+) => (schema) => {
   transformContext.initialSchema = schema;
   transformContext.defaults = DefaultFields();
 
   let newSchema = visitSchema(schema, {
     [VisitSchemaKind.OBJECT_TYPE]: (type: GraphQLObjectType) => {
       const groupedFields = groupFields(
-        field => filterFields(type, field),
+        (field) => filterFields(type, field),
         type.getFields()
       );
 
@@ -56,7 +56,7 @@ export const transformSchema = (
     },
     [VisitSchemaKind.INPUT_OBJECT_TYPE]: (type: GraphQLInputObjectType) => {
       const groupedFields = groupFields(
-        field => filterFields(type, field),
+        (field) => filterFields(type, field),
         type.getFields()
       );
 
@@ -77,7 +77,7 @@ export const transformSchema = (
     },
     [VisitSchemaKind.ENUM_TYPE]: (type: GraphQLEnumType) => {
       const groupedFields = groupFields(
-        field => filterFields(type, field),
+        (field) => filterFields(type, field),
         reduceValues(type.getValues())
       );
 
@@ -95,7 +95,7 @@ export const transformSchema = (
     },
     [VisitSchemaKind.INTERFACE_TYPE]: (type: GraphQLInterfaceType) => {
       const groupedFields = groupFields(
-        field => filterFields(type, field),
+        (field) => filterFields(type, field),
         type.getFields()
       );
 
@@ -140,7 +140,7 @@ export const transformSchema = (
   newSchema = visitSchema(newSchema, {
     [VisitSchemaKind.OBJECT_TYPE]: (type: GraphQLObjectType) => {
       const interfaces = type.getInterfaces();
-      const filteredInterfaces = interfaces.filter(iface => iface);
+      const filteredInterfaces = interfaces.filter((iface) => iface);
 
       if (filteredInterfaces.length === interfaces.length) {
         return undefined;
@@ -194,7 +194,7 @@ export const transformSchema = (
   Object.values(schema.getTypeMap()).forEach((type: GraphQLNamedType) => {
     if (type.name.startsWith('__')) return;
     if (isObjectType(type) || isInputObjectType(type)) {
-      Object.values(type.getFields()).forEach(field => {
+      Object.values(type.getFields()).forEach((field) => {
         // if (
         //   !newSchema.getTypeMap()[type.name] ||
         //   !newSchema.getTypeMap()[type.name].getFields()[field.name]

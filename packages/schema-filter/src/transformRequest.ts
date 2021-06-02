@@ -1,4 +1,4 @@
-import { astFromValue } from '@apollo-model/ast-from-value';
+import { astFromValue } from '@graphex/ast-from-value';
 import {
   ArgumentNode,
   FieldNode,
@@ -35,8 +35,8 @@ export const transformRequest = (transformOptions, transformContext) => async (
   const variableTypes = {};
   const { variables } = request;
   const typeStack = [];
-  const typeStackPush = item => typeStack.push(item);
-  const getType = typeName => {
+  const typeStackPush = (item) => typeStack.push(item);
+  const getType = (typeName) => {
     return transformContext.initialSchema.getType(typeName);
   };
   const initialSchema = transformContext.initialSchema;
@@ -77,11 +77,11 @@ export const transformRequest = (transformOptions, transformContext) => async (
       enter(node: SelectionSetNode) {
         const newSelections = [];
 
-        node.selections.forEach(selection => {
+        node.selections.forEach((selection) => {
           if (selection.kind === Kind.FRAGMENT_SPREAD) {
             fragmentDefinitions
               .get(selection.name.value)
-              ?.selectionSet.selections.forEach(selection => {
+              ?.selectionSet.selections.forEach((selection) => {
                 newSelections.push(selection);
               });
           } else {

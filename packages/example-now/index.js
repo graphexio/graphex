@@ -1,5 +1,5 @@
 const { ApolloServer } = require('apollo-server-micro');
-import ApolloModelMongo, { QueryExecutor } from '@apollo-model/core';
+import ApolloModelMongo, { QueryExecutor } from '@graphex/core';
 import { MongoClient, ObjectID } from 'mongodb';
 import typeDefs from './model.graphql';
 
@@ -11,7 +11,7 @@ export const connectToDatabase = () => {
   }
   return MongoClient.connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
-  }).then(client => {
+  }).then((client) => {
     DB = client.db(process.env.MONGO_DB);
     return DB;
   });

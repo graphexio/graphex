@@ -1,13 +1,13 @@
-import { defaultConfig } from '@apollo-model/core';
+import { defaultConfig } from '@graphex/core';
 
-import AMM from '@apollo-model/core';
+import AMM from '@graphex/core';
 
 import { modelDefaultActions, modelField } from '../src';
 import gql from 'graphql-tag';
 import {
   GraphQLOperationType,
   AMModelType,
-} from '@apollo-model/core/lib/definitions';
+} from '@graphex/core/lib/definitions';
 
 const schema = new AMM({}).makeExecutableSchema({
   typeDefs: gql`

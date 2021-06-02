@@ -1,9 +1,9 @@
 require('dotenv').config();
 
 import { ApolloServer } from 'apollo-server';
-import AM from '@apollo-model/core';
+import AM from '@graphex/core';
 import typeDefs from './model';
-import SequelizeExecutor from '@apollo-model/sequelize-executor';
+import SequelizeExecutor from '@graphex/sequelize-executor';
 import SQ from './db';
 
 const schema = new AM().makeExecutableSchema({

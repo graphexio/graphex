@@ -1,4 +1,4 @@
-import AMM from '@apollo-model/core';
+import AMM from '@graphex/core';
 import {
   DocumentNode,
   execute as graphqlExecute,
@@ -53,7 +53,7 @@ const execute = (
     document,
     undefined,
     {
-      queryExecutor: async params => {
+      queryExecutor: async (params) => {
         // console.log(util.inspect(params, { showHidden: false, depth: null }));
         // console.log(params);
         const result = await QE(params);
@@ -302,7 +302,7 @@ describe('accessRules', () => {
           }),
         ],
         argsDefaults: [
-          schema => ({
+          (schema) => ({
             cond: modelDefaultActions('Post', 'RUD')(schema),
             fn: () => ({ where: {} }),
           }),

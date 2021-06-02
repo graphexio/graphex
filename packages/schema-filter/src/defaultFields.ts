@@ -1,5 +1,5 @@
 import { GraphQLObjectType, Kind, valueFromAST } from 'graphql';
-import { astFromValue } from '@apollo-model/ast-from-value';
+import { astFromValue } from '@graphex/ast-from-value';
 import R from 'ramda';
 
 const reduceDefaults = (state, item) => {
@@ -27,12 +27,12 @@ export default () => {
     defaultArgs[type.name][field.name] = valueFn;
   };
 
-  const get = type => {
+  const get = (type) => {
     if (!defaults[type.name]) return undefined;
     return defaults[type.name].reduce(reduceDefaults, {});
   };
 
-  const valueFromFieldNode = (typeFields, variables) => fieldNode => {
+  const valueFromFieldNode = (typeFields, variables) => (fieldNode) => {
     const fieldName = fieldNode.name.value;
     const fieldType = typeFields[fieldName].type;
     const value = valueFromAST(fieldNode.value, fieldType, variables);
@@ -52,7 +52,7 @@ export default () => {
           value: {
             kind: 'ListValue',
             values: await Promise.all(
-              node.value.values.map(async val => {
+              node.value.values.map(async (val) => {
                 return (
                   await applyDefaults(
                     { value: val },
@@ -81,7 +81,7 @@ export default () => {
       }
 
       await Promise.all(
-        defaultValues.map(async item => {
+        defaultValues.map(async (item) => {
           input[item.field.name] = await item.valueFn({
             input: input[item.field.name],
             parent: input,
@@ -109,7 +109,7 @@ export default () => {
     ) {
       const inputArgs = node.arguments
         //Filter undefined variables
-        .filter(argNode => {
+        .filter((argNode) => {
           if (
             argNode.value.kind === Kind.VARIABLE &&
             !variables[argNode.value.name.value]
@@ -131,7 +131,7 @@ export default () => {
       Object.entries(args).forEach(([argName, argValue]) => {
         try {
           const argType = R.find(
-            arg => arg.name === argName,
+            (arg) => arg.name === argName,
             parent.type.getFields()[node.name.value].args
           ).type;
 

@@ -1,4 +1,4 @@
-import QueryExecutor from '@apollo-model/mongodb-executor';
+import QueryExecutor from '@graphex/mongodb-executor';
 import { MongoClient } from 'mongodb';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 

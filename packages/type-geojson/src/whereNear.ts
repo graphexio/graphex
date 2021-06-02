@@ -1,8 +1,8 @@
-import { AMInputFieldFactory, AMModelField } from '@apollo-model/core';
-import { AMDataContext } from '@apollo-model/core/lib/execution/contexts/data';
-import { AMObjectFieldContext } from '@apollo-model/core/lib/execution/contexts/objectField';
-import { AMSelectorContext } from '@apollo-model/core/lib/execution/contexts/selector';
-import { AMInputField } from '@apollo-model/core/src/definitions';
+import { AMInputFieldFactory, AMModelField } from '@graphex/core';
+import { AMDataContext } from '@graphex/core/lib/execution/contexts/data';
+import { AMObjectFieldContext } from '@graphex/core/lib/execution/contexts/objectField';
+import { AMSelectorContext } from '@graphex/core/lib/execution/contexts/selector';
+import { AMInputField } from '@graphex/core/src/definitions';
 import { ObjectFieldNode } from 'graphql';
 
 export class AMGeoJSONNearFieldFactory extends AMInputFieldFactory {

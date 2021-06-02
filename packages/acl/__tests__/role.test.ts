@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import AMM from '@apollo-model/core';
+import AMM from '@graphex/core';
 import { applyRole } from '../src';
 import {
   GraphQLSchema,

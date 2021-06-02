@@ -1,8 +1,8 @@
-import AMM from '@apollo-model/core';
+import AMM from '@graphex/core';
 import { printSchema } from 'graphql';
 import gql from 'graphql-tag';
 import R from 'ramda';
-import { removeUnusedTypes } from '@apollo-model/schema-filter';
+import { removeUnusedTypes } from '@graphex/schema-filter';
 import {
   allMutations,
   allQueries,
@@ -13,7 +13,7 @@ import {
   modelField,
 } from '../src';
 
-const createSchema = typeDefs => {
+const createSchema = (typeDefs) => {
   const schema = new AMM({
     queryExecutor: null,
   }).makeExecutableSchema({
