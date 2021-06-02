@@ -3,6 +3,8 @@ import ApolloModelMongo from '@graphex/core';
 import QueryExecutor from '@graphex/mongodb-executor';
 import { MongoClient } from 'mongodb';
 import typeDefs from './model.js';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+
 import {
   allMutations,
   modelDefaultActions,
@@ -14,13 +16,15 @@ import {
   modelDefault,
 } from '@graphex/acl';
 
+const mongod = new MongoMemoryServer();
+
 let DB = null;
 
-export const connectToDatabase = () => {
+export const connectToDatabase = async () => {
   if (DB && DB.serverConfig.isConnected()) {
-    return Promise.resolve(DB);
+    return DB;
   }
-  return MongoClient.connect(process.env.MONGO_URL, {
+  return MongoClient.connect(await mongod.getUri(), {
     useNewUrlParser: true,
   }).then((client) => {
     DB = client.db(process.env.MONGO_DB);
@@ -34,18 +38,18 @@ const schema = new ApolloModelMongo({
   typeDefs,
 });
 
-const server = new ApolloServer({
-  schema,
-  introspection: true,
-  playground: true,
-  context: () => ({
-    queryExecutor: QueryExecutor(connectToDatabase),
-  }),
-});
+// const server = new ApolloServer({
+//   schema,
+//   introspection: true,
+//   playground: true,
+//   context: () => ({
+//     queryExecutor: QueryExecutor(connectToDatabase),
+//   }),
+// });
 
-server.listen().then(({ url }) => {
-  console.log(`🚀  Server ready at ${url}`);
-});
+// server.listen().then(({ url }) => {
+//   console.log(`🚀  Server ready at ${url}`);
+// });
 
 // ACL
 
@@ -82,6 +86,6 @@ const aclServer = new ApolloServer({
   }),
 });
 
-aclServer.listen({ port: 4001 }).then(({ url }) => {
+aclServer.listen({ port: 4000 }).then(({ url }) => {
   console.log(`🚀  ACL Server ready at ${url}`);
 });

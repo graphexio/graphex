@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "MONGO_URL='mongodb+srv://public:public@cluster0-c6p6b.mongodb.net/admin' MONGO_DB='db1' babel-node index.js",
+    "start": "yarn dev",
+    "dev": "babel-node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "private": true,
@@ -12,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@graphex/acl": "0.7.0-alpha.2",
     "@graphex/core": "0.7.0-alpha.0",
     "apollo-server": "^2.2.6",
     "graphql": "14.6.0",
@@ -22,6 +24,7 @@
     "@babel/core": "^7.2.0",
     "@babel/node": "^7.2.0",
     "@babel/preset-env": "^7.2.0",
-    "babel-plugin-import-graphql": "^2.6.2"
+    "babel-plugin-import-graphql": "^2.6.2",
+    "mongodb-memory-server": "^6.9.6"
   }
 }
