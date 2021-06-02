@@ -1,7 +1,0 @@
-//prettier-ignore
-{
-  "presets": ["@babel/preset-env"],
-  "plugins": [
-    ["import-graphql"]
-  ]
-}
