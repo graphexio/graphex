@@ -1,5 +1,5 @@
 {
-  "name": "@apollo-model/ra-data-apollo-model",
+  "name": "@graphex/ra-data-apollo-model",
   "version": "0.6.7-alpha.0",
   "description": "An apollo-model data provider for react-admin",
   "main": "lib/index.js",

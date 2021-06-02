@@ -1,4 +1,4 @@
-import TypeWrap from '@apollo-model/type-wrap';
+import TypeWrap from '@graphex/type-wrap';
 import { DirectiveNode, GraphQLUnionType } from 'graphql';
 import { AMModelType, AMObjectType, IAMTypeFactory } from '../definitions';
 import { getDirective } from '../utils';

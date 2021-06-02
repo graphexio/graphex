@@ -2,7 +2,7 @@ import {
   AMInputFieldFactory,
   defaultObjectFieldVisitorHandler,
   AMModelField,
-} from '@apollo-model/core';
+} from '@graphex/core';
 import { GraphQLInputType, GraphQLNamedType } from 'graphql';
 
 export class AMGeoJSONCreateFieldFactory extends AMInputFieldFactory {

@@ -1,5 +1,5 @@
 {
-  "name": "@apollo-model/acl",
+  "name": "@graphex/acl",
   "version": "0.6.8-alpha.0",
   "description": "",
   "main": "lib/index.js",
@@ -15,12 +15,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@apollo-model/ast-from-value": "0.6.7-alpha.0",
-    "@apollo-model/core": "0.6.8-alpha.0",
+    "@graphex/ast-from-value": "0.6.7-alpha.0",
+    "@graphex/core": "0.6.8-alpha.0",
     "@apollo-model/graphql-tools": "4.0.7",
-    "@apollo-model/mongodb-executor": "0.6.8-alpha.0",
-    "@apollo-model/schema-filter": "0.6.7-alpha.0",
-    "@apollo-model/type-wrap": "0.6.7-alpha.0",
+    "@graphex/mongodb-executor": "0.6.8-alpha.0",
+    "@graphex/schema-filter": "0.6.7-alpha.0",
+    "@graphex/type-wrap": "0.6.7-alpha.0",
     "@apollo/federation": "^0.7.0",
     "apollo-server": "^2.7.0",
     "ramda": "^0.26.1"

@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import AMM from '@apollo-model/core';
+import AMM from '@graphex/core';
 import { matchingTypes, extractAbstractTypes } from '../src/utils';
 
 const schema = new AMM({}).makeExecutableSchema({

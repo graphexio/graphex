@@ -1,4 +1,4 @@
-import * as Inherit from '@apollo-model/directive-inherit';
+import * as Inherit from '@graphex/directive-inherit';
 // import * as Default from './directives/default';
 import * as Abstract from './directives/abstract';
 import * as CreatedAt from './directives/createdAt';

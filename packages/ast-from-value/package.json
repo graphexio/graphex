@@ -1,5 +1,5 @@
 {
-  "name": "@apollo-model/ast-from-value",
+  "name": "@graphex/ast-from-value",
   "version": "0.6.7-alpha.0",
   "main": "lib/index.js",
   "license": "MIT",

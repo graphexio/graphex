@@ -1,6 +1,6 @@
-import AMM, { defaultConfig } from '@apollo-model/core';
-import * as DirectiveImplements from '@apollo-model/directive-implements';
-import QueryExecutor from '@apollo-model/mongodb-executor';
+import AMM, { defaultConfig } from '@graphex/core';
+import * as DirectiveImplements from '@graphex/directive-implements';
+import QueryExecutor from '@graphex/mongodb-executor';
 import { ApolloServer } from 'apollo-server';
 import { createTestClient } from 'apollo-server-testing';
 import { MongoClient } from 'mongodb';

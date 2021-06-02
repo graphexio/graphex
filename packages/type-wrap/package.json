@@ -1,5 +1,5 @@
 {
-  "name": "@apollo-model/type-wrap",
+  "name": "@graphex/type-wrap",
   "version": "0.6.7-alpha.0",
   "description": "",
   "main": "lib/index.js",

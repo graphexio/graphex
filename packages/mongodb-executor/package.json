@@ -1,5 +1,5 @@
 {
-  "name": "@apollo-model/mongodb-executor",
+  "name": "@graphex/mongodb-executor",
   "version": "0.6.8-alpha.0",
   "description": "",
   "main": "lib/index.js",

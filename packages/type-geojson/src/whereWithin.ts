@@ -1,10 +1,10 @@
-import { AMInputFieldFactory, AMModelField } from '@apollo-model/core';
+import { AMInputFieldFactory, AMModelField } from '@graphex/core';
 import {
   AMDataContext,
   AMObjectFieldContext,
   AMSelectorContext,
   AMInputField,
-} from '@apollo-model/core';
+} from '@graphex/core';
 
 import { ObjectFieldNode } from 'graphql';
 

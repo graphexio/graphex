@@ -1,5 +1,5 @@
 {
-  "name": "@apollo-model/example-now",
+  "name": "@graphex/example-now",
   "version": "0.6.8-alpha.0",
   "description": "",
   "main": "index.js",
@@ -14,7 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@apollo-model/core": "0.6.8-alpha.0",
+    "@graphex/core": "0.6.8-alpha.0",
     "@babel/runtime": "^7.2.0",
     "apollo-server": "^2.2.6",
     "apollo-server-micro": "^2.3.1",

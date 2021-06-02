@@ -1,5 +1,5 @@
 {
-  "name": "@apollo-model/schema-filter",
+  "name": "@graphex/schema-filter",
   "version": "0.6.7-alpha.0",
   "description": "",
   "main": "lib/index.js",
@@ -15,9 +15,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@apollo-model/ast-from-value": "0.6.7-alpha.0",
+    "@graphex/ast-from-value": "0.6.7-alpha.0",
     "@apollo-model/graphql-tools": "4.0.7",
-    "@apollo-model/type-wrap": "0.6.7-alpha.0",
+    "@graphex/type-wrap": "0.6.7-alpha.0",
     "@apollo/federation": "^0.7.0",
     "ramda": "^0.27.0"
   },

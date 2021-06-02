@@ -1,5 +1,5 @@
 {
-  "name": "@apollo-model/directive-implements",
+  "name": "@graphex/directive-implements",
   "version": "0.5.4-alpha.4",
   "description": "",
   "main": "lib/index.js",

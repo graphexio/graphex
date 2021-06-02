@@ -1,5 +1,5 @@
 import R from 'ramda';
-import { SchemaFilter, removeUnusedTypes } from '@apollo-model/schema-filter';
+import { SchemaFilter, removeUnusedTypes } from '@graphex/schema-filter';
 import { transformSchema } from '@apollo-model/graphql-tools';
 
 export const applyRules = (
@@ -11,7 +11,7 @@ export const applyRules = (
     argsDefaults = [],
   }
 ) => {
-  const prepareRules = rules => rules.map(rule => rule(schema));
+  const prepareRules = (rules) => rules.map((rule) => rule(schema));
 
   allowRules = prepareRules(allowRules);
   denyRules = prepareRules(denyRules);
@@ -26,7 +26,7 @@ export const applyRules = (
       return allow && !deny;
     },
     defaultFields: (type, field) => {
-      const defaultFn = defaults.find(item =>
+      const defaultFn = defaults.find((item) =>
         item.cond({ type, field, schema })
       );
       if (!defaultFn) {
@@ -35,7 +35,7 @@ export const applyRules = (
       return defaultFn.fn;
     },
     defaultArgs: (type, field) => {
-      const defaultFn = argsDefaults.find(item =>
+      const defaultFn = argsDefaults.find((item) =>
         item.cond({ type, field, schema })
       );
       if (!defaultFn) {

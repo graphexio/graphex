@@ -1,5 +1,5 @@
 {
-  "name": "@apollo-model/core",
+  "name": "@graphex/core",
   "version": "0.6.8-alpha.0",
   "description": "",
   "main": "lib/index.js",
@@ -45,10 +45,10 @@
     "mongodb": "^3.1.12"
   },
   "dependencies": {
-    "@apollo-model/ast-from-value": "0.6.7-alpha.0",
-    "@apollo-model/directive-inherit": "0.6.0-alpha.32",
-    "@apollo-model/mongodb-executor": "0.6.8-alpha.0",
-    "@apollo-model/type-wrap": "0.6.7-alpha.0",
+    "@graphex/ast-from-value": "0.6.7-alpha.0",
+    "@graphex/directive-inherit": "0.6.0-alpha.32",
+    "@graphex/mongodb-executor": "0.6.8-alpha.0",
+    "@graphex/type-wrap": "0.6.7-alpha.0",
     "@apollo/federation": "^0.9.2",
     "@babel/runtime": "^7.2.0",
     "dataloader": "^1.4.0",
@@ -61,7 +61,7 @@
     "ramda": "^0.27.0"
   },
   "devDependencies": {
-    "@apollo-model/directive-implements": "0.6.0-alpha.32",
+    "@graphex/directive-implements": "0.6.0-alpha.32",
     "@babel/cli": "^7.1.2",
     "@babel/core": "^7.1.2",
     "@babel/node": "^7.2.2",

@@ -1,4 +1,4 @@
-import { buildConfigType } from '@apollo-model/core';
+import { buildConfigType } from '@graphex/core';
 import { AMGeoJSONCreateFieldFactory } from './create';
 import { AMGeoJSONUpdateFieldFactory } from './update';
 import { AMGeoJSONIntersectsFieldFactory } from './whereIntersects';

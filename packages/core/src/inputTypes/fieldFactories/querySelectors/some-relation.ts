@@ -1,4 +1,4 @@
-import TypeWrap from '@apollo-model/type-wrap';
+import TypeWrap from '@graphex/type-wrap';
 import { getNamedType } from 'graphql';
 import {
   AMInputField,

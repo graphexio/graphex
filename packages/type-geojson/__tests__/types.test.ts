@@ -1,10 +1,10 @@
 import { printType } from 'graphql';
 import gql from 'graphql-tag';
-import AMM from '@apollo-model/core';
-import { AMOptions } from '@apollo-model/core/lib/definitions';
+import AMM from '@graphex/core';
+import { AMOptions } from '@graphex/core/lib/definitions';
 import * as TypeGeoJSON from '../src';
 import * as R from 'ramda';
-import { defaultConfig } from '@apollo-model/core';
+import { defaultConfig } from '@graphex/core';
 
 const generateSchema = (
   typeDefs,

@@ -3,7 +3,7 @@ import { AMModelField, AMModelType } from '../../definitions';
 import SDLSyntaxException, {
   UNMARKED_OBJECT_FIELD,
 } from '../../sdlSyntaxException';
-import TypeWrap from '@apollo-model/type-wrap';
+import TypeWrap from '@graphex/type-wrap';
 
 export const validateRelations = (schema: GraphQLSchema) => {
   Object.values(schema.getTypeMap()).forEach((type: AMModelType) => {

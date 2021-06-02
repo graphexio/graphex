@@ -1,4 +1,4 @@
-import TypeWrap from '@apollo-model/type-wrap';
+import TypeWrap from '@graphex/type-wrap';
 import { GraphQLInt } from 'graphql';
 import { AMModelField } from '../../../definitions';
 import { AMQuerySelectorFieldFactory } from '../querySelector';

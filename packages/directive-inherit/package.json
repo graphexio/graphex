@@ -1,5 +1,5 @@
 {
-  "name": "@apollo-model/directive-inherit",
+  "name": "@graphex/directive-inherit",
   "version": "0.6.0-alpha.32",
   "description": "",
   "main": "lib/index.js",

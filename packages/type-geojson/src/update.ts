@@ -3,7 +3,7 @@ import {
   AMInputFieldFactory,
   AMModelField,
   AMObjectFieldContext,
-} from '@apollo-model/core';
+} from '@graphex/core';
 import { GraphQLNamedType } from 'graphql';
 
 export class AMGeoJSONUpdateFieldFactory extends AMInputFieldFactory {

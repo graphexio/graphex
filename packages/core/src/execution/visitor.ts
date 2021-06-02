@@ -1,4 +1,4 @@
-import { astFromValue } from '@apollo-model/ast-from-value';
+import { astFromValue } from '@graphex/ast-from-value';
 import {
   ASTKindToNode,
   ASTNode,

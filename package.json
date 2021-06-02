@@ -1,10 +1,10 @@
 {
-  "name": "apollo-model",
+  "name": "graphex",
   "version": "0.4.0",
   "description": "",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/apollo-model/apollo-model.git"
+    "url": "git+https://gitlab.com/graphexio/graphex.git"
   },
   "devDependencies": {
     "@types/jest": "^24.0.18",
@@ -42,7 +42,7 @@
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/apollo-model/apollo-model/issues"
+    "url": "https://gitlab.com/graphexio/graphex/-/issues"
   },
-  "homepage": "https://github.com/apollo-model/apollo-model#readme"
+  "homepage": "https://gitlab.com/graphexio/graphex"
 }

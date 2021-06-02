@@ -1,5 +1,5 @@
 import { GraphQLObjectType } from 'graphql';
-import AMM from '@apollo-model/core';
+import AMM from '@graphex/core';
 import gql from 'graphql-tag';
 
 import { modelField } from '../src';

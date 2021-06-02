@@ -36,7 +36,7 @@ test('mapFieldForTypeStack', () => {
 });
 
 test('groupFields', () => {
-  const isEven = n => n % 2 === 0;
+  const isEven = (n) => n % 2 === 0;
 
   expect(groupFields(isEven, { a: 1, b: 2, c: 3, d: 4 })).toEqual({
     false: { a: 1, c: 3 },
@@ -75,12 +75,12 @@ describe('SchemaFilter', () => {
     },
   });
 
-  const makeSchema = params => {
+  const makeSchema = (params) => {
     const schema = makeExecutableSchema(params);
     return transformSchema(schema, [filterFields]);
   };
 
-  const testClient = params => {
+  const testClient = (params) => {
     const server = new ApolloServer(params);
     return createTestClient(server as any);
   };
@@ -506,7 +506,7 @@ describe('SchemaFilter', () => {
       expect(
         (schema.getTypeMap().TestEnum as GraphQLEnumType)
           .getValues()
-          .find(item => item.name === 'removeField')
+          .find((item) => item.name === 'removeField')
       ).toBeUndefined();
     });
 

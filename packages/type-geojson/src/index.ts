@@ -1,4 +1,4 @@
-import { defaultObjectFieldVisitorHandler } from '@apollo-model/core/lib/inputTypes/visitorHandlers';
+import { defaultObjectFieldVisitorHandler } from '@graphex/core/lib/inputTypes/visitorHandlers';
 import gql from 'graphql-tag';
 export * from './config';
 
