@@ -1,9 +1,50 @@
 stages:
+  - prepare
   - test
+  - release
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_MESSAGE =~ /^chore\(release\)/
+      when: never
+    - when: always
+
+prepare:
+  stage: prepare
+  image: node:12
+  only:
+    - branches
+  artifacts:
+    paths:
+      - node_modules
+      - packages/*/node_modules
+      - packages/*/lib
+  script:
+    - yarn install
 
 test:
   stage: test
   image: node:12
+  only:
+    - branches
+  dependencies:
+    - prepare
   script:
-    - yarn install
     - yarn test
+
+release:
+  stage: release
+  image: node:12
+  only:
+    - master
+  dependencies:
+    - prepare
+  script:
+    - git config --global user.email "bot@graphex.io"
+    - git config --global user.name "Graphex Bot"
+    - git checkout ${CI_COMMIT_REF_NAME}
+    - git remote set-url origin https://private-token:$GIT_PUSH_TOKEN@${CI_PROJECT_URL:8}.git
+    - yarn global add lerna
+    - npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
+    - 'lerna version --conventional-commits --create-release gitlab --message "chore(release): publish" --exact --yes'
+    - lerna publish from-git --no-verify-access --yes
