@@ -16,7 +16,7 @@ describe('aclWhere', () => {
         pinnedComment: Comment
       }
 
-      interface Comment @embedded
+      interface Comment
       type TextComment implements Comment {
         message: String
       }
@@ -128,4 +128,3 @@ Object {
 `);
   });
 });
-

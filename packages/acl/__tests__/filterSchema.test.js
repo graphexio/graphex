@@ -147,7 +147,7 @@ describe('accessRules', () => {
         meta: PostMeta
       }
 
-      type PostMeta @embedded {
+      type PostMeta {
         keywords: [String]
       }
     `);

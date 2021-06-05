@@ -11,7 +11,7 @@ describe('nested objects', () => {
       pinnedComment: Comment
     }
 
-    type Comment @embedded {
+    type Comment {
       message: String
     }
   `);

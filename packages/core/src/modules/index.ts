@@ -5,7 +5,6 @@ import * as CreatedAt from './directives/createdAt';
 import * as DB from './directives/db';
 import * as Default from './directives/default';
 import * as Discriminator from './directives/discriminator';
-import * as Embedded from './directives/embedded';
 import * as ExtRelation from './directives/extRelation';
 import * as ID from './directives/id';
 import * as Model from './directives/model';
@@ -33,7 +32,6 @@ export default [
   ID,
   Inherit,
   Unique,
-  Embedded,
   ReadOnly,
   Default,
 

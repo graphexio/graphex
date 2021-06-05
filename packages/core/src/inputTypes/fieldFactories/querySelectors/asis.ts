@@ -4,8 +4,9 @@ import { AMModelField, AMModelType } from '../../../definitions';
 import { AMObjectFieldContext } from '../../../execution/contexts/objectField';
 import { AMSelectorContext } from '../../../execution/contexts/selector';
 import { AMTransaction } from '../../../execution/transaction';
-import { AMQuerySelectorComplexFieldFactory } from '../querySelectorComplex';
 import { AMVisitorStack } from '../../../execution/visitorStack';
+import { isEmbeddedType } from '../../../utils';
+import { AMQuerySelectorComplexFieldFactory } from '../querySelectorComplex';
 
 export class AsIsSelector extends AMQuerySelectorComplexFieldFactory {
   isApplicable(field: AMModelField) {
@@ -38,9 +39,7 @@ export class AsIsSelector extends AMQuerySelectorComplexFieldFactory {
       lastInStack instanceof AMSelectorContext ||
       lastInStack instanceof AMObjectFieldContext
     ) {
-      //transform nested objects to mongodb dot notation
-      const namedType = getNamedType(field.type) as AMModelType;
-      if (namedType.mmEmbedded) {
+      if (isEmbeddedType(getNamedType(field.type))) {
         Object.entries(context.value).forEach(([key, value]) => {
           lastInStack.addValue(`${context.fieldName}.${key}`, value);
         });

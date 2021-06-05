@@ -23,7 +23,7 @@ describe('abstract', () => {
       profile: SubscriberProfile
     }
 
-    type SubscriberProfile @embedded {
+    type SubscriberProfile {
       name: String
     }
   `);

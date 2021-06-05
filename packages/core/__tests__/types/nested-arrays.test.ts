@@ -10,11 +10,11 @@ describe('nested arrays', () => {
         comments: [Comment] @subdocument
       }
 
-      type Comment @embedded {
+      type Comment {
         message: String
       }
 
-      interface Review @inherit @embedded {
+      interface Review @inherit {
         message: String
       }
 

@@ -47,13 +47,6 @@ class Abstract extends SchemaDirectiveVisitor {
                 [i, iface]
               );
             }
-            if (getDirective(i, 'embedded')) {
-              throw new SDLSyntaxException(
-                `Type '${type.name}' can not inherit both '${iface.name}' and '${i.name}' because they marked with @abstract and @embedded directives`,
-                ABSTRACT_WITH_EMBEDDED,
-                [i, iface]
-              );
-            }
           });
       });
 

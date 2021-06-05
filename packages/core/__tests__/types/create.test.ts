@@ -12,7 +12,7 @@ describe('create', () => {
       status: String @readonly
     }
 
-    type Comment @embedded {
+    type Comment {
       message: String
       user: User @relation
     }

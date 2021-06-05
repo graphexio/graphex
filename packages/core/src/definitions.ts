@@ -202,7 +202,7 @@ export type AMModelType = (
   mmDiscriminator: string;
   mmDiscriminatorField: string;
   mmAbstract: boolean;
-  mmEmbedded: boolean;
+  mmConnection: boolean;
   mmModel: boolean;
   mmModelInherited?: boolean;
   mmCreatedAtFields?: AMModelField[];

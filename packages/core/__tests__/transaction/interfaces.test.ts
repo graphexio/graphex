@@ -19,7 +19,7 @@ describe('interfaces', () => {
       profile: Profile
     }
 
-    interface Profile @inherit @embedded {
+    interface Profile @inherit {
       invitedBy: User @relation
     }
 
@@ -29,7 +29,7 @@ describe('interfaces', () => {
       profile: AdminProfile
     }
 
-    type AdminProfile implements Profile @embedded {
+    type AdminProfile implements Profile {
       name: String
     }
 
@@ -38,7 +38,7 @@ describe('interfaces', () => {
       likes: [Post] @relation(storeField: "likesPostIds")
     }
 
-    type SubscriberProfile implements Profile @embedded {
+    type SubscriberProfile implements Profile {
       name: String
     }
   `);

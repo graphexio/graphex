@@ -23,10 +23,10 @@ describe('abstract interface', () => {
     }
 
     type Subscriber implements User @model {
-      profile: SubscriberProfile
+      profile: SubscriberProfile @subdocument
     }
 
-    type SubscriberProfile @embedded {
+    type SubscriberProfile {
       name: String
     }
   `);

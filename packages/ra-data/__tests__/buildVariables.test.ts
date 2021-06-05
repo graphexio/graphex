@@ -45,14 +45,14 @@ beforeAll(async () => {
       moderator: User! @relation
       approves: [User!]! @relation
       keywords: [String!]!
-      meta: Meta
-      metas: [Meta!]!
+      meta: Meta @subdocument
+      metas: [Meta!]! @subdocument
       position: Position
       point: GeoJSONPoint
       polygon: GeoJSONPolygon
     }
 
-    type Meta @embedded {
+    type Meta {
       tags: [String!]!
       slug: String
       group: Group @relation

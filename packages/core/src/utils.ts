@@ -5,9 +5,12 @@ import {
   GraphQLNamedType,
   GraphQLObjectType,
   GraphQLSchema,
+  isInterfaceType,
+  isObjectType,
   valueFromAST,
 } from 'graphql';
 import pluralize from 'pluralize';
+import { isNil, reject } from 'ramda';
 import {
   AMModelField,
   AMModelType,
@@ -15,7 +18,6 @@ import {
   IAMFieldFactory,
 } from './definitions';
 import { makeSchemaInfo } from './schemaInfo';
-import { reject, isNil } from 'ramda';
 
 export const compact = reject(isNil);
 
@@ -122,4 +124,29 @@ export const appendField = (
     modelType,
     schemaInfo
   );
+};
+
+export const isModelType = (type: GraphQLNamedType) => {
+  return Boolean(type['mmModel']);
+};
+
+export const isAbstractType = (type: GraphQLNamedType) => {
+  return Boolean(type['mmAbstract']);
+};
+
+export const isConnectionType = (type: GraphQLNamedType) => {
+  return Boolean(type['mmConnection']);
+};
+
+export const isEmbeddedType = (type: GraphQLNamedType) => {
+  return (
+    (isObjectType(type) || isInterfaceType(type)) &&
+    !isModelType(type) &&
+    !isAbstractType(type) &&
+    !isConnectionType(type)
+  );
+};
+
+export const isSubdocumentField = (field: AMModelField) => {
+  return Boolean(field['isSubdocument']);
 };

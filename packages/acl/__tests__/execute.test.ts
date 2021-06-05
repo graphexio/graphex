@@ -407,7 +407,7 @@ describe('accessRules', () => {
         meta: Meta!
       }
 
-      type Meta @embedded {
+      type Meta {
         slug: String!
         keywords: [String]
       }

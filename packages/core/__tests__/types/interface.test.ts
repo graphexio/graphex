@@ -16,7 +16,7 @@ describe('interface', () => {
       profile: Profile
     }
 
-    interface Profile @inherit @embedded {
+    interface Profile @inherit {
       invitedBy: User @relation
     }
 
@@ -25,7 +25,7 @@ describe('interface', () => {
       profile: AdminProfile
     }
 
-    type AdminProfile implements Profile @embedded {
+    type AdminProfile implements Profile {
       name: String
     }
 
@@ -33,7 +33,7 @@ describe('interface', () => {
       profile: SubscriberProfile
     }
 
-    type SubscriberProfile implements Profile @embedded {
+    type SubscriberProfile implements Profile {
       name: String
     }
 

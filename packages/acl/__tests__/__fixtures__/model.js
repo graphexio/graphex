@@ -16,7 +16,7 @@ export default gql`
     posts: [Post!] @extRelation
   }
 
-  type Comment @embedded {
+  type Comment {
     body: String
     user: User! @relation
   }
@@ -28,7 +28,7 @@ export default gql`
     keywords: [String!]
     owner: User! @relation
     place: GeoJSONPoint
-    comments: [Comment!]
+    comments: [Comment!] @subdocument
     poi: Poi @relation
     pois: [Poi] @relation
   }
@@ -52,14 +52,14 @@ export default gql`
     premium
   }
 
-  type SubscriberProfile @embedded {
+  type SubscriberProfile {
     firstName: String!
     lastName: String!
   }
 
   type Subscriber implements Node & Timestamp & User {
     role: SubscriberRole
-    profile: SubscriberProfile!
+    profile: SubscriberProfile! @subdocument
   }
 
   interface Poi @inherit @abstract {

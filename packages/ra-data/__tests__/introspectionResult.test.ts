@@ -26,7 +26,7 @@ beforeAll(async () => {
       keywords: [String!]!
     }
 
-    type Meta @embedded {
+    type Meta {
       tags: [String!]!
       slug: String
     }

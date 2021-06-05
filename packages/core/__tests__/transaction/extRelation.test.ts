@@ -20,7 +20,7 @@ describe('extRelation', () => {
       message: String
     }
 
-    type Nested @embedded {
+    type Nested {
       id: ID @db(name: "_id")
       comment: Comment @extRelation(storeField: "postId", field: "_id")
     }

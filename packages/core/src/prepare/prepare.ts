@@ -8,13 +8,13 @@ import { relationDirective } from './relationDirective';
 import { extRelationDirective } from './extRelationDirective';
 import { createdAtDirective } from './createdAtDirective';
 import { updatedAtDirective } from './updatedAtDirective';
-import { embeddedDirective } from './embeddedDirective';
 import { defaultDirective } from './defaultDirective';
-import { validations } from './validations';
+
 import { rootFields } from './rootFields';
 import { relationsArguments } from './relationsArguments';
 import { connectionFields } from './connectionFields';
 import { nestedArrays } from './nestedArrays';
+import { fillDiscriminators } from './fillDiscriminators';
 
 import { AMConfigResolver } from '../config/resolver';
 import { AMOptions, AMSchemaInfo } from '../definitions';
@@ -28,18 +28,15 @@ export const prepare = (options: {
   options: AMOptions;
 }) => {
   fillDbName(options.schema);
+  fillDiscriminators(options.schema);
   relationDirective(options.schema);
   extRelationDirective(options.schema);
   fieldFactories(options.schema, options.fieldFactoriesMap);
   fieldVisitorEvents(options.schema, options.fieldVisitorEventsMap);
 
-  /* validations */
-  validations(options.schema);
-
   /* directives */
   createdAtDirective(options.schema);
   updatedAtDirective(options.schema);
-  embeddedDirective(options.schema);
   defaultDirective(options.schema);
 
   rootFields(options);

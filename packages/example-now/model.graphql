@@ -14,7 +14,7 @@ type Category implements Node & Timestamp @model {
   posts: [Post!] @extRelation
 }
 
-type Comment @embedded {
+type Comment {
   body: String
   user: User! @relation
 }
@@ -50,7 +50,7 @@ enum SubscriberRole {
   premium
 }
 
-type SubscriberProfile @embedded {
+type SubscriberProfile {
   firstName: String!
   lastName: String!
 }

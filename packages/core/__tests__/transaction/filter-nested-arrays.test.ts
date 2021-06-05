@@ -13,7 +13,7 @@ describe('filter nested arrays', () => {
         comments: [Comment] @subdocument
       }
 
-      type Comment @embedded {
+      type Comment {
         message: String
         comments: [Comment] @subdocument
       }
