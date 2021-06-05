@@ -13,7 +13,7 @@ describe('interface', () => {
 
     interface User @model @inherit {
       id: ID @id @unique @db(name: "_id")
-      profile: Profile
+      profile: Profile @subdocument
     }
 
     interface Profile @inherit {
@@ -22,7 +22,7 @@ describe('interface', () => {
 
     type Admin implements User {
       username: String
-      profile: AdminProfile
+      profile: AdminProfile @subdocument
     }
 
     type AdminProfile implements Profile {
@@ -30,7 +30,7 @@ describe('interface', () => {
     }
 
     type Subscriber implements User {
-      profile: SubscriberProfile
+      profile: SubscriberProfile @subdocument
     }
 
     type SubscriberProfile implements Profile {

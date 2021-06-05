@@ -16,7 +16,7 @@ describe('variables', () => {
       id: ID @id @unique @db(name: "_id")
       content: Content
       contents: [Content!]
-      embeddedContent: EmbeddedContent
+      embeddedContent: EmbeddedContent @subdocument
     }
   `);
 

@@ -7,8 +7,8 @@ describe('create', () => {
     type Post @model {
       id: ID @id @unique @db(name: "_id")
       title: String
-      pinnedComment: Comment
-      comments: [Comment!]
+      pinnedComment: Comment @subdocument
+      comments: [Comment!] @subdocument
       status: String @readonly
     }
 

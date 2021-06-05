@@ -7,8 +7,8 @@ describe('nested interfaces', () => {
     type Post @model {
       id: ID @id @unique @db(name: "_id")
       title: String
-      comments: [Comment]!
-      pinnedComment: Comment
+      comments: [Comment]! @subdocument
+      pinnedComment: Comment @subdocument
     }
 
     interface Comment
