@@ -17,6 +17,7 @@ import * as Date from './scalars/date';
 import * as JSON from './scalars/JSON';
 import * as ObjectID from './scalars/objectID';
 import * as NoArrayFilter from './directives/noArrayFilter';
+import * as Subdocument from './directives/subdocument';
 
 export default [
   Model,
@@ -40,4 +41,5 @@ export default [
   JSON,
   ObjectID,
   NoArrayFilter,
+  Subdocument,
 ];

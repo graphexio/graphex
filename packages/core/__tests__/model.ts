@@ -36,7 +36,7 @@ export default gql`
     keywords: [String!]
     owner: User! @relation(storeField: "ownerUserId")
     likes: [User] @relation
-    comments: [Comment!]
+    comments: [Comment!] @subdocument
     poi: Poi @relation
     pois: [Poi] @relation(storeField: "poiIds")
   }
@@ -58,7 +58,7 @@ export default gql`
 
   type Admin implements User {
     role: AdminRole
-    profile: AdminProfile
+    profile: AdminProfile @subdocument
   }
   type AdminProfile implements Profile @embedded {
     name: String
@@ -77,7 +77,7 @@ export default gql`
 
   type Subscriber implements User {
     role: SubscriberRole
-    profile: SubscriberProfile!
+    profile: SubscriberProfile! @subdocument
     name: String @db(name: "profile.firstName") @readonly
   }
 

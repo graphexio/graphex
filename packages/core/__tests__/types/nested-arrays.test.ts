@@ -7,7 +7,7 @@ describe('nested arrays', () => {
     gql`
       type Post @model {
         id: ID @id @unique @db(name: "_id")
-        comments: [Comment]
+        comments: [Comment] @subdocument
       }
 
       type Comment @embedded {
@@ -24,12 +24,12 @@ describe('nested arrays', () => {
 
       interface Poi @inherit @model {
         id: ID @id @unique @db(name: "_id")
-        reviews: [Review] @noArrayFilter #disable interface filters due to https://github.com/graphql/graphql-spec/issues/629
+        reviews: [Review] @subdocument @noArrayFilter #disable interface filters due to https://github.com/graphql/graphql-spec/issues/629
       }
 
       type Hotel implements Poi {
         title: String
-        reviews: [HotelReview]
+        reviews: [HotelReview] @subdocument
       }
     `
   );

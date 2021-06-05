@@ -22,11 +22,7 @@ export const nestedArrays = (
         if (field.noArrayFilter) return;
         const typeWrap = new TypeWrap(field.type);
         const realType = typeWrap.realType() as AMModelType;
-        if (
-          typeWrap.isMany() &&
-          !field.relation &&
-          (isObjectType(realType) || isInterfaceType(realType))
-        ) {
+        if (typeWrap.isMany() && field.isSubdocument) {
           field.args = [
             {
               name: 'where',
