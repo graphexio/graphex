@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { buildFederatedSchema } from './buildFederatedSchema';
-import { prepareTransaction } from './prepareTransaction';
+import { prepareTransaction } from '../utils/prepareTransaction';
 
 describe('federated', () => {
   const schema = buildFederatedSchema(gql`

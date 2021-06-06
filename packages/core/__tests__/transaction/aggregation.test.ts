@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { generateSchema } from './generateSchema';
-import { prepareTransaction } from './prepareTransaction';
+import { prepareTransaction } from '../utils/prepareTransaction';
 
 describe('aggregation', () => {
   const schema = generateSchema(
