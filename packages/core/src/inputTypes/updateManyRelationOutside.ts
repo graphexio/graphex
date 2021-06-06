@@ -24,7 +24,7 @@ export class AMUpdateManyRelationOutsideTypeFactory extends AMTypeFactory<AMInpu
           connect: {
             type: new GraphQLList(
               this.configResolver.resolveInputType(modelType, [
-                'whereUnique',
+                'whereUniqueExternal',
                 'interfaceWhereUnique',
               ])
             ),
@@ -33,7 +33,7 @@ export class AMUpdateManyRelationOutsideTypeFactory extends AMTypeFactory<AMInpu
           reconnect: {
             type: new GraphQLList(
               this.configResolver.resolveInputType(modelType, [
-                'whereUnique',
+                'whereUniqueExternal',
                 'interfaceWhereUnique',
               ])
             ),
@@ -42,7 +42,7 @@ export class AMUpdateManyRelationOutsideTypeFactory extends AMTypeFactory<AMInpu
           disconnect: {
             type: new GraphQLList(
               this.configResolver.resolveInputType(modelType, [
-                'whereUnique',
+                'whereUniqueExternal',
                 'interfaceWhereUnique',
               ])
             ),

@@ -17,7 +17,7 @@ export class AMCreateManyRelationOutsideTypeFactory extends AMTypeFactory<GraphQ
           connect: {
             type: new GraphQLList(
               this.configResolver.resolveInputType(modelType, [
-                'whereUnique',
+                'whereUniqueExternal',
                 'interfaceWhereUnique',
               ])
             ),

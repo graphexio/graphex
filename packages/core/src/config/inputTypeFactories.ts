@@ -3,6 +3,7 @@ import { AMInterfaceWhereTypeFactory } from '../inputTypes/interfaceWhere';
 import { AMWhereACLTypeFactory } from '../inputTypes/whereACLClass';
 import { AMWhereCleanTypeFactory } from '../inputTypes/whereClean';
 import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
+import { AMWhereUniqueExternalTypeFactory } from '../inputTypes/whereUniqueExternal';
 import { AMUpdateWithWhereNestedTypeFactory } from '../inputTypes/updateWithWhereNested';
 import { AMInterfaceWhereUniqueTypeFactory } from '../inputTypes/interfaceWhereUnique';
 import { AMCreateTypeFactory } from '../inputTypes/create';
@@ -136,6 +137,15 @@ export const inputTypeFactories = {
     links: {
       whereACL: 'whereACL',
     },
+    dynamicLinks: {
+      _default: {
+        selectors: ['selectorAsIs'],
+      },
+    },
+  },
+  whereUniqueExternal: {
+    factory: AMWhereUniqueExternalTypeFactory,
+    links: {},
     dynamicLinks: {
       _default: {
         selectors: ['selectorAsIs'],

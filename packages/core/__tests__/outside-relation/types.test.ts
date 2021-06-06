@@ -18,10 +18,10 @@ describe('outside relation', () => {
     `,
   });
 
-  test('Target model WhereUniqueInput', () => {
-    expect(printType(schema.getType('ItemWhereUniqueInput')))
+  test('Target model `where unique`', () => {
+    expect(printType(schema.getType('ItemWhereUniqueExternalInput')))
       .toMatchInlineSnapshot(`
-        "input ItemWhereUniqueInput {
+        "input ItemWhereUniqueExternalInput {
           id: ID
         }"
       `);
@@ -43,7 +43,7 @@ describe('outside relation', () => {
       expect(printType(schema.getType('ItemCreateManyRelationOutsideInput')))
         .toMatchInlineSnapshot(`
           "input ItemCreateManyRelationOutsideInput {
-            connect: [ItemWhereUniqueInput]
+            connect: [ItemWhereUniqueExternalInput]
           }"
         `);
     });
@@ -52,7 +52,7 @@ describe('outside relation', () => {
       expect(printType(schema.getType('ItemCreateOneRelationOutsideInput')))
         .toMatchInlineSnapshot(`
           "input ItemCreateOneRelationOutsideInput {
-            connect: ItemWhereUniqueInput
+            connect: ItemWhereUniqueExternalInput
           }"
         `);
     });
@@ -74,9 +74,9 @@ describe('outside relation', () => {
       expect(printType(schema.getType('ItemUpdateManyRelationOutsideInput')))
         .toMatchInlineSnapshot(`
           "input ItemUpdateManyRelationOutsideInput {
-            connect: [ItemWhereUniqueInput]
-            reconnect: [ItemWhereUniqueInput]
-            disconnect: [ItemWhereUniqueInput]
+            connect: [ItemWhereUniqueExternalInput]
+            reconnect: [ItemWhereUniqueExternalInput]
+            disconnect: [ItemWhereUniqueExternalInput]
           }"
         `);
     });
@@ -85,7 +85,7 @@ describe('outside relation', () => {
       expect(printType(schema.getType('ItemUpdateOneRelationOutsideInput')))
         .toMatchInlineSnapshot(`
           "input ItemUpdateOneRelationOutsideInput {
-            connect: ItemWhereUniqueInput
+            connect: ItemWhereUniqueExternalInput
           }"
         `);
     });

@@ -1,41 +1,24 @@
-import {
-  getNamedType,
-  GraphQLInputFieldConfig,
-  isInterfaceType,
-} from 'graphql';
+import { getNamedType, isInterfaceType } from 'graphql';
 import {
   AMInputFieldConfigMap,
   AMInputObjectType,
   AMModelType,
   AMTypeFactory,
 } from '../definitions';
-import {
-  defaultObjectFieldVisitorHandler,
-  whereTypeVisitorHandler,
-} from './visitorHandlers';
+import { whereTypeVisitorHandler } from './visitorHandlers';
 
-export class AMWhereUniqueTypeFactory extends AMTypeFactory<AMInputObjectType> {
+export class AMWhereUniqueExternalTypeFactory extends AMTypeFactory<AMInputObjectType> {
   isApplicable(type: AMModelType) {
     return !isInterfaceType(type);
   }
   getTypeName(modelType: AMModelType): string {
-    return `${modelType.name}WhereUniqueInput`;
+    return `${modelType.name}WhereUniqueExternalInput`;
   }
   getType(modelType: AMModelType) {
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
         const fields: AMInputFieldConfigMap = {};
-
-        if (this.schemaInfo.options.aclWhere) {
-          fields.aclWhere = {
-            type: this.configResolver.resolveInputType(
-              modelType,
-              this.links.whereACL
-            ),
-            ...defaultObjectFieldVisitorHandler('aclWhere'),
-          } as GraphQLInputFieldConfig;
-        }
 
         Object.values(modelType.getFields()).forEach(field => {
           if (field.isUnique) {
