@@ -20,9 +20,11 @@ import { StartsWithSelector } from '../inputTypes/fieldFactories/querySelectors/
 import { AMCreateFieldFactory } from '../inputTypes/fieldFactories/create';
 import { AMCreateNestedFieldFactory } from '../inputTypes/fieldFactories/createNested';
 import { AMCreateRelationFieldFactory } from '../inputTypes/fieldFactories/createRelation';
+import { AMCreateRelationOutsideFieldFactory } from '../inputTypes/fieldFactories/createRelationOutside';
 import { AMUpdateFieldFactory } from '../inputTypes/fieldFactories/update';
 import { AMUpdateNestedFieldFactory } from '../inputTypes/fieldFactories/updateNested';
 import { AMUpdateRelationFieldFactory } from '../inputTypes/fieldFactories/updateRelation';
+import { AMUpdateRelationOutsideFieldFactory } from '../inputTypes/fieldFactories/updateRelationOutside';
 
 export const inputFieldFactories = {
   selectorAll: {
@@ -124,6 +126,14 @@ export const inputFieldFactories = {
       oneRequired: 'createOneRequirerdRelation',
     },
   },
+  createRelationOutside: {
+    factory: AMCreateRelationOutsideFieldFactory,
+    links: {
+      many: 'createManyRelationOutside',
+      one: 'createOneRelationOutside',
+      oneRequired: 'createOneRequirerdRelationOutside',
+    },
+  },
   update: {
     factory: AMUpdateFieldFactory,
   },
@@ -136,5 +146,10 @@ export const inputFieldFactories = {
   },
   updateRelation: {
     factory: AMUpdateRelationFieldFactory,
+    // TODO: add links
+  },
+  updateRelationOutside: {
+    factory: AMUpdateRelationOutsideFieldFactory,
+    // TODO: add links
   },
 };

@@ -2,13 +2,13 @@ import TypeWrap from '@graphex/type-wrap';
 import {
   AMInputField,
   AMInputFieldFactory,
+  AMModelField,
   AMModelType,
 } from '../../definitions';
-import { defaultObjectFieldVisitorHandler } from '../visitorHandlers';
 
-export class AMCreateRelationFieldFactory extends AMInputFieldFactory {
-  isApplicable(field) {
-    return Boolean(field.relation);
+export class AMCreateRelationOutsideFieldFactory extends AMInputFieldFactory {
+  isApplicable(field: AMModelField) {
+    return Boolean(field.isRelationOutside);
   }
   getFieldName(field) {
     return field.name;
@@ -29,7 +29,6 @@ export class AMCreateRelationFieldFactory extends AMInputFieldFactory {
     return {
       name: this.getFieldName(field),
       type,
-      ...defaultObjectFieldVisitorHandler(field.relation.storeField, field),
     } as AMInputField;
   }
 }
