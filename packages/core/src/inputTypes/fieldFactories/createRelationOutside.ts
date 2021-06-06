@@ -5,15 +5,16 @@ import {
   AMModelField,
   AMModelType,
 } from '../../definitions';
+import { defaultObjectFieldVisitorHandler } from '../visitorHandlers';
 
 export class AMCreateRelationOutsideFieldFactory extends AMInputFieldFactory {
   isApplicable(field: AMModelField) {
     return Boolean(field.isRelationOutside);
   }
-  getFieldName(field) {
+  getFieldName(field: AMModelField) {
     return field.name;
   }
-  getField(field) {
+  getField(field: AMModelField) {
     const typeWrap = new TypeWrap(field.type);
     const isMany = typeWrap.isMany();
     const isRequired = typeWrap.isRequired();
@@ -29,6 +30,7 @@ export class AMCreateRelationOutsideFieldFactory extends AMInputFieldFactory {
     return {
       name: this.getFieldName(field),
       type,
+      ...defaultObjectFieldVisitorHandler(field.dbName),
     } as AMInputField;
   }
 }

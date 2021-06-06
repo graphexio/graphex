@@ -34,7 +34,9 @@ export class AMUpdateNestedFieldFactory extends AMInputFieldFactory {
           const data = stack.getOperationData(operation);
           const set = (data.data && data.data['$set']) || {};
           data.addValue('$set', set);
-          set[path] = context.value;
+          if (context.value) {
+            set[path] = context.value;
+          }
         }
       },
     };
