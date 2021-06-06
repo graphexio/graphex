@@ -17,7 +17,7 @@ export class AMCreateOneRelationOutsideTypeFactory extends AMTypeFactory<AMInput
           connect: {
             type: this.configResolver.resolveInputType(modelType, [
               'whereUniqueExternal',
-              'interfaceWhereUnique',
+              'interfaceWhereUniqueExternal',
             ]),
           },
         } as AMInputFieldConfigMap;

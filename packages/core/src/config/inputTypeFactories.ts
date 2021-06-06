@@ -6,6 +6,7 @@ import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
 import { AMWhereUniqueExternalTypeFactory } from '../inputTypes/whereUniqueExternal';
 import { AMUpdateWithWhereNestedTypeFactory } from '../inputTypes/updateWithWhereNested';
 import { AMInterfaceWhereUniqueTypeFactory } from '../inputTypes/interfaceWhereUnique';
+import { AMInterfaceWhereUniqueExternalTypeFactory } from '../inputTypes/interfaceWhereUniqueExternal';
 import { AMCreateTypeFactory } from '../inputTypes/create';
 import { AMCreateManyNestedTypeFactory } from '../inputTypes/createManyNested';
 import { AMCreateManyRelationTypeFactory } from '../inputTypes/createManyRelation';
@@ -130,6 +131,12 @@ export const inputTypeFactories = {
     links: {
       whereACL: 'whereACL',
       whereUnique: 'whereUnique',
+    },
+  },
+  interfaceWhereUniqueExternal: {
+    factory: AMInterfaceWhereUniqueExternalTypeFactory,
+    links: {
+      whereUnique: 'whereUniqueExternal',
     },
   },
   whereUnique: {
