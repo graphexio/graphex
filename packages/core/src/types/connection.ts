@@ -4,14 +4,14 @@ import {
   GraphQLNonNull,
   GraphQLObjectType,
 } from 'graphql';
-import { AMObjectType, AMTypeFactory } from '../definitions';
+import { AMModelType, AMObjectType, AMTypeFactory } from '../definitions';
 
 export class AMConnectionTypeFactory extends AMTypeFactory<AMObjectType> {
   getTypeName(modelType): string {
     return `${modelType.name}Connection`;
   }
   getType(modelType) {
-    return new AMObjectType({
+    const type = new AMObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
         const fields = {
@@ -38,5 +38,8 @@ export class AMConnectionTypeFactory extends AMTypeFactory<AMObjectType> {
         return fields;
       },
     });
+    (type as AMModelType).mmConnection = true;
+
+    return type;
   }
 }

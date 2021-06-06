@@ -29,13 +29,6 @@ class Model extends SchemaDirectiveVisitor {
           [object, iface]
         );
       }
-      if (getDirective(iface, 'embedded')) {
-        throw new SDLSyntaxException(
-          `Type '${object.name}' can not be marked with @model directive because it's interface ${iface.name} marked with @embedded directive`,
-          MODEL_WITH_EMBEDDED,
-          [object, iface]
-        );
-      }
     });
   }
 
@@ -64,52 +57,9 @@ class Model extends SchemaDirectiveVisitor {
                 [i, iface]
               );
             }
-            if (getDirective(i, 'embedded')) {
-              throw new SDLSyntaxException(
-                `Type '${type.name}' can not inherit both '${iface.name}' and '${i.name}' because they marked with @model and @embedded directives`,
-                MODEL_WITH_EMBEDDED,
-                [i, iface]
-              );
-            }
           });
       });
 
-    //Set discriminator
-    if (!iface.mmDiscriminatorField) {
-      iface.mmDiscriminatorField = '_type';
-    }
-
-    iface.mmDiscriminatorMap = iface.mmDiscriminatorMap || {};
-    Object.values(this.schema.getTypeMap())
-      .filter(
-        type => isObjectType(type) && type.getInterfaces().includes(iface)
-      )
-      .forEach((type: AMModelType & AMObjectType) => {
-        type.mmModelInherited = true;
-        if (!type.mmDiscriminator) {
-          type.mmDiscriminator = lowercaseFirstLetter(type.name);
-        }
-
-        type.mmDiscriminatorField = iface.mmDiscriminatorField;
-        iface.mmDiscriminatorMap[type.mmDiscriminator] = type.name;
-
-      });
-
-    // iface.mmOnSchemaInit = () => {
-    //   Object.values(SchemaTypes)
-    //     .filter(
-    //       type =>
-    //         Array.isArray(type._interfaces) && type._interfaces.includes(iface)
-    //     )
-    //     .forEach(type => {
-    //       type.mmDiscriminatorField = iface.mmDiscriminatorField;
-    //       iface.mmDiscriminatorMap[type.mmDiscriminator] = type.name;
-    //     });
-    // };
-
-    iface.resolveType = doc => {
-      return iface.mmDiscriminatorMap[doc[iface.mmDiscriminatorField]];
-    };
     ////////////
   }
 }

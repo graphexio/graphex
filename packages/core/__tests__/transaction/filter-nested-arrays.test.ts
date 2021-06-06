@@ -10,12 +10,12 @@ describe('filter nested arrays', () => {
     gql`
       type Post @model {
         id: ID @id @unique @db(name: "_id")
-        comments: [Comment]
+        comments: [Comment] @subdocument
       }
 
-      type Comment @embedded {
+      type Comment {
         message: String
-        comments: [Comment]
+        comments: [Comment] @subdocument
       }
     `
   );

@@ -1,11 +1,11 @@
+import { getNamedType } from 'graphql';
 import { AMFieldFactory, AMModelField, AMModelType } from '../../definitions';
+import { isEmbeddedType } from '../../utils';
 import { defaultSelectionVisitorHandler } from '../visitorHandlers';
-import { getNamedType, isObjectType } from 'graphql';
 
 export class AMAggregateNumericFieldsFieldFactory extends AMFieldFactory {
   isApplicable(field: AMModelField) {
-    const type = getNamedType(field.type);
-    return isObjectType(type) && (type as AMModelType).mmEmbedded;
+    return isEmbeddedType(getNamedType(field.type));
   }
   getFieldName(field: AMModelField): string {
     return field.name;

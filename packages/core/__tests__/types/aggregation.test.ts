@@ -12,7 +12,7 @@ describe('aggregation', () => {
         details: DishDetails
       }
 
-      type DishDetails @embedded {
+      type DishDetails {
         weight: Float
       }
     `

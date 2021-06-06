@@ -11,22 +11,19 @@ import { AMConfigResolver } from '../config/resolver';
 import { AMModelField, AMModelType } from '../definitions';
 import { AMObjectFieldContext, AMFieldsSelectionContext } from '../execution';
 import { ResultPromiseTransforms } from '../execution/resultPromise';
+import { isSubdocumentField } from '../utils';
 
 export const nestedArrays = (
   schema: GraphQLSchema,
   configResolver: AMConfigResolver
 ) => {
   Object.values(schema.getTypeMap()).forEach((type: AMModelType) => {
-    if (type.mmModel || type.mmEmbedded || type.mmModelInherited) {
+    if (isObjectType(type) || isInterfaceType(type)) {
       Object.values(type.getFields()).forEach((field: AMModelField) => {
         if (field.noArrayFilter) return;
         const typeWrap = new TypeWrap(field.type);
         const realType = typeWrap.realType() as AMModelType;
-        if (
-          typeWrap.isMany() &&
-          !field.relation &&
-          (isObjectType(realType) || isInterfaceType(realType))
-        ) {
+        if (typeWrap.isMany() && isSubdocumentField(field)) {
           field.args = [
             {
               name: 'where',

@@ -22,7 +22,7 @@ export default gql`
     blue
   }
 
-  type Comment @embedded {
+  type Comment {
     body: String
     user: User! @relation
     color: HighlightColor
@@ -36,7 +36,7 @@ export default gql`
     keywords: [String!]
     owner: User! @relation(storeField: "ownerUserId")
     likes: [User] @relation
-    comments: [Comment!]
+    comments: [Comment!] @subdocument
     poi: Poi @relation
     pois: [Poi] @relation(storeField: "poiIds")
   }
@@ -47,7 +47,7 @@ export default gql`
     profile: Profile
   }
 
-  interface Profile @inherit @embedded {
+  interface Profile @inherit {
     invitedBy: User @relation
   }
 
@@ -58,9 +58,9 @@ export default gql`
 
   type Admin implements User {
     role: AdminRole
-    profile: AdminProfile
+    profile: AdminProfile @subdocument
   }
-  type AdminProfile implements Profile @embedded {
+  type AdminProfile implements Profile {
     name: String
   }
 
@@ -70,14 +70,14 @@ export default gql`
     premium
   }
 
-  type SubscriberProfile implements Profile @embedded {
+  type SubscriberProfile implements Profile {
     firstName: String!
     lastName: String!
   }
 
   type Subscriber implements User {
     role: SubscriberRole
-    profile: SubscriberProfile!
+    profile: SubscriberProfile! @subdocument
     name: String @db(name: "profile.firstName") @readonly
   }
 

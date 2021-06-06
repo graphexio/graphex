@@ -37,7 +37,7 @@ export const typeDef = gql`
   enum GeoJSONPointType {
     Point
   }
-  type GeoJSONPoint @embedded {
+  type GeoJSONPoint {
     type: GeoJSONPointType!
     coordinates: [Float!]!
     distance(toPoint: GeoJSONPointInput): Float
@@ -51,7 +51,7 @@ export const typeDef = gql`
   enum GeoJSONPolygonType {
     Polygon
   }
-  type GeoJSONPolygon @embedded {
+  type GeoJSONPolygon {
     type: GeoJSONPolygonType
     coordinates: [[[Float]]]
   }
@@ -76,27 +76,6 @@ export const typeDef = gql`
     polygon: GeoJSONPolygonInput
   }
 `;
-
-// export const fieldFactoriesMap = {
-//   GeoJSONPoint: {
-//     AMCreateTypeFactory: [AMGeoJSONCreateFieldFactory],
-//     AMUpdateTypeFactory: [AMGeoJSONUpdateFieldFactory],
-//     AMWhereTypeFactory: [
-//       AMGeoJSONNearFieldFactory,
-//       AMGeoJSONWithinFieldFactory,
-//       AMGeoJSONIntersectsFieldFactory,
-//     ],
-//   },
-//   GeoJSONPolygon: {
-//     AMCreateTypeFactory: [AMGeoJSONCreateFieldFactory],
-//     AMUpdateTypeFactory: [AMGeoJSONUpdateFieldFactory],
-//     AMWhereTypeFactory: [
-//       AMGeoJSONNearFieldFactory,
-//       AMGeoJSONWithinFieldFactory,
-//       AMGeoJSONIntersectsFieldFactory,
-//     ],
-//   },
-// };
 
 export const fieldVisitorEventsMap = {
   GeoJSONPointNearInput: {

@@ -404,10 +404,10 @@ describe('accessRules', () => {
       type Post @model {
         id: ObjectID @id @unique @db(name: "_id")
         title: String
-        meta: Meta!
+        meta: Meta! @subdocument
       }
 
-      type Meta @embedded {
+      type Meta {
         slug: String!
         keywords: [String]
       }

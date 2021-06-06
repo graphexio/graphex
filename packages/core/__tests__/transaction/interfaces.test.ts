@@ -16,29 +16,29 @@ describe('interfaces', () => {
 
     interface User @model @inherit {
       id: ID @id @unique @db(name: "_id")
-      profile: Profile
+      profile: Profile @subdocument
     }
 
-    interface Profile @inherit @embedded {
+    interface Profile @inherit {
       invitedBy: User @relation
     }
 
     type Admin implements User {
       username: String
       approves: [Post] @relation(storeField: "approvesPostIds")
-      profile: AdminProfile
+      profile: AdminProfile @subdocument
     }
 
-    type AdminProfile implements Profile @embedded {
+    type AdminProfile implements Profile {
       name: String
     }
 
     type Subscriber implements User {
-      profile: SubscriberProfile
+      profile: SubscriberProfile @subdocument
       likes: [Post] @relation(storeField: "likesPostIds")
     }
 
-    type SubscriberProfile implements Profile @embedded {
+    type SubscriberProfile implements Profile {
       name: String
     }
   `);

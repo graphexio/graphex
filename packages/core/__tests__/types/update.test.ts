@@ -7,12 +7,12 @@ describe('update', () => {
     type Post @model {
       id: ID @id @unique @db(name: "_id")
       title: String
-      pinnedComment: Comment
-      comments: [Comment!]
+      pinnedComment: Comment @subdocument
+      comments: [Comment!] @subdocument
       status: String @readonly
     }
 
-    type Comment @embedded {
+    type Comment {
       message: String
       user: User @relation
     }

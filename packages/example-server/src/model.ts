@@ -16,11 +16,6 @@ export default gql`
     posts: [Post!] @extRelation
   }
 
-  type Comment @embedded {
-    body: String
-    user: User! @relation
-  }
-
   type Post implements Node & Timestamp @model {
     title: String!
     body: String!
@@ -48,13 +43,13 @@ export default gql`
     premium
   }
 
-  type SubscriberProfile @embedded {
+  type SubscriberProfile {
     firstName: String
     lastName: String
   }
 
   type Subscriber implements User {
     plan: SubscriberPlan!
-    profile: SubscriberProfile
+    profile: SubscriberProfile @subdocument
   }
 `;

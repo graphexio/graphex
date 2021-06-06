@@ -11,7 +11,7 @@ describe('orderBy', () => {
       comments: [Comment!]
     }
 
-    type Comment @embedded {
+    type Comment {
       message: String
     }
   `);

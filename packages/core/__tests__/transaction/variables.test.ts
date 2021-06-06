@@ -8,7 +8,7 @@ describe('variables', () => {
   const schema = buildFederatedSchema(gql`
     scalar Content
 
-    type EmbeddedContent @embedded {
+    type EmbeddedContent {
       content: Content
     }
 
@@ -16,51 +16,9 @@ describe('variables', () => {
       id: ID @id @unique @db(name: "_id")
       content: Content
       contents: [Content!]
-      embeddedContent: EmbeddedContent
+      embeddedContent: EmbeddedContent @subdocument
     }
   `);
-
-  // test('inline', () => {
-  //   const rq = gql`
-  //     mutation {
-  //       createPost(
-  //         data: { content: { body: "body", tags: ["tag1", "tag2"] } }
-  //       ) {
-  //         id
-  //       }
-  //     }
-  //   `;
-
-  //   const transaction = new AMTransaction();
-  //   AMVisitor.visit(schema, rq, {}, transaction);
-  //   expect(transaction).toMatchInlineSnapshot(`
-  //     Object {
-  //       "operations": Array [
-  //         Object {
-  //           "collectionName": "posts",
-  //           "data": Object {
-  //             "content": Object {
-  //               "body": "body",
-  //               "tags": Array [
-  //                 "tag1",
-  //                 "tag2",
-  //               ],
-  //             },
-  //           },
-  //           "fieldsSelection": Object {
-  //             "fields": Array [
-  //               "_id",
-  //             ],
-  //           },
-  //           "identifier": "Operation-0",
-  //           "kind": "AMCreateOperation",
-  //           "many": false,
-  //           "output": "AMResultPromise { Operation-0 }",
-  //         },
-  //       ],
-  //     }
-  //   `);
-  // });
 
   test('object variable', () => {
     const rq = gql`

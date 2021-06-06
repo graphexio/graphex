@@ -1,11 +1,11 @@
 import TypeWrap from '@graphex/type-wrap';
-import { getNamedType, isCompositeType } from 'graphql';
 import { AMInputFieldFactory, AMModelType } from '../../definitions';
 import { AMObjectFieldContext } from '../../execution/contexts/objectField';
+import { isSubdocumentField } from '../../utils';
 
 export class AMUpdateNestedFieldFactory extends AMInputFieldFactory {
   isApplicable(field) {
-    return isCompositeType(getNamedType(field.type)) && !field.relation;
+    return isSubdocumentField(field);
   }
   getFieldName(field) {
     return field.name;

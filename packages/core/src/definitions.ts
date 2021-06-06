@@ -181,6 +181,7 @@ export type AMModelField = AMField & {
   isUnique: boolean;
   isReadOnly: boolean;
   isConnection?: boolean;
+  isSubdocument?: boolean;
   defaultValue?: any;
   relation: RelationInfo;
   nodesRelation?: boolean; // indicates that this is a relation field, but it has no relation information (Connection type)
@@ -201,7 +202,7 @@ export type AMModelType = (
   mmDiscriminator: string;
   mmDiscriminatorField: string;
   mmAbstract: boolean;
-  mmEmbedded: boolean;
+  mmConnection: boolean;
   mmModel: boolean;
   mmModelInherited?: boolean;
   mmCreatedAtFields?: AMModelField[];

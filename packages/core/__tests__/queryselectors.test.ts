@@ -26,19 +26,19 @@ describe('simple schema', () => {
     type Post @model {
       id: ID @id @unique
       title: String
-      pinnedComment: Comment
-      comments: [Comment]!
+      pinnedComment: Comment @subdocument
+      comments: [Comment]! @subdocument
       tags: [String]!
       num: Int
     }
 
-    type Comment @embedded {
+    type Comment {
       message: String
-      user: User
-      likes: [User]
+      user: User @subdocument
+      likes: [User] @subdocument
     }
 
-    type User @embedded {
+    type User {
       id: ID
       username: String
     }
