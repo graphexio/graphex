@@ -1,6 +1,6 @@
 {
   "name": "@graphex/example-server",
-  "version": "0.8.0",
+  "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -13,9 +13,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@graphex/acl": "0.8.0",
-    "@graphex/core": "0.8.0",
-    "@graphex/directive-implements": "0.8.0",
+    "@graphex/acl": "1.0.0",
+    "@graphex/core": "1.0.0",
+    "@graphex/directive-implements": "1.0.0",
     "apollo-server": "^2.2.6",
     "graphql": "14.6.0",
     "mongodb": "^3.1.10",

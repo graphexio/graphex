@@ -1,6 +1,6 @@
 {
   "name": "@graphex/acl",
-  "version": "0.8.0",
+  "version": "1.0.0",
   "description": "",
   "main": "lib/index.js",
   "files": [
@@ -17,11 +17,11 @@
   "dependencies": {
     "@apollo-model/graphql-tools": "4.0.7",
     "@apollo/federation": "^0.7.0",
-    "@graphex/ast-from-value": "0.8.0",
-    "@graphex/core": "0.8.0",
-    "@graphex/mongodb-executor": "0.8.0",
-    "@graphex/schema-filter": "0.8.0",
-    "@graphex/type-wrap": "0.8.0",
+    "@graphex/ast-from-value": "1.0.0",
+    "@graphex/core": "1.0.0",
+    "@graphex/mongodb-executor": "1.0.0",
+    "@graphex/schema-filter": "1.0.0",
+    "@graphex/type-wrap": "1.0.0",
     "apollo-server": "^2.7.0",
     "ramda": "^0.26.1"
   },
