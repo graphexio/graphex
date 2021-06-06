@@ -150,3 +150,11 @@ export const isEmbeddedType = (type: GraphQLNamedType) => {
 export const isSubdocumentField = (field: AMModelField) => {
   return Boolean(field['isSubdocument']);
 };
+
+export const isDiscriminatorRequiredForType = (type: GraphQLNamedType) => {
+  return (
+    Boolean(type['mmDiscriminatorField']) &&
+    Boolean(type['mmDiscriminator']) &&
+    !isModelType(type)
+  );
+};

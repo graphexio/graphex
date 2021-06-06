@@ -3,10 +3,10 @@ import {
   AMModelType,
   GraphQLOperationType,
 } from '../definitions';
-import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMReadOperation } from '../execution/operations/readOperation';
 import { resolve } from '../resolve';
 import { lowercaseFirstLetter } from '../utils';
+import { attachDiscriminatorToOperationHandler } from '../visitorHandlers/attachDiscriminatorToOperationHandler';
 
 export class AMModelSingleQueryFieldFactory extends AMMethodFieldFactory {
   getOperationType() {
@@ -42,19 +42,7 @@ export class AMModelSingleQueryFieldFactory extends AMMethodFieldFactory {
         });
         stack.push(operation);
       },
-      amLeave(node, transaction, stack) {
-        const context = stack.pop() as AMReadOperation;
-        if (modelType.mmDiscriminatorField && modelType.mmDiscriminator) {
-          if (!context.selector) {
-            context.setSelector(new AMSelectorContext());
-          }
-
-          context.selector.addValue(
-            modelType.mmDiscriminatorField,
-            modelType.mmDiscriminator
-          );
-        }
-      },
+      ...attachDiscriminatorToOperationHandler(modelType),
       resolve: resolve,
     };
   }

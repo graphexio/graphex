@@ -5,9 +5,9 @@ import {
   AMModelType,
   GraphQLOperationType,
 } from '../definitions';
-import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMUpdateOperation } from '../execution/operations/updateOperation';
 import { resolve } from '../resolve';
+import { attachDiscriminatorToOperationHandler } from '../visitorHandlers/attachDiscriminatorToOperationHandler';
 
 export class AMModelUpdateMutationFieldFactory extends AMMethodFieldFactory {
   getOperationType() {
@@ -57,19 +57,7 @@ export class AMModelUpdateMutationFieldFactory extends AMMethodFieldFactory {
         });
         stack.push(operation);
       },
-      amLeave(node, transaction, stack) {
-        const context = stack.pop() as AMUpdateOperation;
-        if (modelType.mmDiscriminatorField && modelType.mmDiscriminator) {
-          if (!context.selector) {
-            context.setSelector(new AMSelectorContext());
-          }
-
-          context.selector.addValue(
-            modelType.mmDiscriminatorField,
-            modelType.mmDiscriminator
-          );
-        }
-      },
+      ...attachDiscriminatorToOperationHandler(modelType),
       resolve: resolve,
     };
   }

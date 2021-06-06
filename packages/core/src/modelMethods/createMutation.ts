@@ -17,7 +17,7 @@ export class AMModelCreateMutationFieldFactory extends AMMethodFieldFactory {
     return R.concat('create')(modelType.name);
   }
   getField(modelType: AMModelType) {
-    return <AMField>{
+    return {
       name: this.getFieldName(modelType),
       description: '',
       isDeprecated: false,
@@ -41,6 +41,6 @@ export class AMModelCreateMutationFieldFactory extends AMMethodFieldFactory {
         stack.pop();
       },
       resolve: resolve,
-    };
+    } as AMField;
   }
 }
