@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.1](https://gitlab.com/graphexio/graphex/compare/v1.0.0...v1.0.1) (2021-06-07)
+
+
+### Bug Fixes
+
+* **core:** do not pass redundant discriminators in operations ([e495b40](https://gitlab.com/graphexio/graphex/commit/e495b40)), closes [#23](https://gitlab.com/graphexio/graphex/issues/23)
+
+
+
+
+
 # [1.0.0](https://gitlab.com/graphexio/graphex/compare/v0.8.0...v1.0.0) (2021-06-06)
 
 
