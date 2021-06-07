@@ -17,6 +17,7 @@ import * as JSON from './scalars/JSON';
 import * as ObjectID from './scalars/objectID';
 import * as NoArrayFilter from './directives/noArrayFilter';
 import * as Subdocument from './directives/subdocument';
+import * as RelationOutside from './directives/relationOutside';
 
 export default [
   Model,
@@ -40,4 +41,5 @@ export default [
   ObjectID,
   NoArrayFilter,
   Subdocument,
+  RelationOutside,
 ];

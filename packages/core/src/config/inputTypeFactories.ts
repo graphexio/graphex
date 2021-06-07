@@ -3,8 +3,10 @@ import { AMInterfaceWhereTypeFactory } from '../inputTypes/interfaceWhere';
 import { AMWhereACLTypeFactory } from '../inputTypes/whereACLClass';
 import { AMWhereCleanTypeFactory } from '../inputTypes/whereClean';
 import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
+import { AMWhereUniqueExternalTypeFactory } from '../inputTypes/whereUniqueExternal';
 import { AMUpdateWithWhereNestedTypeFactory } from '../inputTypes/updateWithWhereNested';
 import { AMInterfaceWhereUniqueTypeFactory } from '../inputTypes/interfaceWhereUnique';
+import { AMInterfaceWhereUniqueExternalTypeFactory } from '../inputTypes/interfaceWhereUniqueExternal';
 import { AMCreateTypeFactory } from '../inputTypes/create';
 import { AMCreateManyNestedTypeFactory } from '../inputTypes/createManyNested';
 import { AMCreateManyRelationTypeFactory } from '../inputTypes/createManyRelation';
@@ -18,6 +20,11 @@ import { AMUpdateManyRelationTypeFactory } from '../inputTypes/updateManyRelatio
 import { AMUpdateOneNestedTypeFactory } from '../inputTypes/updateOneNested';
 import { AMUpdateOneRelationTypeFactory } from '../inputTypes/updateOneRelation';
 import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
+import { AMCreateManyRelationOutsideTypeFactory } from '../inputTypes/createManyRelationOutside';
+import { AMCreateOneRelationOutsideTypeFactory } from '../inputTypes/createOneRelationOutside';
+import { AMCreateOneRequiredRelationOutsideTypeFactory } from '../inputTypes/createOneRequiredRelationOutside';
+import { AMUpdateManyRelationOutsideTypeFactory } from '../inputTypes/updateManyRelationOutside';
+import { AMUpdateOneRelationOutsideTypeFactory } from '../inputTypes/updateOneRelationOutside';
 
 export const inputTypeFactories = {
   whereACL: {
@@ -126,11 +133,26 @@ export const inputTypeFactories = {
       whereUnique: 'whereUnique',
     },
   },
+  interfaceWhereUniqueExternal: {
+    factory: AMInterfaceWhereUniqueExternalTypeFactory,
+    links: {
+      whereUnique: 'whereUniqueExternal',
+    },
+  },
   whereUnique: {
     factory: AMWhereUniqueTypeFactory,
     links: {
       whereACL: 'whereACL',
     },
+    dynamicLinks: {
+      _default: {
+        selectors: ['selectorAsIs'],
+      },
+    },
+  },
+  whereUniqueExternal: {
+    factory: AMWhereUniqueExternalTypeFactory,
+    links: {},
     dynamicLinks: {
       _default: {
         selectors: ['selectorAsIs'],
@@ -148,7 +170,12 @@ export const inputTypeFactories = {
     factory: AMCreateTypeFactory,
     dynamicLinks: {
       _default: {
-        fieldFactories: ['create', 'createNested', 'createRelation'],
+        fieldFactories: [
+          'create',
+          'createNested',
+          'createRelation',
+          'createRelationOutside',
+        ],
       },
     },
   },
@@ -158,14 +185,23 @@ export const inputTypeFactories = {
   createManyRelation: {
     factory: AMCreateManyRelationTypeFactory,
   },
+  createManyRelationOutside: {
+    factory: AMCreateManyRelationOutsideTypeFactory,
+  },
   createOneNested: {
     factory: AMCreateOneNestedTypeFactory,
   },
   createOneRelation: {
     factory: AMCreateOneRelationTypeFactory,
   },
+  createOneRelationOutside: {
+    factory: AMCreateOneRelationOutsideTypeFactory,
+  },
   createOneRequirerdRelation: {
     factory: AMCreateOneRequiredRelationTypeFactory,
+  },
+  createOneRequirerdRelationOutside: {
+    factory: AMCreateOneRequiredRelationOutsideTypeFactory,
   },
   interfaceCreate: {
     factory: AMInterfaceCreateTypeFactory,
@@ -174,7 +210,12 @@ export const inputTypeFactories = {
     factory: AMUpdateTypeFactory,
     dynamicLinks: {
       _default: {
-        fieldFactories: ['update', 'updateNested', 'updateRelation'],
+        fieldFactories: [
+          'update',
+          'updateNested',
+          'updateRelation',
+          'updateRelationOutside',
+        ],
       },
     },
   },
@@ -190,11 +231,17 @@ export const inputTypeFactories = {
   updateManyRelation: {
     factory: AMUpdateManyRelationTypeFactory,
   },
+  updateManyRelationOutside: {
+    factory: AMUpdateManyRelationOutsideTypeFactory,
+  },
   updateOneNested: {
     factory: AMUpdateOneNestedTypeFactory,
   },
   updateOneRelation: {
     factory: AMUpdateOneRelationTypeFactory,
+  },
+  updateOneRelationOutside: {
+    factory: AMUpdateOneRelationOutsideTypeFactory,
   },
   orderBy: {
     factory: AMOrderByTypeFactory,

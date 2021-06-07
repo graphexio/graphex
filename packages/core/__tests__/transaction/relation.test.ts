@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { UserInputError } from 'apollo-server';
 import { generateSchema } from './generateSchema';
-import { prepareTransaction } from './prepareTransaction';
+import { prepareTransaction } from '../utils/prepareTransaction';
 import { AMVisitor } from '../../src/execution/visitor';
 import { AMTransaction } from '../../src/execution/transaction';
 

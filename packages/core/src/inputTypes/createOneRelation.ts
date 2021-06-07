@@ -9,9 +9,7 @@ import { AMCreateOperation } from '../execution/operations/createOperation';
 import { AMReadOperation } from '../execution/operations/readOperation';
 import { ResultPromiseTransforms } from '../execution/resultPromise';
 
-export class AMCreateOneRelationTypeFactory extends AMTypeFactory<
-  AMInputObjectType
-> {
+export class AMCreateOneRelationTypeFactory extends AMTypeFactory<AMInputObjectType> {
   getTypeName(modelType: AMModelType): string {
     return `${modelType.name}CreateOneRelationInput`;
   }

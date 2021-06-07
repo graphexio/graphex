@@ -1,20 +1,28 @@
 import TypeWrap from '@graphex/type-wrap';
-import { AMInputFieldFactory, AMModelType } from '../../definitions';
-import { AMObjectFieldContext } from '../../execution/contexts/objectField';
-import { isSubdocumentField } from '../../utils';
+import {
+  AMInputFieldFactory,
+  AMModelField,
+  AMModelType,
+} from '../../definitions';
+import { AMObjectFieldContext } from '../../execution';
 
-export class AMUpdateNestedFieldFactory extends AMInputFieldFactory {
-  isApplicable(field) {
-    return isSubdocumentField(field);
+export class AMUpdateRelationOutsideFieldFactory extends AMInputFieldFactory {
+  isApplicable(field: AMModelField) {
+    return Boolean(field.isRelationOutside);
   }
   getFieldName(field) {
     return field.name;
   }
   getField(field) {
     const typeWrap = new TypeWrap(field.type);
+    const isMany = typeWrap.isMany();
     const type = this.configResolver.resolveInputType(
       typeWrap.realType() as AMModelType,
-      typeWrap.isMany() ? this.links.many : this.links.one
+      isMany
+        ? 'updateManyRelationOutside'
+        : // : isRequired
+          // ? AMUpdateOneRequiredRelationTypeFactory
+          'updateOneRelationOutside'
     );
 
     return {
@@ -30,13 +38,11 @@ export class AMUpdateNestedFieldFactory extends AMInputFieldFactory {
         const path = stack.getFieldPath(operation);
         const context = stack.pop() as AMObjectFieldContext;
 
+        const data = stack.getOperationData(operation);
+        const set = (data.data && data.data['$set']) || {};
+        data.addValue('$set', set);
         if (context.value) {
-          const data = stack.getOperationData(operation);
-          const set = (data.data && data.data['$set']) || {};
-          data.addValue('$set', set);
-          if (context.value) {
-            set[path] = context.value;
-          }
+          set[path] = context.value;
         }
       },
     };

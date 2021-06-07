@@ -43,20 +43,6 @@ export class AMUpdateRelationFieldFactory extends AMInputFieldFactory {
           data.addValue('$set', set);
           set[path] = context.value;
         }
-        // const lastInStack = stack.last();
-        // if (
-        //   lastInStack instanceof AMDataContext ||
-        //   lastInStack instanceof AMObjectFieldContext
-        // ) {
-        //   if (context.value instanceof AMResultPromise) {
-        //     lastInStack.addValue(
-        //       context.fieldName,
-        //       isMany
-        //         ? context.value.distinct(field.relation.relationField)
-        //         : context.value.path(field.relation.relationField)
-        //     );
-        //   }
-        // }
       },
     };
   }
