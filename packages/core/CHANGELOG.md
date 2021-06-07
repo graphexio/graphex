@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.2.0](https://github.com/vitramir/apollo-model-mongodb/compare/v1.1.0...v1.2.0) (2021-06-07)
+
+
+### Features
+
+* **core:** add external directive ([73ec10e](https://github.com/vitramir/apollo-model-mongodb/commit/73ec10e)), closes [#18](https://github.com/vitramir/apollo-model-mongodb/issues/18)
+* **core:** add federated directive ([35cdaaa](https://github.com/vitramir/apollo-model-mongodb/commit/35cdaaa)), closes [#25](https://github.com/vitramir/apollo-model-mongodb/issues/25) [#19](https://github.com/vitramir/apollo-model-mongodb/issues/19)
+
+
+
+
+
 # [1.1.0](https://github.com/vitramir/apollo-model-mongodb/compare/v1.0.1...v1.1.0) (2021-06-07)
 
 
