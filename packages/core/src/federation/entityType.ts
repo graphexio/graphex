@@ -1,45 +1,23 @@
 import TypeWrap from '@graphex/type-wrap';
-import { DirectiveNode, GraphQLUnionType } from 'graphql';
-import { AMModelType, AMObjectType, IAMTypeFactory } from '../definitions';
+import { GraphQLUnionType } from 'graphql';
+import { AMModelType, IAMTypeFactory } from '../definitions';
 import { getDirective } from '../utils';
 
-function generateKeyDirective(fields) {
-  return <DirectiveNode>{
-    kind: 'Directive',
-    name: { kind: 'Name', value: 'key' },
-    arguments: [
-      {
-        kind: 'Argument',
-        name: { kind: 'Name', value: 'fields' },
-        value: {
-          kind: 'StringValue',
-          value: fields,
-          block: false,
-        },
-      },
-    ],
-  };
-}
-
 export const AMFederationEntityTypeFactory: IAMTypeFactory<GraphQLUnionType> = {
-  getTypeName(modelType): string {
+  getTypeName(): string {
     return `_Entity`;
   },
   getType(modelType, schemaInfo) {
-    const self: IAMTypeFactory<GraphQLUnionType> = this;
-
     const keyTypes = [];
-    // schema._directives = [...schema._directives, ...federationDirectives];
 
     Object.values(schemaInfo.schema.getTypeMap()).forEach(
       (type: AMModelType) => {
-        //   this._onSchemaInit(type);
-
         const typeWrap = new TypeWrap(type);
         if (
-          (getDirective(type, 'model') ||
+          ((getDirective(type, 'model') ||
             typeWrap.interfaceWithDirective('model')) &&
-          !(typeWrap.isAbstract() || typeWrap.isInterface())
+            !(typeWrap.isAbstract() || typeWrap.isInterface())) ||
+          getDirective(type, 'federated')
         ) {
           keyTypes.push(type);
         }
