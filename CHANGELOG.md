@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.1.0](https://gitlab.com/graphexio/graphex/compare/v1.0.1...v1.1.0) (2021-06-07)
+
+
+### Bug Fixes
+
+* add relation outside where unique type ([dd1f531](https://gitlab.com/graphexio/graphex/commit/dd1f531))
+
+
+### Features
+
+* **core:** add relation outside types ([4c68126](https://gitlab.com/graphexio/graphex/commit/4c68126))
+
+
+
+
+
 ## [1.0.1](https://gitlab.com/graphexio/graphex/compare/v1.0.0...v1.0.1) (2021-06-07)
 
 
