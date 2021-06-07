@@ -98,7 +98,7 @@ export default class ModelMongo {
       }
     });
 
-    const sdl = printSchema(schema);
+    const sdl = printSchema(schema).replace('""""""', '');
 
     const _Service = new GraphQLObjectType({
       name: '_Service',
