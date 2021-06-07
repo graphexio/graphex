@@ -6,9 +6,9 @@ import {
   AMModelType,
   GraphQLOperationType,
 } from '../definitions';
-import { AMSelectorContext } from '../execution/contexts/selector';
 import { AMDeleteOperation } from '../execution/operations/deleteOperation';
 import { resolve } from '../resolve';
+import { attachDiscriminatorToOperationHandler } from '../visitorHandlers/attachDiscriminatorToOperationHandler';
 
 export class AMModelDeleteOneMutationFieldFactory extends AMMethodFieldFactory {
   getOperationType() {
@@ -18,7 +18,7 @@ export class AMModelDeleteOneMutationFieldFactory extends AMMethodFieldFactory {
     return R.concat('delete')(modelType.name);
   }
   getField(modelType: AMModelType) {
-    return <AMField>{
+    return {
       name: this.getFieldName(modelType),
       description: '',
       isDeprecated: false,
@@ -38,20 +38,8 @@ export class AMModelDeleteOneMutationFieldFactory extends AMMethodFieldFactory {
         });
         stack.push(operation);
       },
-      amLeave(node, transaction, stack) {
-        const context = stack.pop() as AMDeleteOperation;
-        if (modelType.mmDiscriminatorField && modelType.mmDiscriminator) {
-          if (!context.selector) {
-            context.setSelector(new AMSelectorContext());
-          }
-
-          context.selector.addValue(
-            modelType.mmDiscriminatorField,
-            modelType.mmDiscriminator
-          );
-        }
-      },
+      ...attachDiscriminatorToOperationHandler(modelType),
       resolve: resolve,
-    };
+    } as AMField;
   }
 }

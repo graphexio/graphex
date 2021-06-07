@@ -4,6 +4,7 @@ import { AMDataContext } from '../execution/contexts/data';
 import { AMListValueContext } from '../execution/contexts/listValue';
 import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMOperation } from '../execution/operation';
+import { isDiscriminatorRequiredForType } from '../utils';
 
 export class AMCreateTypeFactory extends AMTypeFactory<AMInputObjectType> {
   isApplicable(modelType: AMModelType) {
@@ -41,7 +42,7 @@ export class AMCreateTypeFactory extends AMTypeFactory<AMInputObjectType> {
         const context = new AMDataContext();
         stack.push(context);
 
-        if (modelType.mmDiscriminatorField) {
+        if (isDiscriminatorRequiredForType(modelType)) {
           context.addValue(
             modelType.mmDiscriminatorField,
             modelType.mmDiscriminator
