@@ -18,6 +18,8 @@ import * as ObjectID from './scalars/objectID';
 import * as NoArrayFilter from './directives/noArrayFilter';
 import * as Subdocument from './directives/subdocument';
 import * as RelationOutside from './directives/relationOutside';
+import * as Federated from './directives/federated';
+import * as External from './directives/external';
 
 export default [
   Model,
@@ -42,4 +44,6 @@ export default [
   NoArrayFilter,
   Subdocument,
   RelationOutside,
+  Federated,
+  External,
 ];

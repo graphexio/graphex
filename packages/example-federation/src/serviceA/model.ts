@@ -1,14 +1,12 @@
 import gql from 'graphql-tag';
 export default gql`
-  directive @external on FIELD_DEFINITION
-
-  type Api {
+  type Api @federated {
     id: ObjectID @unique @external
   }
 
   type Collection @model {
     id: ObjectID @id @unique @db(name: "_id")
     title: String
-    apis: [Api] @subdocument
+    apis: [Api] @relationOutside
   }
 `;

@@ -17,7 +17,7 @@ import { makeExecutableSchema as makeGraphQLSchema } from 'graphql-tools';
 import _ from 'lodash';
 import { defaultConfig } from './config/defaultConfig';
 import { AMConfigResolver } from './config/resolver';
-import { AMOptions } from './definitions';
+import { AMModelType, AMOptions } from './definitions';
 import { AMFederationEntitiesFieldFactory } from './federation/entitiesField';
 import InitialScheme from './initialScheme';
 import Modules from './modules';
@@ -67,9 +67,21 @@ export default class ModelMongo {
   buildFederatedSchema = params => {
     const schema = this.makeExecutableSchema(params);
 
-    Object.values(schema.getTypeMap()).forEach(type => {
+    Object.values(schema.getTypeMap()).forEach((type: AMModelType) => {
       const typeWrap = new TypeWrap(type);
-      if (isAMModelType(type)) {
+      const isFederated = getDirective(type, 'federated');
+      if (isFederated) {
+        type.extensionASTNodes = [
+          { ...type.astNode, kind: 'ObjectTypeExtension' } as any,
+          ...(type.extensionASTNodes ?? []),
+        ];
+        type.astNode = {
+          kind: type.astNode.kind,
+          name: type.astNode.name,
+          directives: [],
+        };
+      }
+      if (isAMModelType(type) || isFederated) {
         if (!typeWrap.isAbstract()) {
           Object.values(type.getFields()).map(field => {
             if (getDirective(field, 'unique')) {
@@ -86,7 +98,7 @@ export default class ModelMongo {
       }
     });
 
-    const sdl = printSchema(schema);
+    const sdl = printSchema(schema).replace('""""""', '');
 
     const _Service = new GraphQLObjectType({
       name: '_Service',
