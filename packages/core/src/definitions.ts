@@ -72,7 +72,9 @@ export type AMVisitable = {
   amLeave?: AMLeaveHandler;
 };
 
-export type AMInputField = GraphQLInputField & AMVisitable;
+export type AMInputField = GraphQLInputField & {
+  dbName?: string;
+} & AMVisitable;
 
 export type AMInputFieldMap = {
   [key: string]: AMInputField;
@@ -182,7 +184,9 @@ export type AMModelField = AMField & {
   isReadOnly: boolean;
   isConnection?: boolean;
   isSubdocument?: boolean;
-  isRelationOutside?: boolean;
+  relationOutside?: {
+    storeField: string;
+  };
   defaultValue?: any;
   relation: RelationInfo;
   nodesRelation?: boolean; // indicates that this is a relation field, but it has no relation information (Connection type)
@@ -209,6 +213,7 @@ export type AMModelType = (
   mmCreatedAtFields?: AMModelField[];
   mmUpdatedAtFields?: AMModelField[];
   mmDefaultFields?: AMModelField[];
+  mmUniqueFields?: AMModelField[];
 };
 
 export interface AMResolveFactoryType {

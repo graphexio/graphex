@@ -1,12 +1,13 @@
 import { GraphQLList } from 'graphql';
 import { toArray } from 'lodash';
+import { map, prop } from 'ramda';
 import {
   AMInputFieldConfigMap,
   AMInputObjectType,
   AMModelType,
   AMTypeFactory,
 } from '../definitions';
-import { AMDataContext, AMObjectFieldContext } from '../execution';
+import { AMDataContext } from '../execution';
 import { defaultObjectFieldVisitorHandler } from './visitorHandlers';
 
 export class AMUpdateManyRelationOutsideTypeFactory extends AMTypeFactory<AMInputObjectType> {
@@ -56,9 +57,10 @@ export class AMUpdateManyRelationOutsideTypeFactory extends AMTypeFactory<AMInpu
       },
       amLeave(node, transaction, stack) {
         const operation = stack.lastOperation();
-        const path = stack.getFieldPath(operation);
+        const path = stack.dbPath(operation).asString();
         const context = stack.pop() as AMDataContext;
-        const lastInStack = stack.last();
+
+        const mapKey = map(prop(modelType?.mmUniqueFields?.[0]?.name));
 
         const data = stack.getOperationData(operation);
         if (!context.data || Object.keys(context.data).length != 1) {
@@ -68,19 +70,25 @@ export class AMUpdateManyRelationOutsideTypeFactory extends AMTypeFactory<AMInpu
         if (context.data.connect) {
           const push = (data.data && data.data['$push']) || {};
           data.addValue('$push', push);
-          push[path] = { $each: toArray(context.data.connect) };
+          push[path] = {
+            $each: mapKey(toArray(context.data.connect as Record<string, any>)),
+          };
         }
 
         if (context.data.reconnect) {
-          if (lastInStack instanceof AMObjectFieldContext) {
-            lastInStack.setValue(toArray(context.data.reconnect));
-          }
+          const set = (data.data && data.data['$set']) || {};
+          data.addValue('$set', set);
+          set[path] = mapKey(
+            toArray(context.data.reconnect as Record<string, any>)
+          );
         }
 
         if (context.data.disconnect) {
           const pullAll = (data.data && data.data['$pullAll']) || {};
           data.addValue('$pullAll', pullAll);
-          pullAll[path] = context.data.disconnect;
+          pullAll[path] = mapKey(
+            toArray(context.data.disconnect as Record<string, any>)
+          );
         }
       },
     });

@@ -5,7 +5,7 @@ import Core from '../../src';
 import Serializer from '../../src/serializer';
 expect.addSnapshotSerializer(Serializer);
 
-describe('abstract interface', () => {
+describe('outside relation', () => {
   const schema = new Core().makeExecutableSchema({
     typeDefs: gql`
       type Item {
@@ -21,7 +21,7 @@ describe('abstract interface', () => {
     `,
   });
 
-  test.skip('create relation', () => {
+  test('create relation', () => {
     const rq = gql`
       mutation {
         createCollection(
@@ -43,16 +43,10 @@ describe('abstract interface', () => {
           Object {
             "collectionName": "collections",
             "data": Object {
-              "item": Object {
-                "id": "test-id",
-              },
-              "items": Array [
-                Object {
-                  "id": "test-id1",
-                },
-                Object {
-                  "id": "test-id2",
-                },
+              "itemId": "test-id",
+              "itemIds": Array [
+                "test-id1",
+                "test-id2",
               ],
               "title": "test",
             },
@@ -100,21 +94,15 @@ describe('abstract interface', () => {
                     "collectionName": "collections",
                     "data": Object {
                       "$push": Object {
-                        "items": Object {
+                        "itemIds": Object {
                           "$each": Array [
-                            Object {
-                              "id": "test-id1",
-                            },
-                            Object {
-                              "id": "test-id2",
-                            },
+                            "test-id1",
+                            "test-id2",
                           ],
                         },
                       },
                       "$set": Object {
-                        "item": Object {
-                          "id": "test-id",
-                        },
+                        "itemId": "test-id",
                         "title": "test",
                       },
                     },
@@ -163,13 +151,9 @@ describe('abstract interface', () => {
               "collectionName": "collections",
               "data": Object {
                 "$set": Object {
-                  "items": Array [
-                    Object {
-                      "id": "test-id1",
-                    },
-                    Object {
-                      "id": "test-id2",
-                    },
+                  "itemIds": Array [
+                    "test-id1",
+                    "test-id2",
                   ],
                   "title": "test",
                 },
@@ -219,17 +203,113 @@ describe('abstract interface', () => {
               "collectionName": "collections",
               "data": Object {
                 "$pullAll": Object {
-                  "items": Array [
-                    Object {
-                      "id": "test-id1",
-                    },
-                    Object {
-                      "id": "test-id2",
-                    },
+                  "itemIds": Array [
+                    "test-id1",
+                    "test-id2",
                   ],
                 },
                 "$set": Object {
                   "title": "test",
+                },
+              },
+              "fieldsSelection": Object {
+                "fields": Array [
+                  "id",
+                ],
+              },
+              "identifier": "Operation-0",
+              "kind": "AMUpdateOperation",
+              "many": false,
+              "output": ResultPromise {
+                "source": Array [
+                  "Operation-0",
+                ],
+              },
+              "selector": Object {
+                "id": "parent-id",
+              },
+            },
+          ],
+        }
+      `);
+    });
+
+    test('update relation field only', () => {
+      const rq = gql`
+        mutation {
+          updateCollection(
+            where: { id: "parent-id" }
+            data: {
+              items: { disconnect: [{ id: "test-id1" }, { id: "test-id2" }] }
+            }
+          ) {
+            id
+          }
+        }
+      `;
+
+      const transaction = prepareTransaction(schema, rq);
+      expect(transaction).toMatchInlineSnapshot(`
+        Object {
+          "operations": Array [
+            Object {
+              "collectionName": "collections",
+              "data": Object {
+                "$pullAll": Object {
+                  "itemIds": Array [
+                    "test-id1",
+                    "test-id2",
+                  ],
+                },
+              },
+              "fieldsSelection": Object {
+                "fields": Array [
+                  "id",
+                ],
+              },
+              "identifier": "Operation-0",
+              "kind": "AMUpdateOperation",
+              "many": false,
+              "output": ResultPromise {
+                "source": Array [
+                  "Operation-0",
+                ],
+              },
+              "selector": Object {
+                "id": "parent-id",
+              },
+            },
+          ],
+        }
+      `);
+    });
+
+    test('reconnect', () => {
+      const rq = gql`
+        mutation {
+          updateCollection(
+            where: { id: "parent-id" }
+            data: {
+              items: { reconnect: [{ id: "test-id1" }, { id: "test-id2" }] }
+            }
+          ) {
+            id
+          }
+        }
+      `;
+
+      const transaction = prepareTransaction(schema, rq);
+      expect(transaction).toMatchInlineSnapshot(`
+        Object {
+          "operations": Array [
+            Object {
+              "collectionName": "collections",
+              "data": Object {
+                "$set": Object {
+                  "itemIds": Array [
+                    "test-id1",
+                    "test-id2",
+                  ],
                 },
               },
               "fieldsSelection": Object {
