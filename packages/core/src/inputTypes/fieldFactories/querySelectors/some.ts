@@ -6,7 +6,7 @@ import { AMQuerySelectorFieldFactory } from '../querySelector';
 export class SomeSelector extends AMQuerySelectorFieldFactory {
   isApplicable(field: AMModelField) {
     const typeWrap = new TypeWrap(field.type);
-    return !field.relation && !field.isRelationOutside && typeWrap.isMany();
+    return !field.relation && !field.relationOutside && typeWrap.isMany();
   }
   getFieldName(field: AMModelField) {
     return `${field.name}_some`;

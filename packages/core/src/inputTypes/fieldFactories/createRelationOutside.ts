@@ -9,7 +9,7 @@ import { defaultObjectFieldVisitorHandler } from '../visitorHandlers';
 
 export class AMCreateRelationOutsideFieldFactory extends AMInputFieldFactory {
   isApplicable(field: AMModelField) {
-    return Boolean(field.isRelationOutside);
+    return Boolean(field.relationOutside);
   }
   getFieldName(field: AMModelField) {
     return field.name;
@@ -30,7 +30,7 @@ export class AMCreateRelationOutsideFieldFactory extends AMInputFieldFactory {
     return {
       name: this.getFieldName(field),
       type,
-      ...defaultObjectFieldVisitorHandler(field.dbName),
+      dbName: field.relationOutside.storeField,
     } as AMInputField;
   }
 }

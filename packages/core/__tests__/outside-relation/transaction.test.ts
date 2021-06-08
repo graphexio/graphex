@@ -5,7 +5,7 @@ import Core from '../../src';
 import Serializer from '../../src/serializer';
 expect.addSnapshotSerializer(Serializer);
 
-describe('abstract interface', () => {
+describe('outside relation', () => {
   const schema = new Core().makeExecutableSchema({
     typeDefs: gql`
       type Item {
@@ -43,16 +43,10 @@ describe('abstract interface', () => {
           Object {
             "collectionName": "collections",
             "data": Object {
-              "item": Object {
-                "id": "test-id",
-              },
-              "items": Array [
-                Object {
-                  "id": "test-id1",
-                },
-                Object {
-                  "id": "test-id2",
-                },
+              "itemId": "test-id",
+              "itemIds": Array [
+                "test-id1",
+                "test-id2",
               ],
               "title": "test",
             },
@@ -100,21 +94,15 @@ describe('abstract interface', () => {
                     "collectionName": "collections",
                     "data": Object {
                       "$push": Object {
-                        "items": Object {
+                        "itemIds": Object {
                           "$each": Array [
-                            Object {
-                              "id": "test-id1",
-                            },
-                            Object {
-                              "id": "test-id2",
-                            },
+                            "test-id1",
+                            "test-id2",
                           ],
                         },
                       },
                       "$set": Object {
-                        "item": Object {
-                          "id": "test-id",
-                        },
+                        "itemId": "test-id",
                         "title": "test",
                       },
                     },
@@ -163,13 +151,9 @@ describe('abstract interface', () => {
               "collectionName": "collections",
               "data": Object {
                 "$set": Object {
-                  "items": Array [
-                    Object {
-                      "id": "test-id1",
-                    },
-                    Object {
-                      "id": "test-id2",
-                    },
+                  "itemIds": Array [
+                    "test-id1",
+                    "test-id2",
                   ],
                   "title": "test",
                 },
@@ -219,13 +203,9 @@ describe('abstract interface', () => {
               "collectionName": "collections",
               "data": Object {
                 "$pullAll": Object {
-                  "items": Array [
-                    Object {
-                      "id": "test-id1",
-                    },
-                    Object {
-                      "id": "test-id2",
-                    },
+                  "itemIds": Array [
+                    "test-id1",
+                    "test-id2",
                   ],
                 },
                 "$set": Object {
@@ -276,13 +256,9 @@ describe('abstract interface', () => {
               "collectionName": "collections",
               "data": Object {
                 "$pullAll": Object {
-                  "items": Array [
-                    Object {
-                      "id": "test-id1",
-                    },
-                    Object {
-                      "id": "test-id2",
-                    },
+                  "itemIds": Array [
+                    "test-id1",
+                    "test-id2",
                   ],
                 },
               },
@@ -330,13 +306,9 @@ describe('abstract interface', () => {
               "collectionName": "collections",
               "data": Object {
                 "$set": Object {
-                  "items": Array [
-                    Object {
-                      "id": "test-id1",
-                    },
-                    Object {
-                      "id": "test-id2",
-                    },
+                  "itemIds": Array [
+                    "test-id1",
+                    "test-id2",
                   ],
                 },
               },

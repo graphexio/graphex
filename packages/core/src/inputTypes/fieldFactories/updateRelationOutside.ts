@@ -7,7 +7,7 @@ import {
 
 export class AMUpdateRelationOutsideFieldFactory extends AMInputFieldFactory {
   isApplicable(field: AMModelField) {
-    return Boolean(field.isRelationOutside);
+    return Boolean(field.relationOutside);
   }
   getFieldName(field) {
     return field.name;
@@ -28,7 +28,7 @@ export class AMUpdateRelationOutsideFieldFactory extends AMInputFieldFactory {
       name: this.getFieldName(field),
       extensions: undefined,
       type,
-      dbName: field.dbName,
+      dbName: field.relationOutside.storeField,
     };
   }
 }

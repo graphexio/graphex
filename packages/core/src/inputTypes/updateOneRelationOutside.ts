@@ -1,9 +1,4 @@
-import {
-  AMInputFieldConfigMap,
-  AMInputObjectType,
-  AMModelType,
-  AMTypeFactory,
-} from '../definitions';
+import { AMInputObjectType, AMModelType, AMTypeFactory } from '../definitions';
 import { AMDataContext } from '../execution';
 import { defaultObjectFieldVisitorHandler } from './visitorHandlers';
 
@@ -29,7 +24,7 @@ export class AMUpdateOneRelationOutsideTypeFactory extends AMTypeFactory<AMInput
       },
       amLeave(node, transaction, stack) {
         const operation = stack.lastOperation();
-        const path = stack.path(operation).asString();
+        const path = stack.dbPath(operation).asString();
         const context = stack.pop() as AMDataContext;
 
         const data = stack.getOperationData(operation);
@@ -37,7 +32,8 @@ export class AMUpdateOneRelationOutsideTypeFactory extends AMTypeFactory<AMInput
         if (context.data?.connect) {
           const set = (data.data && data.data['$set']) || {};
           data.addValue('$set', set);
-          set[path] = context.data.connect;
+          set[path] =
+            context.data.connect?.[modelType?.mmUniqueFields?.[0]?.name];
         }
       },
     });
