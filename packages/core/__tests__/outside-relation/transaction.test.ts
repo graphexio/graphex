@@ -21,7 +21,7 @@ describe('abstract interface', () => {
     `,
   });
 
-  test.skip('create relation', () => {
+  test('create relation', () => {
     const rq = gql`
       mutation {
         createCollection(
@@ -276,6 +276,60 @@ describe('abstract interface', () => {
               "collectionName": "collections",
               "data": Object {
                 "$pullAll": Object {
+                  "items": Array [
+                    Object {
+                      "id": "test-id1",
+                    },
+                    Object {
+                      "id": "test-id2",
+                    },
+                  ],
+                },
+              },
+              "fieldsSelection": Object {
+                "fields": Array [
+                  "id",
+                ],
+              },
+              "identifier": "Operation-0",
+              "kind": "AMUpdateOperation",
+              "many": false,
+              "output": ResultPromise {
+                "source": Array [
+                  "Operation-0",
+                ],
+              },
+              "selector": Object {
+                "id": "parent-id",
+              },
+            },
+          ],
+        }
+      `);
+    });
+
+    test('reconnect', () => {
+      const rq = gql`
+        mutation {
+          updateCollection(
+            where: { id: "parent-id" }
+            data: {
+              items: { reconnect: [{ id: "test-id1" }, { id: "test-id2" }] }
+            }
+          ) {
+            id
+          }
+        }
+      `;
+
+      const transaction = prepareTransaction(schema, rq);
+      expect(transaction).toMatchInlineSnapshot(`
+        Object {
+          "operations": Array [
+            Object {
+              "collectionName": "collections",
+              "data": Object {
+                "$set": Object {
                   "items": Array [
                     Object {
                       "id": "test-id1",
