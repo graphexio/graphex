@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.1](https://github.com/vitramir/apollo-model-mongodb/compare/v1.2.0...v1.2.1) (2021-06-08)
+
+
+### Bug Fixes
+
+* **core:** Fix empty set in relationOutside operations ([e26ef44](https://github.com/vitramir/apollo-model-mongodb/commit/e26ef44)), closes [#26](https://github.com/vitramir/apollo-model-mongodb/issues/26)
+* **core:** store only ids in DB for relationOutside ([9caa20a](https://github.com/vitramir/apollo-model-mongodb/commit/9caa20a))
+
+
+
+
+
 # [1.2.0](https://github.com/vitramir/apollo-model-mongodb/compare/v1.1.0...v1.2.0) (2021-06-07)
 
 
