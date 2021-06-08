@@ -4,7 +4,6 @@ import {
   AMModelField,
   AMModelType,
 } from '../../definitions';
-import { AMObjectFieldContext } from '../../execution';
 
 export class AMUpdateRelationOutsideFieldFactory extends AMInputFieldFactory {
   isApplicable(field: AMModelField) {
@@ -13,7 +12,7 @@ export class AMUpdateRelationOutsideFieldFactory extends AMInputFieldFactory {
   getFieldName(field) {
     return field.name;
   }
-  getField(field) {
+  getField(field: AMModelField) {
     const typeWrap = new TypeWrap(field.type);
     const isMany = typeWrap.isMany();
     const type = this.configResolver.resolveInputType(
@@ -29,22 +28,7 @@ export class AMUpdateRelationOutsideFieldFactory extends AMInputFieldFactory {
       name: this.getFieldName(field),
       extensions: undefined,
       type,
-      amEnter(node, transaction, stack) {
-        const action = new AMObjectFieldContext(field.dbName);
-        stack.push(action);
-      },
-      amLeave(node, transaction, stack) {
-        const operation = stack.lastOperation();
-        const path = stack.getFieldPath(operation);
-        const context = stack.pop() as AMObjectFieldContext;
-
-        const data = stack.getOperationData(operation);
-        const set = (data.data && data.data['$set']) || {};
-        data.addValue('$set', set);
-        if (context.value) {
-          set[path] = context.value;
-        }
-      },
+      dbName: field.dbName,
     };
   }
 }

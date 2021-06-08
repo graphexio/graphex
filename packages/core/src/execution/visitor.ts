@@ -20,6 +20,7 @@ import {
 import {
   AMArgumet,
   AMEnumType,
+  AMInputField,
   AMInputObjectType,
   AMModelField,
   AMModelType,
@@ -216,11 +217,10 @@ export class AMVisitor {
             | AMObjectType;
           const field = type.getFields()[fieldName];
 
-          stack.leavePath();
-
           if (field.amLeave) {
             field.amLeave(node, transaction, stack);
           }
+          stack.leavePath();
         },
       },
       [Kind.OBJECT]: {
@@ -253,7 +253,9 @@ export class AMVisitor {
           ) as AMInputObjectType;
           const fieldName = node.name.value;
 
-          const field = type.getFields()[fieldName];
+          const field = type.getFields()[fieldName] as AMInputField;
+
+          stack.enterPath(field.name, field.dbName);
           if (field.amEnter) {
             field.amEnter(node, transaction, stack);
           }
@@ -264,11 +266,12 @@ export class AMVisitor {
           ) as AMInputObjectType;
           const fieldName = node.name.value;
 
-          const field = type.getFields()[fieldName];
+          const field = type.getFields()[fieldName] as AMInputField;
 
           if (field.amLeave) {
             field.amLeave(node, transaction, stack);
           }
+          stack.leavePath();
         },
       },
       [Kind.LIST]: {

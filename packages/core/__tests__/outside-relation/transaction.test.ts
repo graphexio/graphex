@@ -253,5 +253,59 @@ describe('abstract interface', () => {
         }
       `);
     });
+
+    test('update relation field only', () => {
+      const rq = gql`
+        mutation {
+          updateCollection(
+            where: { id: "parent-id" }
+            data: {
+              items: { disconnect: [{ id: "test-id1" }, { id: "test-id2" }] }
+            }
+          ) {
+            id
+          }
+        }
+      `;
+
+      const transaction = prepareTransaction(schema, rq);
+      expect(transaction).toMatchInlineSnapshot(`
+        Object {
+          "operations": Array [
+            Object {
+              "collectionName": "collections",
+              "data": Object {
+                "$pullAll": Object {
+                  "items": Array [
+                    Object {
+                      "id": "test-id1",
+                    },
+                    Object {
+                      "id": "test-id2",
+                    },
+                  ],
+                },
+              },
+              "fieldsSelection": Object {
+                "fields": Array [
+                  "id",
+                ],
+              },
+              "identifier": "Operation-0",
+              "kind": "AMUpdateOperation",
+              "many": false,
+              "output": ResultPromise {
+                "source": Array [
+                  "Operation-0",
+                ],
+              },
+              "selector": Object {
+                "id": "parent-id",
+              },
+            },
+          ],
+        }
+      `);
+    });
   });
 });

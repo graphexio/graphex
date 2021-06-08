@@ -6,7 +6,7 @@ import {
   AMModelType,
   AMTypeFactory,
 } from '../definitions';
-import { AMDataContext, AMObjectFieldContext } from '../execution';
+import { AMDataContext } from '../execution';
 import { defaultObjectFieldVisitorHandler } from './visitorHandlers';
 
 export class AMUpdateManyRelationOutsideTypeFactory extends AMTypeFactory<AMInputObjectType> {
@@ -56,9 +56,8 @@ export class AMUpdateManyRelationOutsideTypeFactory extends AMTypeFactory<AMInpu
       },
       amLeave(node, transaction, stack) {
         const operation = stack.lastOperation();
-        const path = stack.getFieldPath(operation);
+        const path = stack.path(operation).asString();
         const context = stack.pop() as AMDataContext;
-        const lastInStack = stack.last();
 
         const data = stack.getOperationData(operation);
         if (!context.data || Object.keys(context.data).length != 1) {
@@ -72,9 +71,9 @@ export class AMUpdateManyRelationOutsideTypeFactory extends AMTypeFactory<AMInpu
         }
 
         if (context.data.reconnect) {
-          if (lastInStack instanceof AMObjectFieldContext) {
-            lastInStack.setValue(toArray(context.data.reconnect));
-          }
+          const set = (data.data && data.data['$set']) || {};
+          data.addValue('$set', set);
+          set[path] = toArray(context.data.reconnect);
         }
 
         if (context.data.disconnect) {
