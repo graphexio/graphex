@@ -8,8 +8,8 @@ import {
 import { defaultObjectFieldVisitorHandler } from '../../common/visitorHandlers';
 
 export class AMCreateRelationFieldFactory extends AMInputFieldFactory {
-  isApplicable(field) {
-    return Boolean(field.relation);
+  isApplicable(field: AMModelField) {
+    return Boolean(field.relation) && !field.relation.external;
   }
   getFieldName(field) {
     return field.name;

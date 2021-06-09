@@ -1,9 +1,13 @@
 import TypeWrap from '@graphex/type-wrap';
-import { AMInputFieldFactory, AMModelType } from '../../definitions';
+import {
+  AMInputFieldFactory,
+  AMModelField,
+  AMModelType,
+} from '../../definitions';
 
 export class AMUpdateRelationFieldFactory extends AMInputFieldFactory {
-  isApplicable(field) {
-    return Boolean(field.relation);
+  isApplicable(field: AMModelField) {
+    return Boolean(field.relation) && !field.relation.external;
   }
   getFieldName(field) {
     return field.name;
