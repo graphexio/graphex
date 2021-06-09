@@ -81,7 +81,10 @@ export const nestedArrays = (
                * Add $ prefix to prevent collision with real fields
                */
               stack.leavePath();
-              stack.enterPath(`$${node.alias.value}`, field.dbName);
+              stack.enterPath({
+                display: `$${node.alias.value}`,
+                db: field.dbName,
+              });
             }
           };
 

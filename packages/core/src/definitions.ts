@@ -74,6 +74,10 @@ export type AMVisitable = {
 
 export type AMInputField = GraphQLInputField & {
   dbName?: string;
+  relationOutside?: {
+    storeField: string;
+  };
+  relation?: RelationInfo;
 } & AMVisitable;
 
 export type AMInputFieldMap = {
