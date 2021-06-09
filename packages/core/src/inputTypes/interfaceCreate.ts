@@ -14,9 +14,7 @@ import { AMObjectFieldContext } from '../execution/contexts/objectField';
 import { AMCreateOperation } from '../execution/operations/createOperation';
 import { ResultPromiseTransforms } from '../execution/resultPromise';
 
-export class AMInterfaceCreateTypeFactory extends AMTypeFactory<
-  GraphQLInputObjectType
-> {
+export class AMInterfaceCreateTypeFactory extends AMTypeFactory<GraphQLInputObjectType> {
   isApplicable(modelType: AMModelType) {
     return isInterfaceType(modelType);
   }

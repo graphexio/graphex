@@ -5,10 +5,10 @@ import {
   isObjectType,
   isOutputType,
 } from 'graphql';
-import { firstArg } from '../args/first';
-import { offsetArg } from '../args/offset';
-import { AMConfigResolver } from '../config/resolver';
-import { AMModelField, AMModelType } from '../definitions';
+import { firstArg } from '../../args/first';
+import { offsetArg } from '../../args/offset';
+import { AMConfigResolver } from '../../config/resolver';
+import { AMModelField, AMModelType } from '../../definitions';
 
 export const relationsArguments = (
   schema: GraphQLSchema,

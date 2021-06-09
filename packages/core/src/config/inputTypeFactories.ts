@@ -9,16 +9,20 @@ import { AMInterfaceWhereUniqueTypeFactory } from '../inputTypes/interfaceWhereU
 import { AMInterfaceWhereUniqueExternalTypeFactory } from '../inputTypes/interfaceWhereUniqueExternal';
 import { AMCreateTypeFactory } from '../inputTypes/create';
 import { AMCreateManyNestedTypeFactory } from '../inputTypes/createManyNested';
-import { AMCreateManyRelationTypeFactory } from '../inputTypes/createManyRelation';
 import { AMCreateOneNestedTypeFactory } from '../inputTypes/createOneNested';
-import { AMCreateOneRelationTypeFactory } from '../inputTypes/createOneRelation';
-import { AMCreateOneRequiredRelationTypeFactory } from '../inputTypes/createOneRequiredRelation';
 import { AMInterfaceCreateTypeFactory } from '../inputTypes/interfaceCreate';
 import { AMUpdateTypeFactory } from '../inputTypes/update';
 import { AMUpdateManyNestedTypeFactory } from '../inputTypes/updateManyNested';
-import { AMUpdateManyRelationTypeFactory } from '../inputTypes/updateManyRelation';
 import { AMUpdateOneNestedTypeFactory } from '../inputTypes/updateOneNested';
-import { AMUpdateOneRelationTypeFactory } from '../inputTypes/updateOneRelation';
+
+/** Relations */
+import { AMCreateManyRelationTypeFactory } from '../relations/inputTypes/createManyRelation';
+import { AMCreateOneRelationTypeFactory } from '../relations/inputTypes/createOneRelation';
+import { AMCreateOneRequiredRelationTypeFactory } from '../relations/inputTypes/createOneRequiredRelation';
+import { AMUpdateManyRelationTypeFactory } from '../relations/inputTypes/updateManyRelation';
+import { AMUpdateOneRelationTypeFactory } from '../relations/inputTypes/updateOneRelation';
+/** -------- */
+
 import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
 import { AMCreateManyRelationOutsideTypeFactory } from '../inputTypes/createManyRelationOutside';
 import { AMCreateOneRelationOutsideTypeFactory } from '../inputTypes/createOneRelationOutside';

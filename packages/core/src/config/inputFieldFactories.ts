@@ -19,12 +19,15 @@ import { SomeSelector } from '../inputTypes/fieldFactories/querySelectors/some';
 import { StartsWithSelector } from '../inputTypes/fieldFactories/querySelectors/startsWith';
 import { AMCreateFieldFactory } from '../inputTypes/fieldFactories/create';
 import { AMCreateNestedFieldFactory } from '../inputTypes/fieldFactories/createNested';
-import { AMCreateRelationFieldFactory } from '../inputTypes/fieldFactories/createRelation';
-import { AMCreateRelationOutsideFieldFactory } from '../inputTypes/fieldFactories/createRelationOutside';
 import { AMUpdateFieldFactory } from '../inputTypes/fieldFactories/update';
 import { AMUpdateNestedFieldFactory } from '../inputTypes/fieldFactories/updateNested';
-import { AMUpdateRelationFieldFactory } from '../inputTypes/fieldFactories/updateRelation';
+import { AMCreateRelationOutsideFieldFactory } from '../inputTypes/fieldFactories/createRelationOutside';
 import { AMUpdateRelationOutsideFieldFactory } from '../inputTypes/fieldFactories/updateRelationOutside';
+
+/** Relations */
+import { AMCreateRelationFieldFactory } from '../relations/fieldFactories/createRelation';
+import { AMUpdateRelationFieldFactory } from '../relations/fieldFactories/updateRelation';
+/** --------- */
 
 export const inputFieldFactories = {
   selectorAll: {

@@ -1,17 +1,18 @@
 import { GraphQLSchema } from 'graphql';
 import { fillDbName } from './fillDbName';
-import { relationFieldsVisitorEvents } from './relationFieldsVisitorEvents';
 import { fieldFactories } from './fieldFactories';
 import { fieldVisitorEvents } from './fieldVisitorEvents';
 
-import { relationDirective } from './relationDirective';
+import { relationFieldsVisitorEvents } from '../relations/prepare/relationFieldsVisitorEvents';
+import { relationDirective } from '../relations/prepare/relationDirective';
+import { relationsArguments } from '../relations/prepare/relationsArguments';
+
 import { extRelationDirective } from './extRelationDirective';
 import { createdAtDirective } from './createdAtDirective';
 import { updatedAtDirective } from './updatedAtDirective';
 import { defaultDirective } from './defaultDirective';
 
 import { rootFields } from './rootFields';
-import { relationsArguments } from './relationsArguments';
 import { connectionFields } from './connectionFields';
 import { nestedArrays } from './nestedArrays';
 import { fillDiscriminators } from './fillDiscriminators';

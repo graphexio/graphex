@@ -1,6 +1,5 @@
 import TypeWrap from '@graphex/type-wrap';
 import { AMInputFieldFactory, AMModelType } from '../../definitions';
-import { AMObjectFieldContext } from '../../execution/contexts/objectField';
 
 export class AMUpdateRelationFieldFactory extends AMInputFieldFactory {
   isApplicable(field) {
@@ -27,6 +26,7 @@ export class AMUpdateRelationFieldFactory extends AMInputFieldFactory {
       type,
       dbName: field.relation.storeField, // TODO: replace with field.dbName
       relation: field.relation,
+      // No handler because update types will set data directly in operation.
     };
   }
 }
