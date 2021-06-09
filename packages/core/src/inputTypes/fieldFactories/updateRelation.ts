@@ -25,25 +25,8 @@ export class AMUpdateRelationFieldFactory extends AMInputFieldFactory {
       name: this.getFieldName(field),
       extensions: undefined,
       type,
-      amEnter(node, transaction, stack) {
-        const context = new AMObjectFieldContext(
-          field.relation.storeField,
-          field
-        );
-        stack.push(context);
-      },
-      amLeave(node, transaction, stack) {
-        const operation = stack.lastOperation();
-        const path = stack.getFieldPath(operation);
-        const context = stack.pop() as AMObjectFieldContext;
-
-        if (context.value) {
-          const data = stack.getOperationData(operation);
-          const set = (data.data && data.data['$set']) || {};
-          data.addValue('$set', set);
-          set[path] = context.value;
-        }
-      },
+      dbName: field.relation.storeField, // TODO: replace with field.dbName
+      relation: field.relation,
     };
   }
 }
