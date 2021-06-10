@@ -27,6 +27,7 @@ import { getDirective, isAMModelType, appendField } from './utils';
 export * from './config/defaultConfig';
 export * from './definitions';
 export * from './execution';
+export * from './schemaGeneration/common/visitorHandlers';
 
 function hasTypeFields(
   type: GraphQLNamedType
