@@ -1,6 +1,6 @@
 import * as Inherit from '@graphex/directive-inherit';
 // import * as Default from './directives/default';
-import * as Abstract from '../schemaGeneration/relations/directives/abstract';
+import * as Abstract from '../schemaGeneration/model/directives/abstract';
 import * as CreatedAt from '../schemaGeneration/model/directives/createdAt';
 import * as DB from '../schemaGeneration/model/directives/db';
 import * as Default from '../schemaGeneration/model/directives/default';
