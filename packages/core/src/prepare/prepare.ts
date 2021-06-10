@@ -3,9 +3,9 @@ import { fillDbName } from './fillDbName';
 import { fieldFactories } from './fieldFactories';
 import { fieldVisitorEvents } from './fieldVisitorEvents';
 
-import { relationFieldsVisitorEvents } from '../relations/prepare/relationFieldsVisitorEvents';
-import { relationDirective } from '../relations/prepare/relationDirective';
-import { relationsArguments } from '../relations/prepare/relationsArguments';
+import { relationFieldsVisitorEvents } from '../schemaGeneration/relations/prepare/relationFieldsVisitorEvents';
+import { relationDirective } from '../schemaGeneration/relations/prepare/relationDirective';
+import { relationsArguments } from '../schemaGeneration/relations/prepare/relationsArguments';
 
 import { extRelationDirective } from './extRelationDirective';
 import { createdAtDirective } from './createdAtDirective';

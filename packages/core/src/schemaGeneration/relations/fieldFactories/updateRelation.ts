@@ -3,7 +3,7 @@ import {
   AMInputFieldFactory,
   AMModelField,
   AMModelType,
-} from '../../definitions';
+} from '../../../definitions';
 
 export class AMUpdateRelationFieldFactory extends AMInputFieldFactory {
   isApplicable(field: AMModelField) {

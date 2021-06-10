@@ -25,8 +25,8 @@ import { AMCreateRelationOutsideFieldFactory } from '../inputTypes/fieldFactorie
 import { AMUpdateRelationOutsideFieldFactory } from '../inputTypes/fieldFactories/updateRelationOutside';
 
 /** Relations */
-import { AMCreateRelationFieldFactory } from '../relations/fieldFactories/createRelation';
-import { AMUpdateRelationFieldFactory } from '../relations/fieldFactories/updateRelation';
+import { AMCreateRelationFieldFactory } from '../schemaGeneration/relations/fieldFactories/createRelation';
+import { AMUpdateRelationFieldFactory } from '../schemaGeneration/relations/fieldFactories/updateRelation';
 /** --------- */
 
 export const inputFieldFactories = {

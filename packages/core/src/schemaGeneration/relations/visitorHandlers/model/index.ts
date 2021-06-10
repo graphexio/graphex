@@ -1,11 +1,11 @@
-import { AMModelType, AMVisitable } from '../../../definitions';
-import { AMDataContext } from '../../../execution/contexts/data';
-import { AMListValueContext } from '../../../execution/contexts/listValue';
-import { AMObjectFieldContext } from '../../../execution/contexts/objectField';
-import { AMSelectorContext } from '../../../execution/contexts/selector';
-import { AMCreateOperation } from '../../../execution/operations/createOperation';
-import { AMReadOperation } from '../../../execution/operations/readOperation';
-import { ResultPromiseTransforms } from '../../../execution/resultPromise';
+import { AMModelType, AMVisitable } from '../../../../definitions';
+import { AMDataContext } from '../../../../execution/contexts/data';
+import { AMListValueContext } from '../../../../execution/contexts/listValue';
+import { AMObjectFieldContext } from '../../../../execution/contexts/objectField';
+import { AMSelectorContext } from '../../../../execution/contexts/selector';
+import { AMCreateOperation } from '../../../../execution/operations/createOperation';
+import { AMReadOperation } from '../../../../execution/operations/readOperation';
+import { ResultPromiseTransforms } from '../../../../execution/resultPromise';
 
 export const modelReadManyHandlerFactory = (modelType: AMModelType) => (
   methodName: string

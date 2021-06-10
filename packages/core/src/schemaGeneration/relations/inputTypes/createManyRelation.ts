@@ -1,43 +1,49 @@
+import { GraphQLInputObjectType, GraphQLList } from 'graphql';
 import {
   AMInputFieldConfigMap,
   AMInputObjectType,
   AMModelType,
   AMTypeFactory,
-} from '../../definitions';
-import { AMDataContext } from '../../execution';
-import { AMObjectFieldContext } from '../../execution/contexts/objectField';
+} from '../../../definitions';
+import { AMDataContext, AMObjectFieldContext } from '../../../execution';
 import {
-  createOneHandlerFactory,
-  readOneHandlerFactory,
+  createManyHandlerFactory,
+  readManyHandlerFactory,
 } from '../visitorHandlers';
 
-export class AMCreateOneRelationTypeFactory extends AMTypeFactory<AMInputObjectType> {
+export class AMCreateManyRelationTypeFactory extends AMTypeFactory<GraphQLInputObjectType> {
   getTypeName(modelType: AMModelType): string {
-    return `${modelType.name}CreateOneRelationInput`;
+    return `${modelType.name}CreateManyRelationInput`;
   }
   getType(modelType: AMModelType) {
-    const readHandler = readOneHandlerFactory(modelType);
-    const createHandler = createOneHandlerFactory(modelType);
+    const readHandler = readManyHandlerFactory(modelType);
+    const createHandler = createManyHandlerFactory(modelType);
 
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
-        return {
+        const fields = {
           create: {
-            type: this.configResolver.resolveInputType(modelType, [
-              'create',
-              'interfaceCreate',
-            ]),
+            type: new GraphQLList(
+              this.configResolver.resolveInputType(modelType, [
+                'create',
+                'interfaceCreate',
+              ])
+            ),
             ...createHandler('create'),
           },
           connect: {
-            type: this.configResolver.resolveInputType(modelType, [
-              'whereUnique',
-              'interfaceWhereUnique',
-            ]),
+            type: new GraphQLList(
+              this.configResolver.resolveInputType(modelType, [
+                'whereUnique',
+                'interfaceWhereUnique',
+              ])
+            ),
             ...readHandler('connect'),
           },
         } as AMInputFieldConfigMap;
+
+        return fields;
       },
       amEnter(node, transaction, stack) {
         const context = new AMDataContext();

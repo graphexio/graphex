@@ -1,19 +1,21 @@
+import { UserInputError } from 'apollo-server'; // TODO: replace with custom class
+import { InputObjectTypeDefinitionNode } from 'graphql';
 import {
   AMInputFieldConfigMap,
   AMInputObjectType,
   AMModelType,
   AMTypeFactory,
-} from '../../definitions';
-import { AMDataContext } from '../../execution';
-import { AMObjectFieldContext } from '../../execution/contexts/objectField';
+} from '../../../definitions';
+import { AMDataContext } from '../../../execution';
+import { AMObjectFieldContext } from '../../../execution/contexts/objectField';
 import {
   createOneHandlerFactory,
   readOneHandlerFactory,
 } from '../visitorHandlers';
 
-export class AMUpdateOneRelationTypeFactory extends AMTypeFactory<AMInputObjectType> {
+export class AMCreateOneRequiredRelationTypeFactory extends AMTypeFactory<AMInputObjectType> {
   getTypeName(modelType: AMModelType): string {
-    return `${modelType.name}UpdateOneRelationInput`;
+    return `${modelType.name}CreateOneRequiredRelationInput`;
   }
   getType(modelType: AMModelType) {
     const readHandler = readOneHandlerFactory(modelType);
@@ -39,26 +41,19 @@ export class AMUpdateOneRelationTypeFactory extends AMTypeFactory<AMInputObjectT
           },
         } as AMInputFieldConfigMap;
       },
-      amEnter(node, transaction, stack) {
+      amEnter(node: InputObjectTypeDefinitionNode, transaction, stack) {
+        if (node.fields.length != 1) {
+          throw new UserInputError(`'create' or 'connect' needed`);
+        }
         const context = new AMDataContext();
         stack.push(context);
       },
       amLeave(node, transaction, stack) {
-        const operation = stack.lastOperation();
-        const path = stack.dbPath(operation).asString();
         const context = stack.pop() as AMDataContext;
 
-        const data = stack.getOperationData(operation);
-        if (!context.data || Object.keys(context.data).length != 1) {
-          throw new Error(
-            `${this.getTypeName(modelType)} should contain one filled field`
-          );
-        }
-
-        if (context.data.create || context.data.connect) {
-          const set = (data.data && data.data['$set']) || {};
-          data.addValue('$set', set);
-          set[path] = context.data.create ?? context.data.connect;
+        const lastInStack = stack.last();
+        if (lastInStack instanceof AMObjectFieldContext) {
+          lastInStack.setValue(context.data.connect ?? context.data.create);
         }
       },
     });

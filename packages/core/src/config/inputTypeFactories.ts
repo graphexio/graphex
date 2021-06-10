@@ -16,11 +16,11 @@ import { AMUpdateManyNestedTypeFactory } from '../inputTypes/updateManyNested';
 import { AMUpdateOneNestedTypeFactory } from '../inputTypes/updateOneNested';
 
 /** Relations */
-import { AMCreateManyRelationTypeFactory } from '../relations/inputTypes/createManyRelation';
-import { AMCreateOneRelationTypeFactory } from '../relations/inputTypes/createOneRelation';
-import { AMCreateOneRequiredRelationTypeFactory } from '../relations/inputTypes/createOneRequiredRelation';
-import { AMUpdateManyRelationTypeFactory } from '../relations/inputTypes/updateManyRelation';
-import { AMUpdateOneRelationTypeFactory } from '../relations/inputTypes/updateOneRelation';
+import { AMCreateManyRelationTypeFactory } from '../schemaGeneration/relations/inputTypes/createManyRelation';
+import { AMCreateOneRelationTypeFactory } from '../schemaGeneration/relations/inputTypes/createOneRelation';
+import { AMCreateOneRequiredRelationTypeFactory } from '../schemaGeneration/relations/inputTypes/createOneRequiredRelation';
+import { AMUpdateManyRelationTypeFactory } from '../schemaGeneration/relations/inputTypes/updateManyRelation';
+import { AMUpdateOneRelationTypeFactory } from '../schemaGeneration/relations/inputTypes/updateOneRelation';
 /** -------- */
 
 import { AMOrderByTypeFactory } from '../inputTypes/orderBy';

@@ -5,12 +5,12 @@ import {
   AMInputObjectType,
   AMModelType,
   AMTypeFactory,
-} from '../../definitions';
-import { AMDataContext } from '../../execution/contexts/data';
-import { AMListValueContext } from '../../execution/contexts/listValue';
-import { AMObjectFieldContext } from '../../execution/contexts/objectField';
-import { AMDeleteDBRefOperation } from '../../execution/operations/deleteDbRefOperation';
-import { AMResultPromise } from '../../execution/resultPromise';
+} from '../../../definitions';
+import { AMDataContext } from '../../../execution/contexts/data';
+import { AMListValueContext } from '../../../execution/contexts/listValue';
+import { AMObjectFieldContext } from '../../../execution/contexts/objectField';
+import { AMDeleteDBRefOperation } from '../../../execution/operations/deleteDbRefOperation';
+import { AMResultPromise } from '../../../execution/resultPromise';
 
 import {
   readManyHandlerFactory,

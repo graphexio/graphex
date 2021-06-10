@@ -1,49 +1,43 @@
-import { GraphQLInputObjectType, GraphQLList } from 'graphql';
 import {
   AMInputFieldConfigMap,
   AMInputObjectType,
   AMModelType,
   AMTypeFactory,
-} from '../../definitions';
-import { AMDataContext, AMObjectFieldContext } from '../../execution';
+} from '../../../definitions';
+import { AMDataContext } from '../../../execution';
+import { AMObjectFieldContext } from '../../../execution/contexts/objectField';
 import {
-  createManyHandlerFactory,
-  readManyHandlerFactory,
+  createOneHandlerFactory,
+  readOneHandlerFactory,
 } from '../visitorHandlers';
 
-export class AMCreateManyRelationTypeFactory extends AMTypeFactory<GraphQLInputObjectType> {
+export class AMCreateOneRelationTypeFactory extends AMTypeFactory<AMInputObjectType> {
   getTypeName(modelType: AMModelType): string {
-    return `${modelType.name}CreateManyRelationInput`;
+    return `${modelType.name}CreateOneRelationInput`;
   }
   getType(modelType: AMModelType) {
-    const readHandler = readManyHandlerFactory(modelType);
-    const createHandler = createManyHandlerFactory(modelType);
+    const readHandler = readOneHandlerFactory(modelType);
+    const createHandler = createOneHandlerFactory(modelType);
 
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
-        const fields = {
+        return {
           create: {
-            type: new GraphQLList(
-              this.configResolver.resolveInputType(modelType, [
-                'create',
-                'interfaceCreate',
-              ])
-            ),
+            type: this.configResolver.resolveInputType(modelType, [
+              'create',
+              'interfaceCreate',
+            ]),
             ...createHandler('create'),
           },
           connect: {
-            type: new GraphQLList(
-              this.configResolver.resolveInputType(modelType, [
-                'whereUnique',
-                'interfaceWhereUnique',
-              ])
-            ),
+            type: this.configResolver.resolveInputType(modelType, [
+              'whereUnique',
+              'interfaceWhereUnique',
+            ]),
             ...readHandler('connect'),
           },
         } as AMInputFieldConfigMap;
-
-        return fields;
       },
       amEnter(node, transaction, stack) {
         const context = new AMDataContext();

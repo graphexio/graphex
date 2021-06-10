@@ -1,4 +1,4 @@
-import { AMModelType } from '../../definitions';
+import { AMModelType } from '../../../definitions';
 import { defaultObjectFieldVisitorHandler } from '../../common/visitorHandlers';
 import {
   abstractCreateHandlerFactory,

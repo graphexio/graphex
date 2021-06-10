@@ -4,7 +4,7 @@ import {
   AMInputFieldFactory,
   AMModelField,
   AMModelType,
-} from '../../definitions';
+} from '../../../definitions';
 import { defaultObjectFieldVisitorHandler } from '../../common/visitorHandlers';
 
 export class AMCreateRelationFieldFactory extends AMInputFieldFactory {

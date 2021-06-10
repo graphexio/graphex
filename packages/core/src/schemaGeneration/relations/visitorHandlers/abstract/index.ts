@@ -1,6 +1,6 @@
-import { AMModelType } from '../../../definitions';
-import { AMDataContext } from '../../../execution/contexts/data';
-import { AMListValueContext } from '../../../execution/contexts/listValue';
+import { AMModelType } from '../../../../definitions';
+import { AMDataContext } from '../../../../execution/contexts/data';
+import { AMListValueContext } from '../../../../execution/contexts/listValue';
 
 export const abstractReadHandlerFactory = (modelType: AMModelType) => (
   methodName: string

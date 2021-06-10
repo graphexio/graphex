@@ -19,8 +19,8 @@ import * as RelationOutside from './directives/relationOutside';
 import * as Federated from './directives/federated';
 import * as External from './directives/external';
 
-import * as ExtRelation from '../relations/directives/extRelation';
-import * as Relation from '../relations/directives/relation';
+import * as ExtRelation from '../schemaGeneration/relations/directives/extRelation';
+import * as Relation from '../schemaGeneration/relations/directives/relation';
 
 export default [
   Model,

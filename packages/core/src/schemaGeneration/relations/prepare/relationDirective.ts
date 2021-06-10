@@ -1,11 +1,11 @@
 import TypeWrap from '@graphex/type-wrap';
 import { GraphQLSchema, isInterfaceType, isObjectType } from 'graphql';
-import { AMModelField, AMModelType } from '../../definitions';
+import { AMModelField, AMModelType } from '../../../definitions';
 import {
   getArgValueFromDirectiveAST,
   getDirectiveAST,
   getRelationFieldName,
-} from '../../utils';
+} from '../../../utils';
 
 export const relationDirective = (schema: GraphQLSchema) => {
   Object.values(schema.getTypeMap()).forEach(type => {
