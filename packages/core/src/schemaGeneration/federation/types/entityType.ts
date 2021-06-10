@@ -1,7 +1,7 @@
 import TypeWrap from '@graphex/type-wrap';
 import { GraphQLUnionType } from 'graphql';
-import { AMModelType, IAMTypeFactory } from '../../definitions';
-import { getDirective } from '../../utils';
+import { AMModelType, IAMTypeFactory } from '../../../definitions';
+import { getDirective } from '../../../utils';
 
 export const AMFederationEntityTypeFactory: IAMTypeFactory<GraphQLUnionType> = {
   getTypeName(): string {

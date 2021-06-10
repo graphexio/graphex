@@ -5,10 +5,10 @@ import {
   isScalarType,
 } from 'graphql';
 import R from 'ramda';
-import { AMModelType, IAMFieldFactory } from '../../definitions';
-import { AMObjectFieldContext } from '../../execution/contexts/objectField';
-import { AMReadEntitiesOperation } from '../../execution/operations/readEntitiesOperation';
-import { resolve } from '../../resolve';
+import { AMModelType, IAMFieldFactory } from '../../../definitions';
+import { AMObjectFieldContext } from '../../../execution/contexts/objectField';
+import { AMReadEntitiesOperation } from '../../../execution/operations/readEntitiesOperation';
+import { resolve } from '../../../resolve';
 import { AMFederationAnyTypeFactory } from './anyType';
 import { AMFederationEntityTypeFactory } from './entityType';
 

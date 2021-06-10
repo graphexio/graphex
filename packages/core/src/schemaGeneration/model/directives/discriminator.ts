@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
-import { getDirective } from '../../utils';
+import { getDirective } from '../../../utils';
 
 export const typeDef = gql`
   directive @discriminator(value: String) on OBJECT | INTERFACE
@@ -17,9 +17,13 @@ class Discriminator extends SchemaDirectiveVisitor {
 
     //if interface has been initialized already we shuld update it's mmDiscriminatorMap
     object.getInterfaces().forEach(iface => {
-      if (getDirective(iface, 'model') && iface.mmDiscriminatorMap && object.mmDiscriminator) {
-        delete iface.mmDiscriminatorMap[object.mmDiscriminator]
-        iface.mmDiscriminatorMap[value] = object.name
+      if (
+        getDirective(iface, 'model') &&
+        iface.mmDiscriminatorMap &&
+        object.mmDiscriminator
+      ) {
+        delete iface.mmDiscriminatorMap[object.mmDiscriminator];
+        iface.mmDiscriminatorMap[value] = object.name;
       }
     });
     object.mmDiscriminator = value;

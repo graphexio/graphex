@@ -1,8 +1,8 @@
 import TypeWrap from '@graphex/type-wrap';
 import gql from 'graphql-tag';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
-import { AMModelField, AMModelType } from '../../definitions';
-import { getRelationFieldName } from '../../utils';
+import { AMModelField, AMModelType } from '../../../definitions';
+import { getRelationFieldName } from '../../../utils';
 
 export const typeDef = gql`
   directive @relationOutside(storeField: String = null) on FIELD_DEFINITION

@@ -1,17 +1,17 @@
 import gql from 'graphql-tag';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
-import { AMModelField } from '../../definitions';
+import { AMModelField } from '../../../definitions';
 
 export const typeDef = gql`
-  directive @readonly on FIELD_DEFINITION
+  directive @id on FIELD_DEFINITION
 `;
 
-class ReadOnly extends SchemaDirectiveVisitor {
+class ID extends SchemaDirectiveVisitor {
   visitFieldDefinition(field: AMModelField) {
-    field.isReadOnly = true;
+    field.isID = true;
   }
 }
 
 export const schemaDirectives = {
-  readonly: ReadOnly,
+  id: ID,
 };

@@ -1,5 +1,5 @@
 import { GraphQLScalarType } from 'graphql';
-import { IAMTypeFactory } from '../../definitions';
+import { IAMTypeFactory } from '../../../definitions';
 
 export const AMFederationAnyTypeFactory: IAMTypeFactory<GraphQLScalarType> = {
   getTypeName() {

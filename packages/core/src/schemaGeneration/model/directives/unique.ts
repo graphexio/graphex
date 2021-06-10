@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
-import { AMModelField, AMModelType } from '../../definitions';
+import { AMModelField } from '../../../definitions';
 
 export const typeDef = gql`
   directive @unique on FIELD_DEFINITION

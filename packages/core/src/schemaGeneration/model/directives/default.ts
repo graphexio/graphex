@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
-import { AMModelField } from '../../definitions';
+import { AMModelField } from '../../../definitions';
 
 export const typeDef = gql`
   scalar DefaultValueType

@@ -18,7 +18,7 @@ import _ from 'lodash';
 import { defaultConfig } from './config/defaultConfig';
 import { AMConfigResolver } from './config/resolver';
 import { AMModelType, AMOptions } from './definitions';
-import { AMFederationEntitiesFieldFactory } from './schemaGeneration/federation/entitiesField';
+import { AMFederationEntitiesFieldFactory } from './schemaGeneration/federation/types/entitiesField';
 import InitialScheme from './initialScheme';
 import Modules from './modules';
 import { prepare } from './prepare/prepare';

@@ -2,9 +2,9 @@ import { isObjectType } from 'graphql';
 import gql from 'graphql-tag';
 import { SchemaDirectiveVisitor } from 'graphql-tools';
 import pluralize from 'pluralize';
-import { AMModelType, AMObjectType } from '../../definitions';
-import SDLSyntaxException from '../../sdlSyntaxException';
-import { getDirective, lowercaseFirstLetter } from '../../utils';
+import { AMModelType, AMObjectType } from '../../../definitions';
+import SDLSyntaxException from '../../../sdlSyntaxException';
+import { getDirective, lowercaseFirstLetter } from '../../../utils';
 
 export const MULTIPLE_MODEL = 'multipleModel';
 export const MODEL_WITH_EMBEDDED = 'modelWithEmbedded';
