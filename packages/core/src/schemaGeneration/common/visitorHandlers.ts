@@ -1,1 +1,4 @@
-export { defaultObjectFieldVisitorHandler } from '../../inputTypes/visitorHandlers';
+export {
+  defaultObjectFieldVisitorHandler,
+  whereTypeVisitorHandler,
+} from '../model/input/inputTypes/visitorHandlers';

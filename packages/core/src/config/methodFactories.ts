@@ -1,10 +1,10 @@
-import { AMModelMultipleQueryFieldFactory } from '../modelMethods/multipleQuery';
-import { AMModelSingleQueryFieldFactory } from '../modelMethods/singleQuery';
-import { AMModelConnectionQueryFieldFactory } from '../modelMethods/connectionQuery';
-import { AMModelCreateMutationFieldFactory } from '../modelMethods/createMutation';
-import { AMModelUpdateMutationFieldFactory } from '../modelMethods/updateMutation';
-import { AMModelDeleteOneMutationFieldFactory } from '../modelMethods/deleteOneMutation';
-import { AMModelDeleteManyMutationFieldFactory } from '../modelMethods/deleteManyMutation';
+import { AMModelMultipleQueryFieldFactory } from '../schemaGeneration/rootMethods/multipleQuery';
+import { AMModelSingleQueryFieldFactory } from '../schemaGeneration/rootMethods/singleQuery';
+import { AMModelConnectionQueryFieldFactory } from '../schemaGeneration/rootMethods/connectionQuery';
+import { AMModelCreateMutationFieldFactory } from '../schemaGeneration/rootMethods/createMutation';
+import { AMModelUpdateMutationFieldFactory } from '../schemaGeneration/rootMethods/updateMutation';
+import { AMModelDeleteOneMutationFieldFactory } from '../schemaGeneration/rootMethods/deleteOneMutation';
+import { AMModelDeleteManyMutationFieldFactory } from '../schemaGeneration/rootMethods/deleteManyMutation';
 
 export const methodFactories = {
   singleQuery: {

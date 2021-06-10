@@ -14,7 +14,7 @@ import { defaultDirective } from './defaultDirective';
 
 import { rootFields } from './rootFields';
 import { connectionFields } from './connectionFields';
-import { nestedArrays } from './nestedArrays';
+import { nestedArrays } from '../schemaGeneration/subdocuments/prepare/nestedArrays';
 import { fillDiscriminators } from './fillDiscriminators';
 
 import { AMConfigResolver } from '../config/resolver';

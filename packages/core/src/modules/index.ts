@@ -14,10 +14,11 @@ import * as Date from './scalars/date';
 import * as JSON from './scalars/JSON';
 import * as ObjectID from './scalars/objectID';
 import * as NoArrayFilter from './directives/noArrayFilter';
-import * as Subdocument from './directives/subdocument';
 import * as RelationOutside from './directives/relationOutside';
 import * as Federated from './directives/federated';
 import * as External from './directives/external';
+
+import * as Subdocument from '../schemaGeneration/relations/directives/subdocument';
 
 import * as ExtRelation from '../schemaGeneration/relations/directives/extRelation';
 import * as Relation from '../schemaGeneration/relations/directives/relation';

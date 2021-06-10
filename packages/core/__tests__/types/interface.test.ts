@@ -129,11 +129,9 @@ describe('interface', () => {
   likes_exists: Boolean
   likes_all: [UserWhereCleanInput]
   likes_exact: [UserWhereCleanInput]
-  likes_not_in: [UserWhereCleanInput]
   likes_some: UserInterfaceWhereInput
   likes: UserInterfaceWhereInput
   owner_exists: Boolean
-  owner_not_in: [UserWhereCleanInput]
   owner: UserInterfaceWhereInput
   likesConnection_exists: Boolean
   likesConnection_in: [UserConnectionWhereCleanInput]

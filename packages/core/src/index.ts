@@ -18,7 +18,7 @@ import _ from 'lodash';
 import { defaultConfig } from './config/defaultConfig';
 import { AMConfigResolver } from './config/resolver';
 import { AMModelType, AMOptions } from './definitions';
-import { AMFederationEntitiesFieldFactory } from './federation/entitiesField';
+import { AMFederationEntitiesFieldFactory } from './schemaGeneration/federation/entitiesField';
 import InitialScheme from './initialScheme';
 import Modules from './modules';
 import { prepare } from './prepare/prepare';
@@ -27,7 +27,6 @@ import { getDirective, isAMModelType, appendField } from './utils';
 export * from './config/defaultConfig';
 export * from './definitions';
 export * from './execution';
-export * from './inputTypes';
 
 function hasTypeFields(
   type: GraphQLNamedType
