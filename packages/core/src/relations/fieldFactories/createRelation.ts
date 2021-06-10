@@ -2,18 +2,19 @@ import TypeWrap from '@graphex/type-wrap';
 import {
   AMInputField,
   AMInputFieldFactory,
+  AMModelField,
   AMModelType,
 } from '../../definitions';
-import { defaultObjectFieldVisitorHandler } from '../visitorHandlers';
+import { defaultObjectFieldVisitorHandler } from '../../common/visitorHandlers';
 
 export class AMCreateRelationFieldFactory extends AMInputFieldFactory {
-  isApplicable(field) {
-    return Boolean(field.relation);
+  isApplicable(field: AMModelField) {
+    return Boolean(field.relation) && !field.relation.external;
   }
   getFieldName(field) {
     return field.name;
   }
-  getField(field) {
+  getField(field: AMModelField) {
     const typeWrap = new TypeWrap(field.type);
     const isMany = typeWrap.isMany();
     const isRequired = typeWrap.isRequired();
@@ -29,6 +30,8 @@ export class AMCreateRelationFieldFactory extends AMInputFieldFactory {
     return {
       name: this.getFieldName(field),
       type,
+      dbName: field.relation.storeField,
+      relation: field.relation,
       ...defaultObjectFieldVisitorHandler(field.relation.storeField, field),
     } as AMInputField;
   }

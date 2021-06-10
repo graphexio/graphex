@@ -5,11 +5,9 @@ import * as CreatedAt from './directives/createdAt';
 import * as DB from './directives/db';
 import * as Default from './directives/default';
 import * as Discriminator from './directives/discriminator';
-import * as ExtRelation from './directives/extRelation';
 import * as ID from './directives/id';
 import * as Model from './directives/model';
 import * as ReadOnly from './directives/readonly';
-import * as Relation from './directives/relation';
 import * as Unique from './directives/unique';
 import * as UpdatedAt from './directives/updatedAt';
 import * as Date from './scalars/date';
@@ -20,6 +18,9 @@ import * as Subdocument from './directives/subdocument';
 import * as RelationOutside from './directives/relationOutside';
 import * as Federated from './directives/federated';
 import * as External from './directives/external';
+
+import * as ExtRelation from '../relations/directives/extRelation';
+import * as Relation from '../relations/directives/relation';
 
 export default [
   Model,

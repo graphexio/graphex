@@ -8,15 +8,25 @@ import {
   AMObjectFieldContext,
   AMDataContext,
 } from './contexts';
+import { AMInputField, AMModelField } from '../definitions';
 
 const displayItem = R.prop('display');
 const dbItem = R.prop('db');
 
+type PathNode = {
+  display: string;
+  db: string;
+  field?: AMModelField | AMInputField;
+};
+
 export class AMVisitorStack {
   private contexts: AMContext[] = [];
+  private pathNodes: PathNode[] = [];
   private operationsInfo = new Map<
     AMOperation,
-    { path: { display: string; db: string }[] }
+    {
+      path: PathNode[];
+    }
   >();
 
   push(ctx: AMContext) {
@@ -34,16 +44,18 @@ export class AMVisitorStack {
     return ctx;
   }
 
-  enterPath(display: string, db: string) {
+  enterPath(node: PathNode) {
     for (const { path } of this.operationsInfo.values()) {
-      path.push({ display, db });
+      path.push(node);
     }
+    this.pathNodes.push(node);
   }
 
   leavePath() {
     for (const { path } of this.operationsInfo.values()) {
       path.pop();
     }
+    this.pathNodes.pop();
   }
 
   last(drop = 0) {
@@ -76,6 +88,10 @@ export class AMVisitorStack {
   }
   dbPath(operation: AMOperation) {
     return Path.fromArray(this.operationsInfo.get(operation).path.map(dbItem));
+  }
+
+  lastPathNode(drop = 0) {
+    return this.pathNodes[this.pathNodes.length - 1 - drop];
   }
 
   /**

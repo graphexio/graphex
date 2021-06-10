@@ -5,7 +5,6 @@ import {
   AMModelField,
   AMModelType,
 } from '../../definitions';
-import { defaultObjectFieldVisitorHandler } from '../visitorHandlers';
 
 export class AMCreateRelationOutsideFieldFactory extends AMInputFieldFactory {
   isApplicable(field: AMModelField) {
