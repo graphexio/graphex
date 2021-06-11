@@ -27,11 +27,15 @@ test:
   image: node:12
   only:
     - branches
-  artifacts:
-    reports:
-      cobertura: coverage/clover.xml
   dependencies:
     - prepare
+  artifacts:
+    when: always
+    reports:
+      cobertura: coverage/clover.xml
+      junit:
+        - junit.xml
+  coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
   script:
     - yarn test --collectCoverage
 

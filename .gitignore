@@ -9,3 +9,4 @@ distdb
 *.log
 .history
 coverage/
+junit.xml
