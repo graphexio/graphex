@@ -8,3 +8,4 @@ distdb
 **/lib
 *.log
 .history
+coverage/

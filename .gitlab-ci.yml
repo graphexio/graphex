@@ -27,10 +27,13 @@ test:
   image: node:12
   only:
     - branches
+  artifacts:
+    reports:
+      cobertura: coverage/clover.xml
   dependencies:
     - prepare
   script:
-    - yarn test
+    - yarn test --collectCoverage
 
 release:
   stage: release
