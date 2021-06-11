@@ -40,7 +40,7 @@ test:
         - junit.xml
   coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
   script:
-    - yarn test --collectCoverage
+    - yarn test --ci --reporters=jest-junit --reporters=default --collectCoverage
 
 release:
   stage: release
