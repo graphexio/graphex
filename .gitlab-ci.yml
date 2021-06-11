@@ -12,6 +12,9 @@ workflow:
 prepare:
   stage: prepare
   image: node:12
+  cache:
+    paths:
+      - .yarn
   only:
     - branches
   artifacts:
@@ -20,7 +23,7 @@ prepare:
       - packages/*/node_modules
       - packages/*/lib
   script:
-    - yarn install
+    - yarn install --frozen-lockfile
 
 test:
   stage: test
@@ -29,8 +32,15 @@ test:
     - branches
   dependencies:
     - prepare
+  artifacts:
+    when: always
+    reports:
+      cobertura: coverage/clover.xml
+      junit:
+        - junit.xml
+  coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
   script:
-    - yarn test
+    - yarn test --ci --reporters=jest-junit --reporters=default --collectCoverage
 
 release:
   stage: release

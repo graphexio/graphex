@@ -8,3 +8,5 @@ distdb
 **/lib
 *.log
 .history
+coverage/
+junit.xml
