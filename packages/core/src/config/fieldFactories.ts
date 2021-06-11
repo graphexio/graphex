@@ -1,6 +1,6 @@
-import { AMIdentityFieldFactory } from '../types/fieldFactories/identity';
-import { AMNamedTypeFieldFactory } from '../types/fieldFactories/namedType';
-import { AMAggregateNumericFieldsFieldFactory } from '../types/fieldFactories/aggregateNumericFields';
+import { AMIdentityFieldFactory } from '../schemaGeneration/model/output/fieldFactories/identity';
+import { AMNamedTypeFieldFactory } from '../schemaGeneration/model/output/fieldFactories/namedType';
+import { AMAggregateNumericFieldsFieldFactory } from '../schemaGeneration/model/output/fieldFactories/aggregateNumericFields';
 
 export const fieldFactories = {
   aggregateNumericFields: {

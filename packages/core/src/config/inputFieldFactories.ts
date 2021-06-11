@@ -1,32 +1,38 @@
-import { AllSelector } from '../inputTypes/fieldFactories/querySelectors/all';
-import { AsIsSelector } from '../inputTypes/fieldFactories/querySelectors/asis';
-import { AsIsRelationSelector } from '../inputTypes/fieldFactories/querySelectors/asis-relation';
-import { ContainsSelector } from '../inputTypes/fieldFactories/querySelectors/contains';
-import { EndsWithSelector } from '../inputTypes/fieldFactories/querySelectors/endsWith';
-import { ExactSelector } from '../inputTypes/fieldFactories/querySelectors/exact';
-import { ExistsSelector } from '../inputTypes/fieldFactories/querySelectors/exists';
-import { GTSelector } from '../inputTypes/fieldFactories/querySelectors/gt';
-import { GTESelector } from '../inputTypes/fieldFactories/querySelectors/gte';
-import { InSelector } from '../inputTypes/fieldFactories/querySelectors/in';
-import { LTSelector } from '../inputTypes/fieldFactories/querySelectors/lt';
-import { LTESelector } from '../inputTypes/fieldFactories/querySelectors/lte';
-import { NotInSelector } from '../inputTypes/fieldFactories/querySelectors/not_in';
-import { NotSizeSelector } from '../inputTypes/fieldFactories/querySelectors/not_size';
-import { NotSelector } from '../inputTypes/fieldFactories/querySelectors/not';
-import { SizeSelector } from '../inputTypes/fieldFactories/querySelectors/size';
-import { SomeRelationSelector } from '../inputTypes/fieldFactories/querySelectors/some-relation';
-import { SomeSelector } from '../inputTypes/fieldFactories/querySelectors/some';
-import { StartsWithSelector } from '../inputTypes/fieldFactories/querySelectors/startsWith';
-import { AMCreateFieldFactory } from '../inputTypes/fieldFactories/create';
-import { AMCreateNestedFieldFactory } from '../inputTypes/fieldFactories/createNested';
-import { AMUpdateFieldFactory } from '../inputTypes/fieldFactories/update';
-import { AMUpdateNestedFieldFactory } from '../inputTypes/fieldFactories/updateNested';
-import { AMCreateRelationOutsideFieldFactory } from '../inputTypes/fieldFactories/createRelationOutside';
-import { AMUpdateRelationOutsideFieldFactory } from '../inputTypes/fieldFactories/updateRelationOutside';
+import { AllSelector } from '../schemaGeneration/model/input/querySelectors/all';
+import { AsIsSelector } from '../schemaGeneration/model/input/querySelectors/asis';
+import { ContainsSelector } from '../schemaGeneration/model/input/querySelectors/contains';
+import { EndsWithSelector } from '../schemaGeneration/model/input/querySelectors/endsWith';
+import { ExactSelector } from '../schemaGeneration/model/input/querySelectors/exact';
+import { ExistsSelector } from '../schemaGeneration/model/input/querySelectors/exists';
+import { GTSelector } from '../schemaGeneration/model/input/querySelectors/gt';
+import { GTESelector } from '../schemaGeneration/model/input/querySelectors/gte';
+import { InSelector } from '../schemaGeneration/model/input/querySelectors/in';
+import { LTSelector } from '../schemaGeneration/model/input/querySelectors/lt';
+import { LTESelector } from '../schemaGeneration/model/input/querySelectors/lte';
+import { NotInSelector } from '../schemaGeneration/model/input/querySelectors/not_in';
+import { NotSizeSelector } from '../schemaGeneration/model/input/querySelectors/not_size';
+import { NotSelector } from '../schemaGeneration/model/input/querySelectors/not';
+import { SizeSelector } from '../schemaGeneration/model/input/querySelectors/size';
+import { SomeSelector } from '../schemaGeneration/model/input/querySelectors/some';
+import { StartsWithSelector } from '../schemaGeneration/model/input/querySelectors/startsWith';
+import { AMCreateFieldFactory } from '../schemaGeneration/model/input/fieldFactories/create';
+import { AMUpdateFieldFactory } from '../schemaGeneration/model/input/fieldFactories/update';
+
+/** Subdocuments */
+import { AMCreateNestedFieldFactory } from '../schemaGeneration/subdocuments/fieldFactories/createNested';
+import { AMUpdateNestedFieldFactory } from '../schemaGeneration/subdocuments/fieldFactories/updateNested';
+/** --------- */
 
 /** Relations */
-import { AMCreateRelationFieldFactory } from '../relations/fieldFactories/createRelation';
-import { AMUpdateRelationFieldFactory } from '../relations/fieldFactories/updateRelation';
+import { AMCreateRelationFieldFactory } from '../schemaGeneration/relations/fieldFactories/createRelation';
+import { AMUpdateRelationFieldFactory } from '../schemaGeneration/relations/fieldFactories/updateRelation';
+import { SomeRelationSelector } from '../schemaGeneration/relations/querySelectors/some-relation';
+import { AsIsRelationSelector } from '../schemaGeneration/relations/querySelectors/asis-relation';
+/** --------- */
+
+/** External Relations */
+import { AMCreateRelationOutsideFieldFactory } from '../schemaGeneration/externalRelations/fieldFactories/createRelationOutside';
+import { AMUpdateRelationOutsideFieldFactory } from '../schemaGeneration/externalRelations/fieldFactories/updateRelationOutside';
 /** --------- */
 
 export const inputFieldFactories = {

@@ -1,6 +1,6 @@
-import { AMConnectionTypeFactory } from '../types/connection';
-import { AMAggregateTypeFactory } from '../types/aggregate';
-import { AMAggregateNumericFieldsTypeFactory } from '../types/aggregateNumericFields';
+import { AMConnectionTypeFactory } from '../schemaGeneration/model/output/types/connection';
+import { AMAggregateTypeFactory } from '../schemaGeneration/model/output/types/aggregate';
+import { AMAggregateNumericFieldsTypeFactory } from '../schemaGeneration/model/output/types/aggregateNumericFields';
 
 export const typeFactories = {
   aggregate: {

@@ -1,34 +1,39 @@
-import { AMWhereTypeFactory } from '../inputTypes/where';
-import { AMInterfaceWhereTypeFactory } from '../inputTypes/interfaceWhere';
-import { AMWhereACLTypeFactory } from '../inputTypes/whereACLClass';
-import { AMWhereCleanTypeFactory } from '../inputTypes/whereClean';
-import { AMWhereUniqueTypeFactory } from '../inputTypes/whereUnique';
-import { AMWhereUniqueExternalTypeFactory } from '../inputTypes/whereUniqueExternal';
-import { AMUpdateWithWhereNestedTypeFactory } from '../inputTypes/updateWithWhereNested';
-import { AMInterfaceWhereUniqueTypeFactory } from '../inputTypes/interfaceWhereUnique';
-import { AMInterfaceWhereUniqueExternalTypeFactory } from '../inputTypes/interfaceWhereUniqueExternal';
-import { AMCreateTypeFactory } from '../inputTypes/create';
-import { AMCreateManyNestedTypeFactory } from '../inputTypes/createManyNested';
-import { AMCreateOneNestedTypeFactory } from '../inputTypes/createOneNested';
-import { AMInterfaceCreateTypeFactory } from '../inputTypes/interfaceCreate';
-import { AMUpdateTypeFactory } from '../inputTypes/update';
-import { AMUpdateManyNestedTypeFactory } from '../inputTypes/updateManyNested';
-import { AMUpdateOneNestedTypeFactory } from '../inputTypes/updateOneNested';
+import { AMWhereTypeFactory } from '../schemaGeneration/model/input/inputTypes/where';
+import { AMInterfaceWhereTypeFactory } from '../schemaGeneration/model/input/inputTypes/interfaceWhere';
+import { AMWhereACLTypeFactory } from '../schemaGeneration/model/input/inputTypes/whereACLClass';
+import { AMWhereCleanTypeFactory } from '../schemaGeneration/model/input/inputTypes/whereClean';
+import { AMWhereUniqueTypeFactory } from '../schemaGeneration/model/input/inputTypes/whereUnique';
+import { AMInterfaceWhereUniqueTypeFactory } from '../schemaGeneration/model/input/inputTypes/interfaceWhereUnique';
+import { AMCreateTypeFactory } from '../schemaGeneration/model/input/inputTypes/create';
+import { AMInterfaceCreateTypeFactory } from '../schemaGeneration/model/input/inputTypes/interfaceCreate';
+import { AMUpdateTypeFactory } from '../schemaGeneration/model/input/inputTypes/update';
+import { AMOrderByTypeFactory } from '../schemaGeneration/model/input/inputTypes/orderBy';
 
-/** Relations */
-import { AMCreateManyRelationTypeFactory } from '../relations/inputTypes/createManyRelation';
-import { AMCreateOneRelationTypeFactory } from '../relations/inputTypes/createOneRelation';
-import { AMCreateOneRequiredRelationTypeFactory } from '../relations/inputTypes/createOneRequiredRelation';
-import { AMUpdateManyRelationTypeFactory } from '../relations/inputTypes/updateManyRelation';
-import { AMUpdateOneRelationTypeFactory } from '../relations/inputTypes/updateOneRelation';
+/** Subdocuments */
+import { AMCreateManyNestedTypeFactory } from '../schemaGeneration/subdocuments/inputTypes/createManyNested';
+import { AMCreateOneNestedTypeFactory } from '../schemaGeneration/subdocuments/inputTypes/createOneNested';
+import { AMUpdateManyNestedTypeFactory } from '../schemaGeneration/subdocuments/inputTypes/updateManyNested';
+import { AMUpdateOneNestedTypeFactory } from '../schemaGeneration/subdocuments/inputTypes/updateOneNested';
+import { AMUpdateWithWhereNestedTypeFactory } from '../schemaGeneration/subdocuments/inputTypes/updateWithWhereNested';
 /** -------- */
 
-import { AMOrderByTypeFactory } from '../inputTypes/orderBy';
-import { AMCreateManyRelationOutsideTypeFactory } from '../inputTypes/createManyRelationOutside';
-import { AMCreateOneRelationOutsideTypeFactory } from '../inputTypes/createOneRelationOutside';
-import { AMCreateOneRequiredRelationOutsideTypeFactory } from '../inputTypes/createOneRequiredRelationOutside';
-import { AMUpdateManyRelationOutsideTypeFactory } from '../inputTypes/updateManyRelationOutside';
-import { AMUpdateOneRelationOutsideTypeFactory } from '../inputTypes/updateOneRelationOutside';
+/** Relations */
+import { AMCreateManyRelationTypeFactory } from '../schemaGeneration/relations/inputTypes/createManyRelation';
+import { AMCreateOneRelationTypeFactory } from '../schemaGeneration/relations/inputTypes/createOneRelation';
+import { AMCreateOneRequiredRelationTypeFactory } from '../schemaGeneration/relations/inputTypes/createOneRequiredRelation';
+import { AMUpdateManyRelationTypeFactory } from '../schemaGeneration/relations/inputTypes/updateManyRelation';
+import { AMUpdateOneRelationTypeFactory } from '../schemaGeneration/relations/inputTypes/updateOneRelation';
+/** -------- */
+
+/** External Relations */
+import { AMCreateManyRelationOutsideTypeFactory } from '../schemaGeneration/externalRelations/inputTypes/createManyRelationOutside';
+import { AMCreateOneRelationOutsideTypeFactory } from '../schemaGeneration/externalRelations/inputTypes/createOneRelationOutside';
+import { AMCreateOneRequiredRelationOutsideTypeFactory } from '../schemaGeneration/externalRelations/inputTypes/createOneRequiredRelationOutside';
+import { AMUpdateManyRelationOutsideTypeFactory } from '../schemaGeneration/externalRelations/inputTypes/updateManyRelationOutside';
+import { AMUpdateOneRelationOutsideTypeFactory } from '../schemaGeneration/externalRelations/inputTypes/updateOneRelationOutside';
+import { AMWhereUniqueExternalTypeFactory } from '../schemaGeneration/externalRelations/inputTypes/whereUniqueExternal';
+import { AMInterfaceWhereUniqueExternalTypeFactory } from '../schemaGeneration/externalRelations/inputTypes/interfaceWhereUniqueExternal';
+/** -------- */
 
 export const inputTypeFactories = {
   whereACL: {
