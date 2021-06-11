@@ -1,6 +1,6 @@
 {
   "name": "@graphex/example-server-sequelize",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@graphex/core": "1.2.2",
+    "@graphex/core": "1.2.3",
     "apollo-server": "^2.24.0",
     "dotenv": "^9.0.0",
     "graphql": "14.6.0",

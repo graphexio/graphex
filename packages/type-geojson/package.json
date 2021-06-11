@@ -1,6 +1,6 @@
 {
   "name": "@graphex/type-geojson",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "",
   "main": "lib/index.js",
   "files": [
@@ -11,7 +11,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@graphex/core": "1.2.2"
+    "@graphex/core": "1.2.3"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.2",
