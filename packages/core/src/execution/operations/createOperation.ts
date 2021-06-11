@@ -1,25 +1,19 @@
 import { AMOperation } from '../operation';
-import { AMDBExecutor, AMDBExecutorOperationType } from '../../definitions';
+import { DataSourceAdapter } from '@graphex/abstract-datasource-adapter';
 import { completeAMResultPromise } from '../resultPromise/utils';
 
 export class AMCreateOperation extends AMOperation {
-  async execute(executor: AMDBExecutor) {
-    executor({
-      type: this.many
-        ? AMDBExecutorOperationType.INSERT_MANY
-        : AMDBExecutorOperationType.INSERT_ONE,
-      collection: this.collectionName,
-      ...(this.data
-        ? { doc: await completeAMResultPromise(this.data.data) }
-        : undefined),
-      ...(this.dataList
-        ? { docs: await completeAMResultPromise(this.dataList.values) }
-        : undefined),
-      fields: await completeAMResultPromise(
-        this.fieldsSelection ? this.fieldsSelection.fields : undefined
-      ),
-    })
-      .then(this._result.resolve)
-      .catch(this._result.reject);
+  async execute(adapter: DataSourceAdapter) {
+    const operation = this.many
+      ? adapter.insertMany({
+          collectionName: this.collectionName,
+          docs: await completeAMResultPromise(this.dataList.values),
+        })
+      : adapter.insertOne({
+          collectionName: this.collectionName,
+          doc: await completeAMResultPromise(this.data.data),
+        });
+
+    operation.then(this._result.resolve).catch(this._result.reject);
   }
 }

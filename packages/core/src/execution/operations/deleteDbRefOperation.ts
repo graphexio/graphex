@@ -1,12 +1,12 @@
 import { AMOperation } from '../operation';
-import { AMDBExecutor, AMDBExecutorOperationType } from '../../definitions';
+import { DataSourceAdapter } from '@graphex/abstract-datasource-adapter';
 import { completeAMResultPromise } from '../resultPromise/utils';
 
 import R from 'ramda';
 import { DBRef } from 'mongodb';
 
 export class AMDeleteDBRefOperation extends AMOperation {
-  async execute(executor: AMDBExecutor) {
+  async execute(adapter: DataSourceAdapter) {
     try {
       const refList = (await completeAMResultPromise(
         this.dbRefList || [this.dbRef]
@@ -16,14 +16,9 @@ export class AMDeleteDBRefOperation extends AMOperation {
       const result = Object.fromEntries(
         await Promise.all(
           Object.entries(groupedRefs).map(async ([collectionName, refs]) => {
-            const data = await executor({
-              type: AMDBExecutorOperationType.DELETE_MANY,
-              collection: collectionName,
+            const data = await adapter.deleteMany({
+              collectionName: collectionName,
               selector: { _id: { $in: refs.map(ref => ref.oid) } },
-              fields: await completeAMResultPromise(
-                this.fieldsSelection ? this.fieldsSelection.fields : undefined
-              ),
-              options: { sort: this.orderBy },
             });
 
             return [collectionName, data];

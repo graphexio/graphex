@@ -1,5 +1,5 @@
 import R from 'ramda';
-import { AMDBExecutor, AMDBExecutorOperationType } from '../../definitions';
+import { DataSourceAdapter } from '@graphex/abstract-datasource-adapter';
 import { AMOperation } from '../operation';
 
 type NormalizedRepresentation = {
@@ -14,7 +14,7 @@ export class AMReadEntitiesOperation extends AMOperation {
     this.representations = representations;
   }
 
-  async execute(executor: AMDBExecutor) {
+  async execute(adapter: DataSourceAdapter) {
     try {
       const groupedRefs = R.groupBy(
         R.prop('collectionName'),
@@ -25,10 +25,10 @@ export class AMReadEntitiesOperation extends AMOperation {
         await Promise.all(
           Object.entries(groupedRefs).map(
             async ([collectionName, representations]) => {
-              const data = await executor({
-                type: AMDBExecutorOperationType.FIND,
-                collection: collectionName,
+              const data = await adapter.findMany({
+                collectionName: collectionName,
                 selector: { $or: representations.map(rep => rep.selector) },
+                fields: [], //TODO: fix
               });
 
               return [collectionName, data];

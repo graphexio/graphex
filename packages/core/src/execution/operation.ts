@@ -1,7 +1,7 @@
 import { AMContext } from './context';
 import { AMFieldsSelectionContext } from './contexts/fieldsSelection';
 import { AMSelectorContext } from './contexts/selector';
-import { AMDBExecutor } from '../definitions';
+import { DataSourceAdapter } from '@graphex/abstract-datasource-adapter';
 import { AMResultPromise } from './resultPromise';
 import { AMTransaction } from './transaction';
 import { AMDataContext } from './contexts/data';
@@ -116,7 +116,7 @@ export abstract class AMOperation extends AMContext {
     this.first = first;
   }
 
-  abstract execute(executor: AMDBExecutor): void;
+  abstract execute(adapter: DataSourceAdapter): void;
 
   getResult() {
     return this._result;

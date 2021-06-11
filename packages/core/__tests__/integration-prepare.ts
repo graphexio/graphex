@@ -1,7 +1,7 @@
 import { ApolloServer } from 'apollo-server';
 import AMM from '../src';
-import QueryExecutor from '@graphex/mongodb-executor';
-import { MongoClient } from 'mongodb';
+import { createMongoAdapter } from '@graphex/mongodb-adapter';
+import { connect, MongoClient } from 'mongodb';
 import typeDefs from './model';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import * as DirectiveImplements from '@graphex/directive-implements';
@@ -32,8 +32,6 @@ export default () => {
         return DB;
       };
 
-      const QE = QueryExecutor(connectToDatabase);
-
       const schema = new AMM({
         modules: [DirectiveImplements],
         options,
@@ -46,15 +44,10 @@ export default () => {
 
       const server = new ApolloServer({
         schema,
-        context: () => {
+        context: async () => {
+          const adapter = createMongoAdapter(await connectToDatabase());
           return {
-            queryExecutor: async params => {
-              // console.log(util.inspect(params, { showHidden: false, depth: null }));
-              // console.log(params);
-              const result = await QE(params);
-              // console.log('result', result);
-              return result;
-            },
+            adapter,
           };
         },
         introspection: true,

@@ -1,4 +1,5 @@
 import AMM from '@graphex/core';
+import { createMongoAdapter } from '@graphex/mongodb-adapter';
 import {
   DocumentNode,
   execute as graphqlExecute,
@@ -19,11 +20,10 @@ import {
 import Prepare from './prepare';
 
 const testInstance = Prepare();
-let QE, connectToDatabase;
+let connectToDatabase;
 
 beforeAll(async () => {
   const instance = await testInstance.start();
-  QE = instance.QE;
   connectToDatabase = instance.connectToDatabase;
 });
 
@@ -38,7 +38,7 @@ const createSchema = (typeDefs, options?) => {
   return schema;
 };
 
-const execute = (
+const execute = async (
   schema: GraphQLSchema,
   document: DocumentNode,
   variableValues?: { [key: string]: any }
@@ -53,13 +53,7 @@ const execute = (
     document,
     undefined,
     {
-      queryExecutor: async (params) => {
-        // console.log(util.inspect(params, { showHidden: false, depth: null }));
-        // console.log(params);
-        const result = await QE(params);
-        // console.log('result', result);
-        return result;
-      },
+      adapter: createMongoAdapter(await connectToDatabase()),
     },
     variableValues
   );

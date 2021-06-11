@@ -1,23 +1,31 @@
 import { AMOperation } from '../operation';
-import { AMDBExecutor, AMDBExecutorOperationType } from '../../definitions';
 import { completeAMResultPromise } from '../resultPromise/utils';
+import { DataSourceAdapter } from '@graphex/abstract-datasource-adapter';
 
 export class AMReadOperation extends AMOperation {
-  async execute(executor: AMDBExecutor) {
-    executor({
-      type: this.many
-        ? AMDBExecutorOperationType.FIND
-        : AMDBExecutorOperationType.FIND_ONE,
-      collection: this.collectionName,
-      selector: await completeAMResultPromise(
-        this.selector ? this.selector.selector : undefined
-      ),
-      fields: await completeAMResultPromise(
-        this.fieldsSelection ? this.fieldsSelection.fields : undefined
-      ),
-      options: { sort: this.orderBy, limit: this.first, skip: this.skip },
-    })
-      .then(this._result.resolve)
-      .catch(this._result.reject);
+  async execute(adapter: DataSourceAdapter) {
+    const selector = await completeAMResultPromise(
+      this.selector ? this.selector.selector : undefined
+    );
+    const fields = await completeAMResultPromise(
+      this.fieldsSelection ? this.fieldsSelection.fields : undefined
+    );
+
+    const operation = this.many
+      ? adapter.findMany({
+          collectionName: this.collectionName,
+          selector,
+          fields,
+          sort: this.orderBy,
+          limit: this.first,
+          skip: this.skip,
+        })
+      : adapter.findOne({
+          collectionName: this.collectionName,
+          selector,
+          fields,
+        });
+
+    operation.then(this._result.resolve).catch(this._result.reject);
   }
 }

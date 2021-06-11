@@ -1,5 +1,5 @@
 import { AMOperation } from './operation';
-import { AMDBExecutor } from '../definitions';
+import { DataSourceAdapter } from '@graphex/abstract-datasource-adapter';
 
 export class AMTransaction {
   constructor(public fieldsRegistry: Map<any, any>) {}
@@ -9,9 +9,9 @@ export class AMTransaction {
     this.operations.push(operation);
   }
 
-  execute(executor: AMDBExecutor) {
+  execute(adapter: DataSourceAdapter) {
     if (this.operations.length > 0) {
-      this.operations.forEach(op => op.execute(executor));
+      this.operations.forEach(op => op.execute(adapter));
       return this.operations[0].getOutput();
     }
     throw new Error('Empty transaction');

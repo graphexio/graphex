@@ -1,6 +1,6 @@
 import AMM, { defaultConfig } from '@graphex/core';
 import * as DirectiveImplements from '@graphex/directive-implements';
-import QueryExecutor from '@graphex/mongodb-executor';
+import { createMongoAdapter } from '@graphex/mongodb-adapter';
 import { ApolloServer } from 'apollo-server';
 import { createTestClient } from 'apollo-server-testing';
 import { MongoClient } from 'mongodb';
@@ -33,8 +33,6 @@ export default () => {
         return DB;
       };
 
-      const QE = QueryExecutor(connectToDatabase);
-
       const schema = new AMM({
         modules: [DirectiveImplements, TypeGeoJSON],
         options: {
@@ -49,15 +47,10 @@ export default () => {
 
       const server = new ApolloServer({
         schema,
-        context: () => {
+        context: async () => {
+          const adapter = createMongoAdapter(await connectToDatabase());
           return {
-            queryExecutor: async params => {
-              // console.log(util.inspect(params, { showHidden: false, depth: null }));
-              // console.log(params);
-              const result = await QE(params);
-              // console.log('result', result);
-              return result;
-            },
+            adapter,
           };
         },
         introspection: true,

@@ -1,37 +1,34 @@
-import { AMTransaction } from '../src/execution/transaction';
-import { AMReadOperation } from '../src/execution/operations/readOperation';
-import { AMSelectorContext } from '../src/execution/contexts/selector';
-import { AMFieldsSelectionContext } from '../src/execution/contexts/fieldsSelection';
-import { AMDBExecutorParams } from '../src/definitions';
-import { AMCreateOperation } from '../src/execution/operations/createOperation';
-import { AMDataContext } from '../src/execution/contexts/data';
-import { AMUpdateOperation } from '../src/execution/operations/updateOperation';
-import { AMListValueContext } from '../src/execution/contexts/listValue';
-import { AMReadDBRefOperation } from '../src/execution/operations/readDbRefOperation';
 import { DBRef, ObjectID } from 'mongodb';
-import { ResultPromiseTransforms } from '../src/execution/resultPromise';
-import { Path } from '../src/execution/path';
+import { DataSourceAdapter } from '@graphex/abstract-datasource-adapter';
+import { AMDataContext } from '../src/execution/contexts/data';
+import { AMFieldsSelectionContext } from '../src/execution/contexts/fieldsSelection';
+import { AMListValueContext } from '../src/execution/contexts/listValue';
+import { AMSelectorContext } from '../src/execution/contexts/selector';
+import { AMCreateOperation } from '../src/execution/operations/createOperation';
+import { AMReadDBRefOperation } from '../src/execution/operations/readDbRefOperation';
+import { AMReadOperation } from '../src/execution/operations/readOperation';
+import { AMUpdateOperation } from '../src/execution/operations/updateOperation';
+import { AMTransaction } from '../src/execution/transaction';
 
 test('read many', () => {
-  const executor = (params: AMDBExecutorParams) => {
-    expect(params).toMatchInlineSnapshot(`
-          Object {
-            "collection": "posts",
-            "fields": Array [
-              "title",
-            ],
-            "options": Object {
+  const adapter: Partial<DataSourceAdapter> = {
+    findMany(params) {
+      expect(params).toMatchInlineSnapshot(`
+            Object {
+              "collectionName": "posts",
+              "fields": Array [
+                "title",
+              ],
               "limit": undefined,
+              "selector": Object {
+                "title": "test-title",
+              },
               "skip": undefined,
               "sort": undefined,
-            },
-            "selector": Object {
-              "title": "test-title",
-            },
-            "type": "find",
-          }
-    `);
-    return Promise.resolve([]);
+            }
+      `);
+      return Promise.resolve([]);
+    },
   };
 
   const transaction = new AMTransaction(new Map());
@@ -42,29 +39,25 @@ test('read many', () => {
     fieldsSelection: new AMFieldsSelectionContext(['title']),
   });
 
-  transaction.execute(executor);
+  return transaction.execute(adapter as DataSourceAdapter);
 });
 
 test('read one', () => {
-  const executor = (params: AMDBExecutorParams) => {
-    expect(params).toMatchInlineSnapshot(`
+  const adapter: Partial<DataSourceAdapter> = {
+    findOne(params) {
+      expect(params).toMatchInlineSnapshot(`
           Object {
-            "collection": "posts",
+            "collectionName": "posts",
             "fields": Array [
               "title",
             ],
-            "options": Object {
-              "limit": undefined,
-              "skip": undefined,
-              "sort": undefined,
-            },
             "selector": Object {
               "title": "test-title",
             },
-            "type": "findOne",
           }
-    `);
-    return Promise.resolve([]);
+      `);
+      return Promise.resolve([]);
+    },
   };
 
   const transaction = new AMTransaction(new Map());
@@ -75,29 +68,25 @@ test('read one', () => {
     fieldsSelection: new AMFieldsSelectionContext(['title']),
   });
 
-  return transaction.execute(executor);
+  return transaction.execute(adapter as DataSourceAdapter);
 });
 
 test('read where', () => {
-  const executor = (params: AMDBExecutorParams) => {
-    expect(params).toMatchInlineSnapshot(`
+  const adapter: Partial<DataSourceAdapter> = {
+    findOne(params) {
+      expect(params).toMatchInlineSnapshot(`
             Object {
-              "collection": "posts",
+              "collectionName": "posts",
               "fields": Array [
                 "title",
               ],
-              "options": Object {
-                "limit": undefined,
-                "skip": undefined,
-                "sort": undefined,
-              },
               "selector": Object {
                 "_id": "post-id",
               },
-              "type": "findOne",
             }
       `);
-    return Promise.resolve([]);
+      return Promise.resolve([]);
+    },
   };
 
   const transaction = new AMTransaction(new Map());
@@ -108,25 +97,22 @@ test('read where', () => {
     fieldsSelection: new AMFieldsSelectionContext(['title']),
   });
 
-  transaction.execute(executor);
+  return transaction.execute(adapter as DataSourceAdapter);
 });
 
 test('create', () => {
-  const executor = (params: AMDBExecutorParams) => {
-    expect(params).toMatchInlineSnapshot(`
+  const adapter: Partial<DataSourceAdapter> = {
+    insertOne(params) {
+      expect(params).toMatchInlineSnapshot(`
           Object {
-            "collection": "posts",
+            "collectionName": "posts",
             "doc": Object {
               "title": "test-title",
             },
-            "fields": Array [
-              "_id",
-              "title",
-            ],
-            "type": "insertOne",
           }
     `);
-    return Promise.resolve([]);
+      return Promise.resolve([]);
+    },
   };
 
   const transaction = new AMTransaction(new Map());
@@ -137,33 +123,28 @@ test('create', () => {
     data: new AMDataContext({ title: 'test-title' }),
   });
 
-  return transaction.execute(executor);
+  return transaction.execute(adapter as DataSourceAdapter);
 });
 
 test('update', () => {
-  const executor = (params: AMDBExecutorParams) => {
-    expect(params).toMatchInlineSnapshot(`
+  const adapter: Partial<DataSourceAdapter> = {
+    updateOne(params) {
+      expect(params).toMatchInlineSnapshot(`
           Object {
-            "collection": "posts",
+            "arrayFilters": undefined,
+            "collectionName": "posts",
             "doc": Object {
               "$set": Object {
                 "title": "new title",
               },
             },
-            "fields": Array [
-              "_id",
-              "title",
-            ],
-            "options": Object {
-              "arrayFilters": undefined,
-            },
             "selector": Object {
               "id": "PostID",
             },
-            "type": "updateOne",
           }
     `);
-    return Promise.resolve([]);
+      return Promise.resolve([]);
+    },
   };
 
   const transaction = new AMTransaction(new Map());
@@ -175,39 +156,34 @@ test('update', () => {
     selector: new AMSelectorContext({ id: 'PostID' }),
   });
 
-  return transaction.execute(executor);
+  return transaction.execute(adapter as DataSourceAdapter);
 });
 
 test('update with arrayfilter', () => {
-  const executor = (params: AMDBExecutorParams) => {
-    expect(params).toMatchInlineSnapshot(`
+  const adapter: Partial<DataSourceAdapter> = {
+    updateOne(params) {
+      expect(params).toMatchInlineSnapshot(`
           Object {
-            "collection": "posts",
+            "arrayFilters": Array [
+              Object {
+                "arrFltr0": Object {
+                  "message": "test",
+                },
+              },
+            ],
+            "collectionName": "posts",
             "doc": Object {
               "$set": Object {
                 "title": "new title",
               },
             },
-            "fields": Array [
-              "_id",
-              "title",
-            ],
-            "options": Object {
-              "arrayFilters": Array [
-                Object {
-                  "arrFltr0": Object {
-                    "message": "test",
-                  },
-                },
-              ],
-            },
             "selector": Object {
               "id": "PostID",
             },
-            "type": "updateOne",
           }
     `);
-    return Promise.resolve([]);
+      return Promise.resolve([]);
+    },
   };
 
   const transaction = new AMTransaction(new Map());
@@ -220,24 +196,24 @@ test('update with arrayfilter', () => {
   });
   operation.createArrayFilter().filter = { message: 'test' };
 
-  return transaction.execute(executor);
+  return transaction.execute(adapter as DataSourceAdapter);
 });
 
 test('create many', () => {
-  const executor = (params: AMDBExecutorParams) => {
-    expect(params).toMatchInlineSnapshot(`
+  const adapter: Partial<DataSourceAdapter> = {
+    insertMany(params) {
+      expect(params).toMatchInlineSnapshot(`
           Object {
-            "collection": "posts",
+            "collectionName": "posts",
             "docs": Array [
               Object {
                 "title": "new title",
               },
             ],
-            "fields": undefined,
-            "type": "insertMany",
           }
       `);
-    return Promise.resolve([]);
+      return Promise.resolve([]);
+    },
   };
 
   const transaction = new AMTransaction(new Map());
@@ -247,7 +223,7 @@ test('create many', () => {
     dataList: new AMListValueContext([{ title: 'new title' }]),
   });
 
-  return transaction.execute(executor);
+  return transaction.execute(adapter as DataSourceAdapter);
 });
 
 test('read dbref', async () => {
@@ -255,21 +231,18 @@ test('read dbref', async () => {
   const CustomerId = new ObjectID();
 
   let n = 0;
-  const executor = (params: AMDBExecutorParams) => {
-    switch (n) {
-      case 0: {
-        expect(params).toMatchInlineSnapshot(`
+  const adapter: Partial<DataSourceAdapter> = {
+    findMany(params) {
+      switch (n) {
+        case 0: {
+          expect(params).toMatchInlineSnapshot(`
           Object {
-            "collection": "admins",
+            "collectionName": "admins",
             "fields": Array [
               "_id",
               "title",
             ],
-            "options": Object {
-              "limit": undefined,
-              "skip": undefined,
-              "sort": undefined,
-            },
+            "limit": undefined,
             "selector": Object {
               "_id": Object {
                 "$in": Array [
@@ -277,24 +250,21 @@ test('read dbref', async () => {
                 ],
               },
             },
-            "type": "find",
+            "skip": undefined,
+            "sort": undefined,
           }
         `);
-        break;
-      }
-      case 1: {
-        expect(params).toMatchInlineSnapshot(`
+          break;
+        }
+        case 1: {
+          expect(params).toMatchInlineSnapshot(`
           Object {
-            "collection": "customers",
+            "collectionName": "customers",
             "fields": Array [
               "_id",
               "title",
             ],
-            "options": Object {
-              "limit": undefined,
-              "skip": undefined,
-              "sort": undefined,
-            },
+            "limit": undefined,
             "selector": Object {
               "_id": Object {
                 "$in": Array [
@@ -302,14 +272,16 @@ test('read dbref', async () => {
                 ],
               },
             },
-            "type": "find",
+            "skip": undefined,
+            "sort": undefined,
           }
         `);
-        break;
+          break;
+        }
       }
-    }
-    n++;
-    return Promise.resolve([]);
+      n++;
+      return Promise.resolve([]);
+    },
   };
 
   const transaction = new AMTransaction(new Map());
@@ -322,27 +294,21 @@ test('read dbref', async () => {
     ],
   });
 
-  return transaction.execute(executor);
+  return transaction.execute(adapter as DataSourceAdapter);
 });
 
 test('orderBy', () => {
-  const executor = (params: AMDBExecutorParams) => {
-    expect(params).toMatchInlineSnapshot(`
+  const adapter: Partial<DataSourceAdapter> = {
+    findOne(params) {
+      expect(params).toMatchInlineSnapshot(`
       Object {
-        "collection": "posts",
+        "collectionName": "posts",
         "fields": undefined,
-        "options": Object {
-          "limit": undefined,
-          "skip": undefined,
-          "sort": Object {
-            "_id": 1,
-          },
-        },
         "selector": undefined,
-        "type": "findOne",
       }
       `);
-    return Promise.resolve([]);
+      return Promise.resolve([]);
+    },
   };
 
   const transaction = new AMTransaction(new Map());
@@ -354,5 +320,5 @@ test('orderBy', () => {
     },
   });
 
-  return transaction.execute(executor);
+  return transaction.execute(adapter as DataSourceAdapter);
 });

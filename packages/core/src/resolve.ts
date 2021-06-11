@@ -28,5 +28,5 @@ export const resolve = (parent, args, context, info: GraphQLResolveInfo) => {
     info.fragments
   );
   // console.log(Serializer.print(transaction));
-  return transaction.execute(context.queryExecutor);
+  return transaction.execute(context.adapter);
 };

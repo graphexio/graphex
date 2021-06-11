@@ -1,8 +1,6 @@
-import QueryExecutor from '@graphex/mongodb-executor';
+import { createMongoAdapter } from '@graphex/mongodb-adapter';
 import { MongoClient } from 'mongodb';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-
-const util = require('util');
 
 export default () => {
   let mongod;
@@ -28,8 +26,8 @@ export default () => {
         return DB;
       };
 
-      const QE = QueryExecutor(connectToDatabase);
-      return { QE, connectToDatabase };
+      const adapter = createMongoAdapter(await connectToDatabase());
+      return { adapter, connectToDatabase };
     },
     async stop() {
       await client.close();

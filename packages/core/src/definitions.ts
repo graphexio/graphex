@@ -24,8 +24,6 @@ import Maybe from 'graphql/tsutils/Maybe';
 import { AMConfigResolver } from './config/resolver';
 import { AMTransaction } from './execution/transaction';
 import { AMVisitorStack } from './execution/visitorStack';
-import { AMDBExecutorOperationType } from '@graphex/mongodb-executor';
-export { AMDBExecutorOperationType } from '@graphex/mongodb-executor';
 
 export abstract class AMFactory {
   links: { [key: string]: string | string[] };
@@ -324,23 +322,6 @@ export type AMObjectFieldValueType =
   | string
   | number
   | { [key: string]: any };
-
-export type AMDBExecutor = (params: AMDBExecutorParams) => Promise<any>;
-export type AMDBExecutorParams = {
-  type: AMDBExecutorOperationType;
-  collection: string;
-  doc?: { [key: string]: any };
-  docs?: [{ [key: string]: any }];
-  selector?: { [key: string]: any };
-  fields?: string[];
-  options?: {
-    arrayFilters?: { [key: string]: any }[];
-    sort?: { [key: string]: number };
-    limit?: number;
-    skip?: number;
-    groupBy?: string;
-  };
-};
 
 export interface AMConfig {
   [typeName: string]: {
