@@ -23,7 +23,7 @@ prepare:
       - packages/*/node_modules
       - packages/*/lib
   script:
-    - yarn install --frozen-lockfile
+    - yarn install --frozen-lockfile --cache-folder .yarn
 
 test:
   stage: test
