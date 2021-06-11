@@ -35,12 +35,12 @@ test:
   artifacts:
     when: always
     reports:
-      cobertura: coverage/clover.xml
+      cobertura: coverage/cobertura-coverage.xml
       junit:
         - junit.xml
   coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
   script:
-    - yarn test --ci --reporters=jest-junit --reporters=default --collectCoverage
+    - yarn test --ci --reporters=jest-junit --reporters=default --collectCoverage --coverageReporters=cobertura --coverageReporters=text
 
 release:
   stage: release
