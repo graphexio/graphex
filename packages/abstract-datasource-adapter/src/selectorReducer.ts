@@ -26,7 +26,7 @@ export const createSelectorReducer = <Chunk>({
   mergeChunks: (chunks: Chunk[]) => any;
 }) => {
   const reducer = (selector: Selector) => {
-    if (!selector) return null;
+    if (!selector) return selector;
 
     const items = Reflect.ownKeys(selector).map(key => {
       if (key === AND) {

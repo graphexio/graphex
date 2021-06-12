@@ -4,6 +4,7 @@ import {
   GraphQLList,
   isInterfaceType,
 } from 'graphql';
+import { SelectorOperators } from '@graphex/abstract-datasource-adapter';
 import {
   AMInputFieldConfigMap,
   AMInputObjectType,
@@ -42,13 +43,13 @@ export class AMWhereTypeFactory extends AMTypeFactory<AMInputObjectType> {
           type: new GraphQLList(
             this.configResolver.resolveInputType(modelType, this.links.and)
           ),
-          ...defaultObjectFieldVisitorHandler('$and'),
+          ...defaultObjectFieldVisitorHandler(SelectorOperators.AND),
         };
         fields.OR = {
           type: new GraphQLList(
             this.configResolver.resolveInputType(modelType, this.links.or)
           ),
-          ...defaultObjectFieldVisitorHandler('$or'),
+          ...defaultObjectFieldVisitorHandler(SelectorOperators.OR),
         };
 
         Object.values(modelType.getFields()).forEach(field => {

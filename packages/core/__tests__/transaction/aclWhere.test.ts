@@ -48,37 +48,37 @@ describe('aclWhere', () => {
 
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-      Object {
-        "operations": Array [
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+        ],
+      },
+      "selector": Object {
+        Symbol(and): Array [
           Object {
-            "collectionName": "posts",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-              ],
-            },
-            "identifier": "Operation-0",
-            "kind": "AMReadOperation",
-            "many": true,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-0",
-              ],
-            },
-            "selector": Object {
-              "$and": Array [
-                Object {
-                  "title": "title1",
-                },
-                Object {
-                  "title": "title2",
-                },
-              ],
-            },
+            "title": "title1",
+          },
+          Object {
+            "title": "title2",
           },
         ],
-      }
-    `);
+      },
+    },
+  ],
+}
+`);
   });
 
   test('interface', () => {
@@ -112,7 +112,7 @@ Object {
         ],
       },
       "selector": Object {
-        "$and": Array [
+        Symbol(and): Array [
           Object {
             "_type": "admin",
             "title": "title",

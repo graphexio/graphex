@@ -1,7 +1,9 @@
 import { AMObjectFieldValueType } from '../../definitions';
 import { AMContext } from '../context';
-
-type Selector = { [key: string]: AMObjectFieldValueType };
+import {
+  Selector,
+  SelectorOperator,
+} from '@graphex/abstract-datasource-adapter';
 
 export class AMSelectorContext extends AMContext {
   selector: Selector = {};
@@ -13,8 +15,8 @@ export class AMSelectorContext extends AMContext {
     }
   }
 
-  addValue(key: string, value: AMObjectFieldValueType) {
-    this.selector[key] = value;
+  addValue(key: string | SelectorOperator, value: AMObjectFieldValueType) {
+    this.selector[key as any] = value;
   }
 
   toJSON() {

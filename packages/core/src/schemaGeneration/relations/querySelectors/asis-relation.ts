@@ -1,3 +1,4 @@
+import { SelectorOperators } from '@graphex/abstract-datasource-adapter';
 import { getNamedType, ObjectFieldNode } from 'graphql';
 import {
   AMInputField,
@@ -52,7 +53,7 @@ export class AsIsRelationSelector extends AMInputFieldFactory {
             lastInStack instanceof AMObjectFieldContext
           ) {
             lastInStack.addValue(field.relation.storeField, {
-              $in: context
+              [SelectorOperators.IN]: context
                 .getOutput()
                 .map(
                   new ResultPromiseTransforms.Distinct(

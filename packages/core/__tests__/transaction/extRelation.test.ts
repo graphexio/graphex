@@ -85,7 +85,7 @@ describe('extRelation', () => {
             },
             "selector": Object {
               "postId": Object {
-                "$in": ResultPromise {
+                Symbol(in): ResultPromise {
                   "source": "<Batch>",
                 },
               },
@@ -150,7 +150,7 @@ describe('extRelation', () => {
             },
             "selector": Object {
               "postId": Object {
-                "$in": ResultPromise {
+                Symbol(in): ResultPromise {
                   "source": "<Batch>",
                 },
               },
@@ -217,7 +217,7 @@ describe('extRelation', () => {
             },
             "selector": Object {
               "postId": Object {
-                "$in": ResultPromise {
+                Symbol(in): ResultPromise {
                   "source": "<Batch>",
                 },
               },

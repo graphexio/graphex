@@ -1,5 +1,8 @@
 import R from 'ramda';
-import { DataSourceAdapter } from '@graphex/abstract-datasource-adapter';
+import {
+  DataSourceAdapter,
+  SelectorOperators,
+} from '@graphex/abstract-datasource-adapter';
 import { AMOperation } from '../operation';
 
 type NormalizedRepresentation = {
@@ -27,7 +30,11 @@ export class AMReadEntitiesOperation extends AMOperation {
             async ([collectionName, representations]) => {
               const data = await adapter.findMany({
                 collectionName: collectionName,
-                selector: { $or: representations.map(rep => rep.selector) },
+                selector: {
+                  [SelectorOperators.OR]: representations.map(
+                    rep => rep.selector
+                  ),
+                },
                 fields: [], //TODO: fix
               });
 

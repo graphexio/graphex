@@ -24,6 +24,7 @@ import Maybe from 'graphql/tsutils/Maybe';
 import { AMConfigResolver } from './config/resolver';
 import { AMTransaction } from './execution/transaction';
 import { AMVisitorStack } from './execution/visitorStack';
+import { SelectorOperator } from '@graphex/abstract-datasource-adapter';
 
 export abstract class AMFactory {
   links: { [key: string]: string | string[] };
@@ -321,7 +322,7 @@ export type AMObjectFieldValueType =
   | boolean
   | string
   | number
-  | { [key: string]: any };
+  | Partial<Record<string | SelectorOperator, any>>;
 
 export interface AMConfig {
   [typeName: string]: {

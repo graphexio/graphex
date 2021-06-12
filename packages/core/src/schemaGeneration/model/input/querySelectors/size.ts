@@ -1,5 +1,6 @@
 import TypeWrap from '@graphex/type-wrap';
 import { GraphQLInt } from 'graphql';
+import { SelectorOperators } from '@graphex/abstract-datasource-adapter';
 import { AMModelField } from '../../../../definitions';
 import { AMQuerySelectorFieldFactory } from '../fieldFactories/querySelector';
 
@@ -16,7 +17,7 @@ export class SizeSelector extends AMQuerySelectorFieldFactory {
   }
   transformValue(value: any) {
     return {
-      $size: value,
+      [SelectorOperators.SIZE]: value,
     };
   }
 }

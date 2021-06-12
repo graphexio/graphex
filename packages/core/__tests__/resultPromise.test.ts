@@ -1,16 +1,13 @@
+import { SelectorOperators } from '@graphex/abstract-datasource-adapter';
+import { DBRef, ObjectID } from 'mongodb';
 import { AMCreateOperation } from '../src/execution/operations/createOperation';
 import {
-  AMOperationResultPromise,
   AMDataResultPromise,
+  AMOperationResultPromise,
+  ResultPromiseTransforms,
 } from '../src/execution/resultPromise';
-import { ResultPromiseTransforms } from '../src/execution/resultPromise';
-
 import { AMTransaction } from '../src/execution/transaction';
-import { ObjectID, DBRef } from 'mongodb';
 import Serializer from '../src/serializer';
-import { AMOperation } from '../src/execution/operation';
-import { AMModelType } from '../src/definitions';
-import { Path } from '../src/execution/path';
 
 expect.addSnapshotSerializer(Serializer);
 
@@ -220,7 +217,7 @@ describe('transformArray', () => {
       new ResultPromiseTransforms.TransformArray([], 'comments', 'comments', {
         where: {
           message: {
-            $regex: /test/,
+            [SelectorOperators.CONTAINS]: 'test',
           },
         },
       })
@@ -250,7 +247,7 @@ describe('transformArray', () => {
       new ResultPromiseTransforms.TransformArray([], 'comments', 'comments', {
         where: {
           comments: {
-            $elemMatch: {
+            [SelectorOperators.SOME]: {
               message: 'message_nested',
             },
           },
@@ -282,7 +279,7 @@ describe('transformArray', () => {
       new ResultPromiseTransforms.TransformArray([], 'comments', 'comments', {
         where: {
           tags: {
-            $all: ['a', 'b'],
+            [SelectorOperators.ALL]: ['a', 'b'],
           },
         },
       })
@@ -312,7 +309,7 @@ describe('transformArray', () => {
       new ResultPromiseTransforms.TransformArray([], 'comments', 'comments', {
         where: {
           comments: {
-            $exists: true,
+            [SelectorOperators.EXISTS]: true,
           },
         },
       })
@@ -337,7 +334,7 @@ describe('transformArray', () => {
       new ResultPromiseTransforms.TransformArray([], 'comments', 'comments', {
         where: {
           id: {
-            $gt: 7,
+            [SelectorOperators.GT]: 7,
           },
         },
       })
@@ -366,7 +363,7 @@ describe('transformArray', () => {
       new ResultPromiseTransforms.TransformArray([], 'comments', 'comments', {
         where: {
           id: {
-            $gte: 7,
+            [SelectorOperators.GTE]: 7,
           },
         },
       })
@@ -395,7 +392,7 @@ describe('transformArray', () => {
       new ResultPromiseTransforms.TransformArray([], 'comments', 'comments', {
         where: {
           id: {
-            $in: [7, 8],
+            [SelectorOperators.IN]: [7, 8],
           },
         },
       })
@@ -425,38 +422,7 @@ describe('transformArray', () => {
       new ResultPromiseTransforms.TransformArray([], 'comments', 'comments', {
         where: {
           tags: {
-            $in: ['b', 'c'],
-          },
-        },
-      })
-    );
-
-    return expect(transformResultPromise).resolves.toEqual(result);
-  });
-  test('not', () => {
-    const result = [
-      {
-        comments: [
-          {
-            id: 4,
-            message: 'message_with_nested_arr',
-            comments: [
-              {
-                id: 5,
-                message: 'message_nested',
-              },
-            ],
-          },
-        ],
-      },
-    ];
-    const transformResultPromise = resultPromise.map(
-      new ResultPromiseTransforms.TransformArray([], 'comments', 'comments', {
-        where: {
-          comments: {
-            $not: {
-              $exists: false,
-            },
+            [SelectorOperators.IN]: ['b', 'c'],
           },
         },
       })

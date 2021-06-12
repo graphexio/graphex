@@ -76,36 +76,36 @@ describe('nested objects', () => {
       where: { comments_some: { message_contains: 'test' } },
     });
     expect(transaction).toMatchInlineSnapshot(`
-      Object {
-        "operations": Array [
-          Object {
-            "collectionName": "posts",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-              ],
-            },
-            "identifier": "Operation-0",
-            "kind": "AMReadOperation",
-            "many": true,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-0",
-              ],
-            },
-            "selector": Object {
-              "comments": Object {
-                "$elemMatch": Object {
-                  "message": Object {
-                    "$regex": /test/,
-                  },
-                },
-              },
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+        ],
+      },
+      "selector": Object {
+        "comments": Object {
+          Symbol(some): Object {
+            "message": Object {
+              Symbol(contains): "test",
             },
           },
-        ],
-      }
-    `);
+        },
+      },
+    },
+  ],
+}
+`);
   });
 
   test('create nested list', () => {

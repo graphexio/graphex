@@ -1,14 +1,19 @@
 import { UserInputError } from 'apollo-server';
 import R from 'ramda';
+import {
+  SelectorOperator,
+  SelectorOperators,
+} from '@graphex/abstract-datasource-adapter';
 import { AMModelField, AMVisitable } from '../../../../definitions';
 import { AMDataContext } from '../../../../execution/contexts/data';
 import { AMListValueContext } from '../../../../execution/contexts/listValue';
 import { AMObjectFieldContext } from '../../../../execution/contexts/objectField';
 import { AMSelectorContext } from '../../../../execution/contexts/selector';
 import { AMOperation } from '../../../../execution/operation';
+import { ObjectEntriesWithSymbols } from '../../../../utils';
 
 export function defaultObjectFieldVisitorHandler(
-  fieldName: string,
+  fieldName: string | SelectorOperator,
   field?: AMModelField
 ): AMVisitable {
   return {
@@ -78,7 +83,7 @@ export function whereTypeVisitorHandler(
 
       if (context.selector.aclWhere) {
         context.selector = {
-          $and: [
+          [SelectorOperators.AND]: [
             R.omit(['aclWhere'], context.selector),
             context.selector.aclWhere,
           ],
@@ -92,7 +97,7 @@ export function whereTypeVisitorHandler(
       } else if (lastInStack instanceof AMObjectFieldContext) {
         lastInStack.setValue(context.selector);
       } else if (lastInStack instanceof AMSelectorContext) {
-        Object.entries(context.selector).forEach(([k, v]) =>
+        ObjectEntriesWithSymbols(context.selector).forEach(([k, v]) =>
           lastInStack.addValue(k, v)
         );
       }

@@ -678,7 +678,7 @@ Object {
       },
       "selector": Object {
         "_id": Object {
-          "$in": ResultPromise {
+          Symbol(in): ResultPromise {
             "source": "<Batch>",
           },
         },
@@ -706,7 +706,7 @@ Object {
       },
       "selector": Object {
         "_id": Object {
-          "$in": ResultPromise {
+          Symbol(in): ResultPromise {
             "source": "<Batch>",
           },
         },
@@ -773,7 +773,7 @@ Object {
       },
       "selector": Object {
         "_id": Object {
-          "$in": ResultPromise {
+          Symbol(in): ResultPromise {
             "source": "<Batch>",
           },
         },

@@ -1,5 +1,8 @@
 import { AMOperation } from '../operation';
-import { DataSourceAdapter } from '@graphex/abstract-datasource-adapter';
+import {
+  DataSourceAdapter,
+  SelectorOperators,
+} from '@graphex/abstract-datasource-adapter';
 import { completeAMResultPromise } from '../resultPromise/utils';
 
 import R from 'ramda';
@@ -18,7 +21,9 @@ export class AMDeleteDBRefOperation extends AMOperation {
           Object.entries(groupedRefs).map(async ([collectionName, refs]) => {
             const data = await adapter.deleteMany({
               collectionName: collectionName,
-              selector: { _id: { $in: refs.map(ref => ref.oid) } },
+              selector: {
+                _id: { [SelectorOperators.IN]: refs.map(ref => ref.oid) },
+              },
             });
 
             return [collectionName, data];

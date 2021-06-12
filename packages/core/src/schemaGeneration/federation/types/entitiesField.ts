@@ -9,6 +9,7 @@ import { AMModelType, IAMFieldFactory } from '../../../definitions';
 import { AMObjectFieldContext } from '../../../execution/contexts/objectField';
 import { AMReadEntitiesOperation } from '../../../execution/operations/readEntitiesOperation';
 import { resolve } from '../../../resolve';
+import { ObjectEntriesWithSymbols } from '../../../utils';
 import { AMFederationAnyTypeFactory } from './anyType';
 import { AMFederationEntityTypeFactory } from './entityType';
 
@@ -71,7 +72,7 @@ export const AMFederationEntitiesFieldFactory: IAMFieldFactory = {
 
               const collectionName = type.mmCollectionName;
               const selector = R.pipe(
-                Object.entries,
+                ObjectEntriesWithSymbols,
                 R.map(R.pipe(mapParseScalars, mapFieldName)),
                 Object.fromEntries
               )(where);

@@ -1,3 +1,4 @@
+import { SelectorOperators } from '@graphex/abstract-datasource-adapter';
 import * as DirectiveImplements from '@graphex/directive-implements';
 import gql from 'graphql-tag';
 import AMM from '../src/';
@@ -58,7 +59,7 @@ describe('simple schema', () => {
         `
       );
 
-      expect(selector).toEqual({ comments: { $size: 1 } });
+      expect(selector).toEqual({ comments: { [SelectorOperators.SIZE]: 1 } });
     });
 
     test('not_size', () => {
@@ -72,7 +73,9 @@ describe('simple schema', () => {
         `
       );
 
-      expect(selector).toEqual({ comments: { $not: { $size: 1 } } });
+      expect(selector).toEqual({
+        comments: { [SelectorOperators.NOT_SIZE]: 1 },
+      });
     });
 
     test('exists', () => {
@@ -86,7 +89,9 @@ describe('simple schema', () => {
         `
       );
 
-      expect(selector).toEqual({ comments: { $exists: true } });
+      expect(selector).toEqual({
+        comments: { [SelectorOperators.EXISTS]: true },
+      });
     });
 
     test('all for scalar 1', () => {
@@ -101,7 +106,7 @@ describe('simple schema', () => {
       );
 
       expect(selector).toEqual({
-        tags: { $all: ['apollo-model'] },
+        tags: { [SelectorOperators.ALL]: ['apollo-model'] },
       });
     });
 
@@ -117,7 +122,7 @@ describe('simple schema', () => {
       );
 
       expect(selector).toEqual({
-        tags: { $all: ['apollo-model'] },
+        tags: { [SelectorOperators.ALL]: ['apollo-model'] },
       });
     });
 
@@ -133,7 +138,7 @@ describe('simple schema', () => {
       );
 
       expect(selector).toEqual({
-        comments: { $all: [{ message: 'test message' }] },
+        comments: { [SelectorOperators.ALL]: [{ message: 'test message' }] },
       });
     });
 
@@ -149,7 +154,7 @@ describe('simple schema', () => {
       );
 
       expect(selector).toEqual({
-        comments: { $eq: [{ message: 'test message' }] },
+        comments: { [SelectorOperators.EXACT]: [{ message: 'test message' }] },
       });
     });
 
@@ -165,7 +170,7 @@ describe('simple schema', () => {
       );
 
       expect(selector).toEqual({
-        comments: { $in: [{ message: 'test message' }] },
+        comments: { [SelectorOperators.IN]: [{ message: 'test message' }] },
       });
     });
 
@@ -181,7 +186,7 @@ describe('simple schema', () => {
       );
 
       expect(selector).toEqual({
-        comments: { $not: { $in: [{ message: 'test message' }] } },
+        comments: { [SelectorOperators.NOT_IN]: [{ message: 'test message' }] },
       });
     });
 
@@ -197,7 +202,7 @@ describe('simple schema', () => {
       );
 
       expect(selector).toEqual({
-        comments: { $elemMatch: { message: 'test message' } },
+        comments: { [SelectorOperators.SOME]: { message: 'test message' } },
       });
     });
   });
@@ -215,7 +220,11 @@ describe('simple schema', () => {
       );
 
       expect(selector).toEqual({
-        comments: { $elemMatch: { likes: { $elemMatch: { id: 'USERID' } } } },
+        comments: {
+          [SelectorOperators.SOME]: {
+            likes: { [SelectorOperators.SOME]: { id: 'USERID' } },
+          },
+        },
       });
     });
 
@@ -263,7 +272,7 @@ describe('simple schema', () => {
       );
 
       expect(selector).toEqual({
-        title: { $in: ['title1', 'title2'] },
+        title: { [SelectorOperators.IN]: ['title1', 'title2'] },
       });
     });
 
@@ -278,7 +287,7 @@ describe('simple schema', () => {
         `
       );
 
-      expect(selector).toEqual({ title: { $exists: true } });
+      expect(selector).toEqual({ title: { [SelectorOperators.EXISTS]: true } });
     });
 
     test('lt', () => {
@@ -292,7 +301,7 @@ describe('simple schema', () => {
         `
       );
 
-      expect(selector).toEqual({ num: { $lt: 10 } });
+      expect(selector).toEqual({ num: { [SelectorOperators.LT]: 10 } });
     });
 
     test('lte', () => {
@@ -306,7 +315,7 @@ describe('simple schema', () => {
         `
       );
 
-      expect(selector).toEqual({ num: { $lte: 10 } });
+      expect(selector).toEqual({ num: { [SelectorOperators.LTE]: 10 } });
     });
 
     test('gt', () => {
@@ -320,7 +329,7 @@ describe('simple schema', () => {
         `
       );
 
-      expect(selector).toEqual({ num: { $gt: 10 } });
+      expect(selector).toEqual({ num: { [SelectorOperators.GT]: 10 } });
     });
 
     test('gte', () => {
@@ -334,7 +343,7 @@ describe('simple schema', () => {
         `
       );
 
-      expect(selector).toEqual({ num: { $gte: 10 } });
+      expect(selector).toEqual({ num: { [SelectorOperators.GTE]: 10 } });
     });
 
     test('not', () => {
@@ -348,7 +357,7 @@ describe('simple schema', () => {
         `
       );
 
-      expect(selector).toEqual({ num: { $not: { $eq: 10 } } });
+      expect(selector).toEqual({ num: { [SelectorOperators.NOT]: 10 } });
     });
 
     test('contains', () => {
@@ -362,7 +371,9 @@ describe('simple schema', () => {
         `
       );
 
-      expect(selector).toEqual({ title: { $regex: /title/ } });
+      expect(selector).toEqual({
+        title: { [SelectorOperators.CONTAINS]: 'title' },
+      });
     });
 
     test('starts_with', () => {
@@ -376,7 +387,9 @@ describe('simple schema', () => {
         `
       );
 
-      expect(selector).toEqual({ title: { $regex: /^title/ } });
+      expect(selector).toEqual({
+        title: { [SelectorOperators.STARTS_WITH]: 'title' },
+      });
     });
 
     test('ends_with', () => {
@@ -390,7 +403,9 @@ describe('simple schema', () => {
         `
       );
 
-      expect(selector).toEqual({ title: { $regex: /title$/ } });
+      expect(selector).toEqual({
+        title: { [SelectorOperators.ENDS_WITH]: 'title' },
+      });
     });
   });
 
@@ -465,19 +480,19 @@ describe('relations', () => {
     );
 
     expect(selector).toMatchInlineSnapshot(`
-      Object {
-        "commentIds": Object {
-          "$in": ResultPromise {
-            "source": Array [
-              "Operation-1",
-              Distinct {
-                "path": "_id",
-              },
-            ],
-          },
+Object {
+  "commentIds": Object {
+    Symbol(in): ResultPromise {
+      "source": Array [
+        "Operation-1",
+        Distinct {
+          "path": "_id",
         },
-      }
-    `);
+      ],
+    },
+  },
+}
+`);
   });
 
   describe('enum', () => {
@@ -510,7 +525,7 @@ describe('relations', () => {
       expect(selector).toMatchInlineSnapshot(`
         Object {
           "role": Object {
-            "$in": Array [
+            Symbol(in): Array [
               "admin",
             ],
           },

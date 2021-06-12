@@ -1,3 +1,4 @@
+import { ObjectEntriesWithSymbols } from '../../utils';
 import { AMResultPromise } from './resultPromise';
 
 export const getPath = (path: string[]) => (value: any) => {
@@ -45,7 +46,7 @@ export async function completeAMResultPromise(obj: any) {
   } else if (obj && obj.constructor && obj.constructor.name == 'Object') {
     return Object.fromEntries(
       await Promise.all(
-        Object.entries(obj).map(async ([k, v]) => {
+        ObjectEntriesWithSymbols(obj).map(async ([k, v]) => {
           return [k, await completeAMResultPromise(v)];
         })
       )

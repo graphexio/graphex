@@ -5,6 +5,7 @@ import {
   isInterfaceType,
   isObjectType,
 } from 'graphql';
+import { SelectorOperators } from '@graphex/abstract-datasource-adapter';
 import { AMModelField, RelationInfo } from '../../../definitions';
 import { AMFieldsSelectionContext } from '../../../execution/contexts/fieldsSelection';
 import { AMSelectorContext } from '../../../execution/contexts/selector';
@@ -210,9 +211,9 @@ const createBelongsToRelationOperation = ({
     collectionName: relationInfo.collection,
     fieldsSelection: new AMFieldsSelectionContext([relationInfo.relationField]),
     selector: new AMSelectorContext({
-      ...(filter ? { $and: [filter] } : {}),
+      ...(filter ? { [SelectorOperators.AND]: [filter] } : {}),
       [relationInfo.relationField]: {
-        $in: batch,
+        [SelectorOperators.IN]: batch,
       },
     }),
   });
@@ -262,9 +263,9 @@ const createHasRelationOperation = ({
     collectionName: relationInfo.collection,
     fieldsSelection: new AMFieldsSelectionContext([relationInfo.storeField]),
     selector: new AMSelectorContext({
-      ...(filter ? { $and: [filter] } : {}),
+      ...(filter ? { [SelectorOperators.AND]: [filter] } : {}),
       [relationInfo.storeField]: {
-        $in: batch,
+        [SelectorOperators.IN]: batch,
       },
     }),
   });
@@ -303,9 +304,9 @@ const createHasAggregateRelationOperation = ({
     collectionName: relationInfo.collection,
     fieldsSelection: new AMFieldsSelectionContext(['totalCount']),
     selector: new AMSelectorContext({
-      ...(filter ? { $and: [filter] } : {}),
+      ...(filter ? { [SelectorOperators.AND]: [filter] } : {}),
       [relationInfo.storeField]: {
-        $in: batch,
+        [SelectorOperators.IN]: batch,
       },
     }),
   });
@@ -340,9 +341,9 @@ const createBelongsAggregateRelationOperation = ({
     collectionName: relationInfo.collection,
     fieldsSelection: new AMFieldsSelectionContext([relationInfo.relationField]),
     selector: new AMSelectorContext({
-      ...(filter ? { $and: [filter] } : {}),
+      ...(filter ? { [SelectorOperators.AND]: [filter] } : {}),
       [relationInfo.relationField]: {
-        $in: batch,
+        [SelectorOperators.IN]: batch,
       },
     }),
   });
@@ -382,7 +383,7 @@ const createReadOperation = ({
     collectionName: relationInfo.collection,
     fieldsSelection: new AMFieldsSelectionContext([]),
     selector: new AMSelectorContext({
-      ...(filter ? { $and: [filter] } : {}),
+      ...(filter ? { [SelectorOperators.AND]: [filter] } : {}),
     }),
   });
 
@@ -403,7 +404,7 @@ const createAggregateOperation = ({
     collectionName: relationInfo.collection,
     fieldsSelection: new AMFieldsSelectionContext([]),
     selector: new AMSelectorContext({
-      ...(filter ? { $and: [filter] } : {}),
+      ...(filter ? { [SelectorOperators.AND]: [filter] } : {}),
     }),
   });
 

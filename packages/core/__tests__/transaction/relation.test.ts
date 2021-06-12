@@ -89,7 +89,7 @@ describe('relation', () => {
             },
             "selector": Object {
               "_id": Object {
-                "$in": ResultPromise {
+                Symbol(in): ResultPromise {
                   "source": "<Batch>",
                 },
               },
@@ -119,82 +119,82 @@ describe('relation', () => {
     const transaction = prepareTransaction(schema, rq);
 
     expect(transaction).toMatchInlineSnapshot(`
-      Object {
-        "operations": Array [
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "comments",
+      "data": Object {
+        "message": "comment-1",
+        "postId": ResultPromise {
+          "source": Array [
+            "Operation-1",
+            Path {
+              "path": "_id",
+            },
+          ],
+        },
+        "userIds": ResultPromise {
+          "source": Array [
+            "Operation-2",
+            Distinct {
+              "path": "_id",
+            },
+          ],
+        },
+      },
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+          "message",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMCreateOperation",
+      "many": false,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+        ],
+      },
+    },
+    Object {
+      "collectionName": "posts",
+      "identifier": "Operation-1",
+      "kind": "AMReadOperation",
+      "many": false,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+      "selector": Object {
+        "_id": "post-id",
+      },
+    },
+    Object {
+      "collectionName": "users",
+      "identifier": "Operation-2",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-2",
+        ],
+      },
+      "selector": Object {
+        Symbol(or): Array [
           Object {
-            "collectionName": "comments",
-            "data": Object {
-              "message": "comment-1",
-              "postId": ResultPromise {
-                "source": Array [
-                  "Operation-1",
-                  Path {
-                    "path": "_id",
-                  },
-                ],
-              },
-              "userIds": ResultPromise {
-                "source": Array [
-                  "Operation-2",
-                  Distinct {
-                    "path": "_id",
-                  },
-                ],
-              },
-            },
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-                "message",
-              ],
-            },
-            "identifier": "Operation-0",
-            "kind": "AMCreateOperation",
-            "many": false,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-0",
-              ],
-            },
+            "_id": "user-1",
           },
           Object {
-            "collectionName": "posts",
-            "identifier": "Operation-1",
-            "kind": "AMReadOperation",
-            "many": false,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-1",
-              ],
-            },
-            "selector": Object {
-              "_id": "post-id",
-            },
-          },
-          Object {
-            "collectionName": "users",
-            "identifier": "Operation-2",
-            "kind": "AMReadOperation",
-            "many": true,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-2",
-              ],
-            },
-            "selector": Object {
-              "$or": Array [
-                Object {
-                  "_id": "user-1",
-                },
-                Object {
-                  "_id": "user-2",
-                },
-              ],
-            },
+            "_id": "user-2",
           },
         ],
-      }
-    `);
+      },
+    },
+  ],
+}
+`);
   });
 
   test('connect in variable', () => {
@@ -431,7 +431,7 @@ Object {
             },
             "selector": Object {
               "postId": Object {
-                "$in": ResultPromise {
+                Symbol(in): ResultPromise {
                   "source": Array [
                     "Operation-1",
                     Distinct {

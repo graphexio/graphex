@@ -245,7 +245,7 @@ test('read dbref', async () => {
             "limit": undefined,
             "selector": Object {
               "_id": Object {
-                "$in": Array [
+                Symbol(in): Array [
                   "${AdminId}",
                 ],
               },
@@ -267,7 +267,7 @@ test('read dbref', async () => {
             "limit": undefined,
             "selector": Object {
               "_id": Object {
-                "$in": Array [
+                Symbol(in): Array [
                   "${CustomerId}",
                 ],
               },

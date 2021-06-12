@@ -1,4 +1,5 @@
 import { GraphQLBoolean } from 'graphql';
+import { SelectorOperators } from '@graphex/abstract-datasource-adapter';
 import { AMModelField } from '../../../../definitions';
 import { AMQuerySelectorFieldFactory } from '../fieldFactories/querySelector';
 
@@ -14,7 +15,7 @@ export class ExistsSelector extends AMQuerySelectorFieldFactory {
   }
   transformValue(value: any) {
     return {
-      $exists: value,
+      [SelectorOperators.EXISTS]: value,
     };
   }
 }

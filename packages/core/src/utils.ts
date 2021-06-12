@@ -158,3 +158,7 @@ export const isDiscriminatorRequiredForType = (type: GraphQLNamedType) => {
     !isModelType(type)
   );
 };
+
+export const ObjectEntriesWithSymbols = (obj: any): [string, any][] => {
+  return Reflect.ownKeys(obj).map(k => [k, obj[k as any]] as any);
+};

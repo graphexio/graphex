@@ -1,3 +1,4 @@
+import { SelectorOperators } from '@graphex/abstract-datasource-adapter';
 import { AMModelType, AMVisitable } from '../../../../definitions';
 import { AMDataContext } from '../../../../execution/contexts/data';
 import { AMListValueContext } from '../../../../execution/contexts/listValue';
@@ -24,7 +25,7 @@ export const modelReadManyHandlerFactory = (modelType: AMModelType) => (
       const selectorContext = new AMSelectorContext();
       stack.push(selectorContext);
 
-      const orContext = new AMObjectFieldContext('$or');
+      const orContext = new AMObjectFieldContext(SelectorOperators.OR);
       stack.push(orContext);
     },
     amLeave(node, transaction, stack) {

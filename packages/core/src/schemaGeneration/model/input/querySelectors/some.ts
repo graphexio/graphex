@@ -1,5 +1,6 @@
 import TypeWrap from '@graphex/type-wrap';
 import { getNamedType, isCompositeType } from 'graphql';
+import { SelectorOperators } from '@graphex/abstract-datasource-adapter';
 import { AMModelField, AMModelType } from '../../../../definitions';
 import { AMQuerySelectorFieldFactory } from '../fieldFactories/querySelector';
 
@@ -24,7 +25,7 @@ export class SomeSelector extends AMQuerySelectorFieldFactory {
   }
   transformValue(value: any) {
     return {
-      $elemMatch: value,
+      [SelectorOperators.SOME]: value,
     };
   }
 }

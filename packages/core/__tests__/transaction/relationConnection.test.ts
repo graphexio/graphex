@@ -39,100 +39,100 @@ describe('relation Connection', () => {
     `;
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-      Object {
-        "operations": Array [
-          Object {
-            "collectionName": "posts",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-                "userIds",
-              ],
-            },
-            "identifier": "Operation-0",
-            "kind": "AMReadOperation",
-            "many": false,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-0",
-              ],
-            },
-            "selector": Object {
-              "_id": "1",
-            },
-          },
-          Object {
-            "fieldsSelection": Object {
-              "fields": Array [],
-            },
-            "identifier": "Operation-1",
-            "kind": "AMConnectionOperation",
-            "many": false,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-1",
-              ],
-            },
-          },
-          Object {
-            "collectionName": "users",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-              ],
-            },
-            "identifier": "Operation-2",
-            "kind": "AMReadOperation",
-            "many": true,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-2",
-                IndexBy {
-                  "params": Object {
-                    "groupingField": "_id",
-                  },
-                },
-              ],
-            },
-            "selector": Object {
-              "_id": Object {
-                "$in": ResultPromise {
-                  "source": "<Batch>",
-                },
-              },
-            },
-          },
-          Object {
-            "collectionName": "users",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-              ],
-            },
-            "identifier": "Operation-3",
-            "kind": "AMReadOperation",
-            "many": true,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-3",
-                IndexBy {
-                  "params": Object {
-                    "groupingField": "_id",
-                  },
-                },
-              ],
-            },
-            "selector": Object {
-              "_id": Object {
-                "$in": ResultPromise {
-                  "source": "<Batch>",
-                },
-              },
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+          "userIds",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMReadOperation",
+      "many": false,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+        ],
+      },
+      "selector": Object {
+        "_id": "1",
+      },
+    },
+    Object {
+      "fieldsSelection": Object {
+        "fields": Array [],
+      },
+      "identifier": "Operation-1",
+      "kind": "AMConnectionOperation",
+      "many": false,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+    },
+    Object {
+      "collectionName": "users",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-2",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-2",
+          IndexBy {
+            "params": Object {
+              "groupingField": "_id",
             },
           },
         ],
-      }
-    `);
+      },
+      "selector": Object {
+        "_id": Object {
+          Symbol(in): ResultPromise {
+            "source": "<Batch>",
+          },
+        },
+      },
+    },
+    Object {
+      "collectionName": "users",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-3",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-3",
+          IndexBy {
+            "params": Object {
+              "groupingField": "_id",
+            },
+          },
+        ],
+      },
+      "selector": Object {
+        "_id": Object {
+          Symbol(in): ResultPromise {
+            "source": "<Batch>",
+          },
+        },
+      },
+    },
+  ],
+}
+`);
   });
 
   test('Root Connection and total count', () => {
@@ -213,72 +213,72 @@ describe('relation Connection', () => {
     `;
     const transaction = prepareTransaction(schema, rq);
     expect(transaction).toMatchInlineSnapshot(`
-      Object {
-        "operations": Array [
-          Object {
-            "collectionName": "users",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-              ],
-            },
-            "identifier": "Operation-0",
-            "kind": "AMReadOperation",
-            "many": false,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-0",
-              ],
-            },
-            "selector": Object {
-              "_id": "2",
-            },
-          },
-          Object {
-            "fieldsSelection": Object {
-              "fields": Array [],
-            },
-            "identifier": "Operation-1",
-            "kind": "AMConnectionOperation",
-            "many": false,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-1",
-              ],
-            },
-          },
-          Object {
-            "collectionName": "posts",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "totalCount",
-              ],
-            },
-            "groupBy": "owner_id",
-            "identifier": "Operation-2",
-            "kind": "AMAggregateOperation",
-            "many": true,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-2",
-                IndexBy {
-                  "params": Object {
-                    "groupingField": "owner_id",
-                  },
-                },
-              ],
-            },
-            "selector": Object {
-              "owner_id": Object {
-                "$in": ResultPromise {
-                  "source": "<Batch>",
-                },
-              },
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "users",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMReadOperation",
+      "many": false,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+        ],
+      },
+      "selector": Object {
+        "_id": "2",
+      },
+    },
+    Object {
+      "fieldsSelection": Object {
+        "fields": Array [],
+      },
+      "identifier": "Operation-1",
+      "kind": "AMConnectionOperation",
+      "many": false,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+    },
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "totalCount",
+        ],
+      },
+      "groupBy": "owner_id",
+      "identifier": "Operation-2",
+      "kind": "AMAggregateOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-2",
+          IndexBy {
+            "params": Object {
+              "groupingField": "owner_id",
             },
           },
         ],
-      }
-    `);
+      },
+      "selector": Object {
+        "owner_id": Object {
+          Symbol(in): ResultPromise {
+            "source": "<Batch>",
+          },
+        },
+      },
+    },
+  ],
+}
+`);
   });
 
   test('Connection nodes', () => {
@@ -298,71 +298,71 @@ describe('relation Connection', () => {
     const transaction = prepareTransaction(schema, rq);
 
     expect(transaction).toMatchInlineSnapshot(`
-      Object {
-        "operations": Array [
-          Object {
-            "collectionName": "users",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "_id",
-              ],
-            },
-            "identifier": "Operation-0",
-            "kind": "AMReadOperation",
-            "many": false,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-0",
-              ],
-            },
-            "selector": Object {
-              "_id": "2",
-            },
-          },
-          Object {
-            "fieldsSelection": Object {
-              "fields": Array [],
-            },
-            "identifier": "Operation-1",
-            "kind": "AMConnectionOperation",
-            "many": false,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-1",
-              ],
-            },
-          },
-          Object {
-            "collectionName": "posts",
-            "fieldsSelection": Object {
-              "fields": Array [
-                "owner_id",
-                "_id",
-              ],
-            },
-            "identifier": "Operation-2",
-            "kind": "AMReadOperation",
-            "many": true,
-            "output": ResultPromise {
-              "source": Array [
-                "Operation-2",
-                GroupBy {
-                  "params": Object {
-                    "groupingField": "owner_id",
-                  },
-                },
-              ],
-            },
-            "selector": Object {
-              "owner_id": Object {
-                "$in": ResultPromise {
-                  "source": "<Batch>",
-                },
-              },
+Object {
+  "operations": Array [
+    Object {
+      "collectionName": "users",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "_id",
+        ],
+      },
+      "identifier": "Operation-0",
+      "kind": "AMReadOperation",
+      "many": false,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-0",
+        ],
+      },
+      "selector": Object {
+        "_id": "2",
+      },
+    },
+    Object {
+      "fieldsSelection": Object {
+        "fields": Array [],
+      },
+      "identifier": "Operation-1",
+      "kind": "AMConnectionOperation",
+      "many": false,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-1",
+        ],
+      },
+    },
+    Object {
+      "collectionName": "posts",
+      "fieldsSelection": Object {
+        "fields": Array [
+          "owner_id",
+          "_id",
+        ],
+      },
+      "identifier": "Operation-2",
+      "kind": "AMReadOperation",
+      "many": true,
+      "output": ResultPromise {
+        "source": Array [
+          "Operation-2",
+          GroupBy {
+            "params": Object {
+              "groupingField": "owner_id",
             },
           },
         ],
-      }
-    `);
+      },
+      "selector": Object {
+        "owner_id": Object {
+          Symbol(in): ResultPromise {
+            "source": "<Batch>",
+          },
+        },
+      },
+    },
+  ],
+}
+`);
   });
 });

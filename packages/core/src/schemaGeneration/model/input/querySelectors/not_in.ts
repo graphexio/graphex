@@ -1,4 +1,5 @@
 import { getNamedType, GraphQLList, isCompositeType } from 'graphql';
+import { SelectorOperators } from '@graphex/abstract-datasource-adapter';
 import { AMModelField, AMModelType } from '../../../../definitions';
 import { AMQuerySelectorFieldFactory } from '../fieldFactories/querySelector';
 import { makeArray } from '../fieldFactories/utils';
@@ -32,7 +33,7 @@ export class NotInSelector extends AMQuerySelectorFieldFactory {
   }
   transformValue(value: any) {
     return {
-      $not: { $in: makeArray(value) },
+      [SelectorOperators.NOT_IN]: makeArray(value),
     };
   }
 }

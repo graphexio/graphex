@@ -4,6 +4,7 @@ import {
   isCompositeType,
   isEnumType,
 } from 'graphql';
+import { SelectorOperators } from '@graphex/abstract-datasource-adapter';
 import { AMModelField, AMModelType } from '../../../../definitions';
 import { AMQuerySelectorFieldFactory } from '../fieldFactories/querySelector';
 import { makeArray } from '../fieldFactories/utils';
@@ -38,7 +39,7 @@ export class InSelector extends AMQuerySelectorFieldFactory {
   }
   transformValue(value: any) {
     return {
-      $in: makeArray(value),
+      [SelectorOperators.IN]: makeArray(value),
     };
   }
 }

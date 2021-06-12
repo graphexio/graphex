@@ -5,7 +5,7 @@ import { AMObjectFieldContext } from '../../../../execution/contexts/objectField
 import { AMSelectorContext } from '../../../../execution/contexts/selector';
 import { AMTransaction } from '../../../../execution/transaction';
 import { AMVisitorStack } from '../../../../execution/visitorStack';
-import { isEmbeddedType } from '../../../../utils';
+import { isEmbeddedType, ObjectEntriesWithSymbols } from '../../../../utils';
 import { AMQuerySelectorComplexFieldFactory } from '../fieldFactories/querySelectorComplex';
 
 export class AsIsSelector extends AMQuerySelectorComplexFieldFactory {
@@ -40,8 +40,8 @@ export class AsIsSelector extends AMQuerySelectorComplexFieldFactory {
       lastInStack instanceof AMObjectFieldContext
     ) {
       if (isEmbeddedType(getNamedType(field.type))) {
-        Object.entries(context.value).forEach(([key, value]) => {
-          lastInStack.addValue(`${context.fieldName}.${key}`, value);
+        ObjectEntriesWithSymbols(context.value).forEach(([key, value]) => {
+          lastInStack.addValue(`${String(context.fieldName)}.${key}`, value);
         });
       } else {
         lastInStack.addValue(context.fieldName, context.value);

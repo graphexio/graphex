@@ -1,4 +1,5 @@
 import { getNamedType, isCompositeType } from 'graphql';
+import { SelectorOperators } from '@graphex/abstract-datasource-adapter';
 import { AMModelField } from '../../../../definitions';
 import { AMQuerySelectorFieldFactory } from '../fieldFactories/querySelector';
 
@@ -19,7 +20,7 @@ export class NotSelector extends AMQuerySelectorFieldFactory {
   }
   transformValue(value: any) {
     return {
-      $not: { $eq: value },
+      [SelectorOperators.NOT]: value,
     };
   }
 }

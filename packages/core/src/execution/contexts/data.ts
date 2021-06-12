@@ -1,7 +1,8 @@
 import { AMContext } from '../context';
 import { AMObjectFieldValueType } from '../../definitions';
+import { SelectorOperator } from '@graphex/abstract-datasource-adapter';
 
-type Data = { [key: string]: AMObjectFieldValueType };
+type Data = Partial<Record<string | SelectorOperator, AMObjectFieldValueType>>;
 
 export class AMDataContext extends AMContext {
   data: Data;
@@ -13,7 +14,7 @@ export class AMDataContext extends AMContext {
     }
   }
 
-  addValue(key: string, value: AMObjectFieldValueType) {
+  addValue(key: string | SelectorOperator, value: AMObjectFieldValueType) {
     if (!this.data) this.data = {};
     this.data[key] = value;
   }

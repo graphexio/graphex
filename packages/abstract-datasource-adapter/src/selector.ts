@@ -84,3 +84,8 @@ export type Selector = {
   [OR]?: Selector[];
   [fieldName: string]: Value;
 };
+
+export type SelectorOperator =
+  | typeof AND
+  | typeof OR
+  | typeof OPERATORS[number];

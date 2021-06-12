@@ -1,5 +1,6 @@
 import TypeWrap from '@graphex/type-wrap';
 import { GraphQLInt } from 'graphql';
+import { SelectorOperators } from '@graphex/abstract-datasource-adapter';
 import { AMModelField } from '../../../../definitions';
 import { AMQuerySelectorFieldFactory } from '../fieldFactories/querySelector';
 
@@ -16,7 +17,7 @@ export class NotSizeSelector extends AMQuerySelectorFieldFactory {
   }
   transformValue(value: any) {
     return {
-      $not: { $size: value },
+      [SelectorOperators.NOT_SIZE]: value,
     };
   }
 }

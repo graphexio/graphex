@@ -1,3 +1,3 @@
 export { DataSourceAdapter } from './adapter';
-export { SelectorOperators, Selector } from './selector';
+export { SelectorOperators, Selector, SelectorOperator } from './selector';
 export { createSelectorReducer } from './selectorReducer';

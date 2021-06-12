@@ -1,4 +1,6 @@
 import * as R from 'ramda';
+import { SelectorOperators } from '@graphex/abstract-datasource-adapter';
+import { ObjectEntriesWithSymbols } from '../../utils';
 import { AMResultPromise, Transformation } from './resultPromise';
 import { mapPath, completeAMResultPromise } from './utils';
 
@@ -144,43 +146,72 @@ const makeOrPredicate: MakePredicate = (values: any) => {
 };
 
 const makeObjectPredicate: MakePredicate = (cond: { [key: string]: any }) => {
-  const predicates = Object.entries(cond).map(([key, value]) =>
+  const predicates = ObjectEntriesWithSymbols(cond).map(([key, value]) =>
     makePredicate(key, value)
   );
   return R.allPass(predicates);
 };
 
 const makePredicate: MakePredicate = (key, value) => {
-  if (key === '$and') {
+  if (key === SelectorOperators.AND) {
     return makeAndPredicate(value);
-  } else if (key === '$or') {
+  } else if (key === SelectorOperators.OR) {
     return makeOrPredicate(value);
   }
   if (typeof value === 'object') {
-    if (value.$regex !== undefined) {
-      return makeRegExPredicate(key, value.$regex);
-    } else if (value.$elemMatch !== undefined) {
-      return makeElemMatchPredicate(key, value.$elemMatch);
-    } else if (value.$all !== undefined) {
-      return makeAllPredicate(key, value.$all);
-    } else if (value.$eq !== undefined) {
-      return makeEqPredicate(key, value.$eq);
-    } else if (value.$exists !== undefined) {
-      return makeExistsPredicate(key, value.$exists);
-    } else if (value.$gt !== undefined) {
-      return makeComparisonPredicate(key, value.$gt, Condition.gt);
-    } else if (value.$gte !== undefined) {
-      return makeComparisonPredicate(key, value.$gte, Condition.gte);
-    } else if (value.$lt !== undefined) {
-      return makeComparisonPredicate(key, value.$lt, Condition.lt);
-    } else if (value.$lte !== undefined) {
-      return makeComparisonPredicate(key, value.$lte, Condition.lte);
-    } else if (value.$in !== undefined) {
-      return makeInPredicate(key, value.$in);
-    } else if (value.$size !== undefined) {
-      return makeSizePredicate(key, value.$size);
-    } else if (value.$not !== undefined) {
-      return makeNotPredicate(key, value.$not);
+    if (value[SelectorOperators.STARTS_WITH] !== undefined) {
+      return makeRegExPredicate(
+        key,
+        new RegExp(`^${value[SelectorOperators.STARTS_WITH]}`)
+      );
+    } else if (value[SelectorOperators.CONTAINS] !== undefined) {
+      return makeRegExPredicate(
+        key,
+        new RegExp(value[SelectorOperators.CONTAINS])
+      );
+    } else if (value[SelectorOperators.ENDS_WITH] !== undefined) {
+      return makeRegExPredicate(
+        key,
+        new RegExp(`${value[SelectorOperators.ENDS_WITH]}$`)
+      );
+    } else if (value[SelectorOperators.SOME] !== undefined) {
+      return makeElemMatchPredicate(key, value[SelectorOperators.SOME]);
+    } else if (value[SelectorOperators.ALL] !== undefined) {
+      return makeAllPredicate(key, value[SelectorOperators.ALL]);
+    } else if (value[SelectorOperators.EXACT] !== undefined) {
+      return makeEqPredicate(key, value[SelectorOperators.EXACT]);
+    } else if (value[SelectorOperators.EXISTS] !== undefined) {
+      return makeExistsPredicate(key, value[SelectorOperators.EXISTS]);
+    } else if (value[SelectorOperators.GT] !== undefined) {
+      return makeComparisonPredicate(
+        key,
+        value[SelectorOperators.GT],
+        Condition.gt
+      );
+    } else if (value[SelectorOperators.GTE] !== undefined) {
+      return makeComparisonPredicate(
+        key,
+        value[SelectorOperators.GTE],
+        Condition.gte
+      );
+    } else if (value[SelectorOperators.LT] !== undefined) {
+      return makeComparisonPredicate(
+        key,
+        value[SelectorOperators.LT],
+        Condition.lt
+      );
+    } else if (value[SelectorOperators.LTE] !== undefined) {
+      return makeComparisonPredicate(
+        key,
+        value[SelectorOperators.LTE],
+        Condition.lte
+      );
+    } else if (value[SelectorOperators.IN] !== undefined) {
+      return makeInPredicate(key, value[SelectorOperators.IN]);
+    } else if (value[SelectorOperators.SIZE] !== undefined) {
+      return makeSizePredicate(key, value[SelectorOperators.SIZE]);
+    } else if (value[SelectorOperators.NOT] !== undefined) {
+      return makeNotPredicate(key, value[SelectorOperators.NOT]);
     }
   }
   return makeSimplePredicate(key, value);
