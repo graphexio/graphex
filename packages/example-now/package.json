@@ -14,7 +14,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@babel/runtime": "^7.2.0",
     "@graphex/core": "1.2.3",
     "apollo-server": "^2.2.6",
     "apollo-server-micro": "^2.3.1",
@@ -22,11 +21,6 @@
     "mongodb": "3.1.10"
   },
   "devDependencies": {
-    "@babel/cli": "^7.2.0",
-    "@babel/core": "^7.2.0",
-    "@babel/node": "^7.2.0",
-    "@babel/plugin-transform-runtime": "^7.2.0",
-    "@babel/preset-env": "^7.2.0",
     "babel-plugin-import-graphql": "^2.6.2",
     "micro": "^9.3.3"
   }

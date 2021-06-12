@@ -4,10 +4,7 @@ import AMM from '@graphex/core';
 
 import { modelDefaultActions, modelField } from '../src';
 import gql from 'graphql-tag';
-import {
-  GraphQLOperationType,
-  AMModelType,
-} from '@graphex/core/lib/definitions';
+import { GraphQLOperationType, AMModelType } from '@graphex/core';
 
 const schema = new AMM({}).makeExecutableSchema({
   typeDefs: gql`
@@ -43,7 +40,7 @@ test.each([
         : schema.getMutationType();
 
     const field = type.getFields()[
-      methodFactory.prototype.getFieldName(modelType)
+      methodFactory.prototype.getFieldName(modelType as any)
     ];
 
     expect(

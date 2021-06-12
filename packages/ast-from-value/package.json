@@ -1,7 +1,11 @@
 {
   "name": "@graphex/ast-from-value",
   "version": "1.0.0",
-  "main": "lib/index.js",
+  "main": "index",
+  "files": [
+    "lib/*",
+    "index.js"
+  ],
   "license": "MIT",
   "devDependencies": {
     "rimraf": "^2.6.3",

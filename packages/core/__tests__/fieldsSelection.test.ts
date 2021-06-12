@@ -34,7 +34,7 @@ describe('simple schema', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
+    const transaction = new AMTransaction(new Map());
     AMVisitor.visit(schema, rq, {}, transaction);
     expect(transaction.operations[0].fieldsSelection).toMatchInlineSnapshot(`
                   Object {
@@ -77,7 +77,7 @@ describe('nested objects', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
+    const transaction = new AMTransaction(new Map());
     AMVisitor.visit(schema, rq, {}, transaction);
     expect(transaction.operations[0].fieldsSelection).toMatchInlineSnapshot(`
                     Object {

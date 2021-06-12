@@ -14,9 +14,7 @@ import {
 } from '../src';
 
 const createSchema = (typeDefs) => {
-  const schema = new AMM({
-    queryExecutor: null,
-  }).makeExecutableSchema({
+  const schema = new AMM().makeExecutableSchema({
     typeDefs,
   });
   return schema;
@@ -53,7 +51,7 @@ describe('accessRules', () => {
       allow: [modelDefaultActions('Post', 'CRU'), anyField],
     });
 
-    const referenceSchema = removeUnusedTypes(R.clone(schema));
+    const referenceSchema = removeUnusedTypes(R.clone(schema)) as any;
     delete referenceSchema.getTypeMap().Mutation._fields.deletePost;
     delete referenceSchema.getTypeMap().Mutation._fields.deletePosts;
 
@@ -72,7 +70,7 @@ describe('accessRules', () => {
       allow: [modelDefaultActions('Post', 'R'), anyField],
     });
 
-    const referenceSchema = removeUnusedTypes(R.clone(schema));
+    const referenceSchema = removeUnusedTypes(R.clone(schema)) as any;
     delete referenceSchema._typeMap.Mutation;
     delete referenceSchema._typeMap.PostCreateInput;
     delete referenceSchema._typeMap.PostUpdateInput;
@@ -97,7 +95,7 @@ describe('accessRules', () => {
       deny: [modelCustomActions('Post', ['approve'])],
     });
 
-    const referenceSchema = removeUnusedTypes(R.clone(schema));
+    const referenceSchema = removeUnusedTypes(R.clone(schema)) as any;
     delete referenceSchema.getTypeMap().Mutation._fields.approvePost;
 
     expect(printSchema(aclSchema)).toEqual(printSchema(referenceSchema));
@@ -129,7 +127,7 @@ describe('accessRules', () => {
       deny: [modelDefaultActions('Admin', 'CUD')],
     });
 
-    const referenceSchema = removeUnusedTypes(R.clone(schema));
+    const referenceSchema = removeUnusedTypes(R.clone(schema)) as any;
     const { Mutation, Query } = referenceSchema.getTypeMap();
     delete Mutation._fields.deleteAdmin;
     delete Mutation._fields.deleteAdmins;
@@ -155,7 +153,7 @@ describe('accessRules', () => {
     const aclSchema = applyRules(schema, {
       allow: [allQueries, allMutations, anyField],
       deny: [modelField('PostMeta', 'keywords', 'CRUD')],
-    });
+    }) as any;
 
     //we should remove meta field from Post because Meta's fields doesn't match allow rules
     expect(Object.keys(aclSchema.getTypeMap().Post.getFields())).toEqual([

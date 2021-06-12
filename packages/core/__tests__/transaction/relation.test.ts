@@ -206,7 +206,7 @@ describe('relation', () => {
       }
     `;
 
-    const transaction = new AMTransaction();
+    const transaction = new AMTransaction(new Map());
     AMVisitor.visit(
       schema,
       rq,
@@ -511,7 +511,7 @@ Object {
     `;
 
     const code = () => {
-      const transaction = new AMTransaction();
+      const transaction = new AMTransaction(new Map());
       AMVisitor.visit(schema, rq, {}, transaction);
     };
 

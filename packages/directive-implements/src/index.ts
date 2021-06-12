@@ -8,24 +8,28 @@ export const typeDefs = gql`
 class Implements extends SchemaDirectiveVisitor {
   visitInterface(iface) {
     const { name } = this.args;
-    let names = name.replace(/\s/g, '').split('&');
+    const schema = this.schema as any;
+
+    const names = name.replace(/\s/g, '').split('&');
 
     const typeMap = this.schema.getTypeMap();
-    let implementIFaces = names.map(name => typeMap[name]);
+    const implementIFaces = names.map(name => typeMap[name]);
     implementIFaces.forEach(newIface => {
       iface._fields = { ...iface._fields, ...newIface._fields };
     });
 
     Object.values(typeMap)
-      .filter(type => type._interfaces && type._interfaces.includes(iface))
-      .forEach(type => {
+      .filter(
+        (type: any) => type._interfaces && type._interfaces.includes(iface)
+      )
+      .forEach((type: any) => {
         type._interfaces.push(...implementIFaces);
 
         names.forEach(ifaceName => {
-          if (!this.schema._implementations[ifaceName])
-            this.schema._implementations[ifaceName] = [];
+          if (!schema._implementations[ifaceName])
+            schema._implementations[ifaceName] = [];
 
-          this.schema._implementations[ifaceName].push(type);
+          schema._implementations[ifaceName].push(type);
         });
       });
   }

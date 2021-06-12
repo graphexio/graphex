@@ -2,9 +2,10 @@
   "name": "@graphex/schema-filter",
   "version": "1.0.0",
   "description": "",
-  "main": "lib/index.js",
+  "main": "index",
   "files": [
-    "lib/*"
+    "lib/*",
+    "index.js"
   ],
   "scripts": {
     "dev": "nodemon --exec babel-node dev-server/index.js",
@@ -22,12 +23,6 @@
     "ramda": "^0.27.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.1.2",
-    "@babel/core": "^7.1.2",
-    "@babel/node": "^7.2.2",
-    "@babel/plugin-proposal-class-properties": "^7.5.5",
-    "@babel/plugin-proposal-pipeline-operator": "^7.5.0",
-    "@babel/preset-env": "^7.5.5",
     "@types/ramda": "^0.27.4",
     "apollo-server": "^2.8.1",
     "apollo-server-testing": "^2.8.1",

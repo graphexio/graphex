@@ -1,14 +1,14 @@
 import { TypeKind } from 'graphql';
 import {
+  CREATE,
+  DELETE,
   GET_LIST,
   GET_MANY,
   GET_MANY_REFERENCE,
-  CREATE,
   UPDATE,
-  DELETE,
 } from 'react-admin';
+import { IntrospectionResultData, Resource } from '../src/definitions';
 import getResponseParser from '../src/getResponseParser';
-import { IntrospectionResultData, Resource } from '../src/constants/interfaces';
 
 const testListTypes = (type: string) => {
   it('returns the response expected by RA for GET_LIST', () => {
@@ -112,9 +112,11 @@ const testListTypes = (type: string) => {
     };
 
     expect(
-      getResponseParser(introspectionResults as IntrospectionResultData)(
+      getResponseParser(
+        (introspectionResults as any) as IntrospectionResultData
+      )(
         type,
-        resource as Resource
+        (resource as any) as Resource
       )(response)
     ).toEqual({
       data: [
@@ -236,9 +238,11 @@ const testSingleTypes = (type: string) => {
       },
     };
     expect(
-      getResponseParser(introspectionResults as IntrospectionResultData)(
+      getResponseParser(
+        (introspectionResults as any) as IntrospectionResultData
+      )(
         type,
-        resource as Resource
+        (resource as any) as Resource
       )(response)
     ).toEqual({
       data: {

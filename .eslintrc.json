@@ -18,6 +18,7 @@
       }
     ],
     "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/semi": [2, "always"],
     "comma-dangle": ["error", "always-multiline"],
@@ -27,12 +28,6 @@
         "functions": false,
         "classes": false,
         "variables": false
-      }
-    ],
-    "@typescript-eslint/camelcase": [
-      "error",
-      {
-        "properties": "never"
       }
     ],
     "prettier/prettier": "error"

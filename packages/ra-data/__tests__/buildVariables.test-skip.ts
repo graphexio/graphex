@@ -63,7 +63,7 @@ beforeAll(async () => {
 describe('buildVariables', () => {
   describe('GET_LIST', () => {
     it('returns correct variables', () => {
-      const IntrospectionResultData = {
+      const introspectionResultData = {
         types: [
           {
             kind: 'INPUT_OBJECT',
@@ -84,7 +84,7 @@ describe('buildVariables', () => {
       };
 
       expect(
-        buildVariables(IntrospectionResultData as IntrospectionResultData)(
+        buildVariables(introspectionResultData as any)(
           { type: { name: 'Post' } } as Resource,
           GET_LIST,
           params

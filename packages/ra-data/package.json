@@ -2,7 +2,6 @@
   "name": "@graphex/ra-data-apollo-model",
   "version": "1.0.0",
   "description": "An apollo-model data provider for react-admin",
-  "main": "lib/index.js",
   "sideEffects": false,
   "repository": {
     "type": "git",
@@ -18,8 +17,10 @@
     "react-admin",
     "apoll-model"
   ],
+  "main": "index",
   "files": [
-    "lib/*"
+    "lib/*",
+    "index.js"
   ],
   "license": "MIT",
   "scripts": {

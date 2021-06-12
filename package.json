@@ -7,21 +7,22 @@
     "url": "git+https://gitlab.com/graphexio/graphex.git"
   },
   "devDependencies": {
-    "@types/jest": "^24.0.18",
+    "@types/jest": "^26.0.23",
     "@types/mongodb": "^3.5.0",
-    "@typescript-eslint/eslint-plugin": "^2.21.0",
-    "@typescript-eslint/parser": "^2.21.0",
+    "@typescript-eslint/eslint-plugin": "^4.26.1",
+    "@typescript-eslint/parser": "^4.26.1",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.10.1",
     "eslint-plugin-prettier": "^3.1.2",
     "graphql": "14.6.0",
-    "jest": "^25.1.0",
+    "jest": "^27.0.4",
     "jest-junit": "^12.2.0",
     "lerna": "^3.13.1",
     "pg": "^8.6.0",
     "prettier": "^2.2.1",
     "sequelize": "^6.6.2",
-    "sequelize-cli": "^6.2.0"
+    "sequelize-cli": "^6.2.0",
+    "ts-jest": "^27.0.3"
   },
   "private": true,
   "workspaces": {
@@ -31,7 +32,6 @@
   },
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "prepare": "lerna run --stream --sort prepare",
     "test": "jest",
     "lint": "eslint 'packages/*/{src,__tests__}/**/*.ts'",
     "build:migrations": "rimraf distdb && tsc -p tsconfig.migrations.json",

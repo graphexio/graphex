@@ -1,8 +1,10 @@
-const { defaults } = require('jest-config');
-
 module.exports = {
+  preset: 'ts-jest',
   testEnvironment: 'node',
-  testMatch: null,
+  moduleFileExtensions: ['ts', 'js'],
   testRegex: '\\.test\\.(js|ts)$',
-  testPathIgnorePatterns: ['/node_modules/', '/dist/'],
+  // transform: {
+  //   '^.+\\.jsx?$': 'babel-jest',
+  //   '^.+\\.tsx?$': 'ts-jest',
+  // },
 };

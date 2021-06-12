@@ -1,8 +1,8 @@
 import { AMInputFieldFactory, AMModelField } from '@graphex/core';
-import { AMDataContext } from '@graphex/core/lib/execution/contexts/data';
-import { AMObjectFieldContext } from '@graphex/core/lib/execution/contexts/objectField';
-import { AMSelectorContext } from '@graphex/core/lib/execution/contexts/selector';
-import { AMInputField } from '@graphex/core/src/definitions';
+import { AMDataContext } from '@graphex/core';
+import { AMObjectFieldContext } from '@graphex/core';
+import { AMSelectorContext } from '@graphex/core';
+import { AMInputField } from '@graphex/core';
 import { ObjectFieldNode } from 'graphql';
 
 export class AMGeoJSONNearFieldFactory extends AMInputFieldFactory {

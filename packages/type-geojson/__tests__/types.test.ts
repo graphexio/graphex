@@ -1,7 +1,7 @@
 import { printType } from 'graphql';
 import gql from 'graphql-tag';
 import AMM from '@graphex/core';
-import { AMOptions } from '@graphex/core/lib/definitions';
+import { AMOptions } from '@graphex/core';
 import * as TypeGeoJSON from '../src';
 import * as R from 'ramda';
 import { defaultConfig } from '@graphex/core';

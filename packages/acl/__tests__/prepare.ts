@@ -9,7 +9,7 @@ export default () => {
   return {
     async start() {
       mongod = new MongoMemoryServer();
-      const MONGO_URL = await mongod.getConnectionString();
+      const MONGO_URL = await mongod.getUri();
       const MONGO_DB = await mongod.getDbName();
 
       let DB = null;

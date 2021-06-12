@@ -2,9 +2,10 @@
   "name": "@graphex/acl",
   "version": "1.2.3",
   "description": "",
-  "main": "lib/index.js",
+  "main": "index",
   "files": [
-    "lib/*"
+    "lib/*",
+    "index.js"
   ],
   "scripts": {
     "dev": "MONGO_URL='mongodb+srv://public:public@cluster0-c6p6b.mongodb.net/admin' MONGO_DB='db1' nodemon --exec babel-node dev-server/index.js",
@@ -27,14 +28,6 @@
   },
   "devDependencies": {
     "@apollo/gateway": "^0.8.1",
-    "@babel/cli": "^7.1.2",
-    "@babel/core": "^7.1.2",
-    "@babel/node": "^7.2.2",
-    "@babel/plugin-proposal-class-properties": "^7.2.3",
-    "@babel/plugin-proposal-pipeline-operator": "^7.5.0",
-    "@babel/plugin-transform-runtime": "^7.2.0",
-    "@babel/preset-env": "^7.1.0",
-    "@babel/preset-typescript": "^7.9.0",
     "rimraf": "^2.6.3"
   },
   "publishConfig": {

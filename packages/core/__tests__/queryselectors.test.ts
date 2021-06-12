@@ -16,7 +16,7 @@ const generateSchema = typeDefs => {
 };
 
 const getSelectorFactory = schema => (rq, variables = {}) => {
-  const transaction = new AMTransaction();
+  const transaction = new AMTransaction(new Map());
   AMVisitor.visit(schema, rq, variables, transaction);
   return transaction.operations[0].selector.selector;
 };

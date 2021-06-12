@@ -9,7 +9,7 @@ let client: MongoClient;
 
 beforeAll(async () => {
   mongod = new MongoMemoryServer();
-  const MONGO_URL = await mongod.getConnectionString();
+  const MONGO_URL = await mongod.getUri();
   const MONGO_DB = await mongod.getDbName();
 
   const connectToDatabase = async () => {

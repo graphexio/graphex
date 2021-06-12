@@ -1,4 +1,4 @@
-import { AMModelType } from '@graphex/core/lib/definitions';
+import { AMModelType } from '@graphex/core';
 import { AMInputTypeFactory, defaultConfig } from '@graphex/core';
 import { GraphQLSchema } from 'graphql';
 import R from 'ramda';

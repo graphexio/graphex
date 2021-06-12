@@ -2,9 +2,10 @@
   "name": "@graphex/core",
   "version": "1.2.3",
   "description": "",
-  "main": "lib/index.js",
+  "main": "index",
   "files": [
-    "lib/*"
+    "lib/*",
+    "index.js"
   ],
   "scripts": {
     "dev": "MONGO_URL='mongodb+srv://public:public@cluster0-c6p6b.mongodb.net/admin' MONGO_DB='db1' nodemon --exec babel-node --extensions '.ts,.js' dev-server/index.js",
@@ -46,7 +47,7 @@
   },
   "dependencies": {
     "@apollo/federation": "^0.25.1",
-    "@babel/runtime": "^7.2.0",
+    "@graphex/abstract-datasource-adapter": "1.0.0",
     "@graphex/ast-from-value": "1.0.0",
     "@graphex/directive-inherit": "1.0.0",
     "@graphex/mongodb-executor": "1.0.0",
@@ -61,14 +62,6 @@
     "ramda": "^0.27.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.1.2",
-    "@babel/core": "^7.1.2",
-    "@babel/node": "^7.2.2",
-    "@babel/plugin-proposal-class-properties": "^7.2.3",
-    "@babel/plugin-proposal-optional-chaining": "^7.7.5",
-    "@babel/plugin-transform-runtime": "^7.2.0",
-    "@babel/preset-env": "^7.1.0",
-    "@babel/preset-typescript": "^7.9.0",
     "@graphex/directive-implements": "1.0.0",
     "@types/mongodb": "^3.3.10",
     "@types/pluralize": "^0.0.29",

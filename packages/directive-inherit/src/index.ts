@@ -8,11 +8,13 @@ export const typeDefs = gql`
 
 class Inherit extends SchemaDirectiveVisitor {
   visitInterface(iface) {
-    const { _typeMap: SchemaTypes } = this.schema;
+    const { _typeMap: SchemaTypes } = this.schema as any;
 
     Object.values(SchemaTypes)
-      .filter(type => type._interfaces && type._interfaces.includes(iface))
-      .forEach(type => {
+      .filter(
+        (type: any) => type._interfaces && type._interfaces.includes(iface)
+      )
+      .forEach((type: any) => {
         type._fields = { ...R.clone(iface._fields), ...type._fields };
       });
   }

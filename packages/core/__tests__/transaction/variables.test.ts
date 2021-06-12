@@ -36,7 +36,7 @@ describe('variables', () => {
       },
     };
 
-    const transaction = new AMTransaction();
+    const transaction = new AMTransaction(new Map());
     AMVisitor.visit(schema, rq, variables, transaction);
     expect(transaction).toMatchInlineSnapshot(`
       Object {
@@ -83,7 +83,7 @@ describe('variables', () => {
     `;
     const variables = { content: { body: 'body', tags: ['tag1', 'tag2'] } };
 
-    const transaction = new AMTransaction();
+    const transaction = new AMTransaction(new Map());
     AMVisitor.visit(schema, rq, variables, transaction);
     expect(transaction).toMatchInlineSnapshot(`
       Object {
@@ -128,7 +128,7 @@ describe('variables', () => {
     `;
     const variables = { contents: [{ body: 'body', tags: ['tag1', 'tag2'] }] };
 
-    const transaction = new AMTransaction();
+    const transaction = new AMTransaction(new Map());
     AMVisitor.visit(schema, rq, variables, transaction);
     expect(transaction).toMatchInlineSnapshot(`
       Object {
