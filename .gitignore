@@ -10,3 +10,5 @@ distdb
 .history
 coverage/
 junit.xml
+temp_auto_push.bat
+temp_interactive_push.bat
