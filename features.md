@@ -26,6 +26,8 @@
 |                    	|                  	|         	| Delete Many Mutation 	| -                            	|                	| Simple model                 	|   	|    ✅    	|     ✅     	|
 |                    	|                  	|         	|                      	|                              	|                	| Interface model              	|   	|    ✅    	|     ✅     	|
 |                    	|                  	| Filters 	| As Is                	| -                            	| -              	| Scalar type                  	|   	|    ✅    	|     ✅     	|
+|                    	|                  	|         	| And                  	| -                            	| -              	| -                            	|   	|    ✅    	|     ✅     	|
+|                    	|                  	|         	| Or                   	| -                            	| -              	| -                            	|   	|    ✅    	|     ✅     	|
 |                    	|                  	|         	| All                  	| -                            	| -              	| Array of Scalar types        	|   	|    ✅    	|     ❌     	|
 |                    	|                  	|         	| Contains             	| -                            	| -              	| String                       	|   	|    ✅    	|     ✅     	|
 |                    	|                  	|         	| Ends With            	| -                            	| -              	| String                       	|   	|    ✅    	|     ✅     	|
@@ -33,7 +35,6 @@
 |                    	|                  	|         	| Exists               	| -                            	| -              	| -                            	|   	|    ✅    	|     ❌     	|
 |                    	|                  	|         	| Greater              	| -                            	| -              	| Int, Float, String, Date     	|   	|    ✅    	|     ✅     	|
 |                    	|                  	|         	| Greater or equal     	| -                            	| -              	| Int, Float, String, Date     	|   	|    ✅    	|     ✅     	|
-|                    	|                  	|         	|                      	|                              	|                	| Float                        	|   	|    ✅    	|     ✅     	|
 |                    	|                  	|         	| In                   	| -                            	| -              	| Scalar type                  	|   	|    ✅    	|     ❌     	|
 |                    	|                  	|         	| Lower                	| -                            	| -              	| Int, Float, String, Date     	|   	|    ✅    	|     ✅     	|
 |                    	|                  	|         	| Lower or equal       	| -                            	| -              	| Int, Float, String, Date     	|   	|    ✅    	|     ✅     	|
