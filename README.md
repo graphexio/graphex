@@ -10,7 +10,7 @@ Graphex is an open source no-code framework to build and deploy GraphQL backends
 - Work with sub-documents (MongoDB only)
 - Support GraphQL Federation and external relations
 
-See full [feature set](https://gitlab.com/graphexio/graphex/-/blob/feature/features-list/features.md)
+See full [feature set](./features.md)
 
 ## Quick Start
 [![Edit graphex-example](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/github/graphexio/graphex/tree/master/packages/example-server)
