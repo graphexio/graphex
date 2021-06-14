@@ -1,36 +1,32 @@
-# apollo-model-mongodb BETA
+# Graphex Core
 
 ![](cover/cover.jpg)
 
-[![Build Status](https://travis-ci.org/vitramir/apollo-model-mongodb.svg?branch=master)](https://travis-ci.org/vitramir/apollo-model-mongodb)
+![Build Status](https://gitlab.com/graphexio/graphex/badges/master/pipeline.svg)
 
 ## Description
 
 This package allows you to automatically generate Apollo Server schema and resolvers for MongoDB using Prisma-like SDL.
 
-We like Prisma but we want to build a more flexible and customizable solution.
-
-[![Join the community on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/apollomodelmongo)
-
 ## Quick preview on codesandbox
 
 Note!
-The database connected with read-only permissions. So mutation will not work. You can create and connect your own database (for example use [Atlas](http://atlas.mongodb.com))
+In Codesandbox any change in the code will restart the service. In this setup we use in memory DB, hence any restart will purge the data you'll create with Mutations
 
-[![Edit apollo-model-mongodb-example](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/github/vitramir/apollo-model-mongodb/tree/master/examples/example-server)
+[![Edit graphex-example](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/github/graphexio/graphex/tree/master/packages/example-server)
 
 ## Installation
 
 With yarn:
 
 ```
-yarn add apollo-model-mongodb
+yarn add @graphex/core
 ```
 
 or using npm:
 
 ```
-npm install --save apollo-model-mongodb
+npm install --save @graphex/core
 ```
 
 ## Usage
@@ -38,7 +34,7 @@ npm install --save apollo-model-mongodb
 Project initialization is the same as for [Apollo Server](https://www.apollographql.com/docs/apollo-server/getting-started.html). The only difference is that we use `makeExecutableSchema` from this package to generate schema.
 
 ```javascript
-import ApolloModelMongo, { QueryExecutor } from '@apollo-model/core';
+import ApolloModelMongo, { QueryExecutor } from '@graphex/core';
 const schema = await new ApolloModelMongo({
   queryExecutor: QueryExecutor(db),
 }).makeExecutablSchema({
