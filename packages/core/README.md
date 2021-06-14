@@ -8,9 +8,6 @@
 
 This package allows you to automatically generate Apollo Server schema and resolvers for MongoDB using Prisma-like SDL.
 
-
-[![Join the community on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/apollomodelmongo)
-
 ## Quick preview on codesandbox
 
 Note!
