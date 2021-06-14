@@ -14,7 +14,7 @@ This package allows you to automatically generate Apollo Server schema and resol
 ## Quick preview on codesandbox
 
 Note!
-The database connected with read-only permissions. So mutation will not work. You can create and connect your own database (for example use [Atlas](http://atlas.mongodb.com))
+In Codesandbox any change in the code will restart the service. In this setup we use in memory DB, hence any restart will purge the data you'll create with Mutations
 
 [![Edit graphex-example](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/github/graphexio/graphex/tree/master/packages/example-server)
 
