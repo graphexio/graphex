@@ -22,7 +22,7 @@ export class AMUpdateWithWhereNestedTypeFactory extends AMTypeFactory<AMInputObj
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
-        const fields = {
+        return {
           where: {
             type: this.configResolver.resolveInputType(
               modelType,
@@ -44,8 +44,6 @@ export class AMUpdateWithWhereNestedTypeFactory extends AMTypeFactory<AMInputObj
             ),
           },
         };
-
-        return fields;
       },
       amEnter(node, transaction, stack) {
         const operation = stack.lastOperation();

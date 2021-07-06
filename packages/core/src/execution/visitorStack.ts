@@ -111,6 +111,10 @@ export class AMVisitorStack {
     return path.join('.');
   }
 
+  /**
+   *
+   * @deprecated
+   */
   getOperationData(operation: AMOperation): AMDataContext {
     const operationIndex = this.contexts.indexOf(operation);
     for (let i = operationIndex + 1; i < this.contexts.length; i++) {

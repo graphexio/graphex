@@ -40,15 +40,18 @@ export class AMUpdateTypeFactory extends AMTypeFactory<AMInputObjectType> {
         return fields;
       },
       amEnter(node, transaction, stack) {
-        const context = new AMDataContext();
+        const operation = stack.lastOperation();
+
+        const context = operation.data ?? new AMDataContext();
         stack.push(context);
+
+        operation.setData(context);
 
         /* Begin filling updatedAt */
         if (modelType.mmUpdatedAtFields) {
-          const operation = stack.lastOperation();
           const path = stack.getFieldPath(operation);
 
-          const data = stack.getOperationData(operation);
+          const data = context;
           const set = (data.data && data.data['$set']) || {};
           data.addValue('$set', set);
 
@@ -66,15 +69,14 @@ export class AMUpdateTypeFactory extends AMTypeFactory<AMInputObjectType> {
       },
       amLeave(node, transaction, stack) {
         const context = stack.pop() as AMDataContext;
-        const lastInStack = stack.last();
-
-        if (lastInStack instanceof AMOperation) {
-          lastInStack.setData(context);
-        } else if (lastInStack instanceof AMListValueContext) {
-          lastInStack.addValue(context.data);
-        } else if (lastInStack instanceof AMObjectFieldContext) {
-          lastInStack.setValue(context.data);
-        }
+        // const lastInStack = stack.last();
+        // if (lastInStack instanceof AMOperation) {
+        // lastInStack.setData(context);
+        // } else if (lastInStack instanceof AMListValueContext) {
+        // lastInStack.addValue(context.data);
+        // } else if (lastInStack instanceof AMObjectFieldContext) {
+        // lastInStack.setValue(context.data);
+        // }
       },
     });
   }

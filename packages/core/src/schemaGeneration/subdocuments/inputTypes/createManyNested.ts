@@ -13,7 +13,7 @@ export class AMCreateManyNestedTypeFactory extends AMTypeFactory<AMInputObjectTy
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
-        const fields = {
+        return {
           create: {
             type: new GraphQLList(
               this.configResolver.resolveInputType(modelType, [
@@ -24,8 +24,6 @@ export class AMCreateManyNestedTypeFactory extends AMTypeFactory<AMInputObjectTy
             // we can keep amEnter and amLeave empty because child object will pass value to parent directly
           },
         };
-
-        return fields;
       },
     });
   }

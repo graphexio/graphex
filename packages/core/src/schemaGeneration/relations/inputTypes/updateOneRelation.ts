@@ -48,7 +48,7 @@ export class AMUpdateOneRelationTypeFactory extends AMTypeFactory<AMInputObjectT
         const path = stack.dbPath(operation).asString();
         const context = stack.pop() as AMDataContext;
 
-        const data = stack.getOperationData(operation);
+        const data = operation.data;
         if (!context.data || Object.keys(context.data).length != 1) {
           throw new Error(
             `${this.getTypeName(modelType)} should contain one filled field`

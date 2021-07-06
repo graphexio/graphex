@@ -22,7 +22,7 @@ export class AMCreateManyRelationTypeFactory extends AMTypeFactory<GraphQLInputO
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
       fields: () => {
-        const fields = {
+        return {
           create: {
             type: new GraphQLList(
               this.configResolver.resolveInputType(modelType, [
@@ -42,8 +42,6 @@ export class AMCreateManyRelationTypeFactory extends AMTypeFactory<GraphQLInputO
             ...readHandler('connect'),
           },
         } as AMInputFieldConfigMap;
-
-        return fields;
       },
       amEnter(node, transaction, stack) {
         const context = new AMDataContext();

@@ -131,9 +131,8 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<AMInputObject
         const operation = stack.lastOperation();
         const path = stack.dbPath(operation).asString();
         const context = stack.pop() as AMDataContext;
-        const lastInStack = stack.last();
 
-        const data = stack.getOperationData(operation);
+        const data = operation.data;
         if (!context.data || Object.keys(context.data).length != 1) {
           throw new Error(`${typeName} should contain one filled field`);
         }
@@ -169,15 +168,15 @@ export class AMUpdateManyRelationTypeFactory extends AMTypeFactory<AMInputObject
         }
 
         if (context.data.recreate) {
-          if (lastInStack instanceof AMObjectFieldContext) {
-            lastInStack.setValue(context.data.recreate);
-          }
+          const set = (data.data && data.data['$set']) || {};
+          data.addValue('$set', set);
+          set[path] = context.data.recreate;
         }
 
         if (context.data.reconnect) {
-          if (lastInStack instanceof AMObjectFieldContext) {
-            lastInStack.setValue(context.data.reconnect);
-          }
+          const set = (data.data && data.data['$set']) || {};
+          data.addValue('$set', set);
+          set[path] = context.data.reconnect;
         }
       },
     });

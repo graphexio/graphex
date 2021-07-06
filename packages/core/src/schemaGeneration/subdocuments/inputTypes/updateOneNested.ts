@@ -4,6 +4,7 @@ import {
   AMModelType,
   AMTypeFactory,
 } from '../../../definitions';
+import { updateObjectFieldVisitorHandler } from './visitorHandlers';
 
 export class AMUpdateOneNestedTypeFactory extends AMTypeFactory<GraphQLInputObjectType> {
   getTypeName(modelType: AMModelType): string {
@@ -12,21 +13,18 @@ export class AMUpdateOneNestedTypeFactory extends AMTypeFactory<GraphQLInputObje
   getType(modelType: AMModelType) {
     return new AMInputObjectType({
       name: this.getTypeName(modelType),
-      fields: () => {
-        const fields = {
-          create: {
-            type: this.configResolver.resolveInputType(modelType, [
-              'create',
-              'interfaceCreate',
-            ]),
-          },
-          update: {
-            type: this.configResolver.resolveInputType(modelType, ['update']),
-          },
-        };
-
-        return fields;
-      },
+      fields: () => ({
+        create: {
+          type: this.configResolver.resolveInputType(modelType, [
+            'create',
+            'interfaceCreate',
+          ]),
+          ...updateObjectFieldVisitorHandler('create', 'set'),
+        },
+        update: {
+          type: this.configResolver.resolveInputType(modelType, ['update']),
+        },
+      }),
     });
   }
 }

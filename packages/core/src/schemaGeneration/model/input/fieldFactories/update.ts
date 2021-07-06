@@ -1,9 +1,11 @@
 import TypeWrap from '@graphex/type-wrap';
 import { getNamedType, isCompositeType } from 'graphql';
 import {
+  AMInputField,
   AMInputFieldFactory,
   AMInputObjectType,
 } from '../../../../definitions';
+import { AMDataContext } from '../../../../execution';
 import { AMObjectFieldContext } from '../../../../execution/contexts/objectField';
 
 export class AMUpdateFieldFactory extends AMInputFieldFactory {
@@ -17,7 +19,7 @@ export class AMUpdateFieldFactory extends AMInputFieldFactory {
   getFieldName(field) {
     return field.name;
   }
-  getField(field) {
+  getField(field): AMInputField {
     return {
       name: this.getFieldName(field),
       extensions: undefined,
@@ -33,7 +35,7 @@ export class AMUpdateFieldFactory extends AMInputFieldFactory {
         const path = stack.getFieldPath(operation);
         const context = stack.pop() as AMObjectFieldContext;
 
-        const data = stack.getOperationData(operation);
+        const data = operation.data;
         const set = (data.data && data.data['$set']) || {};
         data.addValue('$set', set);
         set[path] = context.value;

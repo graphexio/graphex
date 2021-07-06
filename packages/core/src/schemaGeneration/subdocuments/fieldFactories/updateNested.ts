@@ -1,5 +1,9 @@
 import TypeWrap from '@graphex/type-wrap';
-import { AMInputFieldFactory, AMModelType } from '../../../definitions';
+import {
+  AMInputField,
+  AMInputFieldFactory,
+  AMModelType,
+} from '../../../definitions';
 import { AMObjectFieldContext } from '../../../execution/contexts/objectField';
 import { isSubdocumentField } from '../../../utils';
 
@@ -10,7 +14,7 @@ export class AMUpdateNestedFieldFactory extends AMInputFieldFactory {
   getFieldName(field) {
     return field.name;
   }
-  getField(field) {
+  getField(field): AMInputField {
     const typeWrap = new TypeWrap(field.type);
     const type = this.configResolver.resolveInputType(
       typeWrap.realType() as AMModelType,
@@ -26,18 +30,7 @@ export class AMUpdateNestedFieldFactory extends AMInputFieldFactory {
         stack.push(action);
       },
       amLeave(node, transaction, stack) {
-        const operation = stack.lastOperation();
-        const path = stack.getFieldPath(operation);
-        const context = stack.pop() as AMObjectFieldContext;
-
-        if (context.value) {
-          const data = stack.getOperationData(operation);
-          const set = (data.data && data.data['$set']) || {};
-          data.addValue('$set', set);
-          if (context.value) {
-            set[path] = context.value;
-          }
-        }
+        stack.pop();
       },
     };
   }

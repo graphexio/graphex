@@ -31,7 +31,7 @@ export class AMUpdateOneRelationOutsideTypeFactory extends AMTypeFactory<AMInput
         const path = stack.dbPath(operation).asString();
         const context = stack.pop() as AMDataContext;
 
-        const data = stack.getOperationData(operation);
+        const data = operation.data;
 
         if (context.data?.connect) {
           const set = (data.data && data.data['$set']) || {};

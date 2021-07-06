@@ -11,6 +11,7 @@ import { AMObjectFieldContext } from '../../../../execution/contexts/objectField
 import { AMSelectorContext } from '../../../../execution/contexts/selector';
 import { AMOperation } from '../../../../execution/operation';
 import { ObjectEntriesWithSymbols } from '../../../../utils';
+import { toArray } from 'lodash';
 
 export function defaultObjectFieldVisitorHandler(
   fieldName: string | SelectorOperator,
@@ -32,26 +33,6 @@ export function defaultObjectFieldVisitorHandler(
       ) {
         lastInStack.addValue(context.fieldName, context.value);
       }
-    },
-  };
-}
-
-export function updateObjectFieldVisitorHandler(
-  fieldName: string
-): AMVisitable {
-  return {
-    amEnter(node, transaction, stack) {
-      const action = new AMObjectFieldContext(fieldName);
-      stack.push(action);
-    },
-    amLeave(node, transaction, stack) {
-      const operation = stack.lastOperation();
-      const path = stack.getFieldPath(operation);
-
-      const context = stack.pop() as AMObjectFieldContext;
-      const set = operation.data['$set'] || {};
-      set[path] = context.value;
-      operation.data['$set'] = set;
     },
   };
 }

@@ -39,7 +39,7 @@ export class AMCreateOneRequiredRelationTypeFactory extends AMTypeFactory<AMInpu
             ]),
             ...readHandler('connect'),
           },
-        } as AMInputFieldConfigMap;
+        };
       },
       amEnter(node: InputObjectTypeDefinitionNode, transaction, stack) {
         if (node.fields.length != 1) {

@@ -62,7 +62,7 @@ export class AMUpdateManyRelationOutsideTypeFactory extends AMTypeFactory<AMInpu
 
         const mapKey = map(prop(modelType?.mmUniqueFields?.[0]?.name));
 
-        const data = stack.getOperationData(operation);
+        const data = operation.data;
         if (!context.data || Object.keys(context.data).length != 1) {
           throw new Error(`${typeName} should contain one field`);
         }
