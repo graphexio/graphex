@@ -16,7 +16,7 @@
     "@graphex/acl": "1.2.4",
     "@graphex/core": "1.2.4",
     "@graphex/directive-implements": "1.0.0",
-    "apollo-server": "^2.2.6",
+    "apollo-server": "^2.25.4",
     "graphql": "14.6.0",
     "mongodb": "^3.1.10",
     "mongodb-memory-server": "^6.9.6"
